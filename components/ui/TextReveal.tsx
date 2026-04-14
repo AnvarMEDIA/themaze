@@ -1,8 +1,11 @@
 'use client'
 
 import { useRef } from 'react'
-import { motion, useInView } from 'framer-motion'
+import { motion, useInView, useReducedMotion } from 'framer-motion'
 import { cn } from '@/lib/utils'
+
+// Emil: strong ease-out curve for text reveals
+const EASE_OUT: [number, number, number, number] = [0.23, 1, 0.32, 1]
 
 interface Props {
   children: string
@@ -21,8 +24,15 @@ export function TextReveal({
   as: Tag = 'span',
   stagger = false,
 }: Props) {
-  const ref = useRef<HTMLSpanElement>(null)
-  const inView = useInView(ref, { once, margin: '-10% 0px' })
+  const ref           = useRef<HTMLSpanElement>(null)
+  const inView        = useInView(ref, { once, margin: '-10% 0px' })
+  const shouldReduce  = useReducedMotion()
+
+  // Emil: never animate from scale(0) / extreme positions if reduced motion
+  const initial = shouldReduce ? { y: 0, opacity: 0 } : { y: '110%' }
+  const animate = inView
+    ? (shouldReduce ? { y: 0, opacity: 1 } : { y: '0%' })
+    : initial
 
   if (stagger) {
     const words = children.split(' ')
@@ -32,12 +42,16 @@ export function TextReveal({
           <span key={i} className="inline-block overflow-hidden mr-[0.25em]">
             <motion.span
               className="inline-block"
-              initial={{ y: '110%' }}
-              animate={inView ? { y: '0%' } : { y: '110%' }}
+              initial={shouldReduce ? { opacity: 0 } : { y: '110%' }}
+              animate={inView
+                ? (shouldReduce ? { opacity: 1 } : { y: '0%' })
+                : (shouldReduce ? { opacity: 0 } : { y: '110%' })
+              }
               transition={{
-                duration: 0.75,
-                delay: delay + i * 0.06,
-                ease: [0.19, 1, 0.22, 1],
+                duration: shouldReduce ? 0.2 : 0.7,
+                // Emil: stagger 30–80ms per word
+                delay: delay + i * 0.055,
+                ease: EASE_OUT,
               }}
             >
               {word}
@@ -53,9 +67,13 @@ export function TextReveal({
       <motion.span
         ref={ref}
         className={cn('inline-block', className)}
-        initial={{ y: '110%' }}
-        animate={inView ? { y: '0%' } : { y: '110%' }}
-        transition={{ duration: 0.8, delay, ease: [0.19, 1, 0.22, 1] }}
+        initial={initial}
+        animate={animate}
+        transition={{
+          duration: shouldReduce ? 0.2 : 0.8,
+          delay,
+          ease: EASE_OUT,
+        }}
       >
         {children}
       </motion.span>

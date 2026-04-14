@@ -1,7 +1,7 @@
 'use client'
 
 import { useRef, useState } from 'react'
-import { motion } from 'framer-motion'
+import { motion, useReducedMotion } from 'framer-motion'
 import { cn } from '@/lib/utils'
 
 interface Props {
@@ -11,26 +11,30 @@ interface Props {
 }
 
 export function MagneticButton({ children, className, strength = 0.3 }: Props) {
-  const ref = useRef<HTMLDivElement>(null)
-  const [position, setPosition] = useState({ x: 0, y: 0 })
+  const ref              = useRef<HTMLDivElement>(null)
+  const [pos, setPos]    = useState({ x: 0, y: 0 })
+  const shouldReduce     = useReducedMotion()
 
   const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
-    if (!ref.current) return
+    if (!ref.current || shouldReduce) return
     const rect = ref.current.getBoundingClientRect()
-    const x = e.clientX - rect.left - rect.width  / 2
-    const y = e.clientY - rect.top  - rect.height / 2
-    setPosition({ x: x * strength, y: y * strength })
+    setPos({
+      x: (e.clientX - rect.left - rect.width  / 2) * strength,
+      y: (e.clientY - rect.top  - rect.height / 2) * strength,
+    })
   }
 
-  const handleMouseLeave = () => setPosition({ x: 0, y: 0 })
+  const handleMouseLeave = () => setPos({ x: 0, y: 0 })
 
   return (
     <motion.div
       ref={ref}
       onMouseMove={handleMouseMove}
       onMouseLeave={handleMouseLeave}
-      animate={{ x: position.x, y: position.y }}
-      transition={{ type: 'spring', stiffness: 200, damping: 20 }}
+      // Use full transform string for hardware acceleration (Emil's rule)
+      animate={{ transform: `translate(${pos.x}px, ${pos.y}px)` }}
+      // Apple-style spring: easier to reason about, subtle bounce
+      transition={{ type: 'spring', duration: 0.4, bounce: 0.15 }}
       className={cn('inline-block', className)}
     >
       {children}

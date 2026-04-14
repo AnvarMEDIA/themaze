@@ -22,8 +22,11 @@
   --color-muted:   #5A5A5A;
   --color-lime:    #C8FF47;
 
-  --ease-out-expo: cubic-bezier(0.19, 1, 0.22, 1);
-  --ease-in-out:   cubic-bezier(0.76, 0, 0.24, 1);
+  /* ─── Emil Kowalski easing curves ──────────────────────────────── */
+  --ease-out:      cubic-bezier(0.23, 1, 0.32, 1);      /* strong ease-out for UI enters */
+  --ease-in-out:   cubic-bezier(0.77, 0, 0.175, 1);     /* on-screen movement */
+  --ease-drawer:   cubic-bezier(0.32, 0.72, 0, 1);      /* iOS-like for drawers */
+  --ease-out-expo: cubic-bezier(0.19, 1, 0.22, 1);      /* legacy alias */
 }
 
 /* Light theme overrides */
@@ -155,6 +158,54 @@ body {
   .rule {
     height: 1px;
     background: rgb(var(--border));
+  }
+}
+
+/* ─── Pressable elements — Emil: scale(0.97) on :active ─────────────── */
+@media (hover: hover) and (pointer: fine) {
+  a[class*="rounded-full"]:hover,
+  button[class*="rounded-full"]:hover {
+    transform: scale(1.02);
+  }
+}
+
+a[class*="bg-maze-lime"],
+a[class*="border"][class*="rounded-full"],
+button[class*="bg-maze-lime"],
+button[class*="border"][class*="rounded-full"] {
+  transition: transform 160ms var(--ease-out), background-color 160ms ease, color 160ms ease, border-color 160ms ease;
+}
+
+a[class*="bg-maze-lime"]:active,
+a[class*="border"][class*="rounded-full"]:active,
+button[class*="bg-maze-lime"]:active,
+button[class*="border"][class*="rounded-full"]:active {
+  transform: scale(0.97);
+  transition-duration: 80ms;
+}
+
+/* ─── Image hover scale — gate behind hover-capable devices ─────────── */
+@media (hover: hover) and (pointer: fine) {
+  .group:hover .group-hover\:scale-105 {
+    transform: scale(1.05);
+  }
+}
+
+/* ─── prefers-reduced-motion — accessibility ─────────────────────────── */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+
+  /* Keep opacity/color transitions for comprehension */
+  .transition-colors,
+  .transition-opacity {
+    transition-duration: 200ms !important;
   }
 }
 

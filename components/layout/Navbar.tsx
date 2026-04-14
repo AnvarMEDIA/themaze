@@ -3,18 +3,19 @@
 import { useEffect, useRef, useState } from 'react'
 import { useTranslations } from 'next-intl'
 import { Link, usePathname } from '@/i18n/navigation'
-import { motion, AnimatePresence } from 'framer-motion'
+import { motion, AnimatePresence, useReducedMotion } from 'framer-motion'
 import { cn } from '@/lib/utils'
 import { ThemeToggle } from '@/components/ui/ThemeToggle'
 import { LangToggle } from '@/components/ui/LangToggle'
 
 export function Navbar() {
-  const t        = useTranslations('nav')
-  const pathname = usePathname()
+  const t             = useTranslations('nav')
+  const pathname      = usePathname()
   const [scrolled, setScrolled] = useState(false)
   const [menuOpen, setMenuOpen] = useState(false)
   const [hidden, setHidden]     = useState(false)
-  const prevY = useRef(0)
+  const prevY         = useRef(0)
+  const shouldReduce  = useReducedMotion()
 
   const navLinks = [
     { href: '/portfolio', label: t('work') },
@@ -50,8 +51,8 @@ export function Navbar() {
             ? 'py-4 bg-maze-black/90 backdrop-blur-md border-b border-maze-border'
             : 'py-6'
         )}
-        animate={{ y: hidden && !menuOpen ? -100 : 0 }}
-        transition={{ duration: 0.4, ease: [0.76, 0, 0.24, 1] }}
+        animate={{ transform: hidden && !menuOpen ? 'translateY(-100%)' : 'translateY(0%)' }}
+        transition={{ duration: shouldReduce ? 0 : 0.35, ease: [0.23, 1, 0.32, 1] }}
       >
         <nav className="flex items-center justify-between max-w-[1440px] mx-auto">
           {/* Logo */}
@@ -125,8 +126,12 @@ export function Navbar() {
           <motion.div
             initial={{ opacity: 0, clipPath: 'inset(0 0 100% 0)' }}
             animate={{ opacity: 1, clipPath: 'inset(0 0 0% 0)' }}
-            exit={{  opacity: 0, clipPath: 'inset(0 0 100% 0)' }}
-            transition={{ duration: 0.6, ease: [0.76, 0, 0.24, 1] }}
+            exit={{   opacity: 0, clipPath: 'inset(0 0 100% 0)' }}
+            transition={{
+              // Emil: enter can be longer, exit must be fast
+              duration: shouldReduce ? 0 : (menuOpen ? 0.55 : 0.25),
+              ease: [0.32, 0.72, 0, 1], // --ease-drawer
+            }}
             className="fixed inset-0 z-40 bg-maze-dark flex flex-col justify-center px-8"
           >
             <ul className="space-y-2">

@@ -3,7 +3,7 @@
 import { useEffect, useRef } from 'react'
 import { useTranslations } from 'next-intl'
 import { Link } from '@/i18n/navigation'
-import { motion } from 'framer-motion'
+import { motion, useReducedMotion } from 'framer-motion'
 import gsap from 'gsap'
 import { MagneticButton } from '@/components/ui/MagneticButton'
 
@@ -13,9 +13,10 @@ export function Hero() {
   const wordIndex = useRef(0)
   const containerRef = useRef<HTMLDivElement>(null)
 
-  const words  = t.raw('words') as string[]
-  const line1  = t('line1')
-  const line2  = t('line2')
+  const words        = t.raw('words') as string[]
+  const line1        = t('line1')
+  const line2        = t('line2')
+  const shouldReduce = useReducedMotion()
 
   // Cycling words animation
   useEffect(() => {
@@ -55,11 +56,17 @@ export function Hero() {
     return () => window.removeEventListener('scroll', onScroll)
   }, [])
 
+  // Emil: never animate from extreme positions with reduced motion
   const charVariant = {
-    hidden: { y: '110%' },
+    hidden: shouldReduce ? { opacity: 0 } : { y: '110%' },
     visible: (i: number) => ({
-      y: '0%',
-      transition: { delay: 0.4 + i * 0.07, duration: 0.8, ease: [0.19, 1, 0.22, 1] },
+      ...(shouldReduce ? { opacity: 1 } : { y: '0%' }),
+      // Emil: strong ease-out curve, stagger 40-70ms between chars
+      transition: {
+        delay: shouldReduce ? 0 : 0.4 + i * 0.065,
+        duration: shouldReduce ? 0.2 : 0.75,
+        ease: [0.23, 1, 0.32, 1],
+      },
     }),
   }
 
