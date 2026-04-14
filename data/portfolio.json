@@ -1,0 +1,136 @@
+{
+  "projects": [
+    {
+      "id": "1",
+      "slug": "samarkand-heritage-hotel",
+      "title": "Samarkand Heritage",
+      "client": "Samarkand Heritage Hotel",
+      "category": "branding",
+      "year": 2024,
+      "shortDescription": "Luxury hotel branding rooted in Silk Road heritage",
+      "description": "A complete brand identity for a luxury boutique hotel in Samarkand, marrying contemporary minimalism with the rich visual language of Uzbekistan's Timurid architectural heritage. The identity system spans from architecture signage to digital touchpoints.",
+      "coverImage": "/portfolio/uploads/samarkand-cover.jpg",
+      "images": [
+        "/portfolio/uploads/samarkand-1.jpg",
+        "/portfolio/uploads/samarkand-2.jpg",
+        "/portfolio/uploads/samarkand-3.jpg"
+      ],
+      "tags": ["Luxury", "Hospitality", "Heritage", "Uzbekistan"],
+      "services": ["Brand Strategy", "Visual Identity", "Signage System", "Brand Guidelines"],
+      "featured": true,
+      "accentColor": "#B8860B",
+      "results": "Brand launched to international acclaim, featured in Condé Nast Traveller",
+      "createdAt": "2024-01-15T10:00:00Z",
+      "updatedAt": "2024-01-15T10:00:00Z"
+    },
+    {
+      "id": "2",
+      "slug": "uzpay-fintech",
+      "title": "UzPay",
+      "client": "UzPay Financial Services",
+      "category": "ui-ux",
+      "year": 2024,
+      "shortDescription": "Fintech super-app redefining digital payments in Central Asia",
+      "description": "End-to-end UX/UI design for a fintech platform serving 2M+ users across Uzbekistan. The design system prioritises clarity, trust, and accessibility — bringing modern financial services to users of all digital literacy levels.",
+      "coverImage": "/portfolio/uploads/uzpay-cover.jpg",
+      "images": [
+        "/portfolio/uploads/uzpay-1.jpg",
+        "/portfolio/uploads/uzpay-2.jpg"
+      ],
+      "tags": ["Fintech", "Mobile App", "UX Design", "Design System"],
+      "services": ["UX Research", "UI Design", "Design System", "Prototyping"],
+      "featured": true,
+      "accentColor": "#4B6EF5",
+      "results": "User satisfaction increased 40%, app store rating from 3.2 to 4.7",
+      "createdAt": "2024-02-20T10:00:00Z",
+      "updatedAt": "2024-02-20T10:00:00Z"
+    },
+    {
+      "id": "3",
+      "slug": "palov-house",
+      "title": "Palov House",
+      "client": "Palov House Restaurant",
+      "category": "identity",
+      "year": 2023,
+      "shortDescription": "Contemporary identity for an iconic Uzbek cuisine brand",
+      "description": "Brand identity for Tashkent's most celebrated plov restaurant. We distilled centuries of culinary tradition into a bold, contemporary visual language that honours authenticity while appealing to a modern cosmopolitan audience.",
+      "coverImage": "/portfolio/uploads/palov-cover.jpg",
+      "images": [
+        "/portfolio/uploads/palov-1.jpg",
+        "/portfolio/uploads/palov-2.jpg"
+      ],
+      "tags": ["Restaurant", "Food & Beverage", "Cultural", "Print"],
+      "services": ["Brand Identity", "Logo Design", "Packaging", "Menu Design"],
+      "featured": true,
+      "accentColor": "#D4521A",
+      "results": "Expanded to 4 locations, 300% increase in social media following",
+      "createdAt": "2023-08-10T10:00:00Z",
+      "updatedAt": "2023-08-10T10:00:00Z"
+    },
+    {
+      "id": "4",
+      "slug": "hilol-retail",
+      "title": "Hilol",
+      "client": "Hilol Retail Group",
+      "category": "branding",
+      "year": 2023,
+      "shortDescription": "Repositioning Uzbekistan's largest retail chain",
+      "description": "Strategic rebrand for Uzbekistan's largest retail network. The project encompassed brand strategy, visual identity, store experience design, and a comprehensive rollout across 120+ locations nationwide.",
+      "coverImage": "/portfolio/uploads/hilol-cover.jpg",
+      "images": [
+        "/portfolio/uploads/hilol-1.jpg",
+        "/portfolio/uploads/hilol-2.jpg"
+      ],
+      "tags": ["Retail", "Strategy", "Environmental Design", "Scale"],
+      "services": ["Brand Strategy", "Visual Identity", "Environmental Design", "Rollout"],
+      "featured": false,
+      "accentColor": "#E63946",
+      "results": "30% increase in brand recognition, 120 stores rebranded in 8 months",
+      "createdAt": "2023-05-01T10:00:00Z",
+      "updatedAt": "2023-05-01T10:00:00Z"
+    },
+    {
+      "id": "5",
+      "slug": "techuz-startup",
+      "title": "TechUZ",
+      "client": "TechUZ Accelerator",
+      "category": "ui-ux",
+      "year": 2024,
+      "shortDescription": "Platform connecting Central Asian startups with global investors",
+      "description": "Full product design for a startup accelerator platform. From pitch deck management to investor discovery and deal flow — a complex product made simple through rigorous UX thinking.",
+      "coverImage": "/portfolio/uploads/techuz-cover.jpg",
+      "images": [
+        "/portfolio/uploads/techuz-1.jpg"
+      ],
+      "tags": ["SaaS", "Startup", "Platform", "B2B"],
+      "services": ["Product Strategy", "UX Design", "UI Design", "Frontend Consulting"],
+      "featured": false,
+      "accentColor": "#06D6A0",
+      "results": "Platform used by 200+ startups, $12M in facilitated investments",
+      "createdAt": "2024-03-15T10:00:00Z",
+      "updatedAt": "2024-03-15T10:00:00Z"
+    },
+    {
+      "id": "6",
+      "slug": "anor-wine",
+      "title": "ANOR",
+      "client": "Anor Winery",
+      "category": "print",
+      "year": 2023,
+      "shortDescription": "Luxury packaging for Uzbekistan's finest pomegranate wine",
+      "description": "Packaging design for a premium pomegranate wine brand. The label system merges botanical illustration with geometric patterns inspired by Uzbek tilework, resulting in a collectible series that commands premium shelf presence.",
+      "coverImage": "/portfolio/uploads/anor-cover.jpg",
+      "images": [
+        "/portfolio/uploads/anor-1.jpg",
+        "/portfolio/uploads/anor-2.jpg"
+      ],
+      "tags": ["Packaging", "Luxury", "Print", "Illustration"],
+      "services": ["Packaging Design", "Label Design", "Illustration", "Print Production"],
+      "featured": false,
+      "accentColor": "#9B2335",
+      "results": "Awarded Bronze at Pentawards 2023, listed in 8 countries",
+      "createdAt": "2023-09-20T10:00:00Z",
+      "updatedAt": "2023-09-20T10:00:00Z"
+    }
+  ]
+}

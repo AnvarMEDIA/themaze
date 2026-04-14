@@ -1,0 +1,164 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ─── Custom Properties ─────────────────────────────────────── */
+:root {
+  --color-bg:        #080808;
+  --color-surface:   #111111;
+  --color-border:    #252525;
+  --color-text:      #EDEBE3;
+  --color-muted:     #5A5A5A;
+  --color-lime:      #C8FF47;
+  --ease-out-expo:   cubic-bezier(0.19, 1, 0.22, 1);
+  --ease-in-out:     cubic-bezier(0.76, 0, 0.24, 1);
+}
+
+/* ─── Base Reset ─────────────────────────────────────────────── */
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: auto; /* Lenis handles smooth scroll */
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+body {
+  background-color: var(--color-bg);
+  color: var(--color-text);
+  font-family: var(--font-space), system-ui, sans-serif;
+  line-height: 1.5;
+  overflow-x: hidden;
+}
+
+/* ─── Custom Scrollbar ───────────────────────────────────────── */
+::-webkit-scrollbar { width: 4px; }
+::-webkit-scrollbar-track { background: var(--color-bg); }
+::-webkit-scrollbar-thumb {
+  background: var(--color-muted);
+  border-radius: 2px;
+}
+::-webkit-scrollbar-thumb:hover { background: var(--color-lime); }
+
+/* ─── Selection ──────────────────────────────────────────────── */
+::selection {
+  background: var(--color-lime);
+  color: var(--color-bg);
+}
+
+/* ─── Cursor ─────────────────────────────────────────────────── */
+* { cursor: none !important; }
+
+/* ─── Typography Utilities ───────────────────────────────────── */
+@layer utilities {
+  .display-xl {
+    font-size: clamp(4rem, 12vw, 14rem);
+    font-weight: 900;
+    line-height: 0.9;
+    letter-spacing: -0.03em;
+  }
+  .display-lg {
+    font-size: clamp(3rem, 8vw, 9rem);
+    font-weight: 900;
+    line-height: 0.92;
+    letter-spacing: -0.03em;
+  }
+  .display-md {
+    font-size: clamp(2.5rem, 5vw, 6rem);
+    font-weight: 800;
+    line-height: 0.95;
+    letter-spacing: -0.025em;
+  }
+  .heading-lg {
+    font-size: clamp(1.75rem, 3vw, 3.5rem);
+    font-weight: 700;
+    line-height: 1.1;
+    letter-spacing: -0.02em;
+  }
+  .heading-md {
+    font-size: clamp(1.25rem, 2vw, 2rem);
+    font-weight: 600;
+    line-height: 1.2;
+    letter-spacing: -0.01em;
+  }
+  .body-lg {
+    font-size: clamp(1rem, 1.2vw, 1.125rem);
+    line-height: 1.7;
+  }
+  .label-sm {
+    font-size: 0.6875rem;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+  }
+
+  /* ─── Noise Texture Overlay ─────────────────────────────────── */
+  .noise::after {
+    content: '';
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 9999;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E");
+    background-repeat: repeat;
+    background-size: 200px 200px;
+    opacity: 0.4;
+  }
+
+  /* ─── Maze Grid Pattern ─────────────────────────────────────── */
+  .maze-grid {
+    background-image:
+      linear-gradient(rgba(37,37,37,0.5) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(37,37,37,0.5) 1px, transparent 1px);
+    background-size: 60px 60px;
+  }
+
+  /* ─── Clip Overflow for text reveal ─────────────────────────── */
+  .clip-text {
+    overflow: hidden;
+  }
+
+  /* ─── Horizontal Rule ───────────────────────────────────────── */
+  .rule {
+    height: 1px;
+    background: var(--color-border);
+  }
+}
+
+/* ─── Lenis ──────────────────────────────────────────────────── */
+html.lenis, html.lenis body {
+  height: auto;
+}
+.lenis.lenis-smooth {
+  scroll-behavior: auto !important;
+}
+.lenis.lenis-smooth [data-lenis-prevent] {
+  overscroll-behavior: contain;
+}
+
+/* ─── Marquee ────────────────────────────────────────────────── */
+.marquee-track {
+  display: flex;
+  width: max-content;
+  animation: marquee 30s linear infinite;
+}
+.marquee-track-reverse {
+  display: flex;
+  width: max-content;
+  animation: marquee-reverse 30s linear infinite;
+}
+.marquee-track:hover,
+.marquee-track-reverse:hover {
+  animation-play-state: paused;
+}
+
+@keyframes marquee {
+  0%   { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+@keyframes marquee-reverse {
+  0%   { transform: translateX(-50%); }
+  100% { transform: translateX(0); }
+}
