@@ -1,115 +1,140 @@
 'use client'
 
 import { useEffect, useRef, useState } from 'react'
-import { motion, useMotionValue, useSpring } from 'framer-motion'
 
+type Variant = 'default' | 'hover' | 'view'
+
+/**
+ * Performance-optimised cursor.
+ * Position tracking: pure RAF + direct DOM style (zero React re-renders).
+ * Variant tracking: React state (fires only on hover enter/leave — rare).
+ * Hover detection: single delegated listener on document (no per-element attachment).
+ */
 export function CustomCursor() {
-  const cursorRef = useRef<HTMLDivElement>(null)
-  const dotRef    = useRef<HTMLDivElement>(null)
+  const dotRef  = useRef<HTMLDivElement>(null)
+  const ringRef = useRef<HTMLDivElement>(null)
 
-  const mouseX = useMotionValue(-100)
-  const mouseY = useMotionValue(-100)
+  // React state only for shape/size variant — changes rarely
+  const [variant, setVariant] = useState<Variant>('default')
 
-  const springX = useSpring(mouseX, { stiffness: 500, damping: 30 })
-  const springY = useSpring(mouseY, { stiffness: 500, damping: 30 })
-
-  const lagX = useSpring(mouseX, { stiffness: 100, damping: 28 })
-  const lagY = useSpring(mouseY, { stiffness: 100, damping: 28 })
-
-  const [variant, setVariant] = useState<'default' | 'hover' | 'view' | 'drag'>('default')
-
+  // ── Position tracking (RAF, no React) ──────────────────────────────────
   useEffect(() => {
+    let mx = -200, my = -200 // raw mouse target
+    let dx = -200, dy = -200 // dot current (near-instant follow)
+    let rx = -200, ry = -200 // ring current (laggy follow)
+    let raf: number
+    let hidden = true
+
     const onMove = (e: MouseEvent) => {
-      mouseX.set(e.clientX)
-      mouseY.set(e.clientY)
+      mx = e.clientX
+      my = e.clientY
+      if (hidden) {
+        // Snap on first move so cursor doesn't slide in from corner
+        dx = mx; dy = my
+        rx = mx; ry = my
+        hidden = false
+      }
     }
 
-    const onHoverIn = (e: Event) => {
-      const target = e.currentTarget as HTMLElement
-      const cursorType = target.dataset.cursor
-      if (cursorType === 'view')       setVariant('view')
-      else if (cursorType === 'drag')  setVariant('drag')
-      else                             setVariant('hover')
+    const loop = () => {
+      // Dot: direct snap (lerp factor ~1 = instant, no perceived lag)
+      dx = mx
+      dy = my
+
+      // Ring: smooth lerp trail
+      rx += (mx - rx) * 0.1
+      ry += (my - ry) * 0.1
+
+      const dot  = dotRef.current
+      const ring = ringRef.current
+
+      if (dot) {
+        dot.style.transform = `translate(${dx}px, ${dy}px) translate(-50%, -50%)`
+      }
+      if (ring) {
+        ring.style.transform = `translate(${rx}px, ${ry}px) translate(-50%, -50%)`
+      }
+
+      raf = requestAnimationFrame(loop)
     }
-    const onHoverOut = () => setVariant('default')
 
-    window.addEventListener('mousemove', onMove)
-
-    const interactives = document.querySelectorAll<HTMLElement>(
-      'a, button, [data-cursor]'
-    )
-    interactives.forEach((el) => {
-      el.addEventListener('mouseenter', onHoverIn)
-      el.addEventListener('mouseleave', onHoverOut)
-    })
-
-    const observer = new MutationObserver(() => {
-      const fresh = document.querySelectorAll<HTMLElement>(
-        'a, button, [data-cursor]'
-      )
-      fresh.forEach((el) => {
-        el.removeEventListener('mouseenter', onHoverIn)
-        el.removeEventListener('mouseleave', onHoverOut)
-        el.addEventListener('mouseenter', onHoverIn)
-        el.addEventListener('mouseleave', onHoverOut)
-      })
-    })
-    observer.observe(document.body, { childList: true, subtree: true })
+    window.addEventListener('mousemove', onMove, { passive: true })
+    raf = requestAnimationFrame(loop)
 
     return () => {
       window.removeEventListener('mousemove', onMove)
-      interactives.forEach((el) => {
-        el.removeEventListener('mouseenter', onHoverIn)
-        el.removeEventListener('mouseleave', onHoverOut)
-      })
-      observer.disconnect()
+      cancelAnimationFrame(raf)
     }
-  }, [mouseX, mouseY])
+  }, [])
 
-  const variants = {
-    default: { width: 12, height: 12, backgroundColor: '#C8FF47', mixBlendMode: 'normal' as const },
-    hover:   { width: 40, height: 40, backgroundColor: '#C8FF47', mixBlendMode: 'difference' as const },
-    view:    { width: 80, height: 80, backgroundColor: '#C8FF47', mixBlendMode: 'normal' as const },
-    drag:    { width: 64, height: 64, backgroundColor: '#EDEBE3', mixBlendMode: 'normal' as const },
-  }
+  // ── Hover detection (event delegation — no per-element listeners) ───────
+  useEffect(() => {
+    const SELECTOR = 'a, button, [data-cursor]'
+
+    const onOver = (e: MouseEvent) => {
+      const el = (e.target as HTMLElement).closest(SELECTOR) as HTMLElement | null
+      if (!el) return
+      const type = el.dataset.cursor as Variant | undefined
+      setVariant(type ?? 'hover')
+    }
+
+    const onOut = (e: MouseEvent) => {
+      const leaving = e.target as HTMLElement
+      if (!leaving.closest(SELECTOR)) return
+      // Only reset if we're not moving to another interactive child
+      const entering = e.relatedTarget as HTMLElement | null
+      if (!entering?.closest(SELECTOR)) {
+        setVariant('default')
+      }
+    }
+
+    document.addEventListener('mouseover', onOver, { passive: true })
+    document.addEventListener('mouseout',  onOut,  { passive: true })
+
+    return () => {
+      document.removeEventListener('mouseover', onOver)
+      document.removeEventListener('mouseout',  onOut)
+    }
+  }, [])
+
+  // ── Derived styles (pure CSS transitions, no JS animation) ─────────────
+  const dotSize =
+    variant === 'view'  ? 72 :
+    variant === 'hover' ? 36 : 10
+
+  const showRing = variant === 'default'
 
   return (
     <>
-      {/* Dot — snaps to mouse */}
-      <motion.div
+      {/* Dot — snaps to cursor, size transitions via CSS */}
+      <div
         ref={dotRef}
-        className="fixed top-0 left-0 rounded-full pointer-events-none z-[9999]"
-        style={{ x: springX, y: springY, translateX: '-50%', translateY: '-50%' }}
-        animate={variant}
-        transition={{ type: 'spring', stiffness: 600, damping: 35 }}
-        {...variants[variant]}
+        className="fixed top-0 left-0 pointer-events-none z-[9999] rounded-full will-change-transform"
+        style={{
+          width:           dotSize,
+          height:          dotSize,
+          backgroundColor: '#C8FF47',
+          mixBlendMode:    variant === 'hover' ? 'difference' : 'normal',
+          transition:      'width 180ms ease, height 180ms ease, background-color 180ms ease',
+        }}
       >
         {variant === 'view' && (
-          <span className="absolute inset-0 flex items-center justify-center text-[#080808] text-[10px] font-bold tracking-widest uppercase">
+          <span className="absolute inset-0 flex items-center justify-center text-[#080808] text-[9px] font-bold tracking-[0.15em] uppercase select-none">
             View
           </span>
         )}
-        {variant === 'drag' && (
-          <span className="absolute inset-0 flex items-center justify-center text-[#080808] text-[9px] font-bold tracking-widest uppercase">
-            Drag
-          </span>
-        )}
-      </motion.div>
+      </div>
 
-      {/* Ring — lags behind */}
-      <motion.div
-        ref={cursorRef}
-        className="fixed top-0 left-0 rounded-full pointer-events-none z-[9998] border border-[#5A5A5A]"
+      {/* Ring — trails behind, fades on hover */}
+      <div
+        ref={ringRef}
+        className="fixed top-0 left-0 pointer-events-none z-[9998] rounded-full border border-[#444] will-change-transform"
         style={{
-          x: lagX,
-          y: lagY,
-          translateX: '-50%',
-          translateY: '-50%',
-          width: variant === 'default' ? 36 : 0,
-          height: variant === 'default' ? 36 : 0,
+          width:      36,
+          height:     36,
+          opacity:    showRing ? 1 : 0,
+          transition: 'opacity 180ms ease',
         }}
-        animate={{ opacity: variant === 'default' ? 1 : 0 }}
-        transition={{ duration: 0.2 }}
       />
     </>
   )
