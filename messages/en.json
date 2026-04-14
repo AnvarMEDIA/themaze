@@ -1,0 +1,357 @@
+{
+  "nav": {
+    "work": "Work",
+    "services": "Services",
+    "about": "About",
+    "contact": "Contact",
+    "startProject": "Start a project",
+    "brandingStudio": "Branding Studio"
+  },
+  "hero": {
+    "line1": "WE BUILD",
+    "line2": "BOLD",
+    "words": ["BRANDS", "IDEAS", "FUTURES", "STORIES"],
+    "subtitle": "Branding & Design Studio. Crafting identities that lead markets.",
+    "viewWork": "View Work",
+    "startProject": "Start a Project",
+    "scroll": "Scroll",
+    "est": "EST. 2019 — TASHKENT"
+  },
+  "marquee": {
+    "items": [
+      "Brand Identity",
+      "Logo Design",
+      "Brand Strategy",
+      "UI / UX Design",
+      "Print Design",
+      "Motion Design",
+      "Packaging",
+      "Web Design",
+      "Art Direction",
+      "Visual Identity"
+    ]
+  },
+  "featured": {
+    "label": "Selected Work",
+    "heading": "Featured Projects",
+    "viewAll": "View all work"
+  },
+  "about": {
+    "label": "About MAZE",
+    "heading": "We navigate complexity.",
+    "body1": "MAZE is a branding and design studio based in Tashkent. Like a well-designed maze, we guide brands through complexity to clarity — crafting identities that navigate markets, define culture, and lead audiences forward.",
+    "body2": "From Uzbekistan's top startups to global brands entering Central Asia, we build visual languages that resonate, endure, and grow.",
+    "cta": "Our story",
+    "stats": {
+      "projects": "Projects completed",
+      "years": "Years of experience",
+      "clients": "Happy clients",
+      "awards": "Awards won"
+    },
+    "quote": "Design is not just what it looks like. Design is how it works — and how it makes people feel."
+  },
+  "services": {
+    "label": "What we do",
+    "heading": "Services",
+    "items": [
+      {
+        "title": "Brand Identity",
+        "description": "Full visual identity systems — logo, colour, typography, imagery, and the rules that hold it all together.",
+        "tags": ["Logo Design", "Colour System", "Typography", "Brand Book"]
+      },
+      {
+        "title": "Brand Strategy",
+        "description": "Positioning, naming, messaging and competitive differentiation. The thinking before the making.",
+        "tags": ["Positioning", "Naming", "Messaging", "Competitor Analysis"]
+      },
+      {
+        "title": "Naming",
+        "description": "Brand naming across languages and markets — from creative ideation to trademark clearance and domain check.",
+        "tags": ["Brand Naming", "Linguistic Analysis", "Trademark Check", "Domain Check"]
+      },
+      {
+        "title": "UI / UX Design",
+        "description": "Digital products and interfaces that earn trust, reduce friction, and delight at every touchpoint.",
+        "tags": ["UX Research", "Wireframing", "UI Design", "Design Systems"]
+      },
+      {
+        "title": "Print & Packaging",
+        "description": "From business cards to billboard campaigns — print communication with impact and craft.",
+        "tags": ["Packaging", "Stationery", "Editorial", "Environmental"]
+      },
+      {
+        "title": "Motion Design",
+        "description": "Brand animations, intro videos, social content and motion guidelines that bring identity to life.",
+        "tags": ["Brand Animation", "Social Content", "Video", "Motion Guide"]
+      },
+      {
+        "title": "Art Direction",
+        "description": "Creative oversight for campaigns, photography, and content — ensuring visual consistency across channels.",
+        "tags": ["Photography Direction", "Campaign", "Content Strategy"]
+      }
+    ]
+  },
+  "process": {
+    "label": "How we work",
+    "heading": "Our Process",
+    "sub": "A structured approach that brings clarity to every project, from brief to launch.",
+    "steps": [
+      {
+        "title": "Discover",
+        "body": "Deep-dive into your business, audience, and competitive landscape. We ask the hard questions first."
+      },
+      {
+        "title": "Define",
+        "body": "Turn insights into a strategic brief. Positioning, personality, and design principles — crystal clear."
+      },
+      {
+        "title": "Design",
+        "body": "Craft visual solutions with rigour and creativity. Iterate fast, refine relentlessly."
+      },
+      {
+        "title": "Deliver",
+        "body": "Comprehensive handoff: files, guidelines, and support to launch your brand with confidence."
+      }
+    ]
+  },
+  "cta": {
+    "label": "Ready to start?",
+    "line1": "Let's build",
+    "line2": "something great.",
+    "sub": "Tell us about your project and we'll get back to you within 24 hours.",
+    "button": "Start a project",
+    "email": "hello@maze.uz"
+  },
+  "footer": {
+    "tagline": "Branding & Design Studio.\nTashkent, Uzbekistan.",
+    "readyLabel": "Ready to collaborate?",
+    "rights": "All rights reserved.",
+    "builtBy": "Designed & built by MAZE",
+    "groups": {
+      "Work": "Work",
+      "Studio": "Studio",
+      "Social": "Social"
+    }
+  },
+  "portfolio": {
+    "label": "Our Work",
+    "heading": "Portfolio",
+    "allWork": "All Work",
+    "backToWork": "← All Work",
+    "aboutProject": "About the project",
+    "results": "Results",
+    "servicesDelivered": "Services delivered",
+    "likeProject": "Like this project?",
+    "startSimilar": "Start a similar project",
+    "relatedProjects": "Related Projects",
+    "gallery": "Gallery",
+    "year": "Year",
+    "category": "Category",
+    "tags": "Tags"
+  },
+  "aboutPage": {
+    "metaTitle": "About MAZE — Branding Studio Tashkent",
+    "metaDesc": "Learn about MAZE Studio — a branding and design studio based in Tashkent, Uzbekistan, crafting bold visual identities since 2019.",
+    "heroLabel": "About us",
+    "heroHeading": "We navigate brands through complexity to clarity.",
+    "heroSub": "MAZE is a branding and design studio based in Tashkent, Uzbekistan. Since 2019, we've built bold visual identities for startups, enterprises, and cultural institutions across Central Asia and beyond.",
+    "statsYears": "Years",
+    "statsProjects": "Projects",
+    "statsClients": "Clients",
+    "statsAwards": "Awards",
+    "storyHeading": "Our Story",
+    "story1": "MAZE was founded in Tashkent in 2019 with a simple conviction: that Central Asian brands deserve world-class design. At the time, the region's design landscape was largely derivative — copying Western trends without strategic intent.",
+    "story2": "We built MAZE to be different. From day one, we insisted on strategy before aesthetics, on understanding a business deeply before picking up a pen. This approach won us early trust from Uzbekistan's most ambitious companies.",
+    "story3": "Today, our work reaches millions of people daily — on product labels, apps, storefronts, and city billboards. We remain a tight-knit studio by choice: small enough to care deeply, experienced enough to deliver at scale.",
+    "valuesHeading": "Our Values",
+    "values": [
+      {
+        "title": "Clarity from complexity",
+        "body": "Like a well-designed maze, we create clear paths through complex brand challenges."
+      },
+      {
+        "title": "Strategy before aesthetics",
+        "body": "Beautiful design that doesn't solve a problem is just decoration. We think first."
+      },
+      {
+        "title": "Craft in every detail",
+        "body": "The kerning, the colour choice, the paper stock — every detail earns its place."
+      },
+      {
+        "title": "Partnership over projects",
+        "body": "We build long-term relationships. Your brand's evolution is our ongoing commitment."
+      }
+    ],
+    "teamHeading": "The Team",
+    "team": [
+      {
+        "name": "Anvar Yusupov",
+        "role": "Founder & Creative Director",
+        "bio": "Leads the studio's creative vision with 10+ years across branding, typography, and art direction."
+      },
+      {
+        "name": "Dilnoza Rashidova",
+        "role": "Head of Strategy",
+        "bio": "Brand strategist who bridges business objectives and creative execution for measurable impact."
+      },
+      {
+        "name": "Bobur Mirzaev",
+        "role": "Lead UI/UX Designer",
+        "bio": "Designs intuitive digital experiences with deep expertise in design systems and user research."
+      },
+      {
+        "name": "Malika Toshmatova",
+        "role": "Senior Graphic Designer",
+        "bio": "Specialises in print, packaging, and environmental design with an eye for editorial craft."
+      }
+    ],
+    "trustedBy": "Trusted by",
+    "readyLabel": "Ready to work together?",
+    "readyCta": "Start a project"
+  },
+  "servicesPage": {
+    "metaTitle": "Services — MAZE Branding Studio",
+    "metaDesc": "MAZE Studio offers brand identity, brand strategy, naming, UI/UX design, print & packaging, motion design, and art direction.",
+    "heroLabel": "What we offer",
+    "heroHeading": "Services built for ambitious brands.",
+    "heroSub": "From brand strategy to motion design — we offer the full creative suite that growing brands need to compete and win.",
+    "whatYouGet": "What you get",
+    "enquire": "Enquire about",
+    "notSureLabel": "Not sure what you need?",
+    "notSureHeading": "Let's talk.",
+    "notSureSub": "Tell us about your challenge and we'll recommend the right engagement model.",
+    "notSureCta": "Book a discovery call",
+    "services": [
+      {
+        "id": "brand-identity",
+        "num": "01",
+        "title": "Brand Identity",
+        "tagline": "The complete visual language of your brand.",
+        "body": "We create comprehensive brand identity systems — the logo, colour palette, typography, imagery style, and iconography that define how your brand looks and feels across every touchpoint. From the first sketch to the final brand guidelines document, we ensure every element works in harmony.",
+        "deliverables": [
+          "Logo system (primary, secondary, icon)",
+          "Colour palette (primary, secondary, neutrals)",
+          "Typography system",
+          "Iconography & illustration style",
+          "Brand guidelines document",
+          "Brand asset library"
+        ]
+      },
+      {
+        "id": "strategy",
+        "num": "02",
+        "title": "Brand Strategy",
+        "tagline": "The thinking that makes design matter.",
+        "body": "Before we design anything, we align on strategy. This means understanding your business objectives, audience insights, competitive landscape, and positioning. The output is a strategic brief that becomes the foundation for all creative work — ensuring every design decision has a reason.",
+        "deliverables": [
+          "Brand audit & competitive analysis",
+          "Audience personas",
+          "Brand positioning statement",
+          "Naming & messaging framework",
+          "Brand personality & tone of voice",
+          "Strategic brief"
+        ]
+      },
+      {
+        "id": "naming",
+        "num": "03",
+        "title": "Naming",
+        "tagline": "The right name opens every door.",
+        "body": "A brand name is your most permanent creative decision. We explore hundreds of concepts rooted in cultural resonance, linguistic clarity across markets, and trademark availability — delivering a name that is historically powerful, strategically sound, and unforgettable.",
+        "deliverables": [
+          "Naming brief & criteria",
+          "Name ideation (100+ concepts)",
+          "Linguistic & cultural analysis",
+          "Trademark availability check",
+          "Domain availability check",
+          "Naming rationale deck"
+        ]
+      },
+      {
+        "id": "ui-ux",
+        "num": "04",
+        "title": "UI / UX Design",
+        "tagline": "Digital experiences people love to use.",
+        "body": "We design digital products — websites, mobile apps, and SaaS platforms — that balance aesthetic quality with functional clarity. Our process starts with user research, moves through wireframing and prototyping, and delivers production-ready UI with a comprehensive design system.",
+        "deliverables": [
+          "UX research & user flows",
+          "Wireframes & prototypes",
+          "UI design (all screens/states)",
+          "Design system & component library",
+          "Responsive & mobile design",
+          "Developer handoff (Figma)"
+        ]
+      },
+      {
+        "id": "print",
+        "num": "05",
+        "title": "Print & Packaging",
+        "tagline": "Tangible design with lasting impact.",
+        "body": "Print remains one of the most powerful brand touchpoints. We design stationery systems, packaging, publications, environmental graphics, and campaign materials with the same rigour we apply to digital work — with deep expertise in print production.",
+        "deliverables": [
+          "Packaging design & dielines",
+          "Brand stationery system",
+          "Editorial & publication design",
+          "Environmental & signage design",
+          "Campaign & promotional materials",
+          "Print production management"
+        ]
+      },
+      {
+        "id": "motion",
+        "num": "06",
+        "title": "Motion Design",
+        "tagline": "Your brand in motion.",
+        "body": "We bring brand identities to life through motion — animated logos, brand intro sequences, social media content, UI micro-interactions, and motion guidelines that let your team maintain consistency across video content.",
+        "deliverables": [
+          "Animated logo",
+          "Brand intro / outro sequences",
+          "Social media motion templates",
+          "UI animations & micro-interactions",
+          "Motion brand guidelines",
+          "Video production support"
+        ]
+      },
+      {
+        "id": "art-direction",
+        "num": "07",
+        "title": "Art Direction",
+        "tagline": "Creative oversight for a unified brand voice.",
+        "body": "When brands grow, maintaining visual consistency across teams, agencies, and channels becomes the challenge. We provide ongoing art direction — overseeing photography, campaign production, and content creation to keep your brand coherent and compelling.",
+        "deliverables": [
+          "Photography direction & moodboards",
+          "Campaign concepting & direction",
+          "Vendor & photographer management",
+          "Content strategy & visual guidelines",
+          "Ongoing creative consultation"
+        ]
+      }
+    ]
+  },
+  "contactPage": {
+    "metaTitle": "Contact — MAZE Studio",
+    "metaDesc": "Get in touch with MAZE Studio. Start a branding project, ask a question, or book a discovery call.",
+    "label": "Get in touch",
+    "heading": "Let's build something great together.",
+    "sub": "Whether you have a clear brief or just an idea, we'd love to hear from you. Fill in the form and we'll respond within 24 hours.",
+    "emailLabel": "Email",
+    "phoneLabel": "Phone",
+    "telegramLabel": "Telegram",
+    "locationLabel": "Location",
+    "followUs": "Follow us",
+    "form": {
+      "name": "Name",
+      "namePlaceholder": "Your name",
+      "email": "Email",
+      "emailPlaceholder": "your@email.com",
+      "service": "Service",
+      "servicePlaceholder": "What can we help with?",
+      "message": "Message",
+      "messagePlaceholder": "Tell us about your project...",
+      "send": "Send message",
+      "sending": "Sending...",
+      "success": "Message sent! We'll be in touch within 24 hours.",
+      "error": "Something went wrong. Please try again."
+    }
+  }
+}

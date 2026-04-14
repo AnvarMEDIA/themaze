@@ -5,26 +5,28 @@ const config: Config = {
     './app/**/*.{js,ts,jsx,tsx,mdx}',
     './components/**/*.{js,ts,jsx,tsx,mdx}',
   ],
+  darkMode: 'class',
   theme: {
     extend: {
       colors: {
-        'maze-black':  '#080808',
-        'maze-dark':   '#111111',
-        'maze-gray':   '#1E1E1E',
-        'maze-border': '#252525',
-        'maze-cream':  '#EDEBE3',
-        'maze-muted':  '#5A5A5A',
-        'maze-lime':   '#C8FF47',
+        /* CSS-variable driven — auto-switch with .dark / .light class */
+        'maze-black':  'rgb(var(--bg) / <alpha-value>)',
+        'maze-dark':   'rgb(var(--surface) / <alpha-value>)',
+        'maze-gray':   'rgb(var(--gray) / <alpha-value>)',
+        'maze-border': 'rgb(var(--border) / <alpha-value>)',
+        'maze-cream':  'rgb(var(--text) / <alpha-value>)',
+        'maze-muted':  'rgb(var(--muted) / <alpha-value>)',
+        'maze-lime':   'rgb(var(--lime) / <alpha-value>)',
       },
       fontFamily: {
-        sans: ['var(--font-space)', 'system-ui', 'sans-serif'],
+        sans: ['var(--font-sans)', 'system-ui', 'sans-serif'],
         mono: ['var(--font-mono)', 'monospace'],
       },
       animation: {
-        marquee:  'marquee 25s linear infinite',
-        marquee2: 'marquee2 25s linear infinite',
-        'fade-up': 'fadeUp 0.6s ease forwards',
-        'blink':  'blink 1s step-end infinite',
+        marquee:    'marquee 25s linear infinite',
+        marquee2:   'marquee2 25s linear infinite',
+        'fade-up':  'fadeUp 0.6s ease forwards',
+        'blink':    'blink 1s step-end infinite',
       },
       keyframes: {
         marquee: {

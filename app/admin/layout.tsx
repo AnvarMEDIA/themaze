@@ -19,7 +19,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
             background: '#1E1E1E',
             color: '#EDEBE3',
             border: '1px solid #252525',
-            fontFamily: 'var(--font-space)',
+            fontFamily: 'var(--font-sans)',
           },
         }}
       />

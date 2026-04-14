@@ -1,6 +1,7 @@
 export type ProjectCategory =
   | 'branding'
   | 'identity'
+  | 'naming'
   | 'ui-ux'
   | 'print'
   | 'motion'

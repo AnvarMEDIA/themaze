@@ -1,17 +1,21 @@
 import type { Metadata } from 'next'
-import { notFound }    from 'next/navigation'
-import Image           from 'next/image'
-import Link            from 'next/link'
+import { getTranslations, setRequestLocale } from 'next-intl/server'
+import { notFound } from 'next/navigation'
+import Image from 'next/image'
+import Link  from 'next/link'
+import { routing } from '@/i18n/routing'
 import { getAllProjects, getProjectBySlug } from '@/lib/portfolio'
 import { CATEGORY_LABELS } from '@/lib/utils'
 
 interface Props {
-  params: { slug: string }
+  params: { locale: string; slug: string }
 }
 
-export async function generateStaticParams() {
+export function generateStaticParams() {
   const projects = getAllProjects()
-  return projects.map((p) => ({ slug: p.slug }))
+  return routing.locales.flatMap((locale) =>
+    projects.map((project) => ({ locale, slug: project.slug }))
+  )
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
@@ -28,14 +32,19 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   }
 }
 
-export default function ProjectPage({ params }: Props) {
-  const project = getProjectBySlug(params.slug)
+export default async function ProjectPage({ params }: Props) {
+  const { locale, slug } = params
+  setRequestLocale(locale)
+
+  const t       = await getTranslations({ locale, namespace: 'portfolio' })
+  const project = getProjectBySlug(slug)
+
   if (!project) notFound()
 
   const all     = getAllProjects()
-  const related = all.filter(
-    (p) => p.id !== project.id && p.category === project.category
-  ).slice(0, 2)
+  const related = all
+    .filter((p) => p.id !== project.id && p.category === project.category)
+    .slice(0, 2)
 
   return (
     <article className="pt-28 min-h-screen">
@@ -46,7 +55,7 @@ export default function ProjectPage({ params }: Props) {
             href="/portfolio"
             className="label-sm text-maze-muted hover:text-maze-lime transition-colors mb-8 inline-flex items-center gap-2"
           >
-            ← All Work
+            {t('backToWork')}
           </Link>
 
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 mt-6">
@@ -60,15 +69,15 @@ export default function ProjectPage({ params }: Props) {
 
             <div className="grid grid-cols-2 sm:grid-cols-3 gap-6 lg:items-end">
               <div>
-                <p className="label-sm text-maze-muted mb-1">Year</p>
+                <p className="label-sm text-maze-muted mb-1">{t('year')}</p>
                 <p className="font-semibold text-maze-cream">{project.year}</p>
               </div>
               <div>
-                <p className="label-sm text-maze-muted mb-1">Category</p>
+                <p className="label-sm text-maze-muted mb-1">{t('category')}</p>
                 <p className="font-semibold text-maze-cream">{CATEGORY_LABELS[project.category]}</p>
               </div>
               <div>
-                <p className="label-sm text-maze-muted mb-2">Tags</p>
+                <p className="label-sm text-maze-muted mb-2">{t('tags')}</p>
                 <div className="flex flex-wrap gap-1">
                   {project.tags.slice(0, 3).map((tag) => (
                     <span key={tag} className="label-sm px-2 py-0.5 border border-maze-border rounded-full text-maze-muted">
@@ -96,9 +105,7 @@ export default function ProjectPage({ params }: Props) {
         )}
         <div
           className="absolute inset-0"
-          style={{
-            background: `linear-gradient(135deg, ${project.accentColor}22 0%, #111111 100%)`,
-          }}
+          style={{ background: `linear-gradient(135deg, ${project.accentColor}22 0%, rgb(var(--surface)) 100%)` }}
         />
         <div className="absolute inset-0 flex items-center justify-center">
           <span className="text-[20vw] font-black opacity-5" style={{ color: project.accentColor }}>
@@ -110,25 +117,21 @@ export default function ProjectPage({ params }: Props) {
       {/* Content */}
       <div className="px-6 md:px-10 py-20">
         <div className="max-w-[1440px] mx-auto grid grid-cols-1 lg:grid-cols-3 gap-16">
-          {/* Description */}
           <div className="lg:col-span-2">
-            <h2 className="heading-lg text-maze-cream mb-6">About the project</h2>
-            <p className="body-lg text-maze-muted leading-relaxed mb-8">
-              {project.description}
-            </p>
+            <h2 className="heading-lg text-maze-cream mb-6">{t('aboutProject')}</h2>
+            <p className="body-lg text-maze-muted leading-relaxed mb-8">{project.description}</p>
 
             {project.results && (
               <div className="p-6 border border-maze-lime/30 rounded-xl bg-maze-lime/5">
-                <p className="label-sm text-maze-lime mb-2">Results</p>
+                <p className="label-sm text-maze-lime mb-2">{t('results')}</p>
                 <p className="body-lg text-maze-cream">{project.results}</p>
               </div>
             )}
           </div>
 
-          {/* Services sidebar */}
           <div>
             <div className="sticky top-28">
-              <h3 className="label-sm text-maze-muted mb-4">Services delivered</h3>
+              <h3 className="label-sm text-maze-muted mb-4">{t('servicesDelivered')}</h3>
               <ul className="space-y-3">
                 {project.services.map((s) => (
                   <li key={s} className="flex items-center gap-3">
@@ -139,12 +142,12 @@ export default function ProjectPage({ params }: Props) {
               </ul>
 
               <div className="mt-10 pt-8 border-t border-maze-border">
-                <p className="label-sm text-maze-muted mb-4">Like this project?</p>
+                <p className="label-sm text-maze-muted mb-4">{t('likeProject')}</p>
                 <Link
                   href="/contact"
                   className="inline-flex items-center gap-2 px-5 py-3 bg-maze-lime text-maze-black font-bold rounded-full label-sm hover:bg-white transition-colors"
                 >
-                  Start a similar project ↗
+                  {t('startSimilar')} ↗
                 </Link>
               </div>
             </div>
@@ -154,7 +157,7 @@ export default function ProjectPage({ params }: Props) {
         {/* Gallery */}
         {project.images.length > 0 && (
           <div className="max-w-[1440px] mx-auto mt-20">
-            <h3 className="heading-md text-maze-cream mb-8">Gallery</h3>
+            <h3 className="heading-md text-maze-cream mb-8">{t('gallery')}</h3>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {project.images.map((img, i) => (
                 <div key={i} className="relative aspect-[4/3] rounded-xl overflow-hidden bg-maze-gray">
@@ -167,9 +170,7 @@ export default function ProjectPage({ params }: Props) {
                   />
                   <div
                     className="absolute inset-0"
-                    style={{
-                      background: `linear-gradient(135deg, ${project.accentColor}11 0%, #1A1A1A 100%)`,
-                    }}
+                    style={{ background: `linear-gradient(135deg, ${project.accentColor}11 0%, rgb(var(--surface)) 100%)` }}
                   />
                 </div>
               ))}
@@ -180,7 +181,7 @@ export default function ProjectPage({ params }: Props) {
         {/* Related */}
         {related.length > 0 && (
           <div className="max-w-[1440px] mx-auto mt-24 pt-12 border-t border-maze-border">
-            <h3 className="heading-md text-maze-cream mb-8">Related Projects</h3>
+            <h3 className="heading-md text-maze-cream mb-8">{t('relatedProjects')}</h3>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
               {related.map((p) => (
                 <Link

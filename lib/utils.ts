@@ -20,6 +20,7 @@ export function formatYear(year: number): string {
 export const CATEGORY_LABELS: Record<string, string> = {
   branding:  'Branding',
   identity:  'Identity',
+  naming:    'Naming',
   'ui-ux':   'UI/UX',
   print:     'Print',
   motion:    'Motion',

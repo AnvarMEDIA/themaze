@@ -1,3 +1,5 @@
+import { setRequestLocale } from 'next-intl/server'
+import { routing } from '@/i18n/routing'
 import { Hero }            from '@/components/home/Hero'
 import { Marquee }         from '@/components/home/Marquee'
 import { FeaturedWork }    from '@/components/home/FeaturedWork'
@@ -7,7 +9,16 @@ import { ProcessSection }  from '@/components/home/ProcessSection'
 import { CTASection }      from '@/components/home/CTASection'
 import { getFeaturedProjects } from '@/lib/portfolio'
 
-export default function HomePage() {
+interface Props {
+  params: { locale: string }
+}
+
+export function generateStaticParams() {
+  return routing.locales.map((locale) => ({ locale }))
+}
+
+export default function HomePage({ params: { locale } }: Props) {
+  setRequestLocale(locale)
   const featuredProjects = getFeaturedProjects()
 
   return (

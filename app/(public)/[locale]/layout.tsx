@@ -1,3 +1,7 @@
+import { NextIntlClientProvider } from 'next-intl'
+import { getMessages, setRequestLocale } from 'next-intl/server'
+import { notFound } from 'next/navigation'
+import { routing } from '@/i18n/routing'
 import { Navbar }       from '@/components/layout/Navbar'
 import { Footer }       from '@/components/layout/Footer'
 import { CustomCursor } from '@/components/layout/CustomCursor'
@@ -11,9 +15,9 @@ const jsonLd = {
   description: 'Premium branding and design studio based in Tashkent, Uzbekistan',
   url: process.env.NEXT_PUBLIC_SITE_URL ?? 'https://www.maze.uz',
   logo: `${process.env.NEXT_PUBLIC_SITE_URL ?? 'https://www.maze.uz'}/logo.svg`,
+  foundingDate: '2019',
   address: {
     '@type': 'PostalAddress',
-    streetAddress: 'Toshkent',
     addressLocality: 'Tashkent',
     addressCountry: 'UZ',
   },
@@ -24,13 +28,31 @@ const jsonLd = {
     'https://linkedin.com/company/mazestudio',
   ],
   priceRange: '$$$',
-  serviceType: ['Brand Identity Design', 'Logo Design', 'UI/UX Design', 'Brand Strategy', 'Print Design', 'Motion Design'],
+  serviceType: ['Brand Identity Design', 'Logo Design', 'UI/UX Design', 'Brand Strategy', 'Naming', 'Print Design', 'Motion Design'],
 }
 
-/** Public site layout — includes all visual chrome and animation libs. */
-export default function PublicLayout({ children }: { children: React.ReactNode }) {
+interface Props {
+  children: React.ReactNode
+  params: { locale: string }
+}
+
+export function generateStaticParams() {
+  return routing.locales.map((locale) => ({ locale }))
+}
+
+export default async function LocaleLayout({ children, params }: Props) {
+  const { locale } = params
+
+  if (!routing.locales.includes(locale as 'en' | 'ru')) {
+    notFound()
+  }
+
+  setRequestLocale(locale)
+
+  const messages = await getMessages()
+
   return (
-    <>
+    <NextIntlClientProvider messages={messages} locale={locale}>
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
@@ -47,13 +69,13 @@ export default function PublicLayout({ children }: { children: React.ReactNode }
         position="bottom-right"
         toastOptions={{
           style: {
-            background: '#1E1E1E',
-            color: '#EDEBE3',
-            border: '1px solid #252525',
-            fontFamily: 'var(--font-space)',
+            background: 'rgb(var(--surface))',
+            color: 'rgb(var(--text))',
+            border: '1px solid rgb(var(--border))',
+            fontFamily: 'var(--font-sans)',
           },
         }}
       />
-    </>
+    </NextIntlClientProvider>
   )
 }

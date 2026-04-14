@@ -1,18 +1,30 @@
 import type { Metadata } from 'next'
+import { getTranslations, setRequestLocale } from 'next-intl/server'
+import { routing } from '@/i18n/routing'
 import { ContactForm } from '@/components/contact/ContactForm'
 
-export const metadata: Metadata = {
-  title: 'Contact',
-  description:
-    'Get in touch with MAZE Studio. Start a branding project, ask a question, or book a discovery call.',
+interface Props {
+  params: { locale: string }
+}
+
+export function generateStaticParams() {
+  return routing.locales.map((locale) => ({ locale }))
+}
+
+export async function generateMetadata({ params: { locale } }: Props): Promise<Metadata> {
+  const t = await getTranslations({ locale, namespace: 'contactPage' })
+  return {
+    title: t('metaTitle'),
+    description: t('metaDesc'),
+  }
 }
 
 const info = [
-  { label: 'Email',    value: 'hello@maze.uz',   href: 'mailto:hello@maze.uz' },
-  { label: 'Phone',    value: '+998 99 999 99 99', href: 'tel:+998999999999' },
-  { label: 'Telegram', value: '@mazestudio',       href: 'https://t.me/mazestudio' },
-  { label: 'Location', value: 'Tashkent, Uzbekistan', href: null },
-]
+  { key: 'emailLabel',    value: 'hello@maze.uz',       href: 'mailto:hello@maze.uz' },
+  { key: 'phoneLabel',    value: '+998 99 999 99 99',    href: 'tel:+998999999999' },
+  { key: 'telegramLabel', value: '@mazestudio',           href: 'https://t.me/mazestudio' },
+  { key: 'locationLabel', value: 'Tashkent, Uzbekistan', href: null },
+] as const
 
 const socials = [
   { label: 'Instagram', href: 'https://instagram.com/mazestudio' },
@@ -21,34 +33,28 @@ const socials = [
   { label: 'Dribbble',  href: 'https://dribbble.com/mazestudio' },
 ]
 
-export default function ContactPage() {
+export default async function ContactPage({ params: { locale } }: Props) {
+  setRequestLocale(locale)
+  const t = await getTranslations({ locale, namespace: 'contactPage' })
+
   return (
     <div className="pt-28 min-h-screen">
-      {/* Header */}
       <div className="px-6 md:px-10 py-16 md:py-24 border-b border-maze-border">
         <div className="max-w-[1440px] mx-auto">
-          <p className="label-sm text-maze-muted mb-6">Get in touch</p>
-          <h1 className="display-md text-maze-cream max-w-2xl">
-            Let's build something great together.
-          </h1>
+          <p className="label-sm text-maze-muted mb-6">{t('label')}</p>
+          <h1 className="display-md text-maze-cream max-w-2xl">{t('heading')}</h1>
         </div>
       </div>
 
-      {/* Body */}
       <div className="px-6 md:px-10 py-16 md:py-24">
         <div className="max-w-[1440px] mx-auto grid grid-cols-1 lg:grid-cols-2 gap-16 lg:gap-24">
-          {/* Left — info */}
           <div>
-            <p className="body-lg text-maze-muted mb-10 max-w-md">
-              Whether you have a clear brief or just an idea, we'd love to hear from you.
-              Fill in the form and we'll respond within 24 hours.
-            </p>
+            <p className="body-lg text-maze-muted mb-10 max-w-md">{t('sub')}</p>
 
-            {/* Contact details */}
             <div className="space-y-6 mb-12">
               {info.map((item) => (
-                <div key={item.label}>
-                  <p className="label-sm text-maze-muted mb-1">{item.label}</p>
+                <div key={item.key}>
+                  <p className="label-sm text-maze-muted mb-1">{t(item.key)}</p>
                   {item.href ? (
                     <a
                       href={item.href}
@@ -65,9 +71,8 @@ export default function ContactPage() {
               ))}
             </div>
 
-            {/* Socials */}
             <div>
-              <p className="label-sm text-maze-muted mb-4">Follow us</p>
+              <p className="label-sm text-maze-muted mb-4">{t('followUs')}</p>
               <div className="flex gap-4">
                 {socials.map((s) => (
                   <a
@@ -84,7 +89,6 @@ export default function ContactPage() {
             </div>
           </div>
 
-          {/* Right — form */}
           <div>
             <ContactForm />
           </div>

@@ -1,64 +1,31 @@
 'use client'
 
 import { useRef, useState } from 'react'
-import Link from 'next/link'
+import { useTranslations } from 'next-intl'
+import { Link } from '@/i18n/navigation'
 import { motion, useInView, AnimatePresence } from 'framer-motion'
 
-const services = [
-  {
-    num: '01',
-    title: 'Brand Identity',
-    description:
-      'Full visual identity systems — logo, colour, typography, imagery, and the rules that hold it all together.',
-    tags: ['Logo Design', 'Colour System', 'Typography', 'Brand Book'],
-    href: '/services#brand-identity',
-  },
-  {
-    num: '02',
-    title: 'Brand Strategy',
-    description:
-      'Positioning, naming, messaging and competitive differentiation. The thinking before the making.',
-    tags: ['Positioning', 'Naming', 'Messaging', 'Competitor Analysis'],
-    href: '/services#strategy',
-  },
-  {
-    num: '03',
-    title: 'UI / UX Design',
-    description:
-      'Digital products and interfaces that earn trust, reduce friction, and delight at every touchpoint.',
-    tags: ['UX Research', 'Wireframing', 'UI Design', 'Design Systems'],
-    href: '/services#ui-ux',
-  },
-  {
-    num: '04',
-    title: 'Print & Packaging',
-    description:
-      'From business cards to billboard campaigns — print communication with impact and craft.',
-    tags: ['Packaging', 'Stationery', 'Editorial', 'Environmental'],
-    href: '/services#print',
-  },
-  {
-    num: '05',
-    title: 'Motion Design',
-    description:
-      'Brand animations, intro videos, social content and motion guidelines that bring identity to life.',
-    tags: ['Brand Animation', 'Social Content', 'Video', 'Motion Guide'],
-    href: '/services#motion',
-  },
-  {
-    num: '06',
-    title: 'Art Direction',
-    description:
-      'Creative oversight for campaigns, photography, and content — ensuring visual consistency across channels.',
-    tags: ['Photography Direction', 'Campaign', 'Content Strategy'],
-    href: '/services#art-direction',
-  },
+const SERVICE_HREFS = [
+  '/services#brand-identity',
+  '/services#strategy',
+  '/services#naming',
+  '/services#ui-ux',
+  '/services#print',
+  '/services#motion',
+  '/services#art-direction',
 ]
 
 export function ServicesSection() {
+  const t      = useTranslations('services')
   const ref    = useRef<HTMLElement>(null)
   const inView = useInView(ref, { once: true, margin: '-10% 0px' })
   const [active, setActive] = useState<number | null>(null)
+
+  const items = t.raw('items') as {
+    title: string
+    description: string
+    tags: string[]
+  }[]
 
   return (
     <section
@@ -72,7 +39,7 @@ export function ServicesSection() {
           animate={inView ? { opacity: 1 } : {}}
           className="label-sm text-maze-muted mb-4"
         >
-          What we do
+          {t('label')}
         </motion.p>
         <div className="overflow-hidden">
           <motion.h2
@@ -81,16 +48,16 @@ export function ServicesSection() {
             transition={{ duration: 0.9, ease: [0.19, 1, 0.22, 1] }}
             className="display-md text-maze-cream"
           >
-            Services
+            {t('heading')}
           </motion.h2>
         </div>
       </div>
 
       {/* Service list */}
       <div className="border-t border-maze-border">
-        {services.map((service, i) => (
+        {items.map((service, i) => (
           <motion.div
-            key={service.num}
+            key={i}
             initial={{ opacity: 0, y: 20 }}
             animate={inView ? { opacity: 1, y: 0 } : {}}
             transition={{ delay: i * 0.07, duration: 0.6 }}
@@ -103,7 +70,7 @@ export function ServicesSection() {
               <div className="flex items-start justify-between gap-4">
                 <div className="flex items-start gap-6 md:gap-10 flex-1">
                   <span className="label-sm text-maze-muted pt-1 shrink-0 w-6">
-                    {service.num}
+                    0{i + 1}
                   </span>
                   <div className="flex-1">
                     <h3
@@ -144,7 +111,7 @@ export function ServicesSection() {
 
                 {/* Arrow */}
                 <Link
-                  href={service.href}
+                  href={SERVICE_HREFS[i] ?? '/services'}
                   className={`shrink-0 w-10 h-10 rounded-full border flex items-center justify-center transition-all duration-300 ${
                     active === i
                       ? 'border-maze-lime text-maze-lime rotate-0'

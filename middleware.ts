@@ -1,5 +1,9 @@
-import { NextRequest, NextResponse } from 'next/server'
+import createMiddleware from 'next-intl/middleware'
+import { routing } from './i18n/routing'
+import { type NextRequest, NextResponse } from 'next/server'
 import { jwtVerify } from 'jose'
+
+const intlMiddleware = createMiddleware(routing)
 
 const secret = new TextEncoder().encode(
   process.env.JWT_SECRET ?? 'maze-default-secret-change-in-production'
@@ -8,27 +12,36 @@ const secret = new TextEncoder().encode(
 export async function middleware(req: NextRequest) {
   const { pathname } = req.nextUrl
 
-  // Only protect /admin routes (not /admin/login)
-  if (pathname.startsWith('/admin') && !pathname.startsWith('/admin/login')) {
-    const token = req.cookies.get('maze_admin_token')?.value
+  // ── Admin JWT protection ────────────────────────────────────────
+  if (pathname.startsWith('/admin')) {
+    if (!pathname.startsWith('/admin/login')) {
+      const token = req.cookies.get('maze_admin_token')?.value
 
-    if (!token) {
-      return NextResponse.redirect(new URL('/admin/login', req.url))
-    }
+      if (!token) {
+        return NextResponse.redirect(new URL('/admin/login', req.url))
+      }
 
-    try {
-      await jwtVerify(token, secret)
-      return NextResponse.next()
-    } catch {
-      const response = NextResponse.redirect(new URL('/admin/login', req.url))
-      response.cookies.delete('maze_admin_token')
-      return response
+      try {
+        await jwtVerify(token, secret)
+        return NextResponse.next()
+      } catch {
+        const res = NextResponse.redirect(new URL('/admin/login', req.url))
+        res.cookies.delete('maze_admin_token')
+        return res
+      }
     }
+    return NextResponse.next()
   }
 
-  return NextResponse.next()
+  // ── i18n locale routing for all public routes ───────────────────
+  return intlMiddleware(req)
 }
 
 export const config = {
-  matcher: ['/admin/:path*'],
+  /**
+   * Match all routes except:
+   *  - Next.js internals (_next/*)
+   *  - Static files (any path with a file extension)
+   */
+  matcher: ['/((?!_next|_vercel|.*\\..*).*)'],
 }

@@ -1,7 +1,8 @@
 'use client'
 
 import { useRef } from 'react'
-import Link from 'next/link'
+import { useTranslations } from 'next-intl'
+import { Link } from '@/i18n/navigation'
 import Image from 'next/image'
 import { motion, useInView } from 'framer-motion'
 import type { Project } from '@/lib/types'
@@ -30,7 +31,7 @@ function ProjectCard({ project, index }: { project: Project; index: number }) {
         {/* Image */}
         <div className="relative overflow-hidden bg-maze-gray rounded-lg">
           <div
-            className="aspect-[4/3] relative"
+            className="relative"
             style={{ aspectRatio: index % 3 === 0 ? '3/4' : '4/3' }}
           >
             <Image
@@ -48,7 +49,7 @@ function ProjectCard({ project, index }: { project: Project; index: number }) {
             <div
               className="absolute inset-0"
               style={{
-                background: `linear-gradient(135deg, ${project.accentColor}33 0%, #1E1E1E 100%)`,
+                background: `linear-gradient(135deg, ${project.accentColor}33 0%, rgb(var(--gray)) 100%)`,
               }}
             />
             {/* Project initials */}
@@ -93,6 +94,7 @@ function ProjectCard({ project, index }: { project: Project; index: number }) {
 }
 
 export function FeaturedWork({ projects }: Props) {
+  const t        = useTranslations('featured')
   const titleRef = useRef<HTMLDivElement>(null)
   const inView   = useInView(titleRef, { once: true, margin: '-10% 0px' })
 
@@ -110,7 +112,7 @@ export function FeaturedWork({ projects }: Props) {
             transition={{ duration: 0.5 }}
             className="label-sm text-maze-muted mb-3"
           >
-            Selected Work
+            {t('label')}
           </motion.p>
           <div className="overflow-hidden">
             <motion.h2
@@ -119,7 +121,7 @@ export function FeaturedWork({ projects }: Props) {
               transition={{ duration: 0.8, ease: [0.19, 1, 0.22, 1] }}
               className="display-md text-maze-cream"
             >
-              Featured Projects
+              {t('heading')}
             </motion.h2>
           </div>
         </div>
@@ -132,8 +134,8 @@ export function FeaturedWork({ projects }: Props) {
             href="/portfolio"
             className="label-sm text-maze-muted hover:text-maze-lime transition-colors flex items-center gap-2"
           >
-            View all work
-            <span className="inline-block group-hover:translate-x-1 transition-transform">→</span>
+            {t('viewAll')}
+            <span className="inline-block">→</span>
           </Link>
         </motion.div>
       </div>
@@ -145,7 +147,6 @@ export function FeaturedWork({ projects }: Props) {
         ))}
       </div>
 
-      {/* Second row — offset */}
       {projects.length > 3 && (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-5 mt-5 lg:ml-[33.33%]">
           {projects.slice(3, 5).map((project, i) => (

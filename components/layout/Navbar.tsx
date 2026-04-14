@@ -1,24 +1,27 @@
 'use client'
 
 import { useEffect, useRef, useState } from 'react'
-import Link from 'next/link'
-import { usePathname } from 'next/navigation'
+import { useTranslations } from 'next-intl'
+import { Link, usePathname } from '@/i18n/navigation'
 import { motion, AnimatePresence } from 'framer-motion'
 import { cn } from '@/lib/utils'
-
-const navLinks = [
-  { href: '/portfolio', label: 'Work' },
-  { href: '/services',  label: 'Services' },
-  { href: '/about',     label: 'About' },
-  { href: '/contact',   label: 'Contact' },
-]
+import { ThemeToggle } from '@/components/ui/ThemeToggle'
+import { LangToggle } from '@/components/ui/LangToggle'
 
 export function Navbar() {
-  const pathname     = usePathname()
-  const [scrolled, setScrolled]   = useState(false)
-  const [menuOpen,  setMenuOpen]  = useState(false)
+  const t        = useTranslations('nav')
+  const pathname = usePathname()
+  const [scrolled, setScrolled] = useState(false)
+  const [menuOpen, setMenuOpen] = useState(false)
+  const [hidden, setHidden]     = useState(false)
   const prevY = useRef(0)
-  const [hidden, setHidden] = useState(false)
+
+  const navLinks = [
+    { href: '/portfolio', label: t('work') },
+    { href: '/services',  label: t('services') },
+    { href: '/about',     label: t('about') },
+    { href: '/contact',   label: t('contact') },
+  ]
 
   useEffect(() => {
     const onScroll = () => {
@@ -31,9 +34,7 @@ export function Navbar() {
     return () => window.removeEventListener('scroll', onScroll)
   }, [])
 
-  useEffect(() => {
-    setMenuOpen(false)
-  }, [pathname])
+  useEffect(() => { setMenuOpen(false) }, [pathname])
 
   useEffect(() => {
     document.body.style.overflow = menuOpen ? 'hidden' : ''
@@ -45,7 +46,9 @@ export function Navbar() {
       <motion.header
         className={cn(
           'fixed top-0 left-0 right-0 z-50 px-6 md:px-10 transition-all duration-500',
-          scrolled ? 'py-4 bg-[#080808]/90 backdrop-blur-md border-b border-[#1E1E1E]' : 'py-6'
+          scrolled
+            ? 'py-4 bg-maze-black/90 backdrop-blur-md border-b border-maze-border'
+            : 'py-6'
         )}
         animate={{ y: hidden && !menuOpen ? -100 : 0 }}
         transition={{ duration: 0.4, ease: [0.76, 0, 0.24, 1] }}
@@ -55,7 +58,7 @@ export function Navbar() {
           <Link href="/" className="flex items-center gap-2 group">
             <MazeLogo />
             <span className="label-sm text-maze-muted hidden sm:block">
-              Branding Studio
+              {t('brandingStudio')}
             </span>
           </Link>
 
@@ -78,13 +81,16 @@ export function Navbar() {
             ))}
           </ul>
 
-          {/* CTA */}
-          <div className="flex items-center gap-4">
+          {/* Right side: toggles + CTA */}
+          <div className="flex items-center gap-3">
+            <ThemeToggle />
+            <LangToggle />
+
             <Link
               href="/contact"
               className="hidden lg:flex items-center gap-2 px-5 py-2.5 bg-maze-lime text-maze-black label-sm rounded-full hover:bg-white transition-colors duration-200"
             >
-              Start a project
+              {t('startProject')}
               <svg width="10" height="10" viewBox="0 0 10 10" fill="none">
                 <path d="M1 9L9 1M9 1H3M9 1V7" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
               </svg>
@@ -151,7 +157,7 @@ export function Navbar() {
                 href="/contact"
                 className="inline-flex items-center gap-3 px-8 py-4 bg-maze-lime text-maze-black font-bold rounded-full text-lg"
               >
-                Start a project ↗
+                {t('startProject')} ↗
               </Link>
             </motion.div>
           </motion.div>
@@ -167,11 +173,12 @@ function MazeLogo() {
       <text
         x="0"
         y="20"
-        fontFamily="var(--font-space), sans-serif"
+        fontFamily="var(--font-sans), sans-serif"
         fontSize="22"
         fontWeight="900"
         letterSpacing="-1"
-        fill="#EDEBE3"
+        fill="currentColor"
+        className="text-maze-cream"
       >
         MAZE
       </text>

@@ -131,6 +131,25 @@
       "results": "Awarded Bronze at Pentawards 2023, listed in 8 countries",
       "createdAt": "2023-09-20T10:00:00Z",
       "updatedAt": "2023-09-20T10:00:00Z"
+    },
+    {
+      "id": "7",
+      "slug": "silk-route-naming",
+      "title": "Silk Route",
+      "client": "Silk Route Logistics",
+      "category": "naming",
+      "year": 2024,
+      "shortDescription": "Naming a new Central Asian logistics platform",
+      "description": "Complete naming project for a logistics startup connecting Central Asian markets to global trade routes. We explored hundreds of name concepts rooted in cultural resonance, linguistic clarity across UZ/RU/EN markets, and trademark availability — landing on Silk Route: historically powerful, geographically precise, and instantly memorable.",
+      "coverImage": "/portfolio/uploads/silkroute-cover.jpg",
+      "images": [],
+      "tags": ["Naming", "Logistics", "B2B", "Multilingual"],
+      "services": ["Brand Naming", "Linguistic Analysis", "Trademark Check", "Domain Check", "Naming Rationale"],
+      "featured": false,
+      "accentColor": "#D4A017",
+      "results": "Name cleared trademark in 6 markets, domain secured in all key extensions",
+      "createdAt": "2024-04-01T10:00:00Z",
+      "updatedAt": "2024-04-01T10:00:00Z"
     }
   ]
 }

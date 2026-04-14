@@ -1,11 +1,12 @@
 import type { Metadata, Viewport } from 'next'
-import { Space_Grotesk, Space_Mono } from 'next/font/google'
+import { Manrope, Space_Mono } from 'next/font/google'
+import { ThemeProvider } from 'next-themes'
 import './globals.css'
 
-const spaceGrotesk = Space_Grotesk({
-  subsets: ['latin'],
-  weight: ['300', '400', '500', '600', '700'],
-  variable: '--font-space',
+const manrope = Manrope({
+  subsets: ['latin', 'cyrillic'],
+  weight: ['300', '400', '500', '600', '700', '800'],
+  variable: '--font-sans',
   display: 'swap',
 })
 
@@ -44,7 +45,7 @@ export const metadata: Metadata = {
   openGraph: {
     type: 'website',
     locale: 'en_US',
-    alternateLocale: ['ru_RU', 'uz_UZ'],
+    alternateLocale: ['ru_RU'],
     url: SITE_URL,
     siteName: 'MAZE Studio',
     title: 'MAZE — Branding & Design Studio',
@@ -70,7 +71,7 @@ export const metadata: Metadata = {
   manifest: '/site.webmanifest',
   alternates: {
     canonical: SITE_URL,
-    languages: { 'en-US': `${SITE_URL}/en`, 'ru-RU': `${SITE_URL}/ru`, 'uz-UZ': `${SITE_URL}/uz` },
+    languages: { 'en-US': `${SITE_URL}/en`, 'ru-RU': `${SITE_URL}/ru` },
   },
 }
 
@@ -80,11 +81,24 @@ export const viewport: Viewport = {
   themeColor: '#080808',
 }
 
-/** Root layout — minimal shell. Public layout adds Navbar/Footer/animations. */
+/** Root layout — minimal shell. Public locale layout adds Navbar/Footer/animations. */
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en" className={`${spaceGrotesk.variable} ${spaceMono.variable}`}>
-      <body>{children}</body>
+    <html
+      lang="en"
+      suppressHydrationWarning
+      className={`${manrope.variable} ${spaceMono.variable}`}
+    >
+      <body>
+        <ThemeProvider
+          attribute="class"
+          defaultTheme="dark"
+          enableSystem={false}
+          disableTransitionOnChange={false}
+        >
+          {children}
+        </ThemeProvider>
+      </body>
     </html>
   )
 }

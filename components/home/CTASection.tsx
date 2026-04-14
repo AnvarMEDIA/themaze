@@ -1,11 +1,13 @@
 'use client'
 
 import { useRef } from 'react'
-import Link from 'next/link'
+import { useTranslations } from 'next-intl'
+import { Link } from '@/i18n/navigation'
 import { motion, useInView } from 'framer-motion'
 import { MagneticButton } from '@/components/ui/MagneticButton'
 
 export function CTASection() {
+  const t      = useTranslations('cta')
   const ref    = useRef<HTMLElement>(null)
   const inView = useInView(ref, { once: true, margin: '-10% 0px' })
 
@@ -33,7 +35,7 @@ export function CTASection() {
           animate={inView ? { opacity: 1, y: 0 } : {}}
           className="label-sm text-maze-muted mb-8"
         >
-          Ready to start?
+          {t('label')}
         </motion.p>
 
         <div className="overflow-hidden mb-4">
@@ -43,7 +45,7 @@ export function CTASection() {
             transition={{ duration: 1, ease: [0.19, 1, 0.22, 1] }}
             className="display-lg text-maze-cream"
           >
-            Let's build
+            {t('line1')}
           </motion.h2>
         </div>
         <div className="overflow-hidden mb-4">
@@ -53,7 +55,7 @@ export function CTASection() {
             transition={{ delay: 0.08, duration: 1, ease: [0.19, 1, 0.22, 1] }}
             className="display-lg text-maze-lime"
           >
-            something great.
+            {t('line2')}
           </motion.h2>
         </div>
 
@@ -63,7 +65,7 @@ export function CTASection() {
           transition={{ delay: 0.3, duration: 0.7 }}
           className="body-lg text-maze-muted max-w-md mx-auto mt-6 mb-12"
         >
-          Tell us about your project and we'll get back to you within 24 hours.
+          {t('sub')}
         </motion.p>
 
         <motion.div
@@ -77,15 +79,15 @@ export function CTASection() {
               href="/contact"
               className="inline-flex items-center gap-3 px-8 py-4 bg-maze-lime text-maze-black font-bold rounded-full text-base hover:bg-white transition-colors duration-200"
             >
-              Start a project ↗
+              {t('button')} ↗
             </Link>
           </MagneticButton>
           <MagneticButton>
             <a
-              href="mailto:hello@maze.uz"
+              href={`mailto:${t('email')}`}
               className="inline-flex items-center gap-3 px-8 py-4 border border-maze-border text-maze-cream rounded-full text-base hover:border-maze-lime hover:text-maze-lime transition-all duration-300 label-sm"
             >
-              hello@maze.uz
+              {t('email')}
             </a>
           </MagneticButton>
         </motion.div>

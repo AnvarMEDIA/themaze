@@ -1,28 +1,17 @@
 'use client'
 
 import { useRef } from 'react'
+import { useTranslations } from 'next-intl'
 import { motion, useScroll, useTransform } from 'framer-motion'
 
-const ITEMS = [
-  'Brand Identity',
-  'Logo Design',
-  'Brand Strategy',
-  'UI / UX Design',
-  'Print Design',
-  'Motion Design',
-  'Packaging',
-  'Web Design',
-  'Art Direction',
-  'Visual Identity',
-]
-
 interface MarqueeRowProps {
+  items: string[]
   reverse?: boolean
   speed?: number
 }
 
-function MarqueeRow({ reverse = false, speed = 30 }: MarqueeRowProps) {
-  const doubled = [...ITEMS, ...ITEMS]
+function MarqueeRow({ items, reverse = false, speed = 30 }: MarqueeRowProps) {
+  const doubled = [...items, ...items]
   return (
     <div className="overflow-hidden select-none">
       <div
@@ -46,7 +35,10 @@ function MarqueeRow({ reverse = false, speed = 30 }: MarqueeRowProps) {
 }
 
 export function Marquee() {
-  const ref = useRef<HTMLDivElement>(null)
+  const t     = useTranslations('marquee')
+  const items = t.raw('items') as string[]
+  const ref   = useRef<HTMLDivElement>(null)
+
   const { scrollYProgress } = useScroll({
     target: ref,
     offset: ['start end', 'end start'],
@@ -60,8 +52,8 @@ export function Marquee() {
       style={{ opacity, y }}
       className="py-8 border-y border-maze-border space-y-4 overflow-hidden"
     >
-      <MarqueeRow />
-      <MarqueeRow reverse speed={22} />
+      <MarqueeRow items={items} />
+      <MarqueeRow items={items} reverse speed={22} />
     </motion.div>
   )
 }
