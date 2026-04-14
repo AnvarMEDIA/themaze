@@ -1,12 +1,10 @@
 'use client'
 
 import { useState } from 'react'
-import { useRouter } from 'next/navigation'
 import toast from 'react-hot-toast'
 
 export default function AdminLoginPage() {
-  const router  = useRouter()
-  const [pw, setPw]         = useState('')
+  const [pw, setPw]           = useState('')
   const [loading, setLoading] = useState(false)
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -19,30 +17,35 @@ export default function AdminLoginPage() {
         body: JSON.stringify({ password: pw }),
       })
       if (res.ok) {
-        toast.success('Welcome back!')
-        router.push('/admin')
-        router.refresh()
+        // Hard navigation — ensures the new httpOnly cookie is sent
+        // with the next request so middleware sees it immediately.
+        window.location.href = '/admin'
       } else {
         toast.error('Incorrect password')
         setPw('')
+        setLoading(false)
       }
     } catch {
       toast.error('Something went wrong')
+      setLoading(false)
     }
-    setLoading(false)
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center px-6 bg-maze-black">
+    <div className="min-h-screen flex items-center justify-center px-6 bg-[#080808]">
       <div className="w-full max-w-sm">
         <div className="mb-10 text-center">
-          <p className="text-3xl font-black text-maze-cream tracking-tight mb-2">MAZE</p>
-          <p className="label-sm text-maze-muted">Admin Panel</p>
+          <p className="text-3xl font-black text-[#EDEBE3] tracking-tight mb-2">MAZE</p>
+          <p className="text-[11px] font-semibold tracking-[0.12em] uppercase text-[#5A5A5A]">
+            Admin Panel
+          </p>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-5">
           <div>
-            <label className="label-sm text-maze-muted block mb-2">Password</label>
+            <label className="text-[11px] font-semibold tracking-[0.12em] uppercase text-[#5A5A5A] block mb-2">
+              Password
+            </label>
             <input
               type="password"
               required
@@ -50,20 +53,20 @@ export default function AdminLoginPage() {
               placeholder="Enter admin password"
               value={pw}
               onChange={(e) => setPw(e.target.value)}
-              className="w-full bg-maze-dark border border-maze-border rounded-lg px-4 py-3.5 body-lg text-maze-cream placeholder:text-maze-muted focus:outline-none focus:border-maze-lime transition-colors"
+              className="w-full bg-[#111] border border-[#252525] rounded-lg px-4 py-3.5 text-[#EDEBE3] placeholder:text-[#5A5A5A] focus:outline-none focus:border-[#C8FF47] transition-colors"
             />
           </div>
           <button
             type="submit"
             disabled={loading}
-            className="w-full py-3.5 bg-maze-lime text-maze-black font-bold rounded-lg label-sm hover:bg-white transition-colors disabled:opacity-60"
+            className="w-full py-3.5 bg-[#C8FF47] text-[#080808] font-bold rounded-lg text-sm hover:bg-white transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
           >
             {loading ? 'Signing in…' : 'Sign in'}
           </button>
         </form>
 
-        <p className="mt-6 text-center label-sm text-maze-muted">
-          Default password: <code className="text-maze-cream">maze2024</code>
+        <p className="mt-6 text-center text-xs text-[#5A5A5A]">
+          Default password: <code className="text-[#EDEBE3]">maze2024</code>
           <br />
           <span className="text-[10px]">Change via ADMIN_PASSWORD env variable</span>
         </p>
