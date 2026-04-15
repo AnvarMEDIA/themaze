@@ -2,9 +2,10 @@
 
 import { useEffect, useRef } from 'react'
 import { useTranslations } from 'next-intl'
+import { Link } from '@/i18n/navigation'
 import { motion, useReducedMotion } from 'framer-motion'
 import gsap from 'gsap'
-import { LiquidButton } from '@/components/ui/LiquidButton'
+import { MagneticButton } from '@/components/ui/MagneticButton'
 import { InfiniteGrid } from '@/components/home/InfiniteGrid'
 
 export function Hero() {
@@ -18,7 +19,6 @@ export function Hero() {
   const line2        = t('line2')
   const shouldReduce = useReducedMotion()
 
-  // Cycling words animation
   useEffect(() => {
     if (!wordRef.current || words.length === 0) return
     const el = wordRef.current
@@ -45,7 +45,6 @@ export function Hero() {
     return () => clearInterval(interval)
   }, [words])
 
-  // Parallax on scroll
   useEffect(() => {
     if (!containerRef.current) return
     const el = containerRef.current
@@ -70,17 +69,14 @@ export function Hero() {
 
   return (
     <section className="relative min-h-screen flex flex-col justify-end pb-16 px-6 md:px-10 pt-28 overflow-hidden">
-      {/* Infinite perspective grid */}
       <InfiniteGrid />
 
-      {/* Accent dot */}
       <motion.div
         className="absolute top-32 right-10 w-2 h-2 rounded-full bg-maze-lime"
         animate={{ scale: [1, 1.5, 1], opacity: [1, 0.5, 1] }}
         transition={{ duration: 3, repeat: Infinity, ease: 'easeInOut' }}
       />
 
-      {/* EST. tag */}
       <motion.div
         initial={{ opacity: 0, x: 20 }}
         animate={{ opacity: 1, x: 0 }}
@@ -90,9 +86,7 @@ export function Hero() {
         {t('est')}
       </motion.div>
 
-      {/* Main headline */}
       <div ref={containerRef}>
-        {/* Line 1 */}
         <div className="overflow-hidden">
           <div className="flex flex-wrap gap-x-[0.04em]" aria-label={line1}>
             {line1.split('').map((char, i) => (
@@ -114,7 +108,6 @@ export function Hero() {
           </div>
         </div>
 
-        {/* Line 2: [line2] + cycling word */}
         <div className="overflow-hidden flex flex-wrap items-end gap-x-[0.08em]">
           {line2.split('').map((char, i) => (
             <motion.span
@@ -141,7 +134,6 @@ export function Hero() {
           </motion.span>
         </div>
 
-        {/* Descriptor row */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -151,17 +143,33 @@ export function Hero() {
           <p className="body-lg text-maze-muted max-w-sm">{t('subtitle')}</p>
 
           <div className="flex items-center gap-4">
-            <LiquidButton href="/portfolio" variant="clear">
-              {t('viewWork')} →
-            </LiquidButton>
-            <LiquidButton href="/contact" variant="lime">
-              {t('startProject')} ↗
-            </LiquidButton>
+            <MagneticButton>
+              <Link
+                href="/portfolio"
+                className="flex items-center gap-3 px-6 py-3.5 border border-maze-border rounded-full text-maze-cream hover:border-maze-lime hover:text-maze-lime transition-all duration-300 label-sm group"
+              >
+                {t('viewWork')}
+                <motion.span
+                  className="inline-block"
+                  animate={{ x: [0, 4, 0] }}
+                  transition={{ duration: 2, repeat: Infinity, ease: 'easeInOut' }}
+                >
+                  →
+                </motion.span>
+              </Link>
+            </MagneticButton>
+            <MagneticButton>
+              <Link
+                href="/contact"
+                className="flex items-center gap-2 px-6 py-3.5 bg-maze-lime text-maze-ink rounded-full label-sm hover:bg-maze-paper transition-colors duration-200"
+              >
+                {t('startProject')} ↗
+              </Link>
+            </MagneticButton>
           </div>
         </motion.div>
       </div>
 
-      {/* Scroll indicator */}
       <motion.div
         className="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2"
         initial={{ opacity: 0 }}

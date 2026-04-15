@@ -27,38 +27,25 @@ export function PortfolioGrid({ projects }: Props) {
     <div>
       {/* Controls */}
       <div className="flex flex-wrap items-center justify-between gap-4 mb-10">
-        {/* Filters — glass pill buttons */}
+        {/* Filters */}
         <div className="flex flex-wrap gap-2">
           {[{ id: ALL, label: `All (${projects.length})` }, ...categories.map((c) => ({ id: c, label: CATEGORY_LABELS[c] }))].map(({ id, label }) => (
             <button
               key={id}
               onClick={() => setFilter(id as Filter)}
-              className={[
-                'relative overflow-hidden rounded-full label-sm px-4 py-2 transition-all duration-200',
+              className={`label-sm px-4 py-2 rounded-full border transition-all duration-200 ${
                 filter === id
-                  ? 'glass-lime'
-                  : 'glass-clear text-maze-muted hover:text-maze-cream',
-              ].join(' ')}
+                  ? 'border-maze-lime text-maze-ink bg-maze-lime'
+                  : 'border-maze-border text-maze-muted hover:border-maze-cream hover:text-maze-cream'
+              }`}
             >
-              {filter === id && (
-                <span
-                  aria-hidden
-                  className="absolute inset-0 rounded-[inherit] pointer-events-none"
-                  style={{ background: 'linear-gradient(148deg,rgba(255,255,255,0.22) 0%,rgba(255,255,255,0.06) 20%,transparent 50%)' }}
-                />
-              )}
-              <span className="relative z-10">{label}</span>
+              {label}
             </button>
           ))}
         </div>
 
         {/* View toggle */}
-        <div className="relative overflow-hidden flex gap-1 rounded-full p-1 glass-clear">
-          <span
-            aria-hidden
-            className="absolute inset-0 rounded-[inherit] pointer-events-none"
-            style={{ background: 'linear-gradient(148deg,rgba(255,255,255,0.14) 0%,transparent 50%)' }}
-          />
+        <div className="flex gap-1 rounded-full p-1 border border-maze-border">
           {[
             { id: 'grid' as const, icon: <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><rect x="0" y="0" width="6" height="6" fill="currentColor" rx="1"/><rect x="8" y="0" width="6" height="6" fill="currentColor" rx="1"/><rect x="0" y="8" width="6" height="6" fill="currentColor" rx="1"/><rect x="8" y="8" width="6" height="6" fill="currentColor" rx="1"/></svg>, label: 'Grid view' },
             { id: 'list' as const, icon: <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><rect x="0" y="1" width="14" height="2" fill="currentColor" rx="1"/><rect x="0" y="6" width="14" height="2" fill="currentColor" rx="1"/><rect x="0" y="11" width="14" height="2" fill="currentColor" rx="1"/></svg>, label: 'List view' },
@@ -67,7 +54,7 @@ export function PortfolioGrid({ projects }: Props) {
               key={id}
               onClick={() => setView(id)}
               title={label}
-              className={`relative z-10 p-2 rounded-full transition-colors ${view === id ? 'text-maze-lime' : 'text-maze-muted hover:text-maze-cream'}`}
+              className={`p-2 rounded-full transition-colors ${view === id ? 'text-maze-lime' : 'text-maze-muted hover:text-maze-cream'}`}
             >
               {icon}
             </button>

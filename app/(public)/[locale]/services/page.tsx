@@ -2,7 +2,6 @@ import type { Metadata } from 'next'
 import { getTranslations, setRequestLocale } from 'next-intl/server'
 import { routing } from '@/i18n/routing'
 import { Link } from '@/i18n/navigation'
-import { LiquidButton } from '@/components/ui/LiquidButton'
 
 interface Props {
   params: { locale: string }
@@ -94,9 +93,12 @@ export default async function ServicesPage({ params: { locale } }: Props) {
         <p className="label-sm text-maze-muted mb-4">{t('notSureLabel')}</p>
         <h2 className="display-md text-maze-cream mb-6">{t('notSureHeading')}</h2>
         <p className="body-lg text-maze-muted max-w-md mx-auto mb-8">{t('notSureSub')}</p>
-        <LiquidButton href="/contact" variant="lime" size="lg">
+        <Link
+          href="/contact"
+          className="inline-flex items-center gap-3 px-8 py-4 bg-maze-lime text-maze-ink font-bold rounded-full hover:bg-maze-paper transition-colors"
+        >
           {t('notSureCta')} ↗
-        </LiquidButton>
+        </Link>
       </div>
     </div>
   )

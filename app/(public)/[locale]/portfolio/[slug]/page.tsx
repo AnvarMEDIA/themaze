@@ -3,7 +3,6 @@ import { getTranslations, setRequestLocale } from 'next-intl/server'
 import { notFound } from 'next/navigation'
 import Image from 'next/image'
 import { Link } from '@/i18n/navigation'
-import { LiquidButton } from '@/components/ui/LiquidButton'
 import { routing } from '@/i18n/routing'
 import { getAllProjects, getProjectBySlug } from '@/lib/portfolio'
 import { CATEGORY_LABELS } from '@/lib/utils'
@@ -144,9 +143,12 @@ export default async function ProjectPage({ params }: Props) {
 
               <div className="mt-10 pt-8 border-t border-maze-border">
                 <p className="label-sm text-maze-muted mb-4">{t('likeProject')}</p>
-                <LiquidButton href="/contact" variant="lime">
+                <Link
+                  href="/contact"
+                  className="inline-flex items-center gap-2 px-5 py-3 bg-maze-lime text-maze-ink font-bold rounded-full label-sm hover:bg-maze-paper transition-colors"
+                >
                   {t('startSimilar')} ↗
-                </LiquidButton>
+                </Link>
               </div>
             </div>
           </div>

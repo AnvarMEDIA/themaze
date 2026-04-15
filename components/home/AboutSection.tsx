@@ -2,9 +2,9 @@
 
 import { useRef } from 'react'
 import { useTranslations } from 'next-intl'
+import { Link } from '@/i18n/navigation'
 import { motion, useInView, useScroll, useTransform } from 'framer-motion'
 import { AnimatedCounter } from '@/components/ui/AnimatedCounter'
-import { LiquidButton } from '@/components/ui/LiquidButton'
 
 export function AboutSection() {
   const t      = useTranslations('about')
@@ -30,7 +30,6 @@ export function AboutSection() {
       className="px-6 md:px-10 py-24 md:py-36 border-t border-maze-border"
     >
       <div className="max-w-[1440px] mx-auto grid grid-cols-1 lg:grid-cols-2 gap-16 lg:gap-24 items-center">
-        {/* Left */}
         <div>
           <motion.p
             initial={{ opacity: 0, y: 10 }}
@@ -75,13 +74,15 @@ export function AboutSection() {
             animate={inView ? { opacity: 1, y: 0 } : {}}
             transition={{ delay: 0.6 }}
           >
-            <LiquidButton href="/about" variant="clear">
+            <Link
+              href="/about"
+              className="inline-flex items-center gap-3 label-sm text-maze-lime border border-maze-lime px-6 py-3 rounded-full hover:bg-maze-lime hover:text-maze-ink transition-all duration-300"
+            >
               {t('cta')} →
-            </LiquidButton>
+            </Link>
           </motion.div>
         </div>
 
-        {/* Right — Stats + visual */}
         <motion.div style={{ y }} className="space-y-6">
           <div className="rounded-xl border border-maze-border bg-maze-dark p-8 relative overflow-hidden">
             <div className="absolute inset-0 maze-grid opacity-40" />
