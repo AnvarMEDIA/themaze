@@ -5,6 +5,7 @@ import { useTranslations } from 'next-intl'
 import { motion, useReducedMotion } from 'framer-motion'
 import gsap from 'gsap'
 import { LiquidButton } from '@/components/ui/LiquidButton'
+import { InfiniteGrid } from '@/components/home/InfiniteGrid'
 
 export function Hero() {
   const t         = useTranslations('hero')
@@ -69,8 +70,8 @@ export function Hero() {
 
   return (
     <section className="relative min-h-screen flex flex-col justify-end pb-16 px-6 md:px-10 pt-28 overflow-hidden">
-      {/* Background maze grid */}
-      <div className="absolute inset-0 maze-grid opacity-30 pointer-events-none" />
+      {/* Infinite perspective grid */}
+      <InfiniteGrid />
 
       {/* Accent dot */}
       <motion.div
