@@ -1,0 +1,44 @@
+[
+  {
+    "id": "1",
+    "name": "Uzum Market",
+    "logo": "/partners/uzum.svg",
+    "url": "https://uzum.uz",
+    "order": 1
+  },
+  {
+    "id": "2",
+    "name": "Kapital Bank",
+    "logo": "/partners/kapital.svg",
+    "url": "https://kapitalbank.uz",
+    "order": 2
+  },
+  {
+    "id": "3",
+    "name": "Humans",
+    "logo": "/partners/humans.svg",
+    "url": "https://humans.uz",
+    "order": 3
+  },
+  {
+    "id": "4",
+    "name": "Artel",
+    "logo": "/partners/artel.svg",
+    "url": "https://artel.uz",
+    "order": 4
+  },
+  {
+    "id": "5",
+    "name": "Beeline Uzbekistan",
+    "logo": "/partners/beeline.svg",
+    "url": "https://beeline.uz",
+    "order": 5
+  },
+  {
+    "id": "6",
+    "name": "Payme",
+    "logo": "/partners/payme.svg",
+    "url": "https://payme.uz",
+    "order": 6
+  }
+]

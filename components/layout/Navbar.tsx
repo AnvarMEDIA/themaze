@@ -89,7 +89,7 @@ export function Navbar() {
 
             <Link
               href="/contact"
-              className="hidden lg:flex items-center gap-2 px-5 py-2.5 bg-maze-lime text-maze-black label-sm rounded-full hover:bg-white transition-colors duration-200"
+              className="hidden lg:flex items-center gap-2 px-5 py-2.5 bg-maze-lime text-maze-ink label-sm rounded-full hover:bg-maze-paper transition-colors duration-200"
             >
               {t('startProject')}
               <svg width="10" height="10" viewBox="0 0 10 10" fill="none">
@@ -160,7 +160,7 @@ export function Navbar() {
             >
               <Link
                 href="/contact"
-                className="inline-flex items-center gap-3 px-8 py-4 bg-maze-lime text-maze-black font-bold rounded-full text-lg"
+                className="inline-flex items-center gap-3 px-8 py-4 bg-maze-lime text-maze-ink font-bold rounded-full text-lg"
               >
                 {t('startProject')} ↗
               </Link>

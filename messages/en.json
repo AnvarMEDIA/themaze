@@ -133,6 +133,10 @@
       "Social": "Social"
     }
   },
+  "partners": {
+    "label": "Trusted by",
+    "heading": "Clients & Partners"
+  },
   "portfolio": {
     "label": "Our Work",
     "heading": "Portfolio",

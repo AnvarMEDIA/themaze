@@ -1,5 +1,4 @@
 import { notFound }    from 'next/navigation'
-import { AdminNav }    from '@/components/admin/AdminNav'
 import { ProjectForm } from '@/components/admin/ProjectForm'
 import { getProjectById } from '@/lib/portfolio'
 
@@ -14,15 +13,12 @@ export default function EditProjectPage({ params }: Props) {
   if (!project) notFound()
 
   return (
-    <>
-      <AdminNav />
-      <div className="pt-20 px-6 md:px-10 py-10 min-h-screen bg-maze-black">
-        <div className="max-w-3xl mx-auto">
-          <h1 className="heading-lg text-maze-cream mb-2">Edit Project</h1>
-          <p className="body-lg text-maze-muted mb-8">{project.title}</p>
-          <ProjectForm project={project} />
-        </div>
+    <div className="px-8 py-8">
+      <div className="mb-8">
+        <h1 className="text-2xl font-bold text-white tracking-tight">Edit Project</h1>
+        <p className="text-sm text-[#555] mt-1">{project.title}</p>
       </div>
-    </>
+      <ProjectForm project={project} />
+    </div>
   )
 }

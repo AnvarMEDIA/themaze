@@ -2,22 +2,24 @@
 
 import { useEffect, useState, useCallback } from 'react'
 import Link from 'next/link'
-import { AdminNav } from '@/components/admin/AdminNav'
 import type { Project } from '@/lib/types'
+import type { Partner } from '@/lib/partners'
 import { CATEGORY_LABELS } from '@/lib/utils'
-import toast from 'react-hot-toast'
 
-export default function AdminPage() {
+export default function AdminDashboard() {
   const [projects, setProjects] = useState<Project[]>([])
+  const [partners, setPartners] = useState<Partner[]>([])
   const [loading,  setLoading]  = useState(true)
 
   const load = useCallback(async () => {
     try {
-      const res  = await fetch('/api/portfolio', { cache: 'no-store' })
-      const data = await res.json() as Project[]
-      setProjects(data)
-    } catch {
-      toast.error('Failed to load projects')
+      const [pRes, partRes] = await Promise.all([
+        fetch('/api/portfolio',  { cache: 'no-store' }),
+        fetch('/api/partners',   { cache: 'no-store' }),
+      ])
+      const [pData, partData] = await Promise.all([pRes.json(), partRes.json()])
+      setProjects(pData)
+      setPartners(partData)
     } finally {
       setLoading(false)
     }
@@ -25,143 +27,183 @@ export default function AdminPage() {
 
   useEffect(() => { load() }, [load])
 
-  const handleDelete = async (id: string, title: string) => {
-    if (!confirm(`Delete "${title}"? This cannot be undone.`)) return
-    const prev = projects
-    setProjects((p) => p.filter((x) => x.id !== id))   // optimistic
-    try {
-      const res = await fetch(`/api/portfolio/${id}`, { method: 'DELETE' })
-      if (!res.ok) throw new Error()
-      toast.success('Project deleted')
-    } catch {
-      setProjects(prev)                                  // rollback
-      toast.error('Delete failed')
-    }
-  }
+  const featured    = projects.filter((p) => p.featured).length
+  const categories  = Array.from(new Set(projects.map((p) => p.category)))
+  const recentProjects = [...projects]
+    .sort((a, b) => (b.year ?? 0) - (a.year ?? 0))
+    .slice(0, 5)
 
-  const featured = projects.filter((p) => p.featured).length
+  const stats = [
+    { label: 'Total Projects', value: projects.length, icon: '◈', href: '/admin/projects', color: '#C8FF47' },
+    { label: 'Featured',       value: featured,         icon: '★', href: '/admin/projects', color: '#FFD447' },
+    { label: 'Partners',       value: partners.length,  icon: '◎', href: '/admin/partners', color: '#47C8FF' },
+    { label: 'Categories',     value: categories.length,icon: '⬡', href: '/admin/projects', color: '#FF6B47' },
+  ]
 
   return (
-    <>
-      <AdminNav />
-      <div className="pt-20 px-6 md:px-10 py-10 min-h-screen">
-        <div className="max-w-5xl mx-auto">
+    <div className="px-8 py-8">
+      {/* Page header */}
+      <div className="mb-8">
+        <h1 className="text-2xl font-bold text-white tracking-tight">Dashboard</h1>
+        <p className="text-sm text-[#555] mt-1">Welcome back — here's what's happening.</p>
+      </div>
 
-          {/* Header */}
-          <div className="mb-10 flex items-center justify-between">
-            <div>
-              <h1 className="text-3xl font-bold text-[#EDEBE3]">Portfolio</h1>
-              {!loading && (
-                <p className="text-sm text-[#5A5A5A] mt-1">
-                  {projects.length} projects · {featured} featured
-                </p>
-              )}
+      {/* Stat cards */}
+      <div className="grid grid-cols-2 xl:grid-cols-4 gap-4 mb-8">
+        {stats.map((stat) => (
+          <Link
+            key={stat.label}
+            href={stat.href}
+            className="group relative p-5 rounded-xl bg-[#0D0D0D] border border-[#1E1E1E] hover:border-[#2A2A2A] transition-all duration-200"
+          >
+            <div className="flex items-start justify-between mb-3">
+              <span className="text-xl" style={{ color: stat.color }}>{stat.icon}</span>
+              <svg className="opacity-0 group-hover:opacity-100 transition-opacity" width="14" height="14" viewBox="0 0 14 14" fill="none">
+                <path d="M2 12L12 2M12 2H5M12 2V9" stroke="#555" strokeWidth="1.5" strokeLinecap="round"/>
+              </svg>
             </div>
-            <Link
-              href="/admin/new"
-              className="px-5 py-2.5 bg-[#C8FF47] text-[#080808] font-bold rounded-full text-xs tracking-widest uppercase hover:bg-white transition-colors"
-            >
-              + New project
+            {loading ? (
+              <div className="h-8 w-12 bg-[#1A1A1A] rounded animate-pulse mb-1" />
+            ) : (
+              <p className="text-3xl font-bold text-white tabular-nums">{stat.value}</p>
+            )}
+            <p className="text-xs text-[#555] mt-1">{stat.label}</p>
+          </Link>
+        ))}
+      </div>
+
+      {/* Content grid */}
+      <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
+
+        {/* Recent projects */}
+        <div className="xl:col-span-2 rounded-xl bg-[#0D0D0D] border border-[#1E1E1E]">
+          <div className="flex items-center justify-between px-5 py-4 border-b border-[#1E1E1E]">
+            <h2 className="text-sm font-semibold text-white">Recent Projects</h2>
+            <Link href="/admin/projects" className="text-xs text-[#555] hover:text-[#C8FF47] transition-colors">
+              View all →
             </Link>
           </div>
-
-          {/* Loading skeleton */}
-          {loading && (
-            <div className="space-y-3">
-              {[...Array(4)].map((_, i) => (
-                <div
-                  key={i}
-                  className="h-16 rounded-xl bg-[#111] border border-[#252525] animate-pulse"
-                />
-              ))}
-            </div>
-          )}
-
-          {/* Empty state */}
-          {!loading && projects.length === 0 && (
-            <div className="text-center py-24 border border-dashed border-[#252525] rounded-xl">
-              <p className="text-[#5A5A5A] mb-4">No projects yet.</p>
-              <Link href="/admin/new" className="text-sm text-[#C8FF47] hover:underline">
-                Add your first project →
-              </Link>
-            </div>
-          )}
-
-          {/* Projects table */}
-          {!loading && projects.length > 0 && (
-            <div className="border border-[#252525] rounded-xl overflow-hidden">
-              {/* Header row */}
-              <div className="hidden md:grid grid-cols-[1fr_140px_60px_80px_100px] gap-4 px-5 py-3 bg-[#111] border-b border-[#252525]">
-                {['Project', 'Category', 'Year', 'Featured', 'Actions'].map((h) => (
-                  <span key={h} className="text-[11px] font-semibold tracking-[0.1em] uppercase text-[#5A5A5A]">
-                    {h}
-                  </span>
+          <div>
+            {loading ? (
+              <div className="p-4 space-y-3">
+                {[...Array(4)].map((_, i) => (
+                  <div key={i} className="h-12 rounded-lg bg-[#141414] animate-pulse" />
                 ))}
               </div>
-
-              {/* Rows */}
-              {projects.map((project) => (
+            ) : recentProjects.length === 0 ? (
+              <div className="py-12 text-center">
+                <p className="text-sm text-[#444]">No projects yet.</p>
+                <Link href="/admin/projects/new" className="text-xs text-[#C8FF47] hover:underline mt-2 inline-block">
+                  Add your first project →
+                </Link>
+              </div>
+            ) : (
+              recentProjects.map((project, i) => (
                 <div
                   key={project.id}
-                  className="flex md:grid md:grid-cols-[1fr_140px_60px_80px_100px] gap-4 items-center px-5 py-4 border-b border-[#252525] last:border-b-0 hover:bg-[#111] transition-colors"
+                  className="flex items-center gap-4 px-5 py-3.5 border-b border-[#1A1A1A] last:border-b-0 hover:bg-[#111] transition-colors"
                 >
-                  {/* Title */}
-                  <div className="min-w-0">
-                    <p className="font-semibold text-[#EDEBE3] truncate">{project.title}</p>
-                    <p className="text-xs text-[#5A5A5A] mt-0.5">{project.client}</p>
+                  {/* Color dot */}
+                  <div
+                    className="w-1.5 h-8 rounded-full flex-shrink-0"
+                    style={{ background: project.accentColor ?? '#C8FF47' }}
+                  />
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-medium text-white truncate">{project.title}</p>
+                    <p className="text-xs text-[#444] mt-0.5">{project.client} · {project.year}</p>
                   </div>
-
-                  {/* Category */}
-                  <span className="hidden md:block text-xs px-2.5 py-1 border border-[#252525] rounded-full text-[#5A5A5A] whitespace-nowrap">
+                  <span className="text-[11px] px-2.5 py-1 rounded-full border border-[#252525] text-[#555] hidden sm:block whitespace-nowrap">
                     {CATEGORY_LABELS[project.category]}
                   </span>
-
-                  {/* Year */}
-                  <span className="hidden md:block text-xs text-[#5A5A5A]">{project.year}</span>
-
-                  {/* Featured */}
-                  <div className="hidden md:flex justify-center">
-                    <span
-                      className={`w-2 h-2 rounded-full ${
-                        project.featured ? 'bg-[#C8FF47]' : 'bg-[#252525]'
-                      }`}
-                    />
-                  </div>
-
-                  {/* Actions */}
-                  <div className="flex gap-4 ml-auto md:ml-0">
+                  <div className="flex items-center gap-3">
+                    {project.featured && (
+                      <span className="text-[10px] font-semibold text-[#C8FF47] bg-[#C8FF47]/10 px-2 py-0.5 rounded-full">
+                        Featured
+                      </span>
+                    )}
                     <Link
                       href={`/admin/edit/${project.id}`}
-                      className="text-xs text-[#5A5A5A] hover:text-[#C8FF47] transition-colors"
+                      className="text-xs text-[#444] hover:text-[#C8FF47] transition-colors"
                     >
                       Edit
                     </Link>
-                    <button
-                      onClick={() => handleDelete(project.id, project.title)}
-                      className="text-xs text-[#5A5A5A] hover:text-red-400 transition-colors"
-                    >
-                      Delete
-                    </button>
                   </div>
                 </div>
-              ))}
-            </div>
-          )}
-
-          {/* Tips */}
-          <div className="mt-10 p-6 border border-[#252525] rounded-xl bg-[#111]">
-            <p className="text-xs font-semibold tracking-widest uppercase text-[#C8FF47] mb-3">
-              Tips
-            </p>
-            <ul className="space-y-2 text-sm text-[#5A5A5A]">
-              <li>• Upload images via the New/Edit project form (drag &amp; drop supported)</li>
-              <li>• Images are stored in <code className="text-[#EDEBE3]">/public/portfolio/uploads/</code></li>
-              <li>• For Vercel: set <code className="text-[#EDEBE3]">ADMIN_PASSWORD</code> and <code className="text-[#EDEBE3]">JWT_SECRET</code> in env vars</li>
-              <li>• After adding projects locally, commit &amp; push → Vercel auto-deploys</li>
-            </ul>
+              ))
+            )}
           </div>
         </div>
+
+        {/* Right column */}
+        <div className="space-y-6">
+
+          {/* Quick actions */}
+          <div className="rounded-xl bg-[#0D0D0D] border border-[#1E1E1E] p-5">
+            <h2 className="text-sm font-semibold text-white mb-4">Quick Actions</h2>
+            <div className="space-y-2">
+              {[
+                { href: '/admin/projects/new', label: 'Add new project',  icon: '+', color: '#C8FF47' },
+                { href: '/admin/partners',     label: 'Manage partners',  icon: '◎', color: '#47C8FF' },
+                { href: '/admin/settings',     label: 'Site settings',    icon: '⚙', color: '#FFD447' },
+              ].map((action) => (
+                <Link
+                  key={action.href}
+                  href={action.href}
+                  className="flex items-center gap-3 px-3 py-3 rounded-lg bg-[#111] border border-[#1E1E1E] hover:border-[#2A2A2A] hover:bg-[#161616] transition-all duration-150 group"
+                >
+                  <span className="w-7 h-7 flex items-center justify-center rounded-md text-sm font-bold"
+                    style={{ color: action.color, background: `${action.color}15` }}>
+                    {action.icon}
+                  </span>
+                  <span className="text-sm text-[#888] group-hover:text-white transition-colors">{action.label}</span>
+                  <svg className="ml-auto opacity-0 group-hover:opacity-100 transition-opacity" width="12" height="12" viewBox="0 0 12 12" fill="none">
+                    <path d="M2 10L10 2M10 2H4M10 2V8" stroke="#555" strokeWidth="1.5" strokeLinecap="round"/>
+                  </svg>
+                </Link>
+              ))}
+            </div>
+          </div>
+
+          {/* Partners mini-list */}
+          <div className="rounded-xl bg-[#0D0D0D] border border-[#1E1E1E]">
+            <div className="flex items-center justify-between px-5 py-4 border-b border-[#1E1E1E]">
+              <h2 className="text-sm font-semibold text-white">Partners</h2>
+              <Link href="/admin/partners" className="text-xs text-[#555] hover:text-[#47C8FF] transition-colors">
+                Manage →
+              </Link>
+            </div>
+            <div className="p-4">
+              {loading ? (
+                <div className="space-y-2">
+                  {[...Array(3)].map((_, i) => (
+                    <div key={i} className="h-8 rounded bg-[#141414] animate-pulse" />
+                  ))}
+                </div>
+              ) : partners.length === 0 ? (
+                <div className="py-6 text-center">
+                  <p className="text-xs text-[#444]">No partners added yet.</p>
+                  <Link href="/admin/partners" className="text-xs text-[#47C8FF] hover:underline mt-1 inline-block">
+                    Add partners →
+                  </Link>
+                </div>
+              ) : (
+                <div className="space-y-1">
+                  {partners.slice(0, 5).map((partner) => (
+                    <div key={partner.id} className="flex items-center gap-3 py-2">
+                      <div className="w-2 h-2 rounded-full bg-[#47C8FF]/50 flex-shrink-0" />
+                      <span className="text-sm text-[#888]">{partner.name}</span>
+                    </div>
+                  ))}
+                  {partners.length > 5 && (
+                    <p className="text-xs text-[#444] pt-1">+{partners.length - 5} more</p>
+                  )}
+                </div>
+              )}
+            </div>
+          </div>
+
+        </div>
       </div>
-    </>
+    </div>
   )
 }

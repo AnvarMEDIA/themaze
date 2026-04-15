@@ -94,7 +94,7 @@ export function ContactForm() {
               onClick={() => set('budget', b)}
               className={`label-sm px-4 py-2 border rounded-full transition-all duration-200 ${
                 form.budget === b
-                  ? 'border-maze-lime text-maze-black bg-maze-lime'
+                  ? 'border-maze-lime text-maze-ink bg-maze-lime'
                   : 'border-maze-border text-maze-muted hover:border-maze-cream hover:text-maze-cream'
               }`}
             >
@@ -121,7 +121,7 @@ export function ContactForm() {
       <button
         type="submit"
         disabled={loading}
-        className="w-full py-4 bg-maze-lime text-maze-black font-bold rounded-full hover:bg-white transition-colors duration-200 disabled:opacity-60 disabled:cursor-not-allowed label-sm"
+        className="w-full py-4 bg-maze-lime text-maze-ink font-bold rounded-full hover:bg-maze-paper transition-colors duration-200 disabled:opacity-60 disabled:cursor-not-allowed label-sm"
       >
         {loading ? t('sending') : `${t('send')} ↗`}
       </button>

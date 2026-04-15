@@ -1,22 +1,19 @@
 import { Toaster } from 'react-hot-toast'
+import { AdminShell } from '@/components/admin/AdminShell'
 
-/**
- * Admin layout — lightweight shell with no public site chrome.
- * Root layout provides <html>/<body>; this adds only what admin needs.
- */
-export default function AdminLayout({ children }: { children: React.ReactNode }) {
+export default function AdminRootLayout({ children }: { children: React.ReactNode }) {
   return (
     <>
       <style>{`
         body { background: #080808; color: #EDEBE3; }
         * { cursor: auto !important; }
       `}</style>
-      {children}
+      <AdminShell>{children}</AdminShell>
       <Toaster
         position="bottom-right"
         toastOptions={{
           style: {
-            background: '#1E1E1E',
+            background: '#1A1A1A',
             color: '#EDEBE3',
             border: '1px solid #252525',
             fontFamily: 'var(--font-sans)',

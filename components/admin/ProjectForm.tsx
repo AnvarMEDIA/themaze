@@ -282,7 +282,7 @@ export function ProjectForm({ project }: Props) {
         <button
           type="submit"
           disabled={loading}
-          className="px-8 py-3.5 bg-maze-lime text-maze-black font-bold rounded-full label-sm hover:bg-white transition-colors disabled:opacity-60"
+          className="px-8 py-3.5 bg-[#C8FF47] text-[#0A0A0A] font-bold rounded-full label-sm hover:bg-[#F0EEE6] transition-colors disabled:opacity-60"
         >
           {loading ? 'Saving…' : isEdit ? 'Update project' : 'Create project'}
         </button>

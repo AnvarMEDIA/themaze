@@ -171,7 +171,7 @@ export function Hero() {
             <MagneticButton>
               <Link
                 href="/contact"
-                className="flex items-center gap-2 px-6 py-3.5 bg-maze-lime text-maze-black rounded-full label-sm hover:bg-white transition-colors duration-200"
+                className="flex items-center gap-2 px-6 py-3.5 bg-maze-lime text-maze-ink rounded-full label-sm hover:bg-maze-paper transition-colors duration-200"
               >
                 {t('startProject')} ↗
               </Link>

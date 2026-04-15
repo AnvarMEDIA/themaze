@@ -95,7 +95,7 @@ export default async function ServicesPage({ params: { locale } }: Props) {
         <p className="body-lg text-maze-muted max-w-md mx-auto mb-8">{t('notSureSub')}</p>
         <Link
           href="/contact"
-          className="inline-flex items-center gap-3 px-8 py-4 bg-maze-lime text-maze-black font-bold rounded-full hover:bg-white transition-colors"
+          className="inline-flex items-center gap-3 px-8 py-4 bg-maze-lime text-maze-ink font-bold rounded-full hover:bg-maze-paper transition-colors"
         >
           {t('notSureCta')} ↗
         </Link>

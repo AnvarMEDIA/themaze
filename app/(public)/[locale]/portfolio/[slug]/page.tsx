@@ -145,7 +145,7 @@ export default async function ProjectPage({ params }: Props) {
                 <p className="label-sm text-maze-muted mb-4">{t('likeProject')}</p>
                 <Link
                   href="/contact"
-                  className="inline-flex items-center gap-2 px-5 py-3 bg-maze-lime text-maze-black font-bold rounded-full label-sm hover:bg-white transition-colors"
+                  className="inline-flex items-center gap-2 px-5 py-3 bg-maze-lime text-maze-ink font-bold rounded-full label-sm hover:bg-maze-paper transition-colors"
                 >
                   {t('startSimilar')} ↗
                 </Link>

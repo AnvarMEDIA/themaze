@@ -17,6 +17,9 @@ const config: Config = {
         'maze-cream':  'rgb(var(--text) / <alpha-value>)',
         'maze-muted':  'rgb(var(--muted) / <alpha-value>)',
         'maze-lime':   'rgb(var(--lime) / <alpha-value>)',
+        /* Fixed colors — never change with theme */
+        'maze-ink':    '#0A0A0A',   /* always dark — for text on lime buttons */
+        'maze-paper':  '#F0EEE6',   /* always light — for hover on lime buttons */
       },
       fontFamily: {
         sans: ['var(--font-sans)', 'system-ui', 'sans-serif'],

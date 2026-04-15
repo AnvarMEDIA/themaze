@@ -77,7 +77,7 @@ export function AboutSection() {
           >
             <Link
               href="/about"
-              className="inline-flex items-center gap-3 label-sm text-maze-lime border border-maze-lime px-6 py-3 rounded-full hover:bg-maze-lime hover:text-maze-black transition-all duration-300"
+              className="inline-flex items-center gap-3 label-sm text-maze-lime border border-maze-lime px-6 py-3 rounded-full hover:bg-maze-lime hover:text-maze-ink transition-all duration-300"
             >
               {t('cta')} →
             </Link>

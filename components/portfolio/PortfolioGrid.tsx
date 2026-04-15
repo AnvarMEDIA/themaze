@@ -33,7 +33,7 @@ export function PortfolioGrid({ projects }: Props) {
             onClick={() => setFilter(ALL)}
             className={`label-sm px-4 py-2 rounded-full border transition-all duration-200 ${
               filter === ALL
-                ? 'border-maze-lime text-maze-black bg-maze-lime'
+                ? 'border-maze-lime text-maze-ink bg-maze-lime'
                 : 'border-maze-border text-maze-muted hover:border-maze-cream hover:text-maze-cream'
             }`}
           >
@@ -45,7 +45,7 @@ export function PortfolioGrid({ projects }: Props) {
               onClick={() => setFilter(cat)}
               className={`label-sm px-4 py-2 rounded-full border transition-all duration-200 ${
                 filter === cat
-                  ? 'border-maze-lime text-maze-black bg-maze-lime'
+                  ? 'border-maze-lime text-maze-ink bg-maze-lime'
                   : 'border-maze-border text-maze-muted hover:border-maze-cream hover:text-maze-cream'
               }`}
             >
@@ -58,7 +58,7 @@ export function PortfolioGrid({ projects }: Props) {
         <div className="flex gap-1 border border-maze-border rounded-full p-1">
           <button
             onClick={() => setView('grid')}
-            className={`p-2 rounded-full transition-colors ${view === 'grid' ? 'bg-maze-lime text-maze-black' : 'text-maze-muted hover:text-maze-cream'}`}
+            className={`p-2 rounded-full transition-colors ${view === 'grid' ? 'bg-maze-lime text-maze-ink' : 'text-maze-muted hover:text-maze-cream'}`}
             title="Grid view"
           >
             <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
@@ -70,7 +70,7 @@ export function PortfolioGrid({ projects }: Props) {
           </button>
           <button
             onClick={() => setView('list')}
-            className={`p-2 rounded-full transition-colors ${view === 'list' ? 'bg-maze-lime text-maze-black' : 'text-maze-muted hover:text-maze-cream'}`}
+            className={`p-2 rounded-full transition-colors ${view === 'list' ? 'bg-maze-lime text-maze-ink' : 'text-maze-muted hover:text-maze-cream'}`}
             title="List view"
           >
             <svg width="14" height="14" viewBox="0 0 14 14" fill="none">

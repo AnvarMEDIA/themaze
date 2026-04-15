@@ -1,4 +1,4 @@
-import { setRequestLocale } from 'next-intl/server'
+import { setRequestLocale, getTranslations } from 'next-intl/server'
 import { routing } from '@/i18n/routing'
 import { Hero }            from '@/components/home/Hero'
 import { Marquee }         from '@/components/home/Marquee'
@@ -7,7 +7,9 @@ import { AboutSection }    from '@/components/home/AboutSection'
 import { ServicesSection } from '@/components/home/ServicesSection'
 import { ProcessSection }  from '@/components/home/ProcessSection'
 import { CTASection }      from '@/components/home/CTASection'
+import { PartnersSection } from '@/components/home/PartnersSection'
 import { getFeaturedProjects } from '@/lib/portfolio'
+import { getPartners } from '@/lib/partners'
 
 interface Props {
   params: { locale: string }
@@ -17,9 +19,11 @@ export function generateStaticParams() {
   return routing.locales.map((locale) => ({ locale }))
 }
 
-export default function HomePage({ params: { locale } }: Props) {
+export default async function HomePage({ params: { locale } }: Props) {
   setRequestLocale(locale)
   const featuredProjects = getFeaturedProjects()
+  const partners         = getPartners()
+  const t                = await getTranslations({ locale, namespace: 'partners' })
 
   return (
     <>
@@ -27,6 +31,11 @@ export default function HomePage({ params: { locale } }: Props) {
       <Marquee />
       <FeaturedWork projects={featuredProjects} />
       <AboutSection />
+      <PartnersSection
+        partners={partners}
+        label={t('label')}
+        heading={t('heading')}
+      />
       <ServicesSection />
       <ProcessSection />
       <CTASection />

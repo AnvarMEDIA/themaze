@@ -77,7 +77,7 @@ export function CTASection() {
           <MagneticButton>
             <Link
               href="/contact"
-              className="inline-flex items-center gap-3 px-8 py-4 bg-maze-lime text-maze-black font-bold rounded-full text-base hover:bg-white transition-colors duration-200"
+              className="inline-flex items-center gap-3 px-8 py-4 bg-maze-lime text-maze-ink font-bold rounded-full text-base hover:bg-maze-paper transition-colors duration-200"
             >
               {t('button')} ↗
             </Link>

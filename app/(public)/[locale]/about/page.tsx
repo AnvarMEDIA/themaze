@@ -130,7 +130,7 @@ export default async function AboutPage({ params: { locale } }: Props) {
         <h2 className="display-md text-maze-cream mb-6">{t('readyLabel')}</h2>
         <Link
           href="/contact"
-          className="inline-flex items-center gap-3 px-8 py-4 bg-maze-lime text-maze-black font-bold rounded-full hover:bg-white transition-colors"
+          className="inline-flex items-center gap-3 px-8 py-4 bg-maze-lime text-maze-ink font-bold rounded-full hover:bg-maze-paper transition-colors"
         >
           {t('readyCta')} ↗
         </Link>
