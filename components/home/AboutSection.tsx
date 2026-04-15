@@ -2,9 +2,9 @@
 
 import { useRef } from 'react'
 import { useTranslations } from 'next-intl'
-import { Link } from '@/i18n/navigation'
 import { motion, useInView, useScroll, useTransform } from 'framer-motion'
 import { AnimatedCounter } from '@/components/ui/AnimatedCounter'
+import { LiquidButton } from '@/components/ui/LiquidButton'
 
 export function AboutSection() {
   const t      = useTranslations('about')
@@ -75,12 +75,9 @@ export function AboutSection() {
             animate={inView ? { opacity: 1, y: 0 } : {}}
             transition={{ delay: 0.6 }}
           >
-            <Link
-              href="/about"
-              className="inline-flex items-center gap-3 label-sm text-maze-lime border border-maze-lime px-6 py-3 rounded-full hover:bg-maze-lime hover:text-maze-ink transition-all duration-300"
-            >
+            <LiquidButton href="/about" variant="clear">
               {t('cta')} →
-            </Link>
+            </LiquidButton>
           </motion.div>
         </div>
 

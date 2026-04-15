@@ -1,8 +1,8 @@
 import type { Metadata } from 'next'
 import { getTranslations, setRequestLocale } from 'next-intl/server'
 import { routing } from '@/i18n/routing'
-import Link from 'next/link'
 import { AnimatedCounter } from '@/components/ui/AnimatedCounter'
+import { LiquidButton } from '@/components/ui/LiquidButton'
 
 interface Props {
   params: { locale: string }
@@ -127,13 +127,10 @@ export default async function AboutPage({ params: { locale } }: Props) {
 
       {/* CTA */}
       <div className="px-6 md:px-10 py-20 text-center">
-        <h2 className="display-md text-maze-cream mb-6">{t('readyLabel')}</h2>
-        <Link
-          href="/contact"
-          className="inline-flex items-center gap-3 px-8 py-4 bg-maze-lime text-maze-ink font-bold rounded-full hover:bg-maze-paper transition-colors"
-        >
+        <h2 className="display-md text-maze-cream mb-8">{t('readyLabel')}</h2>
+        <LiquidButton href="/contact" variant="lime" size="lg">
           {t('readyCta')} ↗
-        </Link>
+        </LiquidButton>
       </div>
     </div>
   )

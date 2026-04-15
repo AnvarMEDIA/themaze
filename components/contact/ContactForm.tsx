@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import { useTranslations } from 'next-intl'
 import toast from 'react-hot-toast'
+import { LiquidButton } from '@/components/ui/LiquidButton'
 
 const budgets = [
   'Under $2,000',
@@ -92,13 +93,18 @@ export function ContactForm() {
               key={b}
               type="button"
               onClick={() => set('budget', b)}
-              className={`label-sm px-4 py-2 border rounded-full transition-all duration-200 ${
+              className={[
+                'relative overflow-hidden rounded-full label-sm px-4 py-2 transition-all duration-200',
                 form.budget === b
-                  ? 'border-maze-lime text-maze-ink bg-maze-lime'
-                  : 'border-maze-border text-maze-muted hover:border-maze-cream hover:text-maze-cream'
-              }`}
+                  ? 'glass-lime'
+                  : 'glass-clear text-maze-muted hover:text-maze-cream',
+              ].join(' ')}
             >
-              {b}
+              {form.budget === b && (
+                <span aria-hidden className="absolute inset-0 rounded-[inherit] pointer-events-none"
+                  style={{ background: 'linear-gradient(148deg,rgba(255,255,255,0.22) 0%,rgba(255,255,255,0.06) 20%,transparent 50%)' }} />
+              )}
+              <span className="relative z-10">{b}</span>
             </button>
           ))}
         </div>
@@ -118,13 +124,15 @@ export function ContactForm() {
       </div>
 
       {/* Submit */}
-      <button
+      <LiquidButton
         type="submit"
+        variant="lime"
+        size="lg"
         disabled={loading}
-        className="w-full py-4 bg-maze-lime text-maze-ink font-bold rounded-full hover:bg-maze-paper transition-colors duration-200 disabled:opacity-60 disabled:cursor-not-allowed label-sm"
+        className="w-full justify-center"
       >
         {loading ? t('sending') : `${t('send')} ↗`}
-      </button>
+      </LiquidButton>
     </form>
   )
 }

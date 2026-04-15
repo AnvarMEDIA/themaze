@@ -2,10 +2,9 @@
 
 import { useEffect, useRef } from 'react'
 import { useTranslations } from 'next-intl'
-import { Link } from '@/i18n/navigation'
 import { motion, useReducedMotion } from 'framer-motion'
 import gsap from 'gsap'
-import { MagneticButton } from '@/components/ui/MagneticButton'
+import { LiquidButton } from '@/components/ui/LiquidButton'
 
 export function Hero() {
   const t         = useTranslations('hero')
@@ -56,12 +55,10 @@ export function Hero() {
     return () => window.removeEventListener('scroll', onScroll)
   }, [])
 
-  // Emil: never animate from extreme positions with reduced motion
   const charVariant = {
     hidden: shouldReduce ? { opacity: 0 } : { y: '110%' },
     visible: (i: number) => ({
       ...(shouldReduce ? { opacity: 1 } : { y: '0%' }),
-      // Emil: strong ease-out curve, stagger 40-70ms between chars
       transition: {
         delay: shouldReduce ? 0 : 0.4 + i * 0.065,
         duration: shouldReduce ? 0.2 : 0.75,
@@ -153,29 +150,12 @@ export function Hero() {
           <p className="body-lg text-maze-muted max-w-sm">{t('subtitle')}</p>
 
           <div className="flex items-center gap-4">
-            <MagneticButton>
-              <Link
-                href="/portfolio"
-                className="flex items-center gap-3 px-6 py-3.5 border border-maze-border rounded-full text-maze-cream hover:border-maze-lime hover:text-maze-lime transition-all duration-300 label-sm group"
-              >
-                {t('viewWork')}
-                <motion.span
-                  className="inline-block"
-                  animate={{ x: [0, 4, 0] }}
-                  transition={{ duration: 2, repeat: Infinity, ease: 'easeInOut' }}
-                >
-                  →
-                </motion.span>
-              </Link>
-            </MagneticButton>
-            <MagneticButton>
-              <Link
-                href="/contact"
-                className="flex items-center gap-2 px-6 py-3.5 bg-maze-lime text-maze-ink rounded-full label-sm hover:bg-maze-paper transition-colors duration-200"
-              >
-                {t('startProject')} ↗
-              </Link>
-            </MagneticButton>
+            <LiquidButton href="/portfolio" variant="clear">
+              {t('viewWork')} →
+            </LiquidButton>
+            <LiquidButton href="/contact" variant="lime">
+              {t('startProject')} ↗
+            </LiquidButton>
           </div>
         </motion.div>
       </div>

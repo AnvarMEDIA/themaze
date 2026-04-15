@@ -2,9 +2,8 @@
 
 import { useRef } from 'react'
 import { useTranslations } from 'next-intl'
-import { Link } from '@/i18n/navigation'
 import { motion, useInView } from 'framer-motion'
-import { MagneticButton } from '@/components/ui/MagneticButton'
+import { LiquidButton } from '@/components/ui/LiquidButton'
 
 export function CTASection() {
   const t      = useTranslations('cta')
@@ -74,22 +73,12 @@ export function CTASection() {
           transition={{ delay: 0.45 }}
           className="flex flex-col sm:flex-row items-center justify-center gap-4"
         >
-          <MagneticButton>
-            <Link
-              href="/contact"
-              className="inline-flex items-center gap-3 px-8 py-4 bg-maze-lime text-maze-ink font-bold rounded-full text-base hover:bg-maze-paper transition-colors duration-200"
-            >
-              {t('button')} ↗
-            </Link>
-          </MagneticButton>
-          <MagneticButton>
-            <a
-              href={`mailto:${t('email')}`}
-              className="inline-flex items-center gap-3 px-8 py-4 border border-maze-border text-maze-cream rounded-full text-base hover:border-maze-lime hover:text-maze-lime transition-all duration-300 label-sm"
-            >
-              {t('email')}
-            </a>
-          </MagneticButton>
+          <LiquidButton href="/contact" variant="lime" size="lg">
+            {t('button')} ↗
+          </LiquidButton>
+          <LiquidButton href={`mailto:${t('email')}`} variant="clear" size="lg" external>
+            {t('email')}
+          </LiquidButton>
         </motion.div>
       </div>
     </section>

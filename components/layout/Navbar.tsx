@@ -7,6 +7,7 @@ import { motion, AnimatePresence, useReducedMotion } from 'framer-motion'
 import { cn } from '@/lib/utils'
 import { ThemeToggle } from '@/components/ui/ThemeToggle'
 import { LangToggle } from '@/components/ui/LangToggle'
+import { LiquidButton } from '@/components/ui/LiquidButton'
 
 export function Navbar() {
   const t             = useTranslations('nav')
@@ -87,15 +88,11 @@ export function Navbar() {
             <ThemeToggle />
             <LangToggle />
 
-            <Link
-              href="/contact"
-              className="hidden lg:flex items-center gap-2 px-5 py-2.5 bg-maze-lime text-maze-ink label-sm rounded-full hover:bg-maze-paper transition-colors duration-200"
-            >
-              {t('startProject')}
-              <svg width="10" height="10" viewBox="0 0 10 10" fill="none">
-                <path d="M1 9L9 1M9 1H3M9 1V7" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
-              </svg>
-            </Link>
+            <div className="hidden lg:block">
+              <LiquidButton href="/contact" variant="lime" size="sm">
+                {t('startProject')} ↗
+              </LiquidButton>
+            </div>
 
             {/* Hamburger */}
             <button
@@ -158,12 +155,9 @@ export function Navbar() {
               transition={{ delay: 0.5 }}
               className="mt-12 pt-8 border-t border-maze-border"
             >
-              <Link
-                href="/contact"
-                className="inline-flex items-center gap-3 px-8 py-4 bg-maze-lime text-maze-ink font-bold rounded-full text-lg"
-              >
+              <LiquidButton href="/contact" variant="lime" size="lg">
                 {t('startProject')} ↗
-              </Link>
+              </LiquidButton>
             </motion.div>
           </motion.div>
         )}
