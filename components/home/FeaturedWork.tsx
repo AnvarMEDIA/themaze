@@ -12,6 +12,15 @@ interface Props {
   projects: Project[]
 }
 
+function pickRandom3(arr: Project[]): Project[] {
+  const copy = [...arr]
+  for (let i = copy.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1))
+    ;[copy[i], copy[j]] = [copy[j], copy[i]]
+  }
+  return copy.slice(0, 3)
+}
+
 // Strong ease-out curve (Emil Kowalski)
 const EASE_OUT = [0.23, 1, 0.32, 1] as const
 
@@ -147,13 +156,15 @@ export function FeaturedWork({ projects }: Props) {
   const headerRef = useRef<HTMLDivElement>(null)
   const inView    = useInView(headerRef, { once: true, margin: '-8% 0px' })
 
-  const firstProject   = projects[0]
-  const remainingCards = projects.slice(1, 5) // up to 4 more in 2-col grid
+  // Pick 3 random projects on mount — re-randomises on every page load/refresh
+  const [featured] = useState<Project[]>(() =>
+    projects.length > 0 ? pickRandom3(projects) : []
+  )
 
   return (
     <section className="px-6 md:px-10 py-24 md:py-36">
 
-      {/* Section header: label "Selected Work" + "View all work →" on same line */}
+      {/* Section header */}
       <div
         ref={headerRef}
         className="flex items-center justify-between mb-14 border-b border-maze-border pb-6"
@@ -184,25 +195,12 @@ export function FeaturedWork({ projects }: Props) {
         </motion.div>
       </div>
 
-      {/* First project — full-width 16:9 */}
-      {firstProject && (
-        <div className="mb-5">
-          <ProjectCard project={firstProject} index={0} large />
-        </div>
-      )}
-
-      {/* Remaining projects — 2-column grid, 16:9 each, staggered entrance */}
-      {remainingCards.length > 0 && (
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-          {remainingCards.map((project, i) => (
-            <ProjectCard
-              key={project.id}
-              project={project}
-              index={i + 1}
-            />
-          ))}
-        </div>
-      )}
+      {/* 3 random projects — single row, equal 16:9 cards */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+        {featured.map((project, i) => (
+          <ProjectCard key={project.id} project={project} index={i} />
+        ))}
+      </div>
 
     </section>
   )

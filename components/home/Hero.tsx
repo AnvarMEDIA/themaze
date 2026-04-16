@@ -77,7 +77,7 @@ export function Hero() {
           {/* Line 1 — full row */}
           <motion.h1
             {...fadeUp(0.2)}
-            className="display-xl font-black text-maze-cream leading-none"
+            className="display-lg font-black text-maze-cream leading-none"
           >
             {t('line1')}
           </motion.h1>
@@ -87,7 +87,7 @@ export function Hero() {
             {...fadeUp(0.35)}
             className="flex flex-wrap items-baseline gap-x-4 gap-y-0"
           >
-            <span className="display-xl font-black text-maze-cream leading-none">
+            <span className="display-lg font-black text-maze-cream leading-none">
               {t('line2')}
             </span>
 
@@ -111,7 +111,7 @@ export function Hero() {
                       : { opacity: 0, y: '-40%' }
                   }
                   transition={{ duration: 0.38, ease: EASE_OUT }}
-                  className="display-xl font-black text-maze-lime inline-block leading-none"
+                  className="display-lg font-black text-maze-lime inline-block leading-none"
                 >
                   {words[wordIndex]}
                 </motion.span>

@@ -8,7 +8,7 @@ import { ServicesSection } from '@/components/home/ServicesSection'
 import { ProcessSection }  from '@/components/home/ProcessSection'
 import { CTASection }      from '@/components/home/CTASection'
 import { PartnersSection } from '@/components/home/PartnersSection'
-import { getFeaturedProjects } from '@/lib/portfolio'
+import { getAllProjects } from '@/lib/portfolio'
 import { getPartners } from '@/lib/partners'
 
 interface Props {
@@ -21,7 +21,7 @@ export function generateStaticParams() {
 
 export default async function HomePage({ params: { locale } }: Props) {
   setRequestLocale(locale)
-  const featuredProjects = getFeaturedProjects()
+  const featuredProjects = getAllProjects()
   const partners         = getPartners()
   const t                = await getTranslations({ locale, namespace: 'partners' })
 

@@ -178,8 +178,8 @@ function MazeLogo() {
     <img
       src="https://1jorjbbfajvf5rug.public.blob.vercel-storage.com/maze_logo.svg"
       alt="MAZE Studio"
-      height={28}
-      style={{ height: '28px', width: 'auto' }}
+      height={44}
+      style={{ height: '44px', width: 'auto', filter: 'brightness(0) invert(1)' }}
     />
   )
 }
