@@ -5,6 +5,7 @@ import { useTranslations } from 'next-intl'
 import { Link } from '@/i18n/navigation'
 import Image from 'next/image'
 import { motion, useInView, useReducedMotion } from 'framer-motion'
+import { cn } from '@/lib/utils'
 import type { Project } from '@/lib/types'
 
 interface Props {
@@ -37,7 +38,6 @@ function ProjectCard({
   const ref          = useRef<HTMLDivElement>(null)
   const inView       = useInView(ref, { once: true, margin: '-12% 0px' })
   const shouldReduce = useReducedMotion()
-  const [hovered, setHovered] = useState(false)
   const catLabel = (t.raw('categories') as Record<string, string>)[project.category] ?? project.category
 
   return (
@@ -55,8 +55,6 @@ function ProjectCard({
         href={`/portfolio/${project.slug}`}
         className="group block"
         data-cursor="view"
-        onMouseEnter={() => setHovered(true)}
-        onMouseLeave={() => setHovered(false)}
       >
         {/* 16:9 image container */}
         <div className="relative aspect-[16/9] overflow-hidden rounded-xl bg-maze-gray">
@@ -79,39 +77,30 @@ function ProjectCard({
             </span>
           </div>
 
-          {/* Actual image — layered on top of placeholder */}
+          {/* Image — scale on hover only on pointer-fine devices */}
           <Image
             src={project.coverImage}
             alt={project.title}
             fill
             sizes={large ? '100vw' : '(max-width: 768px) 100vw, 50vw'}
-            className="object-cover"
-            style={{
-              transition: 'transform 700ms cubic-bezier(0.23, 1, 0.32, 1)',
-              transform: hovered ? 'scale(1.05)' : 'scale(1)',
-            }}
+            className="object-cover [transition:transform_700ms_cubic-bezier(0.23,1,0.32,1)] [@media(hover:hover)_and_(pointer:fine)]:group-hover:scale-105"
             onError={(e) => {
               ;(e.target as HTMLImageElement).style.display = 'none'
             }}
           />
 
-          {/* Hover overlay — slides UP from bottom (translateY 100% → 0) */}
-          {/* Gate hover behind pointer-fine media — CSS handles this naturally */}
+          {/* Hover overlay — slides UP from bottom; exits faster than it enters */}
           <div
             className="absolute inset-0 overflow-hidden rounded-xl"
             aria-hidden
           >
             <div
-              className="absolute inset-0 bg-maze-black/80 flex flex-col justify-end p-6 md:p-8"
-              style={{
-                transform: shouldReduce
-                  ? 'none'
-                  : hovered ? 'translateY(0%)' : 'translateY(100%)',
-                opacity: shouldReduce ? (hovered ? 1 : 0) : 1,
-                transition: shouldReduce
-                  ? 'opacity 200ms ease-out'
-                  : 'transform 320ms cubic-bezier(0.23, 1, 0.32, 1)',
-              }}
+              className={cn(
+                'absolute inset-0 bg-maze-black/80 flex flex-col justify-end p-6 md:p-8',
+                shouldReduce
+                  ? 'opacity-0 transition-opacity duration-200 [@media(hover:hover)_and_(pointer:fine)]:group-hover:opacity-100'
+                  : 'translate-y-full [transition:transform_180ms_cubic-bezier(0.23,1,0.32,1)] [@media(hover:hover)_and_(pointer:fine)]:group-hover:translate-y-0'
+              )}
             >
               <p className="label-sm text-maze-lime mb-2">
                 {catLabel}
@@ -133,13 +122,7 @@ function ProjectCard({
         {/* Below-card meta: title + client left, year right */}
         <div className="mt-4 flex items-start justify-between gap-4">
           <div>
-            <p
-              className="font-semibold text-maze-cream"
-              style={{
-                color: hovered ? 'rgb(var(--lime))' : undefined,
-                transition: 'color 200ms ease-out',
-              }}
-            >
+            <p className="font-semibold text-maze-cream transition-colors duration-200 [@media(hover:hover)_and_(pointer:fine)]:group-hover:text-maze-lime">
               {project.title}
             </p>
             <p className="label-sm text-maze-muted mt-0.5">{project.client}</p>

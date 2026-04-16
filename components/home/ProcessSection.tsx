@@ -56,7 +56,7 @@ export function ProcessSection() {
               initial={{ opacity: 0, y: 40 }}
               animate={inView ? { opacity: 1, y: 0 } : {}}
               transition={{ delay: i * 0.1, duration: 0.7, ease: [0.19, 1, 0.22, 1] }}
-              className="bg-maze-gray p-8 relative group hover:bg-maze-border transition-colors duration-300"
+              className="bg-maze-gray p-8 relative group transition-colors duration-200 [@media(hover:hover)_and_(pointer:fine)]:hover:bg-maze-border"
             >
               {i < steps.length - 1 && (
                 <div className="absolute top-8 -right-px w-px h-8 bg-maze-border hidden lg:block" />
@@ -64,11 +64,11 @@ export function ProcessSection() {
               <span className="label-sm text-maze-lime mb-6 block">
                 0{i + 1}
               </span>
-              <h3 className="heading-md text-maze-cream mb-3 group-hover:text-maze-lime transition-colors">
+              <h3 className="heading-md text-maze-cream mb-3 transition-colors duration-200 [@media(hover:hover)_and_(pointer:fine)]:group-hover:text-maze-lime">
                 {step.title}
               </h3>
               <p className="body-lg text-maze-muted">{step.body}</p>
-              <div className="absolute bottom-6 right-6 w-2 h-2 rounded-full bg-maze-border group-hover:bg-maze-lime transition-colors duration-300" />
+              <div className="absolute bottom-6 right-6 w-2 h-2 rounded-full bg-maze-border transition-colors duration-200 [@media(hover:hover)_and_(pointer:fine)]:group-hover:bg-maze-lime" />
             </motion.div>
           ))}
         </div>

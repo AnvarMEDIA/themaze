@@ -186,11 +186,11 @@ export default async function ProjectPage({ params }: Props) {
                 <Link
                   key={p.id}
                   href={`/portfolio/${p.slug}`}
-                  className="group block p-6 rounded-xl border border-maze-border hover:border-maze-lime transition-colors"
+                  className="group block p-6 rounded-xl border border-maze-border transition-colors duration-200 [@media(hover:hover)_and_(pointer:fine)]:hover:border-maze-lime"
                   data-cursor="view"
                 >
                   <p className="label-sm text-maze-lime mb-2">{(t.raw('categories') as Record<string,string>)[p.category] ?? p.category}</p>
-                  <h4 className="heading-md text-maze-cream group-hover:text-maze-lime transition-colors">{p.title}</h4>
+                  <h4 className="heading-md text-maze-cream transition-colors duration-200 [@media(hover:hover)_and_(pointer:fine)]:group-hover:text-maze-lime">{p.title}</h4>
                   <p className="label-sm text-maze-muted mt-1">{p.client}</p>
                 </Link>
               ))}

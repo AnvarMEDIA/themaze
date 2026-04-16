@@ -100,14 +100,17 @@ export function Navbar() {
             >
               <motion.span
                 animate={menuOpen ? { rotate: 45, y: 6 } : { rotate: 0, y: 0 }}
+                transition={{ duration: 0.2, ease: [0.23, 1, 0.32, 1] }}
                 className="block w-6 h-px bg-maze-cream origin-center transition-colors"
               />
               <motion.span
                 animate={menuOpen ? { opacity: 0, x: -8 } : { opacity: 1, x: 0 }}
+                transition={{ duration: 0.15, ease: [0.23, 1, 0.32, 1] }}
                 className="block w-4 h-px bg-maze-cream"
               />
               <motion.span
                 animate={menuOpen ? { rotate: -45, y: -6 } : { rotate: 0, y: 0 }}
+                transition={{ duration: 0.2, ease: [0.23, 1, 0.32, 1] }}
                 className="block w-6 h-px bg-maze-cream origin-center"
               />
             </button>

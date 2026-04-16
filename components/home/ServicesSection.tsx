@@ -92,7 +92,7 @@ export function ServicesSection() {
                       className="heading-lg text-maze-cream"
                       style={{
                         color:      active === i ? 'rgb(var(--lime))' : undefined,
-                        transition: 'color 300ms ease-out',
+                        transition: 'color 200ms ease-out',
                       }}
                     >
                       {service.title}
@@ -142,7 +142,7 @@ export function ServicesSection() {
                     borderColor: active === i ? 'rgb(var(--lime))' : 'rgb(var(--border))',
                     color:       active === i ? 'rgb(var(--lime))' : 'rgb(var(--muted))',
                     transform:   active === i ? 'rotate(0deg)'    : 'rotate(-45deg)',
-                    transition:  'border-color 300ms ease-out, color 300ms ease-out, transform 300ms cubic-bezier(0.23, 1, 0.32, 1)',
+                    transition:  'border-color 200ms ease-out, color 200ms ease-out, transform 200ms cubic-bezier(0.23, 1, 0.32, 1)',
                   }}
                   aria-label={`Go to ${service.title}`}
                 >
