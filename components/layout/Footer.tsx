@@ -119,7 +119,7 @@ export function Footer({ settings }: Props) {
         </a>
 
         {/* Phone + Telegram — large */}
-        <div className="mt-6 flex flex-col sm:flex-row gap-4 sm:gap-10">
+        <div className="mt-14 flex flex-col sm:flex-row gap-4 sm:gap-10">
           {phoneDisplay && (
             <a
               href={phoneHref}
