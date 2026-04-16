@@ -65,14 +65,6 @@ export function Hero() {
       {/* ── Main content ─────────────────────────────────────────── */}
       <div className="flex-1 flex flex-col justify-center px-6 md:px-10 pt-28 pb-10 max-w-[1440px] mx-auto w-full">
 
-        {/* Label — left-aligned, top of content block */}
-        <motion.p
-          {...fadeUp(0.05)}
-          className="label-sm text-maze-muted mb-10"
-        >
-          {t('est')}
-        </motion.p>
-
         {/* Headline */}
         <div className="mb-10 space-y-1">
           {/* Line 1 — full row */}
