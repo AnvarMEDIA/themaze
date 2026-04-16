@@ -3,6 +3,8 @@ import { getTranslations, setRequestLocale } from 'next-intl/server'
 import { routing } from '@/i18n/routing'
 import { AnimatedCounter } from '@/components/ui/AnimatedCounter'
 import { Link } from '@/i18n/navigation'
+import { getTeam } from '@/lib/team'
+import Image from 'next/image'
 
 interface Props {
   params: { locale: string }
@@ -26,11 +28,15 @@ const clients = [
   'Tashkent University', 'Silk Road Hotels', 'Green Energy UZ', 'Moliya Bank',
 ]
 
+export const dynamic = 'force-dynamic'
+
 export default async function AboutPage({ params: { locale } }: Props) {
   setRequestLocale(locale)
-  const t = await getTranslations({ locale, namespace: 'aboutPage' })
-  const values  = t.raw('values') as { title: string; body: string }[]
-  const team    = t.raw('team')   as { name: string; role: string; bio: string }[]
+  const [t, team] = await Promise.all([
+    getTranslations({ locale, namespace: 'aboutPage' }),
+    getTeam(),
+  ])
+  const values = t.raw('values') as { title: string; body: string }[]
 
   return (
     <div className="pt-28">
@@ -92,18 +98,32 @@ export default async function AboutPage({ params: { locale } }: Props) {
         <div className="max-w-[1440px] mx-auto">
           <h2 className="heading-lg text-maze-cream mb-12">{t('teamHeading')}</h2>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-            {team.map((member) => (
-              <div key={member.name} className="group">
-                <div className="aspect-square rounded-xl bg-maze-dark border border-maze-border mb-5 flex items-center justify-center group-hover:border-maze-lime transition-colors overflow-hidden">
-                  <span className="text-4xl font-black text-maze-muted">
-                    {member.name.slice(0, 2)}
-                  </span>
+            {team.map((member) => {
+              const role = locale === 'ru' && member.roleRu ? member.roleRu : member.role
+              const bio  = locale === 'ru' && member.bioRu  ? member.bioRu  : member.bio
+              const initials = member.name.split(' ').map((w) => w[0]).join('').slice(0, 2).toUpperCase()
+              return (
+                <div key={member.id} className="group">
+                  <div className="aspect-square rounded-xl bg-maze-dark border border-maze-border mb-5 overflow-hidden transition-colors duration-200 [@media(hover:hover)]:group-hover:border-maze-lime relative">
+                    {member.photo ? (
+                      <Image
+                        src={member.photo}
+                        alt={member.name}
+                        fill
+                        className="object-cover"
+                      />
+                    ) : (
+                      <div className="w-full h-full flex items-center justify-center">
+                        <span className="text-4xl font-black text-maze-muted">{initials}</span>
+                      </div>
+                    )}
+                  </div>
+                  <h3 className="font-semibold text-maze-cream">{member.name}</h3>
+                  <p className="label-sm text-maze-lime mt-0.5 mb-2">{role}</p>
+                  <p className="body-lg text-maze-muted">{bio}</p>
                 </div>
-                <h3 className="font-semibold text-maze-cream">{member.name}</h3>
-                <p className="label-sm text-maze-lime mt-0.5 mb-2">{member.role}</p>
-                <p className="body-lg text-maze-muted">{member.bio}</p>
-              </div>
-            ))}
+              )
+            })}
           </div>
         </div>
       </div>
