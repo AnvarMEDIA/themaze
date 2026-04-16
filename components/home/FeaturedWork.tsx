@@ -164,10 +164,10 @@ export function FeaturedWork({ projects }: Props) {
   return (
     <section className="px-6 md:px-10 py-24 md:py-36">
 
-      {/* Section header */}
+      {/* Section header — label only */}
       <div
         ref={headerRef}
-        className="flex items-center justify-between mb-14 border-b border-maze-border pb-6"
+        className="mb-14 border-b border-maze-border pb-6"
       >
         <motion.p
           initial={{ opacity: 0, y: 8 }}
@@ -177,22 +177,6 @@ export function FeaturedWork({ projects }: Props) {
         >
           {t('label')}
         </motion.p>
-
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={inView ? { opacity: 1 } : {}}
-          transition={{ delay: 0.2, duration: 0.4 }}
-        >
-          <Link
-            href="/portfolio"
-            className="label-sm text-maze-muted flex items-center gap-2"
-            style={{ transition: 'color 200ms ease-out' }}
-            onMouseEnter={e => { e.currentTarget.style.color = 'rgb(var(--lime))' }}
-            onMouseLeave={e => { e.currentTarget.style.color = '' }}
-          >
-            {t('viewAll')} →
-          </Link>
-        </motion.div>
       </div>
 
       {/* 3 random projects — single row, equal 16:9 cards */}
@@ -201,6 +185,35 @@ export function FeaturedWork({ projects }: Props) {
           <ProjectCard key={project.id} project={project} index={i} />
         ))}
       </div>
+
+      {/* CTA button — centered below cards */}
+      <motion.div
+        initial={{ opacity: 0, y: 16 }}
+        animate={inView ? { opacity: 1, y: 0 } : {}}
+        transition={{ delay: 0.5, duration: 0.6, ease: EASE_OUT }}
+        className="flex justify-center mt-14"
+      >
+        <Link
+          href="/portfolio"
+          className="inline-flex items-center gap-3 px-8 py-4 border border-maze-border rounded-full text-maze-cream text-sm font-semibold tracking-wide active:scale-[0.97]"
+          style={{ transition: 'background-color 200ms ease-out, border-color 200ms ease-out, color 200ms ease-out, transform 150ms ease-out' }}
+          onMouseEnter={e => {
+            const el = e.currentTarget
+            el.style.backgroundColor = 'rgb(var(--lime))'
+            el.style.borderColor = 'rgb(var(--lime))'
+            el.style.color = '#0A0A0A'
+          }}
+          onMouseLeave={e => {
+            const el = e.currentTarget
+            el.style.backgroundColor = ''
+            el.style.borderColor = ''
+            el.style.color = ''
+          }}
+        >
+          {t('viewAll')}
+          <span style={{ transition: 'transform 200ms ease-out' }}>→</span>
+        </Link>
+      </motion.div>
 
     </section>
   )
