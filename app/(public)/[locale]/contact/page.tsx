@@ -3,6 +3,7 @@ import { getTranslations, setRequestLocale } from 'next-intl/server'
 import { routing } from '@/i18n/routing'
 import { ContactForm } from '@/components/contact/ContactForm'
 import { getSettings } from '@/lib/settings'
+import { telegramHref, telegramDisplay } from '@/lib/utils'
 
 export const dynamic = 'force-dynamic'
 
@@ -22,17 +23,6 @@ export async function generateMetadata({ params: { locale } }: Props): Promise<M
   }
 }
 
-function telegramHref(val: string) {
-  if (!val) return '#'
-  if (val.startsWith('http')) return val
-  return `https://t.me/${val.replace('@', '')}`
-}
-
-function telegramDisplay(val: string) {
-  if (!val) return '@mazestudio'
-  if (val.startsWith('http')) return `@${val.split('/').pop()}`
-  return val.startsWith('@') ? val : `@${val}`
-}
 
 export default async function ContactPage({ params: { locale } }: Props) {
   setRequestLocale(locale)
@@ -51,7 +41,7 @@ export default async function ContactPage({ params: { locale } }: Props) {
     { key: 'phoneLabel',    value: phone,                      href: `tel:${phone.replace(/\s/g, '')}` },
     { key: 'telegramLabel', value: telegramDisplay(telegram),  href: telegramHref(telegram) },
     { key: 'locationLabel', value: address,                    href: null },
-  ] as const
+  ]
 
   const socials = [
     settings.instagram && { label: 'Instagram', href: settings.instagram },

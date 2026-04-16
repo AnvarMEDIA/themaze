@@ -3,6 +3,7 @@
 import { useTranslations } from 'next-intl'
 import { Link } from '@/i18n/navigation'
 import type { SiteSettings } from '@/lib/settings'
+import { telegramHref, telegramDisplay } from '@/lib/utils'
 
 const LOGO    = 'https://1jorjbbfajvf5rug.public.blob.vercel-storage.com/maze_logo.svg'
 const FOUNDED = 2019
@@ -52,11 +53,6 @@ function IconTwitterX() {
   )
 }
 
-function telegramHref(val: string) {
-  if (!val) return '#'
-  if (val.startsWith('http')) return val
-  return `https://t.me/${val.replace('@', '')}`
-}
 
 interface Props {
   settings: SiteSettings
@@ -85,24 +81,26 @@ export function Footer({ settings }: Props) {
     { href: '/contact',  label: t('nav.contact') },
   ]
 
-  // Social links from settings with fallbacks
-  const socialLinks = [
-    settings.instagram && { label: 'Instagram', href: settings.instagram,            icon: <IconInstagram /> },
-    settings.behance   && { label: 'Behance',   href: settings.behance,              icon: <IconBehance />  },
-    settings.linkedin  && { label: 'LinkedIn',  href: settings.linkedin,             icon: <IconLinkedIn /> },
-    settings.telegram  && { label: 'Telegram',  href: telegramHref(settings.telegram), icon: <IconTelegram /> },
-    settings.twitter   && { label: 'X (Twitter)', href: settings.twitter,            icon: <IconTwitterX /> },
-  ].filter(Boolean) as { label: string; href: string; icon: React.ReactNode }[]
+  const FALLBACK_SOCIALS = [
+    { label: 'Instagram', href: 'https://instagram.com/mazestudio',        icon: <IconInstagram /> },
+    { label: 'Behance',   href: 'https://behance.net/mazestudio',           icon: <IconBehance />  },
+    { label: 'LinkedIn',  href: 'https://linkedin.com/company/mazestudio', icon: <IconLinkedIn /> },
+    { label: 'Telegram',  href: 'https://t.me/mazestudio',                 icon: <IconTelegram /> },
+  ]
+
+  const socialLinks = ([
+    settings.instagram && { label: 'Instagram',   href: settings.instagram,                      icon: <IconInstagram /> },
+    settings.behance   && { label: 'Behance',      href: settings.behance,                        icon: <IconBehance />  },
+    settings.linkedin  && { label: 'LinkedIn',     href: settings.linkedin,                       icon: <IconLinkedIn /> },
+    settings.telegram  && { label: 'Telegram',     href: telegramHref(settings.telegram),         icon: <IconTelegram /> },
+    settings.twitter   && { label: 'X (Twitter)',  href: settings.twitter,                        icon: <IconTwitterX /> },
+  ].filter(Boolean) as { label: string; href: string; icon: React.ReactNode }[]) || FALLBACK_SOCIALS
 
   const phoneDisplay = settings.phone || '+998 90 123 45 67'
   const phoneHref    = `tel:${phoneDisplay.replace(/\s/g, '')}`
-  const tgHref       = telegramHref(settings.telegram || 'mazestudio')
-  const tgDisplay    = settings.telegram
-    ? (settings.telegram.startsWith('http')
-        ? `@${settings.telegram.split('/').pop()}`
-        : settings.telegram)
-    : '@mazestudio'
-  const email = settings.email || 'hello@maze.uz'
+  const tgHref   = telegramHref(settings.telegram || 'mazestudio')
+  const tgDisplay = telegramDisplay(settings.telegram || '')
+  const email    = settings.email || 'hello@maze.uz'
 
   return (
     <footer className="border-t border-maze-border bg-maze-black">
@@ -209,7 +207,7 @@ export function Footer({ settings }: Props) {
         <div>
           <p className="text-xs font-semibold text-maze-muted mb-5 tracking-widest uppercase">{t('groups.Social')}</p>
           <ul className="space-y-3">
-            {socialLinks.length > 0 ? socialLinks.map((link) => (
+            {(socialLinks.length > 0 ? socialLinks : FALLBACK_SOCIALS).map((link) => (
               <li key={link.label}>
                 <a
                   href={link.href}
@@ -221,25 +219,7 @@ export function Footer({ settings }: Props) {
                   {link.label}
                 </a>
               </li>
-            )) : (
-              /* Fallback when no settings configured */
-              <>
-                {[
-                  { label: 'Instagram', href: 'https://instagram.com/mazestudio',        icon: <IconInstagram /> },
-                  { label: 'Behance',   href: 'https://behance.net/mazestudio',           icon: <IconBehance />  },
-                  { label: 'LinkedIn',  href: 'https://linkedin.com/company/mazestudio', icon: <IconLinkedIn /> },
-                  { label: 'Telegram',  href: 'https://t.me/mazestudio',                 icon: <IconTelegram /> },
-                ].map((link) => (
-                  <li key={link.label}>
-                    <a href={link.href} target="_blank" rel="noopener noreferrer"
-                      className="inline-flex items-center gap-2.5 text-sm text-maze-muted hover:text-maze-cream transition-colors duration-200">
-                      <span>{link.icon}</span>
-                      {link.label}
-                    </a>
-                  </li>
-                ))}
-              </>
-            )}
+            ))}
           </ul>
         </div>
       </div>

@@ -26,3 +26,15 @@ export const CATEGORY_LABELS: Record<string, string> = {
   motion:    'Motion',
   strategy:  'Strategy',
 }
+
+export function telegramHref(val: string): string {
+  if (!val) return '#'
+  if (val.startsWith('http')) return val
+  return `https://t.me/${val.replace('@', '')}`
+}
+
+export function telegramDisplay(val: string): string {
+  if (!val) return '@mazestudio'
+  if (val.startsWith('http')) return `@${val.split('/').pop() ?? ''}`
+  return val.startsWith('@') ? val : `@${val}`
+}

@@ -18,23 +18,22 @@ export function MultiImageUpload({ label, values, onChange }: Props) {
     async (acceptedFiles: File[]) => {
       if (!acceptedFiles.length) return
       setUploading(true)
-      const uploaded: string[] = []
-
-      for (const file of acceptedFiles) {
-        try {
+      const results = await Promise.allSettled(
+        acceptedFiles.map(async (file) => {
           const formData = new FormData()
           formData.append('file', file)
           const res  = await fetch('/api/upload', { method: 'POST', body: formData })
           const data = await res.json() as { url?: string; error?: string }
-          if (res.ok && data.url) {
-            uploaded.push(data.url)
-          } else {
-            toast.error(data.error ?? `Failed: ${file.name}`)
-          }
-        } catch {
-          toast.error(`Failed: ${file.name}`)
-        }
-      }
+          if (!res.ok || !data.url) throw new Error(data.error ?? `Failed: ${file.name}`)
+          return data.url
+        })
+      )
+
+      const uploaded = results.flatMap((r) => {
+        if (r.status === 'fulfilled') return [r.value]
+        toast.error(r.reason instanceof Error ? r.reason.message : 'Upload failed')
+        return []
+      })
 
       if (uploaded.length) {
         onChange([...values, ...uploaded])
