@@ -1,5 +1,4 @@
-import fs   from 'fs'
-import path from 'path'
+import { readStore, writeStore } from './store'
 
 export interface Partner {
   id:    string
@@ -9,14 +8,11 @@ export interface Partner {
   order: number
 }
 
-const DATA_PATH = path.join(process.cwd(), 'data', 'partners.json')
-
-export function getPartners(): Partner[] {
-  const raw = fs.readFileSync(DATA_PATH, 'utf-8')
-  const all = JSON.parse(raw) as Partner[]
+export async function getPartners(): Promise<Partner[]> {
+  const all = await readStore<Partner[]>('partners', [])
   return all.sort((a, b) => a.order - b.order)
 }
 
-export function savePartners(partners: Partner[]): void {
-  fs.writeFileSync(DATA_PATH, JSON.stringify(partners, null, 2), 'utf-8')
+export async function savePartners(partners: Partner[]): Promise<void> {
+  return writeStore('partners', partners)
 }

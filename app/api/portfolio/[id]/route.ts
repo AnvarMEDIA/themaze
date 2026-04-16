@@ -8,7 +8,7 @@ interface Ctx {
 }
 
 export async function GET(_req: NextRequest, { params }: Ctx) {
-  const project = getProjectById(params.id)
+  const project = await getProjectById(params.id)
   if (!project) return NextResponse.json({ error: 'Not found' }, { status: 404 })
   return NextResponse.json(project)
 }
@@ -18,7 +18,7 @@ export async function PATCH(req: NextRequest, { params }: Ctx) {
   if (!authed) return NextResponse.json({ error: 'Unauthorised' }, { status: 401 })
 
   const body    = (await req.json()) as UpdateProjectInput
-  const project = updateProject(params.id, body)
+  const project = await updateProject(params.id, body)
   if (!project) return NextResponse.json({ error: 'Not found' }, { status: 404 })
   return NextResponse.json(project)
 }
@@ -27,7 +27,7 @@ export async function DELETE(_req: NextRequest, { params }: Ctx) {
   const authed = await getAdminSession()
   if (!authed) return NextResponse.json({ error: 'Unauthorised' }, { status: 401 })
 
-  const ok = deleteProject(params.id)
+  const ok = await deleteProject(params.id)
   if (!ok) return NextResponse.json({ error: 'Not found' }, { status: 404 })
   return NextResponse.json({ ok: true })
 }

@@ -8,8 +8,8 @@ interface Props {
   params: { id: string }
 }
 
-export default function EditProjectPage({ params }: Props) {
-  const project = getProjectById(params.id)
+export default async function EditProjectPage({ params }: Props) {
+  const project = await getProjectById(params.id)
   if (!project) notFound()
 
   return (

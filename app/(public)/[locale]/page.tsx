@@ -21,9 +21,11 @@ export function generateStaticParams() {
 
 export default async function HomePage({ params: { locale } }: Props) {
   setRequestLocale(locale)
-  const featuredProjects = getAllProjects()
-  const partners         = getPartners()
-  const t                = await getTranslations({ locale, namespace: 'partners' })
+  const [featuredProjects, partners, t] = await Promise.all([
+    getAllProjects(),
+    getPartners(),
+    getTranslations({ locale, namespace: 'partners' }),
+  ])
 
   return (
     <>

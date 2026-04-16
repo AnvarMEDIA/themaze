@@ -5,7 +5,7 @@ import { slugify }                      from '@/lib/utils'
 import type { CreateProjectInput }      from '@/lib/types'
 
 export async function GET() {
-  const projects = getAllProjects()
+  const projects = await getAllProjects()
   return NextResponse.json(projects)
 }
 
@@ -22,7 +22,7 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Missing required fields' }, { status: 400 })
     }
 
-    const project = createProject({
+    const project = await createProject({
       title:            body.title,
       slug:             body.slug ?? slugify(body.title),
       client:           body.client,

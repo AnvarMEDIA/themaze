@@ -6,7 +6,8 @@ export const dynamic = 'force-dynamic'
 
 export async function GET() {
   try {
-    return NextResponse.json(getSettings())
+    const settings = await getSettings()
+    return NextResponse.json(settings)
   } catch {
     return NextResponse.json({ error: 'Failed to load settings' }, { status: 500 })
   }
@@ -15,7 +16,7 @@ export async function GET() {
 export async function PUT(req: Request) {
   try {
     const body = await req.json() as SiteSettings
-    saveSettings(body)
+    await saveSettings(body)
     return NextResponse.json(body)
   } catch {
     return NextResponse.json({ error: 'Failed to save settings' }, { status: 500 })

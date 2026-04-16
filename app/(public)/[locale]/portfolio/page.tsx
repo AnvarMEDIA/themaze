@@ -24,7 +24,7 @@ export async function generateMetadata({ params: { locale } }: Props): Promise<M
 export default async function PortfolioPage({ params: { locale } }: Props) {
   setRequestLocale(locale)
   const t        = await getTranslations({ locale, namespace: 'portfolio' })
-  const projects = getAllProjects()
+  const projects = await getAllProjects()
 
   return (
     <main className="min-h-screen">

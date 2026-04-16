@@ -9,6 +9,7 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@vercel/blob": "^2.3.3",
     "bcryptjs": "^2.4.3",
     "clsx": "^2.1.1",
     "formidable": "^3.5.1",

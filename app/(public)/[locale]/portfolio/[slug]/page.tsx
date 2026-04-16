@@ -11,15 +11,15 @@ interface Props {
   params: { locale: string; slug: string }
 }
 
-export function generateStaticParams() {
-  const projects = getAllProjects()
+export async function generateStaticParams() {
+  const projects = await getAllProjects()
   return routing.locales.flatMap((locale) =>
     projects.map((project) => ({ locale, slug: project.slug }))
   )
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
-  const project = getProjectBySlug(params.slug)
+  const project = await getProjectBySlug(params.slug)
   if (!project) return {}
   return {
     title: `${project.title} — ${project.client}`,
@@ -37,11 +37,11 @@ export default async function ProjectPage({ params }: Props) {
   setRequestLocale(locale)
 
   const t       = await getTranslations({ locale, namespace: 'portfolio' })
-  const project = getProjectBySlug(slug)
+  const project = await getProjectBySlug(slug)
 
   if (!project) notFound()
 
-  const all     = getAllProjects()
+  const all     = await getAllProjects()
   const related = all
     .filter((p) => p.id !== project.id && p.category === project.category)
     .slice(0, 2)

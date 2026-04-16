@@ -1,5 +1,4 @@
-import fs   from 'fs'
-import path from 'path'
+import { readStore, writeStore } from './store'
 
 export interface SiteSettings {
   email:         string
@@ -12,13 +11,16 @@ export interface SiteSettings {
   linkedin:      string
 }
 
-const DATA_PATH = path.join(process.cwd(), 'data', 'settings.json')
-
-export function getSettings(): SiteSettings {
-  const raw = fs.readFileSync(DATA_PATH, 'utf-8')
-  return JSON.parse(raw) as SiteSettings
+const DEFAULT: SiteSettings = {
+  email: '', phone: '', telegram: '',
+  address: '', addressDetail: '',
+  instagram: '', behance: '', linkedin: '',
 }
 
-export function saveSettings(settings: SiteSettings): void {
-  fs.writeFileSync(DATA_PATH, JSON.stringify(settings, null, 2), 'utf-8')
+export async function getSettings(): Promise<SiteSettings> {
+  return readStore<SiteSettings>('settings', DEFAULT)
+}
+
+export async function saveSettings(settings: SiteSettings): Promise<void> {
+  return writeStore('settings', settings)
 }
