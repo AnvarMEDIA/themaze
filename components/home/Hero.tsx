@@ -13,9 +13,12 @@ const STATS = [
   { value: '12',   label: 'Awards'   },
 ]
 
+// Strong ease-out curve (Emil Kowalski)
+const EASE_OUT = [0.23, 1, 0.32, 1] as const
+
 export function Hero() {
-  const t          = useTranslations('hero')
-  const words      = t.raw('words') as string[]
+  const t            = useTranslations('hero')
+  const words        = t.raw('words') as string[]
   const shouldReduce = useReducedMotion()
   const [wordIndex, setWordIndex] = useState(0)
 
@@ -24,78 +27,91 @@ export function Hero() {
     return () => clearInterval(id)
   }, [words.length])
 
-  const up = (delay: number) => ({
-    initial:    shouldReduce ? { opacity: 0 } : { opacity: 0, y: 32 },
+  // Fade-up factory — skips y-motion when reduced-motion is preferred
+  const fadeUp = (delay: number) => ({
+    initial:    shouldReduce ? { opacity: 0 } : { opacity: 0, y: 28 },
     animate:    { opacity: 1, y: 0 },
-    transition: { delay, duration: 0.7, ease: [0.23, 1, 0.32, 1] as const },
+    transition: { delay, duration: 0.7, ease: EASE_OUT },
   })
 
   return (
     <section className="relative min-h-screen flex flex-col overflow-hidden">
 
-      {/* ── Background ──────────────────────────────────────────── */}
+      {/* ── Background ───────────────────────────────────────────── */}
       <div aria-hidden className="absolute inset-0 pointer-events-none select-none">
-        {/* Dot grid — fades out at edges */}
+        {/* CSS dot grid — radial-gradient dots, masked radially to fade edges */}
         <div
-          className="absolute inset-0 opacity-30"
+          className="absolute inset-0 opacity-[0.28]"
           style={{
-            backgroundImage:  'radial-gradient(circle, rgba(200,255,71,0.35) 1px, transparent 1px)',
+            backgroundImage:  'radial-gradient(circle, rgba(200,255,71,0.38) 1px, transparent 1px)',
             backgroundSize:   '36px 36px',
-            maskImage:        'radial-gradient(ellipse 75% 65% at 50% 50%, black 0%, transparent 100%)',
-            WebkitMaskImage:  'radial-gradient(ellipse 75% 65% at 50% 50%, black 0%, transparent 100%)',
+            maskImage:        'radial-gradient(ellipse 72% 60% at 50% 48%, black 0%, transparent 100%)',
+            WebkitMaskImage:  'radial-gradient(ellipse 72% 60% at 50% 48%, black 0%, transparent 100%)',
           }}
         />
-        {/* Ambient lime glow — top right */}
+        {/* Lime ambient glow — top-right, very low opacity ~0.06 */}
         <div
-          className="absolute -top-40 -right-40 w-[700px] h-[700px] rounded-full"
-          style={{ background: 'radial-gradient(circle, rgba(200,255,71,0.07) 0%, transparent 65%)' }}
+          className="absolute -top-48 -right-48 w-[760px] h-[760px] rounded-full"
+          style={{ background: 'radial-gradient(circle, rgba(200,255,71,0.06) 0%, transparent 65%)' }}
         />
-        {/* Ambient glow — bottom left */}
+        {/* Lime ambient glow — bottom-left, very low opacity ~0.06 */}
         <div
-          className="absolute -bottom-20 -left-20 w-[500px] h-[500px] rounded-full"
-          style={{ background: 'radial-gradient(circle, rgba(200,255,71,0.04) 0%, transparent 65%)' }}
+          className="absolute -bottom-32 -left-32 w-[560px] h-[560px] rounded-full"
+          style={{ background: 'radial-gradient(circle, rgba(200,255,71,0.06) 0%, transparent 65%)' }}
         />
       </div>
 
-      {/* ── EST label ───────────────────────────────────────────── */}
-      <motion.p
-        {...up(1.5)}
-        className="absolute top-28 right-10 label-sm text-maze-muted hidden lg:block"
-      >
-        {t('est')}
-      </motion.p>
+      {/* ── Main content ─────────────────────────────────────────── */}
+      <div className="flex-1 flex flex-col justify-center px-6 md:px-10 pt-28 pb-10 max-w-[1440px] mx-auto w-full">
 
-      {/* ── Main content ────────────────────────────────────────── */}
-      <div className="flex-1 flex flex-col justify-center px-6 md:px-10 pt-24 pb-10 max-w-[1440px] mx-auto w-full">
-
-        {/* Badge */}
-        <motion.div {...up(0.05)} className="mb-10">
-          <span className="inline-flex items-center gap-2.5 label-sm px-4 py-2 border border-maze-border rounded-full text-maze-muted">
-            <span className="w-1.5 h-1.5 rounded-full bg-maze-lime shrink-0 animate-pulse" />
-            Branding &amp; Design Studio — Tashkent
-          </span>
-        </motion.div>
+        {/* Label — left-aligned, top of content block */}
+        <motion.p
+          {...fadeUp(0.05)}
+          className="label-sm text-maze-muted mb-10"
+        >
+          Branding Studio — EST. 2019 TASHKENT
+        </motion.p>
 
         {/* Headline */}
         <div className="mb-10 space-y-1">
-          <motion.h1 {...up(0.2)} className="display-xl font-black text-maze-cream">
+          {/* Line 1 — full row */}
+          <motion.h1
+            {...fadeUp(0.2)}
+            className="display-xl font-black text-maze-cream leading-none"
+          >
             {t('line1')}
           </motion.h1>
 
           {/* Line 2 + rotating lime word */}
-          <motion.div {...up(0.35)} className="flex flex-wrap items-baseline gap-x-4 gap-y-0">
-            <span className="display-xl font-black text-maze-cream">{t('line2')}</span>
+          <motion.div
+            {...fadeUp(0.35)}
+            className="flex flex-wrap items-baseline gap-x-4 gap-y-0"
+          >
+            <span className="display-xl font-black text-maze-cream leading-none">
+              {t('line2')}
+            </span>
 
-            {/* Word slot — AnimatePresence swaps the word */}
-            <span className="relative inline-block" style={{ minWidth: '4ch' }}>
+            {/* Rotating word slot — y-slide + opacity via AnimatePresence mode="wait" */}
+            <span
+              className="relative inline-block overflow-hidden"
+              style={{ minWidth: '4ch' }}
+            >
               <AnimatePresence mode="wait">
                 <motion.span
                   key={wordIndex}
-                  initial={shouldReduce ? { opacity: 0 } : { opacity: 0, y: '40%' }}
+                  initial={
+                    shouldReduce
+                      ? { opacity: 0 }
+                      : { opacity: 0, y: '60%' }
+                  }
                   animate={{ opacity: 1, y: '0%' }}
-                  exit={shouldReduce   ? { opacity: 0 } : { opacity: 0, y: '-30%' }}
-                  transition={{ duration: 0.4, ease: [0.23, 1, 0.32, 1] }}
-                  className="display-xl font-black text-maze-lime inline-block"
+                  exit={
+                    shouldReduce
+                      ? { opacity: 0 }
+                      : { opacity: 0, y: '-40%' }
+                  }
+                  transition={{ duration: 0.38, ease: EASE_OUT }}
+                  className="display-xl font-black text-maze-lime inline-block leading-none"
                 >
                   {words[wordIndex]}
                 </motion.span>
@@ -104,9 +120,9 @@ export function Hero() {
           </motion.div>
         </div>
 
-        {/* Subtitle + CTAs */}
+        {/* Subtitle (left-aligned) + CTAs (right-aligned) */}
         <motion.div
-          {...up(0.55)}
+          {...fadeUp(0.55)}
           className="flex flex-col sm:flex-row sm:items-end justify-between gap-8"
         >
           <p className="body-lg text-maze-muted max-w-sm leading-relaxed">
@@ -114,10 +130,24 @@ export function Hero() {
           </p>
 
           <div className="flex items-center gap-4 shrink-0">
+            {/* Ghost button */}
             <MagneticButton>
               <Link
                 href="/portfolio"
-                className="flex items-center gap-3 px-6 py-3.5 border border-maze-border rounded-full text-maze-cream hover:border-maze-lime hover:text-maze-lime transition-all duration-300 label-sm"
+                className="flex items-center gap-3 px-6 py-3.5 border border-maze-border rounded-full text-maze-cream label-sm active:scale-[0.97]"
+                style={{
+                  transition: 'color 200ms ease-out, border-color 200ms ease-out, transform 150ms ease-out',
+                }}
+                onMouseEnter={e => {
+                  const el = e.currentTarget
+                  el.style.color = 'rgb(var(--lime))'
+                  el.style.borderColor = 'rgb(var(--lime))'
+                }}
+                onMouseLeave={e => {
+                  const el = e.currentTarget
+                  el.style.color = ''
+                  el.style.borderColor = ''
+                }}
               >
                 {t('viewWork')}
                 <motion.span
@@ -128,10 +158,15 @@ export function Hero() {
                 </motion.span>
               </Link>
             </MagneticButton>
+
+            {/* Lime CTA button */}
             <MagneticButton>
               <Link
                 href="/contact"
-                className="flex items-center gap-2 px-6 py-3.5 bg-maze-lime text-maze-ink rounded-full label-sm font-bold hover:bg-maze-paper transition-colors duration-200"
+                className="flex items-center gap-2 px-6 py-3.5 bg-maze-lime text-maze-ink rounded-full label-sm font-bold active:scale-[0.97]"
+                style={{ transition: 'background-color 200ms ease-out, transform 150ms ease-out' }}
+                onMouseEnter={e => { e.currentTarget.style.backgroundColor = '#F0EEE6' }}
+                onMouseLeave={e => { e.currentTarget.style.backgroundColor = '' }}
               >
                 {t('startProject')} ↗
               </Link>
@@ -140,7 +175,7 @@ export function Hero() {
         </motion.div>
       </div>
 
-      {/* ── Stats strip ─────────────────────────────────────────── */}
+      {/* ── Stats strip — border-top, 4 stats in a row ───────────── */}
       <motion.div
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
@@ -151,9 +186,13 @@ export function Hero() {
           {STATS.map(({ value, label }, i) => (
             <motion.div
               key={label}
-              initial={{ opacity: 0, y: 12 }}
+              initial={shouldReduce ? { opacity: 0 } : { opacity: 0, y: 12 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 1.2 + i * 0.07, duration: 0.5, ease: [0.23, 1, 0.32, 1] }}
+              transition={{
+                delay:    1.2 + i * 0.07,
+                duration: 0.5,
+                ease:     EASE_OUT,
+              }}
               className="md:border-r md:last:border-r-0 border-maze-border md:px-8 first:pl-0"
             >
               <p className="display-md font-black text-maze-lime leading-none">{value}</p>
@@ -163,17 +202,19 @@ export function Hero() {
         </div>
       </motion.div>
 
-      {/* ── Scroll cue ──────────────────────────────────────────── */}
+      {/* ── Scroll cue — vertical animated line, desktop only, right side ── */}
       <motion.div
         className="absolute bottom-[calc(7rem+1px)] right-10 hidden lg:flex flex-col items-center gap-2"
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ delay: 1.8, duration: 0.6 }}
+        aria-hidden
       >
         <motion.div
           className="w-px h-12 bg-maze-muted origin-top"
-          animate={{ scaleY: [0, 1, 0] }}
+          animate={shouldReduce ? {} : { scaleY: [0, 1, 0] }}
           transition={{ duration: 1.6, repeat: Infinity, ease: 'easeInOut' }}
+          style={shouldReduce ? { opacity: 0.4 } : {}}
         />
         <span className="label-sm text-maze-muted [writing-mode:vertical-rl] tracking-widest">
           {t('scroll')}

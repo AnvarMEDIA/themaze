@@ -13,6 +13,23 @@ interface Props {
 const ALL = 'all'
 type Filter = typeof ALL | ProjectCategory
 
+const GridIcon = () => (
+  <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+    <rect x="0" y="0" width="7" height="7" fill="currentColor" rx="1.5" />
+    <rect x="9" y="0" width="7" height="7" fill="currentColor" rx="1.5" />
+    <rect x="0" y="9" width="7" height="7" fill="currentColor" rx="1.5" />
+    <rect x="9" y="9" width="7" height="7" fill="currentColor" rx="1.5" />
+  </svg>
+)
+
+const ListIcon = () => (
+  <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+    <rect x="0" y="2" width="16" height="2" fill="currentColor" rx="1" />
+    <rect x="0" y="7" width="16" height="2" fill="currentColor" rx="1" />
+    <rect x="0" y="12" width="16" height="2" fill="currentColor" rx="1" />
+  </svg>
+)
+
 export function PortfolioGrid({ projects }: Props) {
   const [filter, setFilter] = useState<Filter>(ALL)
   const [view,   setView]   = useState<'grid' | 'list'>('grid')
@@ -23,59 +40,96 @@ export function PortfolioGrid({ projects }: Props) {
     ? projects
     : projects.filter((p) => p.category === filter)
 
+  const filterOptions = [
+    { id: ALL as Filter, label: 'All Work', count: projects.length },
+    ...categories.map((c) => ({ id: c as Filter, label: CATEGORY_LABELS[c], count: projects.filter((p) => p.category === c).length })),
+  ]
+
   return (
     <div>
-      {/* Controls */}
-      <div className="flex flex-wrap items-center justify-between gap-4 mb-10">
-        {/* Filters */}
+      {/* Controls bar */}
+      <div className="flex flex-wrap items-center justify-between gap-4 mb-8">
+
+        {/* Filter pills */}
         <div className="flex flex-wrap gap-2">
-          {[{ id: ALL, label: `All (${projects.length})` }, ...categories.map((c) => ({ id: c, label: CATEGORY_LABELS[c] }))].map(({ id, label }) => (
+          {filterOptions.map(({ id, label, count }) => (
             <button
               key={id}
-              onClick={() => setFilter(id as Filter)}
-              className={`label-sm px-4 py-2 rounded-full border transition-all duration-200 ${
+              onClick={() => setFilter(id)}
+              className={[
+                'label-sm px-4 py-2 rounded-full border transition-all duration-200',
                 filter === id
-                  ? 'border-maze-lime text-maze-ink bg-maze-lime'
-                  : 'border-maze-border text-maze-muted hover:border-maze-cream hover:text-maze-cream'
-              }`}
+                  ? 'bg-maze-lime text-maze-ink border-maze-lime'
+                  : 'bg-transparent text-maze-muted border-maze-border hover:border-maze-cream hover:text-maze-cream',
+              ].join(' ')}
             >
               {label}
+              <span className={[
+                'ml-1.5 opacity-60',
+                filter === id ? 'text-maze-ink' : '',
+              ].join(' ')}>
+                ({count})
+              </span>
             </button>
           ))}
         </div>
 
-        {/* View toggle */}
-        <div className="flex gap-1 rounded-full p-1 border border-maze-border">
-          {[
-            { id: 'grid' as const, icon: <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><rect x="0" y="0" width="6" height="6" fill="currentColor" rx="1"/><rect x="8" y="0" width="6" height="6" fill="currentColor" rx="1"/><rect x="0" y="8" width="6" height="6" fill="currentColor" rx="1"/><rect x="8" y="8" width="6" height="6" fill="currentColor" rx="1"/></svg>, label: 'Grid view' },
-            { id: 'list' as const, icon: <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><rect x="0" y="1" width="14" height="2" fill="currentColor" rx="1"/><rect x="0" y="6" width="14" height="2" fill="currentColor" rx="1"/><rect x="0" y="11" width="14" height="2" fill="currentColor" rx="1"/></svg>, label: 'List view' },
-          ].map(({ id, icon, label }) => (
-            <button
-              key={id}
-              onClick={() => setView(id)}
-              title={label}
-              className={`p-2 rounded-full transition-colors ${view === id ? 'text-maze-lime' : 'text-maze-muted hover:text-maze-cream'}`}
-            >
-              {icon}
-            </button>
-          ))}
+        {/* Right side: count + view toggle */}
+        <div className="flex items-center gap-4">
+          <p className="label-sm text-maze-muted hidden sm:block">
+            {filtered.length} {filtered.length === 1 ? 'project' : 'projects'}
+          </p>
+
+          <div className="flex gap-1 rounded-full p-1 border border-maze-border">
+            {([
+              { id: 'grid' as const, Icon: GridIcon, label: 'Grid view' },
+              { id: 'list' as const, Icon: ListIcon, label: 'List view' },
+            ] as const).map(({ id, Icon, label }) => (
+              <button
+                key={id}
+                onClick={() => setView(id)}
+                title={label}
+                aria-label={label}
+                aria-pressed={view === id}
+                className={[
+                  'p-2 rounded-full transition-colors duration-150',
+                  view === id
+                    ? 'bg-maze-lime/10 text-maze-lime'
+                    : 'text-maze-muted hover:text-maze-cream',
+                ].join(' ')}
+              >
+                <Icon />
+              </button>
+            ))}
+          </div>
         </div>
       </div>
 
-      {/* Count */}
-      <p className="label-sm text-maze-muted mb-8">
+      {/* Mobile count */}
+      <p className="label-sm text-maze-muted mb-8 sm:hidden">
         {filtered.length} {filtered.length === 1 ? 'project' : 'projects'}
       </p>
 
-      {/* Grid / List */}
+      {/* Grid / List with AnimatePresence */}
       <AnimatePresence mode="wait">
-        {view === 'grid' ? (
+        {filtered.length === 0 ? (
           <motion.div
-            key="grid"
+            key="empty"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            transition={{ duration: 0.3 }}
+            transition={{ duration: 0.2 }}
+            className="text-center py-20"
+          >
+            <p className="body-lg text-maze-muted">No projects in this category yet.</p>
+          </motion.div>
+        ) : view === 'grid' ? (
+          <motion.div
+            key={`grid-${filter}`}
+            initial={{ opacity: 0, y: 16 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -8 }}
+            transition={{ duration: 0.25, ease: [0.23, 1, 0.32, 1] }}
             className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5"
           >
             {filtered.map((project, i) => (
@@ -84,11 +138,11 @@ export function PortfolioGrid({ projects }: Props) {
           </motion.div>
         ) : (
           <motion.div
-            key="list"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.3 }}
+            key={`list-${filter}`}
+            initial={{ opacity: 0, y: 16 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -8 }}
+            transition={{ duration: 0.25, ease: [0.23, 1, 0.32, 1] }}
             className="border-t border-maze-border"
           >
             {filtered.map((project, i) => (
@@ -97,12 +151,6 @@ export function PortfolioGrid({ projects }: Props) {
           </motion.div>
         )}
       </AnimatePresence>
-
-      {filtered.length === 0 && (
-        <div className="text-center py-20">
-          <p className="body-lg text-maze-muted">No projects in this category yet.</p>
-        </div>
-      )}
     </div>
   )
 }

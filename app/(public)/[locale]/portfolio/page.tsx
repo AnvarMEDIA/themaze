@@ -23,18 +23,35 @@ export async function generateMetadata({ params: { locale } }: Props): Promise<M
 
 export default async function PortfolioPage({ params: { locale } }: Props) {
   setRequestLocale(locale)
-  const t = await getTranslations({ locale, namespace: 'portfolio' })
+  const t        = await getTranslations({ locale, namespace: 'portfolio' })
   const projects = getAllProjects()
 
   return (
-    <div className="pt-28 pb-20 px-6 md:px-10 min-h-screen">
-      <div className="max-w-[1440px] mx-auto">
-        <div className="mb-16 border-b border-maze-border pb-10">
-          <p className="label-sm text-maze-muted mb-4">{t('label')}</p>
-          <h1 className="display-md text-maze-cream">{t('heading')}</h1>
+    <main className="min-h-screen">
+
+      {/* Page header */}
+      <section className="pt-28 pb-16 px-6 md:px-10 border-b border-maze-border">
+        <div className="max-w-[1440px] mx-auto">
+          <p className="label-sm text-maze-lime mb-5">{t('label')}</p>
+          <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-6">
+            <h1 className="display-md text-maze-cream max-w-xl">
+              {t('heading')}
+            </h1>
+            <p className="body-lg text-maze-muted max-w-sm md:text-right">
+              Brand identities, digital products, and print work
+              crafted in Tashkent for clients across Central Asia and beyond.
+            </p>
+          </div>
         </div>
-        <PortfolioGrid projects={projects} />
-      </div>
-    </div>
+      </section>
+
+      {/* Portfolio grid */}
+      <section className="pt-12 pb-24 px-6 md:px-10">
+        <div className="max-w-[1440px] mx-auto">
+          <PortfolioGrid projects={projects} />
+        </div>
+      </section>
+
+    </main>
   )
 }

@@ -64,18 +64,11 @@ export function ProjectCard({ project, index, layout = 'grid' }: Props) {
         className="group block"
         data-cursor="view"
       >
-        {/* Image wrapper */}
+        {/* Image wrapper — 16:9 aspect ratio */}
         <div className="relative overflow-hidden rounded-xl bg-maze-gray">
-          <div className="aspect-[4/3] relative">
-            <Image
-              src={project.coverImage}
-              alt={project.title}
-              fill
-              sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-              className="object-cover transition-transform duration-700 group-hover:scale-105"
-              onError={(e) => { (e.target as HTMLImageElement).style.display = 'none' }}
-            />
-            {/* Colour placeholder */}
+          <div className="aspect-[16/9] relative">
+
+            {/* Colour placeholder (always rendered beneath the image) */}
             <div
               className="absolute inset-0 flex items-center justify-center"
               style={{
@@ -87,26 +80,39 @@ export function ProjectCard({ project, index, layout = 'grid' }: Props) {
               </span>
             </div>
 
-            {/* Hover overlay */}
-            <div className="absolute inset-0 bg-maze-black/70 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-between p-6">
-              <div className="flex justify-between items-start">
-                <span className="label-sm text-maze-lime">{CATEGORY_LABELS[project.category]}</span>
-                <span className="label-sm text-maze-muted">{project.year}</span>
+            <Image
+              src={project.coverImage}
+              alt={project.title}
+              fill
+              sizes="(max-width: 640px) 100vw, (max-width: 1200px) 50vw, 33vw"
+              className="object-cover transition-transform duration-700 ease-out group-hover:scale-105"
+              onError={(e) => { (e.target as HTMLImageElement).style.display = 'none' }}
+            />
+
+            {/* Hover overlay — slides up from bottom */}
+            <div className="absolute inset-x-0 bottom-0 translate-y-full group-hover:translate-y-0 transition-transform duration-300 ease-out">
+              <div className="bg-maze-black/80 backdrop-blur-sm p-5">
+                <div className="flex items-center justify-between mb-2">
+                  <span className="label-sm text-maze-lime">{CATEGORY_LABELS[project.category]}</span>
+                  <span className="label-sm text-maze-muted">{project.year}</span>
+                </div>
+                <h3 className="heading-md text-maze-cream">{project.title}</h3>
+                <p className="body-lg text-maze-muted mt-1 line-clamp-2 hidden sm:block">
+                  {project.shortDescription}
+                </p>
               </div>
-              <p className="body-lg text-maze-muted line-clamp-2">{project.shortDescription}</p>
             </div>
+
           </div>
         </div>
 
-        {/* Meta */}
+        {/* Meta — shown below card */}
         <div className="mt-4 flex items-start justify-between gap-2">
           <div>
-            <h3 className="font-semibold text-maze-cream group-hover:text-maze-lime transition-colors">
+            <h3 className="font-semibold text-maze-cream group-hover:text-maze-lime transition-colors duration-200">
               {project.title}
             </h3>
-            <p className="label-sm text-maze-muted mt-1">
-              {project.client}
-            </p>
+            <p className="label-sm text-maze-muted mt-1">{project.client}</p>
           </div>
           <span className="shrink-0 label-sm text-maze-muted pt-0.5">{project.year}</span>
         </div>

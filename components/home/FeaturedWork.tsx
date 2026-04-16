@@ -1,10 +1,10 @@
 'use client'
 
-import { useRef } from 'react'
+import { useRef, useState } from 'react'
 import { useTranslations } from 'next-intl'
 import { Link } from '@/i18n/navigation'
 import Image from 'next/image'
-import { motion, useInView } from 'framer-motion'
+import { motion, useInView, useReducedMotion } from 'framer-motion'
 import type { Project } from '@/lib/types'
 import { CATEGORY_LABELS } from '@/lib/utils'
 
@@ -12,148 +12,198 @@ interface Props {
   projects: Project[]
 }
 
-function ProjectCard({ project, index }: { project: Project; index: number }) {
-  const ref    = useRef<HTMLDivElement>(null)
-  const inView = useInView(ref, { once: true, margin: '-15% 0px' })
+// Strong ease-out curve (Emil Kowalski)
+const EASE_OUT = [0.23, 1, 0.32, 1] as const
+
+// ─── Single 16:9 project card ────────────────────────────────────────────────
+function ProjectCard({
+  project,
+  index,
+  large = false,
+}: {
+  project: Project
+  index: number
+  large?: boolean
+}) {
+  const ref          = useRef<HTMLDivElement>(null)
+  const inView       = useInView(ref, { once: true, margin: '-12% 0px' })
+  const shouldReduce = useReducedMotion()
+  const [hovered, setHovered] = useState(false)
 
   return (
     <motion.div
       ref={ref}
-      initial={{ opacity: 0, y: 60 }}
+      initial={shouldReduce ? { opacity: 0 } : { opacity: 0, y: 48 }}
       animate={inView ? { opacity: 1, y: 0 } : {}}
-      transition={{ duration: 0.9, delay: index * 0.12, ease: [0.19, 1, 0.22, 1] }}
+      transition={{
+        duration: 0.8,
+        delay:    index * 0.1,
+        ease:     EASE_OUT,
+      }}
     >
       <Link
         href={`/portfolio/${project.slug}`}
         className="group block"
         data-cursor="view"
+        onMouseEnter={() => setHovered(true)}
+        onMouseLeave={() => setHovered(false)}
       >
-        {/* Image */}
-        <div className="relative overflow-hidden bg-maze-gray rounded-lg">
-          <div
-            className="relative"
-            style={{ aspectRatio: index % 3 === 0 ? '3/4' : '4/3' }}
-          >
-            <Image
-              src={project.coverImage}
-              alt={project.title}
-              fill
-              sizes="(max-width: 768px) 100vw, 50vw"
-              className="object-cover transition-transform duration-700 group-hover:scale-105"
-              onError={(e) => {
-                const target = e.target as HTMLImageElement
-                target.style.display = 'none'
-              }}
-            />
-            {/* Placeholder gradient */}
-            <div
-              className="absolute inset-0"
-              style={{
-                background: `linear-gradient(135deg, ${project.accentColor}33 0%, rgb(var(--gray)) 100%)`,
-              }}
-            />
-            {/* Project initials */}
-            <div className="absolute inset-0 flex items-center justify-center">
-              <span
-                className="text-6xl font-black opacity-20"
-                style={{ color: project.accentColor }}
-              >
-                {project.title.slice(0, 2).toUpperCase()}
-              </span>
-            </div>
+        {/* 16:9 image container */}
+        <div className="relative aspect-[16/9] overflow-hidden rounded-xl bg-maze-gray">
 
-            {/* Hover overlay */}
-            <div className="absolute inset-0 bg-maze-black/60 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end p-6">
-              <div>
-                <p className="label-sm text-maze-lime mb-1">
-                  {CATEGORY_LABELS[project.category]}
-                </p>
-                <p className="heading-md text-maze-cream">{project.title}</p>
-              </div>
+          {/* Placeholder — accent gradient + project initials (shown beneath image) */}
+          <div
+            className="absolute inset-0 flex items-center justify-center"
+            style={{
+              background: `linear-gradient(135deg, ${project.accentColor}44 0%, rgb(var(--gray)) 100%)`,
+            }}
+          >
+            <span
+              className="font-black opacity-20 select-none"
+              style={{
+                color:    project.accentColor,
+                fontSize: large ? '6rem' : '4rem',
+              }}
+            >
+              {project.title.slice(0, 2).toUpperCase()}
+            </span>
+          </div>
+
+          {/* Actual image — layered on top of placeholder */}
+          <Image
+            src={project.coverImage}
+            alt={project.title}
+            fill
+            sizes={large ? '100vw' : '(max-width: 768px) 100vw, 50vw'}
+            className="object-cover"
+            style={{
+              transition: 'transform 700ms cubic-bezier(0.23, 1, 0.32, 1)',
+              transform: hovered ? 'scale(1.05)' : 'scale(1)',
+            }}
+            onError={(e) => {
+              ;(e.target as HTMLImageElement).style.display = 'none'
+            }}
+          />
+
+          {/* Hover overlay — slides UP from bottom (translateY 100% → 0) */}
+          {/* Gate hover behind pointer-fine media — CSS handles this naturally */}
+          <div
+            className="absolute inset-0 overflow-hidden rounded-xl"
+            aria-hidden
+          >
+            <div
+              className="absolute inset-0 bg-maze-black/80 flex flex-col justify-end p-6 md:p-8"
+              style={{
+                transform: shouldReduce
+                  ? 'none'
+                  : hovered ? 'translateY(0%)' : 'translateY(100%)',
+                opacity: shouldReduce ? (hovered ? 1 : 0) : 1,
+                transition: shouldReduce
+                  ? 'opacity 200ms ease-out'
+                  : 'transform 320ms cubic-bezier(0.23, 1, 0.32, 1)',
+              }}
+            >
+              <p className="label-sm text-maze-lime mb-2">
+                {CATEGORY_LABELS[project.category] ?? project.category}
+              </p>
+              <p
+                className={`text-maze-cream font-bold leading-tight ${
+                  large ? 'heading-lg' : 'heading-md'
+                }`}
+              >
+                {project.title}
+              </p>
+              <span className="mt-4 inline-flex w-9 h-9 rounded-full border border-maze-lime items-center justify-center text-maze-lime text-sm shrink-0">
+                ↗
+              </span>
             </div>
           </div>
         </div>
 
-        {/* Meta */}
-        <div className="mt-4 flex items-center justify-between">
+        {/* Below-card meta: title + client left, year right */}
+        <div className="mt-4 flex items-start justify-between gap-4">
           <div>
-            <p className="font-semibold text-maze-cream group-hover:text-maze-lime transition-colors">
+            <p
+              className="font-semibold text-maze-cream"
+              style={{
+                color: hovered ? 'rgb(var(--lime))' : undefined,
+                transition: 'color 200ms ease-out',
+              }}
+            >
               {project.title}
             </p>
-            <p className="label-sm text-maze-muted mt-0.5">
-              {project.client} — {project.year}
-            </p>
+            <p className="label-sm text-maze-muted mt-0.5">{project.client}</p>
           </div>
-          <span className="w-8 h-8 rounded-full border border-maze-border flex items-center justify-center text-maze-muted group-hover:border-maze-lime group-hover:text-maze-lime transition-all duration-300 -rotate-45 group-hover:rotate-0">
-            ↗
-          </span>
+          <span className="label-sm text-maze-muted shrink-0 pt-0.5">{project.year}</span>
         </div>
       </Link>
     </motion.div>
   )
 }
 
+// ─── Section ─────────────────────────────────────────────────────────────────
 export function FeaturedWork({ projects }: Props) {
-  const t        = useTranslations('featured')
-  const titleRef = useRef<HTMLDivElement>(null)
-  const inView   = useInView(titleRef, { once: true, margin: '-10% 0px' })
+  const t         = useTranslations('featured')
+  const headerRef = useRef<HTMLDivElement>(null)
+  const inView    = useInView(headerRef, { once: true, margin: '-8% 0px' })
+
+  const firstProject   = projects[0]
+  const remainingCards = projects.slice(1, 5) // up to 4 more in 2-col grid
 
   return (
     <section className="px-6 md:px-10 py-24 md:py-36">
-      {/* Section header */}
+
+      {/* Section header: label "Selected Work" + "View all work →" on same line */}
       <div
-        ref={titleRef}
-        className="flex items-end justify-between mb-14 border-b border-maze-border pb-6"
+        ref={headerRef}
+        className="flex items-center justify-between mb-14 border-b border-maze-border pb-6"
       >
-        <div>
-          <motion.p
-            initial={{ opacity: 0, y: 10 }}
-            animate={inView ? { opacity: 1, y: 0 } : {}}
-            transition={{ duration: 0.5 }}
-            className="label-sm text-maze-muted mb-3"
-          >
-            {t('label')}
-          </motion.p>
-          <div className="overflow-hidden">
-            <motion.h2
-              initial={{ y: '100%' }}
-              animate={inView ? { y: '0%' } : {}}
-              transition={{ duration: 0.8, ease: [0.19, 1, 0.22, 1] }}
-              className="display-md text-maze-cream"
-            >
-              {t('heading')}
-            </motion.h2>
-          </div>
-        </div>
+        <motion.p
+          initial={{ opacity: 0, y: 8 }}
+          animate={inView ? { opacity: 1, y: 0 } : {}}
+          transition={{ duration: 0.5, ease: EASE_OUT }}
+          className="label-sm text-maze-muted"
+        >
+          {t('label')}
+        </motion.p>
+
         <motion.div
           initial={{ opacity: 0 }}
           animate={inView ? { opacity: 1 } : {}}
-          transition={{ delay: 0.3 }}
+          transition={{ delay: 0.2, duration: 0.4 }}
         >
           <Link
             href="/portfolio"
-            className="label-sm text-maze-muted hover:text-maze-lime transition-colors flex items-center gap-2"
+            className="label-sm text-maze-muted flex items-center gap-2"
+            style={{ transition: 'color 200ms ease-out' }}
+            onMouseEnter={e => { e.currentTarget.style.color = 'rgb(var(--lime))' }}
+            onMouseLeave={e => { e.currentTarget.style.color = '' }}
           >
-            {t('viewAll')}
-            <span className="inline-block">→</span>
+            {t('viewAll')} →
           </Link>
         </motion.div>
       </div>
 
-      {/* Asymmetric grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
-        {projects.slice(0, 3).map((project, i) => (
-          <ProjectCard key={project.id} project={project} index={i} />
-        ))}
-      </div>
+      {/* First project — full-width 16:9 */}
+      {firstProject && (
+        <div className="mb-5">
+          <ProjectCard project={firstProject} index={0} large />
+        </div>
+      )}
 
-      {projects.length > 3 && (
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-5 mt-5 lg:ml-[33.33%]">
-          {projects.slice(3, 5).map((project, i) => (
-            <ProjectCard key={project.id} project={project} index={i + 3} />
+      {/* Remaining projects — 2-column grid, 16:9 each, staggered entrance */}
+      {remainingCards.length > 0 && (
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+          {remainingCards.map((project, i) => (
+            <ProjectCard
+              key={project.id}
+              project={project}
+              index={i + 1}
+            />
           ))}
         </div>
       )}
+
     </section>
   )
 }

@@ -3,22 +3,26 @@
 import { useTranslations } from 'next-intl'
 import { Link } from '@/i18n/navigation'
 
+const LOGO = 'https://1jorjbbfajvf5rug.public.blob.vercel-storage.com/maze_logo.svg'
+
 export function Footer() {
   const t    = useTranslations('footer')
   const year = new Date().getFullYear()
 
-  const internalLinks = [
-    { group: t('groups.Work'), links: [
-      { href: '/portfolio',              label: 'Portfolio' },
-      { href: '/portfolio?cat=branding', label: 'Branding' },
-      { href: '/portfolio?cat=ui-ux',    label: 'UI / UX' },
-      { href: '/portfolio?cat=print',    label: 'Print' },
-    ]},
-    { group: t('groups.Studio'), links: [
-      { href: '/about',    label: 'About' },
-      { href: '/services', label: 'Services' },
-      { href: '/contact',  label: 'Contact' },
-    ]},
+  const workLinks = [
+    { href: '/portfolio',                   label: 'Portfolio' },
+    { href: '/portfolio?cat=branding',      label: 'Branding' },
+    { href: '/portfolio?cat=identity',      label: 'Identity' },
+    { href: '/portfolio?cat=naming',        label: 'Naming' },
+    { href: '/portfolio?cat=packaging',     label: 'Packaging' },
+    { href: '/portfolio?cat=print',         label: 'Print' },
+    { href: '/portfolio?cat=art-direction', label: 'Art Direction' },
+  ]
+
+  const studioLinks = [
+    { href: '/about',    label: 'About' },
+    { href: '/services', label: 'Services' },
+    { href: '/contact',  label: 'Contact' },
   ]
 
   const socialLinks = [
@@ -30,6 +34,7 @@ export function Footer() {
 
   return (
     <footer className="border-t border-maze-border bg-maze-black">
+
       {/* CTA strip */}
       <div className="px-6 md:px-10 py-20 md:py-28 border-b border-maze-border">
         <p className="label-sm text-maze-muted mb-6">{t('readyLabel')}</p>
@@ -42,36 +47,56 @@ export function Footer() {
         </a>
       </div>
 
-      {/* Links */}
+      {/* Links grid */}
       <div className="px-6 md:px-10 py-14 grid grid-cols-2 md:grid-cols-4 gap-10">
-        {/* Brand */}
+
+        {/* Column 1 — Logo + tagline */}
         <div className="col-span-2 md:col-span-1">
-          <span className="text-2xl font-black text-maze-cream tracking-tight">MAZE</span>
-          <p className="mt-3 body-lg text-maze-muted max-w-xs whitespace-pre-line">
+          <img
+            src={LOGO}
+            alt="MAZE"
+            style={{ height: '28px', width: 'auto', filter: 'brightness(0) invert(1)' }}
+          />
+          <p className="mt-4 body-lg text-maze-muted max-w-xs whitespace-pre-line">
             {t('tagline')}
           </p>
         </div>
 
-        {/* Internal link groups */}
-        {internalLinks.map(({ group, links }) => (
-          <div key={group}>
-            <p className="label-sm text-maze-muted mb-5">{group}</p>
-            <ul className="space-y-3">
-              {links.map((link) => (
-                <li key={link.href}>
-                  <Link
-                    href={link.href}
-                    className="body-lg text-maze-muted hover:text-maze-cream transition-colors duration-200"
-                  >
-                    {link.label}
-                  </Link>
-                </li>
-              ))}
-            </ul>
-          </div>
-        ))}
+        {/* Column 2 — Work */}
+        <div>
+          <p className="label-sm text-maze-muted mb-5">{t('groups.Work')}</p>
+          <ul className="space-y-3">
+            {workLinks.map((link) => (
+              <li key={link.href}>
+                <Link
+                  href={link.href}
+                  className="body-lg text-maze-muted hover:text-maze-cream transition-colors duration-200"
+                >
+                  {link.label}
+                </Link>
+              </li>
+            ))}
+          </ul>
+        </div>
 
-        {/* Social links */}
+        {/* Column 3 — Studio */}
+        <div>
+          <p className="label-sm text-maze-muted mb-5">{t('groups.Studio')}</p>
+          <ul className="space-y-3">
+            {studioLinks.map((link) => (
+              <li key={link.href}>
+                <Link
+                  href={link.href}
+                  className="body-lg text-maze-muted hover:text-maze-cream transition-colors duration-200"
+                >
+                  {link.label}
+                </Link>
+              </li>
+            ))}
+          </ul>
+        </div>
+
+        {/* Column 4 — Social */}
         <div>
           <p className="label-sm text-maze-muted mb-5">{t('groups.Social')}</p>
           <ul className="space-y-3">

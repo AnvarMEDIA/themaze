@@ -11,7 +11,7 @@
     "line1": "WE BUILD",
     "line2": "BOLD",
     "words": ["BRANDS", "IDEAS", "FUTURES", "STORIES"],
-    "subtitle": "Branding & Design Studio. Crafting identities that lead markets.",
+    "subtitle": "Branding agency based in Tashkent. We craft identities that lead markets.",
     "viewWork": "View Work",
     "startProject": "Start a Project",
     "scroll": "Scroll",
@@ -19,16 +19,16 @@
   },
   "marquee": {
     "items": [
-      "Brand Identity",
-      "Logo Design",
-      "Brand Strategy",
-      "UI / UX Design",
-      "Print Design",
-      "Motion Design",
+      "Branding",
+      "Identity",
+      "Naming",
       "Packaging",
-      "Web Design",
+      "Print & Packaging",
       "Art Direction",
-      "Visual Identity"
+      "Brand Strategy",
+      "Visual Identity",
+      "Brand Book",
+      "Creative Direction"
     ]
   },
   "featured": {
@@ -55,39 +55,34 @@
     "heading": "Services",
     "items": [
       {
-        "title": "Brand Identity",
-        "description": "Full visual identity systems — logo, colour, typography, imagery, and the rules that hold it all together.",
-        "tags": ["Logo Design", "Colour System", "Typography", "Brand Book"]
+        "title": "Branding",
+        "description": "Strategic brand creation from concept to launch. We define what your brand stands for and bring it to life with purpose.",
+        "tags": ["Brand Platform", "Positioning", "Brand Book", "Launch Strategy"]
       },
       {
-        "title": "Brand Strategy",
-        "description": "Positioning, naming, messaging and competitive differentiation. The thinking before the making.",
-        "tags": ["Positioning", "Naming", "Messaging", "Competitor Analysis"]
+        "title": "Identity",
+        "description": "Complete visual language — logo, colour, typography, and imagery. A system designed to work everywhere, at every scale.",
+        "tags": ["Logo Design", "Colour System", "Typography", "Visual Guidelines"]
       },
       {
         "title": "Naming",
-        "description": "Brand naming across languages and markets — from creative ideation to trademark clearance and domain check.",
+        "description": "Brand names that resonate across languages and markets — from creative ideation to linguistic validation and trademark check.",
         "tags": ["Brand Naming", "Linguistic Analysis", "Trademark Check", "Domain Check"]
       },
       {
-        "title": "UI / UX Design",
-        "description": "Digital products and interfaces that earn trust, reduce friction, and delight at every touchpoint.",
-        "tags": ["UX Research", "Wireframing", "UI Design", "Design Systems"]
+        "title": "Packaging",
+        "description": "Packaging design that stands out on the shelf and tells your brand story at the most critical touchpoint.",
+        "tags": ["Structural Design", "Label Design", "Dielines", "Production"]
       },
       {
         "title": "Print & Packaging",
-        "description": "From business cards to billboard campaigns — print communication with impact and craft.",
-        "tags": ["Packaging", "Stationery", "Editorial", "Environmental"]
-      },
-      {
-        "title": "Motion Design",
-        "description": "Brand animations, intro videos, social content and motion guidelines that bring identity to life.",
-        "tags": ["Brand Animation", "Social Content", "Video", "Motion Guide"]
+        "description": "From business cards to billboard campaigns — tangible brand communication crafted with precision.",
+        "tags": ["Stationery", "Editorial", "Environmental", "Signage"]
       },
       {
         "title": "Art Direction",
-        "description": "Creative oversight for campaigns, photography, and content — ensuring visual consistency across channels.",
-        "tags": ["Photography Direction", "Campaign", "Content Strategy"]
+        "description": "Creative oversight for photography, campaigns, and content — keeping your brand coherent and compelling across every channel.",
+        "tags": ["Photography Direction", "Campaign", "Content Strategy", "Production"]
       }
     ]
   },
@@ -118,7 +113,7 @@
     "label": "Ready to start?",
     "line1": "Let's build",
     "line2": "something great.",
-    "sub": "Tell us about your project and we'll get back to you within 24 hours.",
+    "sub": "Tell us about your project. We respond within 24 hours.",
     "button": "Start a project",
     "email": "hello@maze.uz"
   },
@@ -215,10 +210,10 @@
   },
   "servicesPage": {
     "metaTitle": "Services — MAZE Branding Studio",
-    "metaDesc": "MAZE Studio offers brand identity, brand strategy, naming, UI/UX design, print & packaging, motion design, and art direction.",
+    "metaDesc": "MAZE Studio offers branding, identity, naming, packaging, print & packaging, and art direction.",
     "heroLabel": "What we offer",
     "heroHeading": "Services built for ambitious brands.",
-    "heroSub": "From brand strategy to motion design — we offer the full creative suite that growing brands need to compete and win.",
+    "heroSub": "From brand strategy to art direction — we offer the full creative suite that growing brands need to compete and win.",
     "whatYouGet": "What you get",
     "enquire": "Enquire about",
     "notSureLabel": "Not sure what you need?",
@@ -227,33 +222,33 @@
     "notSureCta": "Book a discovery call",
     "services": [
       {
-        "id": "brand-identity",
+        "id": "branding",
         "num": "01",
-        "title": "Brand Identity",
-        "tagline": "The complete visual language of your brand.",
-        "body": "We create comprehensive brand identity systems — the logo, colour palette, typography, imagery style, and iconography that define how your brand looks and feels across every touchpoint. From the first sketch to the final brand guidelines document, we ensure every element works in harmony.",
+        "title": "Branding",
+        "tagline": "Build a brand that means something.",
+        "body": "We create brands from the ground up — defining positioning, personality, and purpose before a single visual element is designed. Strategy and identity in one cohesive engagement.",
         "deliverables": [
-          "Logo system (primary, secondary, icon)",
-          "Colour palette (primary, secondary, neutrals)",
-          "Typography system",
-          "Iconography & illustration style",
-          "Brand guidelines document",
-          "Brand asset library"
+          "Brand platform & strategy",
+          "Positioning & messaging",
+          "Logo system",
+          "Colour & typography",
+          "Brand guidelines",
+          "Launch assets"
         ]
       },
       {
-        "id": "strategy",
+        "id": "identity",
         "num": "02",
-        "title": "Brand Strategy",
-        "tagline": "The thinking that makes design matter.",
-        "body": "Before we design anything, we align on strategy. This means understanding your business objectives, audience insights, competitive landscape, and positioning. The output is a strategic brief that becomes the foundation for all creative work — ensuring every design decision has a reason.",
+        "title": "Identity",
+        "tagline": "The complete visual language of your brand.",
+        "body": "Comprehensive brand identity systems — logo, colour palette, typography, imagery, and iconography — designed to work at every scale and across every medium. From first sketch to final brand book.",
         "deliverables": [
-          "Brand audit & competitive analysis",
-          "Audience personas",
-          "Brand positioning statement",
-          "Naming & messaging framework",
-          "Brand personality & tone of voice",
-          "Strategic brief"
+          "Logo system (primary, variants, icon)",
+          "Colour palette",
+          "Typography system",
+          "Iconography & illustration style",
+          "Brand guidelines document",
+          "Asset library"
         ]
       },
       {
@@ -261,10 +256,10 @@
         "num": "03",
         "title": "Naming",
         "tagline": "The right name opens every door.",
-        "body": "A brand name is your most permanent creative decision. We explore hundreds of concepts rooted in cultural resonance, linguistic clarity across markets, and trademark availability — delivering a name that is historically powerful, strategically sound, and unforgettable.",
+        "body": "A brand name is your most permanent creative decision. We explore hundreds of concepts rooted in cultural resonance, linguistic clarity, and trademark availability — delivering a name that is memorable, strategic, and built to last.",
         "deliverables": [
           "Naming brief & criteria",
-          "Name ideation (100+ concepts)",
+          "100+ name concepts",
           "Linguistic & cultural analysis",
           "Trademark availability check",
           "Domain availability check",
@@ -272,18 +267,18 @@
         ]
       },
       {
-        "id": "ui-ux",
+        "id": "packaging",
         "num": "04",
-        "title": "UI / UX Design",
-        "tagline": "Digital experiences people love to use.",
-        "body": "We design digital products — websites, mobile apps, and SaaS platforms — that balance aesthetic quality with functional clarity. Our process starts with user research, moves through wireframing and prototyping, and delivers production-ready UI with a comprehensive design system.",
+        "title": "Packaging",
+        "tagline": "Packaging design that wins on the shelf.",
+        "body": "We design packaging that communicates brand values instantly and compels purchase. From structural design and label layout to material selection and print production — every detail considered.",
         "deliverables": [
-          "UX research & user flows",
-          "Wireframes & prototypes",
-          "UI design (all screens/states)",
-          "Design system & component library",
-          "Responsive & mobile design",
-          "Developer handoff (Figma)"
+          "Structural & dieline design",
+          "Label & surface design",
+          "Material & finish specification",
+          "Retail mockups",
+          "Print-ready files",
+          "Production management"
         ]
       },
       {
@@ -291,43 +286,29 @@
         "num": "05",
         "title": "Print & Packaging",
         "tagline": "Tangible design with lasting impact.",
-        "body": "Print remains one of the most powerful brand touchpoints. We design stationery systems, packaging, publications, environmental graphics, and campaign materials with the same rigour we apply to digital work — with deep expertise in print production.",
+        "body": "Print remains one of the most powerful brand touchpoints. We design stationery systems, publications, environmental graphics, and campaign materials with the same rigour we apply to digital work.",
         "deliverables": [
-          "Packaging design & dielines",
           "Brand stationery system",
           "Editorial & publication design",
           "Environmental & signage design",
-          "Campaign & promotional materials",
+          "Campaign materials",
+          "Outdoor & large format",
           "Print production management"
         ]
       },
       {
-        "id": "motion",
-        "num": "06",
-        "title": "Motion Design",
-        "tagline": "Your brand in motion.",
-        "body": "We bring brand identities to life through motion — animated logos, brand intro sequences, social media content, UI micro-interactions, and motion guidelines that let your team maintain consistency across video content.",
-        "deliverables": [
-          "Animated logo",
-          "Brand intro / outro sequences",
-          "Social media motion templates",
-          "UI animations & micro-interactions",
-          "Motion brand guidelines",
-          "Video production support"
-        ]
-      },
-      {
         "id": "art-direction",
-        "num": "07",
+        "num": "06",
         "title": "Art Direction",
         "tagline": "Creative oversight for a unified brand voice.",
-        "body": "When brands grow, maintaining visual consistency across teams, agencies, and channels becomes the challenge. We provide ongoing art direction — overseeing photography, campaign production, and content creation to keep your brand coherent and compelling.",
+        "body": "We provide art direction for photography shoots, campaigns, and ongoing content — ensuring every visual element stays true to the brand. Available as a one-off project or ongoing creative partnership.",
         "deliverables": [
           "Photography direction & moodboards",
           "Campaign concepting & direction",
           "Vendor & photographer management",
-          "Content strategy & visual guidelines",
-          "Ongoing creative consultation"
+          "Content guidelines",
+          "Ongoing creative consultation",
+          "Brand consistency reviews"
         ]
       }
     ]
