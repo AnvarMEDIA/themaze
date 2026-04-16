@@ -19,9 +19,18 @@ export function ContactForm() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setLoading(true)
-    await new Promise((r) => setTimeout(r, 1200))
-    toast.success(t('success'), { duration: 5000 })
-    setForm({ name: '', email: '', company: '', service: '', budget: '', message: '' })
+    try {
+      const res = await fetch('/api/inquiries', {
+        method:  'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body:    JSON.stringify(form),
+      })
+      if (!res.ok) throw new Error()
+      toast.success(t('success'), { duration: 5000 })
+      setForm({ name: '', email: '', company: '', service: '', budget: '', message: '' })
+    } catch {
+      toast.error(t('error'))
+    }
     setLoading(false)
   }
 

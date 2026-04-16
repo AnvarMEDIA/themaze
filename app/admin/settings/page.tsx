@@ -7,7 +7,7 @@ import toast from 'react-hot-toast'
 const DEFAULT: SiteSettings = {
   email: '', phone: '', telegram: '',
   address: '', addressDetail: '',
-  instagram: '', behance: '', linkedin: '',
+  instagram: '', behance: '', linkedin: '', twitter: '',
 }
 
 export default function AdminSettingsPage() {
@@ -66,9 +66,11 @@ export default function AdminSettingsPage() {
     {
       title: 'Social Media',
       fields: [
-        { key: 'instagram', label: 'Instagram URL', placeholder: 'https://instagram.com/...' },
-        { key: 'behance',   label: 'Behance URL',   placeholder: 'https://behance.net/...' },
-        { key: 'linkedin',  label: 'LinkedIn URL',  placeholder: 'https://linkedin.com/company/...' },
+        { key: 'instagram', label: 'Instagram URL',  placeholder: 'https://instagram.com/mazestudio' },
+        { key: 'behance',   label: 'Behance URL',    placeholder: 'https://behance.net/mazestudio' },
+        { key: 'linkedin',  label: 'LinkedIn URL',   placeholder: 'https://linkedin.com/company/mazestudio' },
+        { key: 'telegram',  label: 'Telegram',       placeholder: '@mazestudio or https://t.me/mazestudio' },
+        { key: 'twitter',   label: 'Twitter / X URL', placeholder: 'https://x.com/mazestudio' },
       ],
     },
   ]

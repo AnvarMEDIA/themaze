@@ -2,6 +2,9 @@ import type { Metadata } from 'next'
 import { getTranslations, setRequestLocale } from 'next-intl/server'
 import { routing } from '@/i18n/routing'
 import { ContactForm } from '@/components/contact/ContactForm'
+import { getSettings } from '@/lib/settings'
+
+export const dynamic = 'force-dynamic'
 
 interface Props {
   params: { locale: string }
@@ -19,23 +22,51 @@ export async function generateMetadata({ params: { locale } }: Props): Promise<M
   }
 }
 
-const info = [
-  { key: 'emailLabel',    value: 'hello@maze.uz',       href: 'mailto:hello@maze.uz' },
-  { key: 'phoneLabel',    value: '+998 99 999 99 99',    href: 'tel:+998999999999' },
-  { key: 'telegramLabel', value: '@mazestudio',           href: 'https://t.me/mazestudio' },
-  { key: 'locationLabel', value: 'Tashkent, Uzbekistan', href: null },
-] as const
+function telegramHref(val: string) {
+  if (!val) return '#'
+  if (val.startsWith('http')) return val
+  return `https://t.me/${val.replace('@', '')}`
+}
 
-const socials = [
-  { label: 'Instagram', href: 'https://instagram.com/mazestudio' },
-  { label: 'Behance',   href: 'https://behance.net/mazestudio' },
-  { label: 'LinkedIn',  href: 'https://linkedin.com/company/mazestudio' },
-  { label: 'Dribbble',  href: 'https://dribbble.com/mazestudio' },
-]
+function telegramDisplay(val: string) {
+  if (!val) return '@mazestudio'
+  if (val.startsWith('http')) return `@${val.split('/').pop()}`
+  return val.startsWith('@') ? val : `@${val}`
+}
 
 export default async function ContactPage({ params: { locale } }: Props) {
   setRequestLocale(locale)
-  const t = await getTranslations({ locale, namespace: 'contactPage' })
+  const [t, settings] = await Promise.all([
+    getTranslations({ locale, namespace: 'contactPage' }),
+    getSettings(),
+  ])
+
+  const email    = settings.email    || 'hello@maze.uz'
+  const phone    = settings.phone    || '+998 99 999 99 99'
+  const telegram = settings.telegram || '@mazestudio'
+  const address  = settings.address  || 'Tashkent, Uzbekistan'
+
+  const info = [
+    { key: 'emailLabel',    value: email,                      href: `mailto:${email}` },
+    { key: 'phoneLabel',    value: phone,                      href: `tel:${phone.replace(/\s/g, '')}` },
+    { key: 'telegramLabel', value: telegramDisplay(telegram),  href: telegramHref(telegram) },
+    { key: 'locationLabel', value: address,                    href: null },
+  ] as const
+
+  const socials = [
+    settings.instagram && { label: 'Instagram', href: settings.instagram },
+    settings.behance   && { label: 'Behance',   href: settings.behance   },
+    settings.linkedin  && { label: 'LinkedIn',  href: settings.linkedin  },
+    settings.telegram  && { label: 'Telegram',  href: telegramHref(telegram) },
+    settings.twitter   && { label: 'Twitter / X', href: settings.twitter },
+  ].filter(Boolean) as { label: string; href: string }[]
+
+  // Fallback if no settings configured
+  const displaySocials = socials.length > 0 ? socials : [
+    { label: 'Instagram', href: 'https://instagram.com/mazestudio' },
+    { label: 'Behance',   href: 'https://behance.net/mazestudio' },
+    { label: 'LinkedIn',  href: 'https://linkedin.com/company/mazestudio' },
+  ]
 
   return (
     <div className="pt-28 min-h-screen">
@@ -73,8 +104,8 @@ export default async function ContactPage({ params: { locale } }: Props) {
 
             <div>
               <p className="label-sm text-maze-muted mb-4">{t('followUs')}</p>
-              <div className="flex gap-4">
-                {socials.map((s) => (
+              <div className="flex flex-wrap gap-3">
+                {displaySocials.map((s) => (
                   <a
                     key={s.label}
                     href={s.href}

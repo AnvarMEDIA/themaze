@@ -7,6 +7,7 @@ import { Footer }       from '@/components/layout/Footer'
 import { CustomCursor } from '@/components/layout/CustomCursor'
 import { SmoothScroll } from '@/components/layout/SmoothScroll'
 import { Toaster }      from 'react-hot-toast'
+import { getSettings }  from '@/lib/settings'
 
 const jsonLd = {
   '@context': 'https://schema.org',
@@ -49,7 +50,7 @@ export default async function LocaleLayout({ children, params }: Props) {
 
   setRequestLocale(locale)
 
-  const messages = await getMessages()
+  const [messages, settings] = await Promise.all([getMessages(), getSettings()])
 
   return (
     <NextIntlClientProvider messages={messages} locale={locale}>
@@ -62,7 +63,7 @@ export default async function LocaleLayout({ children, params }: Props) {
           <CustomCursor />
           <Navbar />
           <main>{children}</main>
-          <Footer />
+          <Footer settings={settings} />
         </div>
       </SmoothScroll>
       <Toaster

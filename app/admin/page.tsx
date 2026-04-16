@@ -4,22 +4,25 @@ import { useEffect, useState, useCallback } from 'react'
 import Link from 'next/link'
 import type { Project } from '@/lib/types'
 import type { Partner } from '@/lib/partners'
-import { CATEGORY_LABELS } from '@/lib/utils'
+import type { Inquiry } from '@/lib/inquiries'
 
 export default function AdminDashboard() {
-  const [projects, setProjects] = useState<Project[]>([])
-  const [partners, setPartners] = useState<Partner[]>([])
-  const [loading,  setLoading]  = useState(true)
+  const [projects,   setProjects]   = useState<Project[]>([])
+  const [partners,   setPartners]   = useState<Partner[]>([])
+  const [inquiries,  setInquiries]  = useState<Inquiry[]>([])
+  const [loading,    setLoading]    = useState(true)
 
   const load = useCallback(async () => {
     try {
-      const [pRes, partRes] = await Promise.all([
+      const [pRes, partRes, inqRes] = await Promise.all([
         fetch('/api/portfolio',  { cache: 'no-store' }),
         fetch('/api/partners',   { cache: 'no-store' }),
+        fetch('/api/inquiries',  { cache: 'no-store' }),
       ])
-      const [pData, partData] = await Promise.all([pRes.json(), partRes.json()])
+      const [pData, partData, inqData] = await Promise.all([pRes.json(), partRes.json(), inqRes.json()])
       setProjects(pData)
       setPartners(partData)
+      setInquiries(Array.isArray(inqData) ? inqData : [])
     } finally {
       setLoading(false)
     }
@@ -28,16 +31,16 @@ export default function AdminDashboard() {
   useEffect(() => { load() }, [load])
 
   const featured    = projects.filter((p) => p.featured).length
-  const categories  = Array.from(new Set(projects.map((p) => p.category)))
+  const unreadCount = inquiries.filter((i) => !i.read).length
   const recentProjects = [...projects]
     .sort((a, b) => (b.year ?? 0) - (a.year ?? 0))
     .slice(0, 5)
 
   const stats = [
-    { label: 'Total Projects', value: projects.length, icon: '◈', href: '/admin/projects', color: '#C8FF47' },
-    { label: 'Featured',       value: featured,         icon: '★', href: '/admin/projects', color: '#FFD447' },
-    { label: 'Partners',       value: partners.length,  icon: '◎', href: '/admin/partners', color: '#47C8FF' },
-    { label: 'Categories',     value: categories.length,icon: '⬡', href: '/admin/projects', color: '#FF6B47' },
+    { label: 'Total Projects', value: projects.length,   icon: '◈', href: '/admin/projects',  color: '#C8FF47' },
+    { label: 'Featured',       value: featured,           icon: '★', href: '/admin/projects',  color: '#FFD447' },
+    { label: 'Partners',       value: partners.length,    icon: '◎', href: '/admin/partners',  color: '#47C8FF' },
+    { label: 'New Inquiries',  value: unreadCount,        icon: '✉', href: '/admin/inquiries', color: '#FF6B47' },
   ]
 
   return (
@@ -113,7 +116,7 @@ export default function AdminDashboard() {
                     <p className="text-xs text-[#444] mt-0.5">{project.client} · {project.year}</p>
                   </div>
                   <span className="text-[11px] px-2.5 py-1 rounded-full border border-[#252525] text-[#555] hidden sm:block whitespace-nowrap">
-                    {CATEGORY_LABELS[project.category]}
+                    {project.category}
                   </span>
                   <div className="flex items-center gap-3">
                     {project.featured && (
@@ -143,6 +146,7 @@ export default function AdminDashboard() {
             <div className="space-y-2">
               {[
                 { href: '/admin/projects/new', label: 'Add new project',  icon: '+', color: '#C8FF47' },
+                { href: '/admin/inquiries',    label: 'View inquiries',   icon: '✉', color: '#FF6B47' },
                 { href: '/admin/partners',     label: 'Manage partners',  icon: '◎', color: '#47C8FF' },
                 { href: '/admin/settings',     label: 'Site settings',    icon: '⚙', color: '#FFD447' },
               ].map((action) => (
