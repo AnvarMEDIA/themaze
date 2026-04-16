@@ -5,7 +5,6 @@ import { useTranslations } from 'next-intl'
 import { Link, usePathname } from '@/i18n/navigation'
 import { motion, AnimatePresence, useReducedMotion } from 'framer-motion'
 import { cn } from '@/lib/utils'
-import { ThemeToggle } from '@/components/ui/ThemeToggle'
 import { LangToggle } from '@/components/ui/LangToggle'
 
 export function Navbar() {
@@ -56,11 +55,8 @@ export function Navbar() {
       >
         <nav className="flex items-center justify-between max-w-[1440px] mx-auto">
           {/* Logo */}
-          <Link href="/" className="flex items-center gap-2 group">
+          <Link href="/" className="flex items-center group">
             <MazeLogo />
-            <span className="label-sm text-maze-muted hidden sm:block">
-              {t('brandingStudio')}
-            </span>
           </Link>
 
           {/* Desktop nav */}
@@ -82,9 +78,8 @@ export function Navbar() {
             ))}
           </ul>
 
-          {/* Right side: toggles + CTA */}
+          {/* Right side: lang toggle + CTA */}
           <div className="flex items-center gap-3">
-            <ThemeToggle />
             <LangToggle />
 
             <Link
@@ -178,8 +173,8 @@ function MazeLogo() {
     <img
       src="https://1jorjbbfajvf5rug.public.blob.vercel-storage.com/maze_logo.svg"
       alt="MAZE Studio"
-      height={44}
-      style={{ height: '44px', width: 'auto', filter: 'brightness(0) invert(1)' }}
+      height={56}
+      style={{ height: '56px', width: 'auto', filter: 'brightness(0) invert(1)' }}
     />
   )
 }

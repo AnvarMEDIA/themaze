@@ -4,10 +4,11 @@ import { useTranslations } from 'next-intl'
 import { Link } from '@/i18n/navigation'
 
 const LOGO = 'https://1jorjbbfajvf5rug.public.blob.vercel-storage.com/maze_logo.svg'
+const FOUNDED = 2019
 
 export function Footer() {
-  const t    = useTranslations('footer')
-  const year = new Date().getFullYear()
+  const t           = useTranslations('footer')
+  const currentYear = new Date().getFullYear()
 
   const workLinks = [
     { href: '/portfolio',                   label: 'Portfolio' },
@@ -37,7 +38,7 @@ export function Footer() {
 
       {/* CTA strip */}
       <div className="px-6 md:px-10 py-20 md:py-28 border-b border-maze-border">
-        <p className="label-sm text-maze-muted mb-6">{t('readyLabel')}</p>
+        <p className="label-sm text-maze-muted mb-6 tracking-widest uppercase">{t('readyLabel')}</p>
         <a
           href="mailto:hello@maze.uz"
           className="display-lg text-maze-cream hover:text-maze-lime transition-colors duration-300 inline-block"
@@ -47,30 +48,31 @@ export function Footer() {
         </a>
       </div>
 
-      {/* Links grid */}
-      <div className="px-6 md:px-10 py-14 grid grid-cols-2 md:grid-cols-4 gap-10">
+      {/* Main links grid */}
+      <div className="px-6 md:px-10 pt-16 pb-12 grid grid-cols-2 md:grid-cols-4 gap-10">
 
         {/* Column 1 — Logo + tagline */}
         <div className="col-span-2 md:col-span-1">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
             src={LOGO}
             alt="MAZE"
-            style={{ height: '28px', width: 'auto', filter: 'brightness(0) invert(1)' }}
+            style={{ height: '52px', width: 'auto', filter: 'brightness(0) invert(1)' }}
           />
-          <p className="mt-4 body-lg text-maze-muted max-w-xs whitespace-pre-line">
+          <p className="mt-5 text-sm text-maze-muted leading-relaxed max-w-[200px] whitespace-pre-line">
             {t('tagline')}
           </p>
         </div>
 
         {/* Column 2 — Work */}
         <div>
-          <p className="label-sm text-maze-muted mb-5">{t('groups.Work')}</p>
+          <p className="text-xs font-semibold text-maze-muted mb-5 tracking-widest uppercase">{t('groups.Work')}</p>
           <ul className="space-y-3">
             {workLinks.map((link) => (
               <li key={link.href}>
                 <Link
                   href={link.href}
-                  className="body-lg text-maze-muted hover:text-maze-cream transition-colors duration-200"
+                  className="text-sm text-maze-muted hover:text-maze-cream transition-colors duration-200"
                 >
                   {link.label}
                 </Link>
@@ -81,13 +83,13 @@ export function Footer() {
 
         {/* Column 3 — Studio */}
         <div>
-          <p className="label-sm text-maze-muted mb-5">{t('groups.Studio')}</p>
+          <p className="text-xs font-semibold text-maze-muted mb-5 tracking-widest uppercase">{t('groups.Studio')}</p>
           <ul className="space-y-3">
             {studioLinks.map((link) => (
               <li key={link.href}>
                 <Link
                   href={link.href}
-                  className="body-lg text-maze-muted hover:text-maze-cream transition-colors duration-200"
+                  className="text-sm text-maze-muted hover:text-maze-cream transition-colors duration-200"
                 >
                   {link.label}
                 </Link>
@@ -98,7 +100,7 @@ export function Footer() {
 
         {/* Column 4 — Social */}
         <div>
-          <p className="label-sm text-maze-muted mb-5">{t('groups.Social')}</p>
+          <p className="text-xs font-semibold text-maze-muted mb-5 tracking-widest uppercase">{t('groups.Social')}</p>
           <ul className="space-y-3">
             {socialLinks.map((link) => (
               <li key={link.href}>
@@ -106,7 +108,7 @@ export function Footer() {
                   href={link.href}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="body-lg text-maze-muted hover:text-maze-cream transition-colors duration-200"
+                  className="text-sm text-maze-muted hover:text-maze-cream transition-colors duration-200"
                 >
                   {link.label}
                 </a>
@@ -116,12 +118,12 @@ export function Footer() {
         </div>
       </div>
 
-      {/* Bottom bar */}
-      <div className="px-6 md:px-10 py-6 border-t border-maze-border flex flex-col sm:flex-row justify-between gap-2">
-        <p className="label-sm text-maze-muted">
-          © {year} MAZE Studio. {t('rights')}
+      {/* Bottom bar — founded year range + rights */}
+      <div className="px-6 md:px-10 py-5 border-t border-maze-border flex flex-col sm:flex-row justify-between items-center gap-3">
+        <p className="text-xs text-maze-muted tracking-widest">
+          © {FOUNDED}–{currentYear} MAZE Studio. {t('rights')}
         </p>
-        <p className="label-sm text-maze-muted">
+        <p className="text-xs text-maze-muted tracking-wide">
           {t('builtBy')}
         </p>
       </div>
