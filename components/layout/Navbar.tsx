@@ -174,19 +174,12 @@ export function Navbar() {
 
 function MazeLogo() {
   return (
-    <svg width="60" height="24" viewBox="0 0 60 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-      <text
-        x="0"
-        y="20"
-        fontFamily="var(--font-sans), sans-serif"
-        fontSize="22"
-        fontWeight="900"
-        letterSpacing="-1"
-        fill="currentColor"
-        className="text-maze-cream"
-      >
-        MAZE
-      </text>
-    </svg>
+    // eslint-disable-next-line @next/next/no-img-element
+    <img
+      src="https://1jorjbbfajvf5rug.public.blob.vercel-storage.com/maze_logo.svg"
+      alt="MAZE Studio"
+      height={28}
+      style={{ height: '28px', width: 'auto' }}
+    />
   )
 }

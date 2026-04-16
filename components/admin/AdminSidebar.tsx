@@ -50,7 +50,12 @@ export function AdminSidebar() {
       {/* Logo */}
       <div className="px-5 py-5 border-b border-[#1E1E1E]">
         <Link href="/admin" className="flex items-center gap-2.5">
-          <span className="font-black text-white text-lg tracking-tight">MAZE</span>
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src="https://1jorjbbfajvf5rug.public.blob.vercel-storage.com/maze_logo.svg"
+            alt="MAZE Studio"
+            style={{ height: '24px', width: 'auto' }}
+          />
           <span className="text-[10px] font-semibold tracking-[0.15em] uppercase text-[#C8FF47] bg-[#C8FF47]/10 px-2 py-0.5 rounded-full">
             Admin
           </span>
