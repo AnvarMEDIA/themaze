@@ -12,6 +12,11 @@ const secret = new TextEncoder().encode(
 export async function middleware(req: NextRequest) {
   const { pathname } = req.nextUrl
 
+  // ── API routes — bypass everything ────────────────────────────
+  if (pathname.startsWith('/api/')) {
+    return NextResponse.next()
+  }
+
   // ── Admin JWT protection ────────────────────────────────────────
   if (pathname.startsWith('/admin')) {
     if (!pathname.startsWith('/admin/login')) {
