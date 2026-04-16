@@ -6,18 +6,19 @@ import { Link } from '@/i18n/navigation'
 import { motion, AnimatePresence, useReducedMotion } from 'framer-motion'
 import { MagneticButton } from '@/components/ui/MagneticButton'
 
-const STATS = [
-  { value: '200+', label: 'Projects' },
-  { value: '80+',  label: 'Clients'  },
-  { value: '6+',   label: 'Years'    },
-  { value: '12',   label: 'Awards'   },
-]
-
 // Strong ease-out curve (Emil Kowalski)
 const EASE_OUT = [0.23, 1, 0.32, 1] as const
 
 export function Hero() {
   const t            = useTranslations('hero')
+  const tAbout       = useTranslations('about')
+
+  const STATS = [
+    { value: '200+', label: tAbout('stats.projects')  },
+    { value: '80+',  label: tAbout('stats.clients')   },
+    { value: '6+',   label: tAbout('stats.years')     },
+    { value: '5+',   label: tAbout('stats.countries') },
+  ]
   const words        = t.raw('words') as string[]
   const shouldReduce = useReducedMotion()
   const [wordIndex, setWordIndex] = useState(0)
