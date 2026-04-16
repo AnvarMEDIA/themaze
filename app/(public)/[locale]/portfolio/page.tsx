@@ -38,8 +38,7 @@ export default async function PortfolioPage({ params: { locale } }: Props) {
               {t('heading')}
             </h1>
             <p className="body-lg text-maze-muted max-w-sm md:text-right">
-              Brand identities, digital products, and print work
-              crafted in Tashkent for clients across Central Asia and beyond.
+              {t('subtitle')}
             </p>
           </div>
         </div>

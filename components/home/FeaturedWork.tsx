@@ -6,7 +6,6 @@ import { Link } from '@/i18n/navigation'
 import Image from 'next/image'
 import { motion, useInView, useReducedMotion } from 'framer-motion'
 import type { Project } from '@/lib/types'
-import { CATEGORY_LABELS } from '@/lib/utils'
 
 interface Props {
   projects: Project[]
@@ -34,10 +33,12 @@ function ProjectCard({
   index: number
   large?: boolean
 }) {
+  const t            = useTranslations('portfolio')
   const ref          = useRef<HTMLDivElement>(null)
   const inView       = useInView(ref, { once: true, margin: '-12% 0px' })
   const shouldReduce = useReducedMotion()
   const [hovered, setHovered] = useState(false)
+  const catLabel = (t.raw('categories') as Record<string, string>)[project.category] ?? project.category
 
   return (
     <motion.div
@@ -113,7 +114,7 @@ function ProjectCard({
               }}
             >
               <p className="label-sm text-maze-lime mb-2">
-                {CATEGORY_LABELS[project.category] ?? project.category}
+                {catLabel}
               </p>
               <p
                 className={`text-maze-cream font-bold leading-tight ${

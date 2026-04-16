@@ -126,6 +126,18 @@
       "Work": "Работы",
       "Studio": "Студия",
       "Social": "Соцсети"
+    },
+    "nav": {
+      "portfolio": "Портфолио",
+      "branding": "Брендинг",
+      "identity": "Айдентика",
+      "naming": "Нейминг",
+      "packaging": "Упаковка",
+      "print": "Принт",
+      "artDirection": "Арт-дирекшн",
+      "about": "О нас",
+      "services": "Услуги",
+      "contact": "Контакт"
     }
   },
   "partners": {
@@ -135,7 +147,21 @@
   "portfolio": {
     "label": "Наши работы",
     "heading": "Портфолио",
+    "subtitle": "Айдентика, цифровые продукты и принт — создаём в Ташкенте для клиентов по всей Центральной Азии и за её пределами.",
     "allWork": "Все работы",
+    "projectSingular": "проект",
+    "projectPlural": "проектов",
+    "empty": "В этой категории пока нет проектов.",
+    "gridView": "Сетка",
+    "listView": "Список",
+    "categories": {
+      "branding": "Брендинг",
+      "identity": "Айдентика",
+      "naming": "Нейминг",
+      "packaging": "Упаковка",
+      "print": "Принт",
+      "art-direction": "Арт-дирекшн"
+    },
     "backToWork": "← Все работы",
     "aboutProject": "О проекте",
     "results": "Результаты",
@@ -331,6 +357,8 @@
       "emailPlaceholder": "ваш@email.com",
       "service": "Услуга",
       "servicePlaceholder": "Чем мы можем помочь?",
+      "budget": "Бюджет",
+      "budgets": ["До $2 000", "$2 000 – $5 000", "$5 000 – $15 000", "$15 000 – $50 000", "От $50 000"],
       "message": "Сообщение",
       "messagePlaceholder": "Расскажите о вашем проекте...",
       "send": "Отправить сообщение",

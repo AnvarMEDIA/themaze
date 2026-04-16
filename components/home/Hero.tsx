@@ -69,7 +69,7 @@ export function Hero() {
           {...fadeUp(0.05)}
           className="label-sm text-maze-muted mb-10"
         >
-          Branding Studio — EST. 2019 TASHKENT
+          {t('est')}
         </motion.p>
 
         {/* Headline */}

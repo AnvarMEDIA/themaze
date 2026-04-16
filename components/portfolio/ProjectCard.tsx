@@ -1,11 +1,11 @@
 'use client'
 
 import { useRef } from 'react'
+import { useTranslations } from 'next-intl'
 import { Link } from '@/i18n/navigation'
 import Image from 'next/image'
 import { motion, useInView } from 'framer-motion'
 import type { Project } from '@/lib/types'
-import { CATEGORY_LABELS } from '@/lib/utils'
 
 interface Props {
   project: Project
@@ -14,8 +14,10 @@ interface Props {
 }
 
 export function ProjectCard({ project, index, layout = 'grid' }: Props) {
+  const t      = useTranslations('portfolio')
   const ref    = useRef<HTMLDivElement>(null)
   const inView = useInView(ref, { once: true, margin: '-10% 0px' })
+  const catLabel = (t.raw('categories') as Record<string, string>)[project.category] ?? project.category
 
   if (layout === 'list') {
     return (
@@ -41,7 +43,7 @@ export function ProjectCard({ project, index, layout = 'grid' }: Props) {
             </div>
           </div>
           <div className="hidden md:flex items-center gap-6 shrink-0">
-            <span className="label-sm text-maze-muted">{CATEGORY_LABELS[project.category]}</span>
+            <span className="label-sm text-maze-muted">{catLabel}</span>
             <span className="label-sm text-maze-muted">{project.year}</span>
           </div>
           <span className="shrink-0 w-10 h-10 rounded-full border border-maze-border flex items-center justify-center text-maze-muted group-hover:border-maze-lime group-hover:text-maze-lime transition-all -rotate-45 group-hover:rotate-0">
@@ -93,7 +95,7 @@ export function ProjectCard({ project, index, layout = 'grid' }: Props) {
             <div className="absolute inset-x-0 bottom-0 translate-y-full group-hover:translate-y-0 transition-transform duration-300 ease-out">
               <div className="bg-maze-black/80 backdrop-blur-sm p-5">
                 <div className="flex items-center justify-between mb-2">
-                  <span className="label-sm text-maze-lime">{CATEGORY_LABELS[project.category]}</span>
+                  <span className="label-sm text-maze-lime">{catLabel}</span>
                   <span className="label-sm text-maze-muted">{project.year}</span>
                 </div>
                 <h3 className="heading-md text-maze-cream">{project.title}</h3>

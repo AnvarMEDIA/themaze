@@ -1,10 +1,10 @@
 'use client'
 
 import { useState } from 'react'
+import { useTranslations } from 'next-intl'
 import { motion, AnimatePresence } from 'framer-motion'
 import { ProjectCard } from './ProjectCard'
 import type { Project, ProjectCategory } from '@/lib/types'
-import { CATEGORY_LABELS } from '@/lib/utils'
 
 interface Props {
   projects: Project[]
@@ -31,6 +31,7 @@ const ListIcon = () => (
 )
 
 export function PortfolioGrid({ projects }: Props) {
+  const t = useTranslations('portfolio')
   const [filter, setFilter] = useState<Filter>(ALL)
   const [view,   setView]   = useState<'grid' | 'list'>('grid')
 
@@ -40,10 +41,17 @@ export function PortfolioGrid({ projects }: Props) {
     ? projects
     : projects.filter((p) => p.category === filter)
 
+  const catLabel = (cat: string) =>
+    t.raw('categories')[cat] ?? cat
+
   const filterOptions = [
-    { id: ALL as Filter, label: 'All Work', count: projects.length },
-    ...categories.map((c) => ({ id: c as Filter, label: CATEGORY_LABELS[c], count: projects.filter((p) => p.category === c).length })),
+    { id: ALL as Filter, label: t('allWork'), count: projects.length },
+    ...categories.map((c) => ({ id: c as Filter, label: catLabel(c), count: projects.filter((p) => p.category === c).length })),
   ]
+
+  const countText = filtered.length === 1
+    ? `${filtered.length} ${t('projectSingular')}`
+    : `${filtered.length} ${t('projectPlural')}`
 
   return (
     <div>
@@ -64,10 +72,7 @@ export function PortfolioGrid({ projects }: Props) {
               ].join(' ')}
             >
               {label}
-              <span className={[
-                'ml-1.5 opacity-60',
-                filter === id ? 'text-maze-ink' : '',
-              ].join(' ')}>
+              <span className={['ml-1.5 opacity-60', filter === id ? 'text-maze-ink' : ''].join(' ')}>
                 ({count})
               </span>
             </button>
@@ -76,14 +81,12 @@ export function PortfolioGrid({ projects }: Props) {
 
         {/* Right side: count + view toggle */}
         <div className="flex items-center gap-4">
-          <p className="label-sm text-maze-muted hidden sm:block">
-            {filtered.length} {filtered.length === 1 ? 'project' : 'projects'}
-          </p>
+          <p className="label-sm text-maze-muted hidden sm:block">{countText}</p>
 
           <div className="flex gap-1 rounded-full p-1 border border-maze-border">
             {([
-              { id: 'grid' as const, Icon: GridIcon, label: 'Grid view' },
-              { id: 'list' as const, Icon: ListIcon, label: 'List view' },
+              { id: 'grid' as const, Icon: GridIcon, label: t('gridView') },
+              { id: 'list' as const, Icon: ListIcon, label: t('listView') },
             ] as const).map(({ id, Icon, label }) => (
               <button
                 key={id}
@@ -106,11 +109,9 @@ export function PortfolioGrid({ projects }: Props) {
       </div>
 
       {/* Mobile count */}
-      <p className="label-sm text-maze-muted mb-8 sm:hidden">
-        {filtered.length} {filtered.length === 1 ? 'project' : 'projects'}
-      </p>
+      <p className="label-sm text-maze-muted mb-8 sm:hidden">{countText}</p>
 
-      {/* Grid / List with AnimatePresence */}
+      {/* Grid / List */}
       <AnimatePresence mode="wait">
         {filtered.length === 0 ? (
           <motion.div
@@ -121,7 +122,7 @@ export function PortfolioGrid({ projects }: Props) {
             transition={{ duration: 0.2 }}
             className="text-center py-20"
           >
-            <p className="body-lg text-maze-muted">No projects in this category yet.</p>
+            <p className="body-lg text-maze-muted">{t('empty')}</p>
           </motion.div>
         ) : view === 'grid' ? (
           <motion.div

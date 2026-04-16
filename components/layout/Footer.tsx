@@ -11,19 +11,19 @@ export function Footer() {
   const currentYear = new Date().getFullYear()
 
   const workLinks = [
-    { href: '/portfolio',                   label: 'Portfolio' },
-    { href: '/portfolio?cat=branding',      label: 'Branding' },
-    { href: '/portfolio?cat=identity',      label: 'Identity' },
-    { href: '/portfolio?cat=naming',        label: 'Naming' },
-    { href: '/portfolio?cat=packaging',     label: 'Packaging' },
-    { href: '/portfolio?cat=print',         label: 'Print' },
-    { href: '/portfolio?cat=art-direction', label: 'Art Direction' },
+    { href: '/portfolio',                   label: t('nav.portfolio') },
+    { href: '/portfolio?cat=branding',      label: t('nav.branding') },
+    { href: '/portfolio?cat=identity',      label: t('nav.identity') },
+    { href: '/portfolio?cat=naming',        label: t('nav.naming') },
+    { href: '/portfolio?cat=packaging',     label: t('nav.packaging') },
+    { href: '/portfolio?cat=print',         label: t('nav.print') },
+    { href: '/portfolio?cat=art-direction', label: t('nav.artDirection') },
   ]
 
   const studioLinks = [
-    { href: '/about',    label: 'About' },
-    { href: '/services', label: 'Services' },
-    { href: '/contact',  label: 'Contact' },
+    { href: '/about',    label: t('nav.about') },
+    { href: '/services', label: t('nav.services') },
+    { href: '/contact',  label: t('nav.contact') },
   ]
 
   const socialLinks = [

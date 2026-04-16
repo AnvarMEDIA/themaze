@@ -4,16 +4,10 @@ import { useState } from 'react'
 import { useTranslations } from 'next-intl'
 import toast from 'react-hot-toast'
 
-const budgets = [
-  'Under $2,000',
-  '$2,000 – $5,000',
-  '$5,000 – $15,000',
-  '$15,000 – $50,000',
-  '$50,000+',
-]
 
 export function ContactForm() {
   const t       = useTranslations('contactPage.form')
+  const budgets = t.raw('budgets') as string[]
   const [loading, setLoading] = useState(false)
   const [form, setForm] = useState({
     name: '', email: '', company: '', service: '', budget: '', message: '',
@@ -81,7 +75,7 @@ export function ContactForm() {
       </div>
 
       <div>
-        <label className="label-sm text-maze-muted block mb-3">Budget</label>
+        <label className="label-sm text-maze-muted block mb-3">{t('budget')}</label>
         <div className="flex flex-wrap gap-2">
           {budgets.map((b) => (
             <button

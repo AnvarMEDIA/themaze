@@ -5,7 +5,6 @@ import Image from 'next/image'
 import { Link } from '@/i18n/navigation'
 import { routing } from '@/i18n/routing'
 import { getAllProjects, getProjectBySlug } from '@/lib/portfolio'
-import { CATEGORY_LABELS } from '@/lib/utils'
 
 interface Props {
   params: { locale: string; slug: string }
@@ -61,7 +60,7 @@ export default async function ProjectPage({ params }: Props) {
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 mt-6">
             <div>
               <p className="label-sm text-maze-lime mb-4">
-                {CATEGORY_LABELS[project.category]}
+                {(t.raw('categories') as Record<string,string>)[project.category] ?? project.category}
               </p>
               <h1 className="display-md text-maze-cream mb-4">{project.title}</h1>
               <p className="heading-md text-maze-muted">{project.client}</p>
@@ -74,7 +73,7 @@ export default async function ProjectPage({ params }: Props) {
               </div>
               <div>
                 <p className="label-sm text-maze-muted mb-1">{t('category')}</p>
-                <p className="font-semibold text-maze-cream">{CATEGORY_LABELS[project.category]}</p>
+                <p className="font-semibold text-maze-cream">{(t.raw('categories') as Record<string,string>)[project.category] ?? project.category}</p>
               </div>
               <div>
                 <p className="label-sm text-maze-muted mb-2">{t('tags')}</p>
@@ -190,7 +189,7 @@ export default async function ProjectPage({ params }: Props) {
                   className="group block p-6 rounded-xl border border-maze-border hover:border-maze-lime transition-colors"
                   data-cursor="view"
                 >
-                  <p className="label-sm text-maze-lime mb-2">{CATEGORY_LABELS[p.category]}</p>
+                  <p className="label-sm text-maze-lime mb-2">{(t.raw('categories') as Record<string,string>)[p.category] ?? p.category}</p>
                   <h4 className="heading-md text-maze-cream group-hover:text-maze-lime transition-colors">{p.title}</h4>
                   <p className="label-sm text-maze-muted mt-1">{p.client}</p>
                 </Link>
