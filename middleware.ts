@@ -33,6 +33,11 @@ export async function middleware(req: NextRequest) {
     return NextResponse.next()
   }
 
+  // ── Standalone pages — bypass intl locale routing ──────────────
+  if (pathname === '/new' || pathname.startsWith('/new/')) {
+    return NextResponse.next()
+  }
+
   // ── i18n locale routing for all public routes ───────────────────
   return intlMiddleware(req)
 }
