@@ -11,13 +11,13 @@ interface Props {
   projects: Project[]
 }
 
-function pickRandom3(arr: Project[]): Project[] {
+function pickRandom6(arr: Project[]): Project[] {
   const copy = [...arr]
   for (let i = copy.length - 1; i > 0; i--) {
     const j = Math.floor(Math.random() * (i + 1))
     ;[copy[i], copy[j]] = [copy[j], copy[i]]
   }
-  return copy.slice(0, 3)
+  return copy.slice(0, 6)
 }
 
 // Strong ease-out curve (Emil Kowalski)
@@ -159,7 +159,7 @@ export function FeaturedWork({ projects }: Props) {
 
   // Pick 3 random projects on mount — re-randomises on every page load/refresh
   const [featured] = useState<Project[]>(() =>
-    projects.length > 0 ? pickRandom3(projects) : []
+    projects.length > 0 ? pickRandom6(projects) : []
   )
 
   return (

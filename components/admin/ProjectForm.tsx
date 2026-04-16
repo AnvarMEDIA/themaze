@@ -3,7 +3,8 @@
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import toast from 'react-hot-toast'
-import { FileUpload } from './FileUpload'
+import { FileUpload }       from './FileUpload'
+import { MultiImageUpload } from './MultiImageUpload'
 import type { Project, ProjectCategory } from '@/lib/types'
 import { slugify } from '@/lib/utils'
 
@@ -236,18 +237,11 @@ export function ProjectForm({ project }: Props) {
           value={form.coverImage}
           onChange={(url) => set('coverImage', url)}
         />
-        <div>
-          <label className="label-sm text-maze-muted block mb-2">
-            Gallery images (one URL per line)
-          </label>
-          <textarea
-            rows={4}
-            placeholder={'/portfolio/uploads/project-1.jpg\n/portfolio/uploads/project-2.jpg'}
-            value={form.images.join('\n')}
-            onChange={(e) => setStr('images', e.target.value)}
-            className={inputClass + ' resize-none font-mono text-xs'}
-          />
-        </div>
+        <MultiImageUpload
+          label="Gallery images"
+          values={form.images}
+          onChange={(urls) => set('images', urls)}
+        />
       </section>
 
       {/* Tags / Services */}

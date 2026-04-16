@@ -3,6 +3,7 @@ import { getAllProjects, createProject } from '@/lib/portfolio'
 import { getAdminSession }              from '@/lib/auth'
 import { slugify }                      from '@/lib/utils'
 import type { CreateProjectInput }      from '@/lib/types'
+import { revalidatePath }               from 'next/cache'
 
 export async function GET() {
   const projects = await getAllProjects()
@@ -39,6 +40,7 @@ export async function POST(req: NextRequest) {
       results:          body.results,
     })
 
+    revalidatePath('/', 'layout')
     return NextResponse.json(project, { status: 201 })
   } catch (err) {
     console.error(err)

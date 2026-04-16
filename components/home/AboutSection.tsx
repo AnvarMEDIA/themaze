@@ -23,10 +23,10 @@ export function AboutSection() {
   const y = useTransform(scrollYProgress, [0, 1], shouldReduce ? [0, 0] : [-24, 24])
 
   const stats = [
-    { value: 200, suffix: '+', label: t('stats.projects') },
-    { value: 6,   suffix: '+', label: t('stats.years')    },
-    { value: 80,  suffix: '+', label: t('stats.clients')  },
-    { value: 12,  suffix: '',  label: t('stats.awards')   },
+    { value: 200, suffix: '+', label: t('stats.projects')   },
+    { value: 6,   suffix: '+', label: t('stats.years')      },
+    { value: 80,  suffix: '+', label: t('stats.clients')    },
+    { value: 5,   suffix: '+', label: t('stats.countries')  },
   ]
 
   return (

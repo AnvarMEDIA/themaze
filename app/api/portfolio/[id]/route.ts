@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { getProjectById, updateProject, deleteProject } from '@/lib/portfolio'
 import { getAdminSession } from '@/lib/auth'
 import type { UpdateProjectInput } from '@/lib/types'
+import { revalidatePath } from 'next/cache'
 
 interface Ctx {
   params: { id: string }
@@ -20,6 +21,7 @@ export async function PATCH(req: NextRequest, { params }: Ctx) {
   const body    = (await req.json()) as UpdateProjectInput
   const project = await updateProject(params.id, body)
   if (!project) return NextResponse.json({ error: 'Not found' }, { status: 404 })
+  revalidatePath('/', 'layout')
   return NextResponse.json(project)
 }
 
@@ -29,5 +31,6 @@ export async function DELETE(_req: NextRequest, { params }: Ctx) {
 
   const ok = await deleteProject(params.id)
   if (!ok) return NextResponse.json({ error: 'Not found' }, { status: 404 })
+  revalidatePath('/', 'layout')
   return NextResponse.json({ ok: true })
 }

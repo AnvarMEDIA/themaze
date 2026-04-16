@@ -46,7 +46,7 @@
       "projects": "Projects completed",
       "years": "Years of experience",
       "clients": "Happy clients",
-      "awards": "Awards won"
+      "countries": "Countries served"
     },
     "quote": "Design is not just what it looks like. Design is how it works — and how it makes people feel."
   },
@@ -122,6 +122,7 @@
     "readyLabel": "Ready to collaborate?",
     "rights": "All rights reserved.",
     "builtBy": "Designed & built by MAZE",
+    "location": "Tashkent, Uzbekistan",
     "groups": {
       "Work": "Work",
       "Studio": "Studio",

@@ -8,6 +8,8 @@ interface Props {
   params: { locale: string }
 }
 
+export const dynamic = 'force-dynamic'
+
 export function generateStaticParams() {
   return routing.locales.map((locale) => ({ locale }))
 }

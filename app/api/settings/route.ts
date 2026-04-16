@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server'
 import { getSettings, saveSettings } from '@/lib/settings'
 import type { SiteSettings } from '@/lib/settings'
+import { revalidatePath } from 'next/cache'
 
 export const dynamic = 'force-dynamic'
 
@@ -17,6 +18,7 @@ export async function PUT(req: Request) {
   try {
     const body = await req.json() as SiteSettings
     await saveSettings(body)
+    revalidatePath('/', 'layout')
     return NextResponse.json(body)
   } catch {
     return NextResponse.json({ error: 'Failed to save settings' }, { status: 500 })
