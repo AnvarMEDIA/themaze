@@ -1,6 +1,5 @@
 import type { Metadata } from 'next'
 import { getTranslations, setRequestLocale } from 'next-intl/server'
-import { routing } from '@/i18n/routing'
 import { AnimatedCounter } from '@/components/ui/AnimatedCounter'
 import { Link } from '@/i18n/navigation'
 import { getTeam } from '@/lib/team'
@@ -8,10 +7,6 @@ import Image from 'next/image'
 
 interface Props {
   params: { locale: string }
-}
-
-export function generateStaticParams() {
-  return routing.locales.map((locale) => ({ locale }))
 }
 
 export async function generateMetadata({ params: { locale } }: Props): Promise<Metadata> {
@@ -34,7 +29,7 @@ export default async function AboutPage({ params: { locale } }: Props) {
   setRequestLocale(locale)
   const [t, team] = await Promise.all([
     getTranslations({ locale, namespace: 'aboutPage' }),
-    getTeam(),
+    getTeam().catch(() => [] as import('@/lib/team').TeamMember[]),
   ])
   const values = t.raw('values') as { title: string; body: string }[]
 

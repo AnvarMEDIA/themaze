@@ -1,6 +1,5 @@
 import type { Metadata } from 'next'
 import { getTranslations, setRequestLocale } from 'next-intl/server'
-import { routing } from '@/i18n/routing'
 import { ContactForm } from '@/components/contact/ContactForm'
 import { getSettings } from '@/lib/settings'
 import { telegramHref, telegramDisplay } from '@/lib/utils'
@@ -9,10 +8,6 @@ export const dynamic = 'force-dynamic'
 
 interface Props {
   params: { locale: string }
-}
-
-export function generateStaticParams() {
-  return routing.locales.map((locale) => ({ locale }))
 }
 
 export async function generateMetadata({ params: { locale } }: Props): Promise<Metadata> {
