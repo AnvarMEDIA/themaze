@@ -102,10 +102,6 @@ export default async function ProjectPage({ params }: Props) {
             className="object-cover"
           />
         )}
-        <div
-          className="absolute inset-0"
-          style={{ background: `linear-gradient(135deg, ${project.accentColor}22 0%, rgb(var(--surface)) 100%)` }}
-        />
         <div className="absolute inset-0 flex items-center justify-center">
           <span className="text-[20vw] font-black opacity-5" style={{ color: project.accentColor }}>
             {project.title.slice(0, 2)}
@@ -166,10 +162,6 @@ export default async function ProjectPage({ params }: Props) {
                     fill
                     sizes="(max-width: 768px) 100vw, 50vw"
                     className="object-cover"
-                  />
-                  <div
-                    className="absolute inset-0"
-                    style={{ background: `linear-gradient(135deg, ${project.accentColor}11 0%, rgb(var(--surface)) 100%)` }}
                   />
                 </div>
               ))}
