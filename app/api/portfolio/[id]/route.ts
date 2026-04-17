@@ -28,8 +28,9 @@ export async function PATCH(req: NextRequest, { params }: Ctx) {
     revalidatePath('/', 'layout')
     return NextResponse.json(project)
   } catch (err) {
-    console.error('[portfolio PATCH]', err)
-    return NextResponse.json({ error: 'Server error' }, { status: 500 })
+    const msg = err instanceof Error ? err.message : 'Unknown error'
+    console.error('[portfolio PATCH]', msg)
+    return NextResponse.json({ error: msg }, { status: 500 })
   }
 }
 
