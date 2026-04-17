@@ -20,12 +20,15 @@ export async function generateStaticParams() {
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const project = await getProjectBySlug(params.slug)
   if (!project) return {}
+  const isRu = params.locale === 'ru'
+  const title = isRu ? (project.titleRu || project.title) : project.title
+  const desc  = isRu ? (project.shortDescriptionRu || project.shortDescription) : project.shortDescription
   return {
-    title: `${project.title} — ${project.client}`,
-    description: project.shortDescription,
+    title: `${title} — ${project.client}`,
+    description: desc,
     openGraph: {
-      title: `${project.title} | MAZE Studio`,
-      description: project.shortDescription,
+      title: `${title} | MAZE Studio`,
+      description: desc,
       images: [{ url: project.coverImage }],
     },
   }
@@ -45,6 +48,13 @@ export default async function ProjectPage({ params }: Props) {
     .filter((p) => p.id !== project.id && p.category === project.category)
     .slice(0, 2)
 
+  const isRu = locale === 'ru'
+  const title            = isRu ? (project.titleRu            || project.title)            : project.title
+  const description      = isRu ? (project.descriptionRu      || project.description)      : project.description
+  const shortDescription = isRu ? (project.shortDescriptionRu || project.shortDescription) : project.shortDescription
+  const results          = isRu ? (project.resultsRu          || project.results)          : project.results
+  const services         = isRu ? (project.servicesRu?.length ? project.servicesRu : project.services) : project.services
+
   return (
     <article className="pt-28 min-h-screen">
       {/* Hero */}
@@ -62,7 +72,7 @@ export default async function ProjectPage({ params }: Props) {
               <p className="label-sm text-maze-lime mb-4">
                 {(t.raw('categories') as Record<string,string>)[project.category] ?? project.category}
               </p>
-              <h1 className="display-md text-maze-cream mb-4">{project.title}</h1>
+              <h1 className="display-md text-maze-cream mb-4">{title}</h1>
               <p className="heading-md text-maze-muted">{project.client}</p>
             </div>
 
@@ -114,12 +124,12 @@ export default async function ProjectPage({ params }: Props) {
         <div className="max-w-[1440px] mx-auto grid grid-cols-1 lg:grid-cols-3 gap-16">
           <div className="lg:col-span-2">
             <h2 className="heading-lg text-maze-cream mb-6">{t('aboutProject')}</h2>
-            <p className="body-lg text-maze-muted leading-relaxed mb-8">{project.description}</p>
+            <p className="body-lg text-maze-muted leading-relaxed mb-8">{description}</p>
 
-            {project.results && (
+            {results && (
               <div className="p-6 border border-maze-lime/30 rounded-xl bg-maze-lime/5">
                 <p className="label-sm text-maze-lime mb-2">{t('results')}</p>
-                <p className="body-lg text-maze-cream">{project.results}</p>
+                <p className="body-lg text-maze-cream">{results}</p>
               </div>
             )}
           </div>
@@ -128,7 +138,7 @@ export default async function ProjectPage({ params }: Props) {
             <div className="sticky top-28">
               <h3 className="label-sm text-maze-muted mb-4">{t('servicesDelivered')}</h3>
               <ul className="space-y-3">
-                {project.services.map((s) => (
+                {services.map((s) => (
                   <li key={s} className="flex items-center gap-3">
                     <span className="w-1.5 h-1.5 rounded-full bg-maze-lime shrink-0" />
                     <span className="body-lg text-maze-cream">{s}</span>

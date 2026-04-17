@@ -1,7 +1,7 @@
 'use client'
 
 import { useRef } from 'react'
-import { useTranslations } from 'next-intl'
+import { useTranslations, useLocale } from 'next-intl'
 import { Link } from '@/i18n/navigation'
 import Image from 'next/image'
 import { motion, useInView } from 'framer-motion'
@@ -15,9 +15,14 @@ interface Props {
 
 export function ProjectCard({ project, index, layout = 'grid' }: Props) {
   const t      = useTranslations('portfolio')
+  const locale = useLocale()
   const ref    = useRef<HTMLDivElement>(null)
   const inView = useInView(ref, { once: true, margin: '-10% 0px' })
   const catLabel = (t.raw('categories') as Record<string, string>)[project.category] ?? project.category
+
+  const isRu            = locale === 'ru'
+  const title           = isRu ? (project.titleRu            || project.title)            : project.title
+  const shortDescription = isRu ? (project.shortDescriptionRu || project.shortDescription) : project.shortDescription
 
   if (layout === 'list') {
     return (
@@ -37,7 +42,7 @@ export function ProjectCard({ project, index, layout = 'grid' }: Props) {
             <span className="label-sm text-maze-muted w-6 shrink-0">{String(index + 1).padStart(2, '0')}</span>
             <div className="min-w-0">
               <h3 className="heading-md text-maze-cream group-hover:text-maze-lime transition-colors truncate">
-                {project.title}
+                {title}
               </h3>
               <p className="label-sm text-maze-muted mt-1">{project.client}</p>
             </div>
@@ -84,7 +89,7 @@ export function ProjectCard({ project, index, layout = 'grid' }: Props) {
 
             <Image
               src={project.coverImage}
-              alt={project.title}
+              alt={title}
               fill
               sizes="(max-width: 640px) 100vw, (max-width: 1200px) 50vw, 33vw"
               className="object-cover transition-transform duration-700 ease-out group-hover:scale-105"
@@ -98,9 +103,9 @@ export function ProjectCard({ project, index, layout = 'grid' }: Props) {
                   <span className="label-sm text-maze-lime">{catLabel}</span>
                   <span className="label-sm text-maze-muted">{project.year}</span>
                 </div>
-                <h3 className="heading-md text-maze-cream">{project.title}</h3>
+                <h3 className="heading-md text-maze-cream">{title}</h3>
                 <p className="body-lg text-maze-muted mt-1 line-clamp-2 hidden sm:block">
-                  {project.shortDescription}
+                  {shortDescription}
                 </p>
               </div>
             </div>
@@ -112,7 +117,7 @@ export function ProjectCard({ project, index, layout = 'grid' }: Props) {
         <div className="mt-4 flex items-start justify-between gap-2">
           <div>
             <h3 className="font-semibold text-maze-cream group-hover:text-maze-lime transition-colors duration-200">
-              {project.title}
+              {title}
             </h3>
             <p className="label-sm text-maze-muted mt-1">{project.client}</p>
           </div>

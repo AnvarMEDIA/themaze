@@ -15,17 +15,20 @@ const CATEGORIES: { value: ProjectCategory; label: string }[] = [
   { value: 'print',    label: 'Print' },
   { value: 'motion',   label: 'Motion' },
   { value: 'strategy', label: 'Strategy' },
+  { value: 'naming',   label: 'Naming' },
 ]
 
 type FormState = Omit<Project, 'id' | 'createdAt' | 'updatedAt'>
 
 const EMPTY: FormState = {
-  slug: '', title: '', client: '', category: 'branding',
+  slug: '', title: '', titleRu: '', client: '', category: 'branding',
   year: new Date().getFullYear(),
-  description: '', shortDescription: '',
+  description: '', descriptionRu: '',
+  shortDescription: '', shortDescriptionRu: '',
   coverImage: '', images: [],
-  tags: [], services: [],
-  featured: false, accentColor: '#C8FF47', results: '',
+  tags: [], services: [], servicesRu: [],
+  featured: false, accentColor: '#C8FF47',
+  results: '', resultsRu: '',
 }
 
 interface Props {
@@ -33,10 +36,11 @@ interface Props {
 }
 
 export function ProjectForm({ project }: Props) {
-  const router  = useRouter()
-  const isEdit  = !!project
-  const [form, setForm]     = useState<FormState>(project ?? EMPTY)
-  const [loading, setLoading] = useState(false)
+  const router    = useRouter()
+  const isEdit    = !!project
+  const [form, setForm]         = useState<FormState>(project ? { ...EMPTY, ...project } : EMPTY)
+  const [loading, setLoading]   = useState(false)
+  const [translating, setTranslating] = useState(false)
 
   const set = <K extends keyof FormState>(key: K, value: FormState[K]) =>
     setForm((prev) => ({
@@ -46,7 +50,7 @@ export function ProjectForm({ project }: Props) {
     }))
 
   const setStr = (key: keyof FormState, val: string) => {
-    const arrayKeys: (keyof FormState)[] = ['tags', 'services', 'images']
+    const arrayKeys: (keyof FormState)[] = ['tags', 'services', 'servicesRu', 'images']
     if (arrayKeys.includes(key)) {
       setForm((prev) => ({
         ...prev,
@@ -54,6 +58,48 @@ export function ProjectForm({ project }: Props) {
       }))
     } else {
       setForm((prev) => ({ ...prev, [key]: val }))
+    }
+  }
+
+  const handleTranslate = async () => {
+    if (!form.titleRu && !form.descriptionRu && !form.shortDescriptionRu) {
+      toast.error('Заполните поля на русском перед переводом')
+      return
+    }
+    setTranslating(true)
+    try {
+      const res = await fetch('/api/translate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          title:            form.titleRu,
+          shortDescription: form.shortDescriptionRu,
+          description:      form.descriptionRu,
+          results:          form.resultsRu,
+          services:         form.servicesRu,
+        }),
+      })
+      if (!res.ok) {
+        const d = await res.json() as { error?: string }
+        throw new Error(d.error ?? 'Translation failed')
+      }
+      const data = await res.json() as {
+        title?: string; shortDescription?: string; description?: string
+        results?: string; services?: string[]
+      }
+      setForm((prev) => ({
+        ...prev,
+        ...(data.title            ? { title: data.title, ...(!isEdit ? { slug: slugify(data.title) } : {}) } : {}),
+        ...(data.shortDescription ? { shortDescription: data.shortDescription } : {}),
+        ...(data.description      ? { description: data.description } : {}),
+        ...(data.results          ? { results: data.results } : {}),
+        ...(data.services?.length ? { services: data.services } : {}),
+      }))
+      toast.success('Перевод готов')
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : 'Ошибка перевода')
+    } finally {
+      setTranslating(false)
     }
   }
 
@@ -82,54 +128,60 @@ export function ProjectForm({ project }: Props) {
     setLoading(false)
   }
 
-  const inputClass =
+  const input =
     'w-full bg-transparent border border-maze-border rounded-lg px-4 py-3 text-sm text-maze-cream placeholder:text-maze-muted focus:outline-none focus:border-maze-lime transition-colors'
+  const textarea = input + ' resize-none'
+  const labelRu  = 'label-sm text-[#888] block mb-2'
+  const labelEn  = 'label-sm text-maze-muted block mb-2'
 
   return (
     <form onSubmit={handleSubmit} className="space-y-8">
+
       {/* Basic info */}
       <section className="space-y-4">
         <h2 className="label-sm text-maze-muted border-b border-maze-border pb-2">Basic Info</h2>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div>
-            <label className="label-sm text-maze-muted block mb-2">Title *</label>
-            <input
-              required
-              type="text"
-              placeholder="Project title"
-              value={form.title}
-              onChange={(e) => set('title', e.target.value)}
-              className={inputClass}
-            />
-          </div>
-          <div>
-            <label className="label-sm text-maze-muted block mb-2">Slug *</label>
+            <label className={labelEn}>Slug *</label>
             <input
               required
               type="text"
               placeholder="project-slug"
               value={form.slug}
               onChange={(e) => set('slug', e.target.value)}
-              className={inputClass}
+              className={input}
             />
           </div>
-        </div>
-
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div>
-            <label className="label-sm text-maze-muted block mb-2">Client *</label>
+            <label className={labelEn}>Client *</label>
             <input
               required
               type="text"
               placeholder="Client name"
               value={form.client}
               onChange={(e) => set('client', e.target.value)}
-              className={inputClass}
+              className={input}
             />
           </div>
+        </div>
+
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
           <div>
-            <label className="label-sm text-maze-muted block mb-2">Year *</label>
+            <label className={labelEn}>Category *</label>
+            <select
+              required
+              value={form.category}
+              onChange={(e) => set('category', e.target.value as ProjectCategory)}
+              className={input + ' appearance-none'}
+            >
+              {CATEGORIES.map((c) => (
+                <option key={c.value} value={c.value} className="bg-maze-dark">{c.label}</option>
+              ))}
+            </select>
+          </div>
+          <div>
+            <label className={labelEn}>Year *</label>
             <input
               required
               type="number"
@@ -137,41 +189,23 @@ export function ProjectForm({ project }: Props) {
               max={2099}
               value={form.year}
               onChange={(e) => set('year', parseInt(e.target.value))}
-              className={inputClass}
+              className={input}
             />
           </div>
-        </div>
-
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div>
-            <label className="label-sm text-maze-muted block mb-2">Category *</label>
-            <select
-              required
-              value={form.category}
-              onChange={(e) => set('category', e.target.value as ProjectCategory)}
-              className={inputClass + ' appearance-none'}
-            >
-              {CATEGORIES.map((c) => (
-                <option key={c.value} value={c.value} className="bg-maze-dark">
-                  {c.label}
-                </option>
-              ))}
-            </select>
-          </div>
-          <div>
-            <label className="label-sm text-maze-muted block mb-2">Accent Colour</label>
-            <div className="flex gap-3 items-center">
+            <label className={labelEn}>Accent Colour</label>
+            <div className="flex gap-2 items-center">
               <input
                 type="color"
                 value={form.accentColor}
                 onChange={(e) => set('accentColor', e.target.value)}
-                className="h-11 w-16 rounded-lg border border-maze-border bg-transparent cursor-pointer p-1"
+                className="h-11 w-12 rounded-lg border border-maze-border bg-transparent cursor-pointer p-1 shrink-0"
               />
               <input
                 type="text"
                 value={form.accentColor}
                 onChange={(e) => set('accentColor', e.target.value)}
-                className={inputClass + ' flex-1'}
+                className={input}
               />
             </div>
           </div>
@@ -185,46 +219,170 @@ export function ProjectForm({ project }: Props) {
             onChange={(e) => set('featured', e.target.checked)}
             className="w-4 h-4 rounded border-maze-border accent-maze-lime"
           />
-          <label htmlFor="featured" className="label-sm text-maze-cream">
-            Feature on homepage
-          </label>
+          <label htmlFor="featured" className="label-sm text-maze-cream">Feature on homepage</label>
         </div>
       </section>
 
-      {/* Descriptions */}
-      <section className="space-y-4">
-        <h2 className="label-sm text-maze-muted border-b border-maze-border pb-2">Descriptions</h2>
-        <div>
-          <label className="label-sm text-maze-muted block mb-2">Short description (card preview) *</label>
-          <input
-            required
-            type="text"
-            maxLength={100}
-            placeholder="One-line project description"
-            value={form.shortDescription}
-            onChange={(e) => set('shortDescription', e.target.value)}
-            className={inputClass}
-          />
+      {/* Bilingual content */}
+      <section className="space-y-6">
+        <div className="flex items-center justify-between border-b border-maze-border pb-2">
+          <h2 className="label-sm text-maze-muted">Content</h2>
+          <button
+            type="button"
+            onClick={handleTranslate}
+            disabled={translating}
+            className="flex items-center gap-2 px-4 py-2 rounded-full border border-maze-lime/40 text-maze-lime label-sm hover:bg-maze-lime/10 transition-colors disabled:opacity-50"
+          >
+            {translating ? (
+              <>
+                <span className="w-3 h-3 border border-maze-lime border-t-transparent rounded-full animate-spin" />
+                Переводим…
+              </>
+            ) : (
+              <>✦ Перевести RU → EN</>
+            )}
+          </button>
         </div>
-        <div>
-          <label className="label-sm text-maze-muted block mb-2">Full description *</label>
-          <textarea
-            required
-            rows={5}
-            placeholder="Detailed project description..."
-            value={form.description}
-            onChange={(e) => set('description', e.target.value)}
-            className={inputClass + ' resize-none'}
-          />
+
+        {/* Column headers */}
+        <div className="grid grid-cols-2 gap-4">
+          <p className="label-sm text-maze-lime">🇷🇺 Русский (основной)</p>
+          <p className="label-sm text-maze-muted">🇬🇧 English (auto)</p>
         </div>
+
+        {/* Title */}
+        <div className="grid grid-cols-2 gap-4">
+          <div>
+            <label className={labelRu}>Название *</label>
+            <input
+              required
+              type="text"
+              placeholder="Название проекта"
+              value={form.titleRu ?? ''}
+              onChange={(e) => set('titleRu', e.target.value)}
+              className={input}
+            />
+          </div>
+          <div>
+            <label className={labelEn}>Title *</label>
+            <input
+              required
+              type="text"
+              placeholder="Project title"
+              value={form.title}
+              onChange={(e) => set('title', e.target.value)}
+              className={input}
+            />
+          </div>
+        </div>
+
+        {/* Short description */}
+        <div className="grid grid-cols-2 gap-4">
+          <div>
+            <label className={labelRu}>Краткое описание</label>
+            <input
+              type="text"
+              maxLength={500}
+              placeholder="Одна строка для карточки"
+              value={form.shortDescriptionRu ?? ''}
+              onChange={(e) => set('shortDescriptionRu', e.target.value)}
+              className={input}
+            />
+          </div>
+          <div>
+            <label className={labelEn}>Short description</label>
+            <input
+              type="text"
+              maxLength={500}
+              placeholder="One-line project description"
+              value={form.shortDescription}
+              onChange={(e) => set('shortDescription', e.target.value)}
+              className={input}
+            />
+          </div>
+        </div>
+
+        {/* Full description */}
+        <div className="grid grid-cols-2 gap-4">
+          <div>
+            <label className={labelRu}>Полное описание</label>
+            <textarea
+              rows={5}
+              placeholder="Подробное описание проекта…"
+              value={form.descriptionRu ?? ''}
+              onChange={(e) => set('descriptionRu', e.target.value)}
+              className={textarea}
+            />
+          </div>
+          <div>
+            <label className={labelEn}>Full description</label>
+            <textarea
+              rows={5}
+              placeholder="Detailed project description…"
+              value={form.description}
+              onChange={(e) => set('description', e.target.value)}
+              className={textarea}
+            />
+          </div>
+        </div>
+
+        {/* Results */}
+        <div className="grid grid-cols-2 gap-4">
+          <div>
+            <label className={labelRu}>Результаты</label>
+            <textarea
+              rows={2}
+              placeholder="Измеримые результаты…"
+              value={form.resultsRu ?? ''}
+              onChange={(e) => set('resultsRu', e.target.value)}
+              className={textarea}
+            />
+          </div>
+          <div>
+            <label className={labelEn}>Results / Impact</label>
+            <textarea
+              rows={2}
+              placeholder="Measurable results…"
+              value={form.results ?? ''}
+              onChange={(e) => set('results', e.target.value)}
+              className={textarea}
+            />
+          </div>
+        </div>
+
+        {/* Services */}
+        <div className="grid grid-cols-2 gap-4">
+          <div>
+            <label className={labelRu}>Услуги (по одной строке)</label>
+            <textarea
+              rows={4}
+              placeholder={'Разработка бренда\nВизуальная идентика'}
+              value={(form.servicesRu ?? []).join('\n')}
+              onChange={(e) => setStr('servicesRu', e.target.value)}
+              className={textarea}
+            />
+          </div>
+          <div>
+            <label className={labelEn}>Services (one per line)</label>
+            <textarea
+              rows={4}
+              placeholder={'Brand Strategy\nVisual Identity'}
+              value={form.services.join('\n')}
+              onChange={(e) => setStr('services', e.target.value)}
+              className={textarea}
+            />
+          </div>
+        </div>
+
+        {/* Tags — no translation needed */}
         <div>
-          <label className="label-sm text-maze-muted block mb-2">Results / Impact</label>
+          <label className={labelEn}>Tags (one per line)</label>
           <textarea
-            rows={2}
-            placeholder="Measurable results (e.g. 40% increase in brand recognition)"
-            value={form.results ?? ''}
-            onChange={(e) => set('results', e.target.value)}
-            className={inputClass + ' resize-none'}
+            rows={3}
+            placeholder={'Branding\nLuxury\nHospitality'}
+            value={form.tags.join('\n')}
+            onChange={(e) => setStr('tags', e.target.value)}
+            className={textarea}
           />
         </div>
       </section>
@@ -233,7 +391,7 @@ export function ProjectForm({ project }: Props) {
       <section className="space-y-4">
         <h2 className="label-sm text-maze-muted border-b border-maze-border pb-2">Images</h2>
         <FileUpload
-          label="Cover image *"
+          label="Cover image"
           value={form.coverImage}
           onChange={(url) => set('coverImage', url)}
         />
@@ -242,33 +400,6 @@ export function ProjectForm({ project }: Props) {
           values={form.images}
           onChange={(urls) => set('images', urls)}
         />
-      </section>
-
-      {/* Tags / Services */}
-      <section className="space-y-4">
-        <h2 className="label-sm text-maze-muted border-b border-maze-border pb-2">Tags & Services</h2>
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <div>
-            <label className="label-sm text-maze-muted block mb-2">Tags (one per line)</label>
-            <textarea
-              rows={4}
-              placeholder={'Branding\nLuxury\nHospitality'}
-              value={form.tags.join('\n')}
-              onChange={(e) => setStr('tags', e.target.value)}
-              className={inputClass + ' resize-none'}
-            />
-          </div>
-          <div>
-            <label className="label-sm text-maze-muted block mb-2">Services delivered (one per line)</label>
-            <textarea
-              rows={4}
-              placeholder={'Brand Strategy\nVisual Identity\nBrand Guidelines'}
-              value={form.services.join('\n')}
-              onChange={(e) => setStr('services', e.target.value)}
-              className={inputClass + ' resize-none'}
-            />
-          </div>
-        </div>
       </section>
 
       {/* Actions */}

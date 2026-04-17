@@ -11,18 +11,23 @@ export interface Project {
   id: string
   slug: string
   title: string
+  titleRu?: string
   client: string
   category: ProjectCategory
   year: number
   description: string
+  descriptionRu?: string
   shortDescription: string
+  shortDescriptionRu?: string
   coverImage: string
   images: string[]
   tags: string[]
   services: string[]
+  servicesRu?: string[]
   featured: boolean
   accentColor: string
   results?: string
+  resultsRu?: string
   createdAt: string
   updatedAt: string
 }
