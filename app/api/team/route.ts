@@ -14,12 +14,13 @@ export async function PUT(req: NextRequest) {
   const authed = await getAdminSession()
   if (!authed) return NextResponse.json({ error: 'Unauthorised' }, { status: 401 })
 
-  const members = await req.json()
-  if (!Array.isArray(members)) {
-    return NextResponse.json({ error: 'Expected array' }, { status: 400 })
+  const { TeamSchema } = await import('@/lib/validation')
+  const parsed = TeamSchema.safeParse(await req.json())
+  if (!parsed.success) {
+    return NextResponse.json({ error: 'Invalid data', details: parsed.error.flatten() }, { status: 400 })
   }
 
-  await saveTeam(members)
+  await saveTeam(parsed.data)
   revalidatePath('/', 'layout')
   return NextResponse.json({ ok: true })
 }

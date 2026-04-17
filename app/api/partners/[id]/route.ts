@@ -1,14 +1,21 @@
-import { NextResponse } from 'next/server'
+import { NextRequest, NextResponse } from 'next/server'
 import { getPartners, savePartners } from '@/lib/partners'
-import type { Partner } from '@/lib/partners'
+import { getAdminSession } from '@/lib/auth'
+import { PartnerSchema } from '@/lib/validation'
 
-export async function PUT(req: Request, { params }: { params: { id: string } }) {
+export async function PUT(req: NextRequest, { params }: { params: { id: string } }) {
+  const authed = await getAdminSession()
+  if (!authed) return NextResponse.json({ error: 'Unauthorised' }, { status: 401 })
+
   try {
-    const body     = await req.json() as Partial<Partner>
+    const parsed = PartnerSchema.partial().safeParse(await req.json())
+    if (!parsed.success) {
+      return NextResponse.json({ error: 'Invalid data', details: parsed.error.flatten() }, { status: 400 })
+    }
     const partners = await getPartners()
     const idx      = partners.findIndex((p) => p.id === params.id)
     if (idx === -1) return NextResponse.json({ error: 'Not found' }, { status: 404 })
-    partners[idx] = { ...partners[idx], ...body }
+    partners[idx] = { ...partners[idx], ...parsed.data }
     await savePartners(partners)
     return NextResponse.json(partners[idx])
   } catch {
@@ -16,7 +23,10 @@ export async function PUT(req: Request, { params }: { params: { id: string } }) 
   }
 }
 
-export async function DELETE(_req: Request, { params }: { params: { id: string } }) {
+export async function DELETE(_req: NextRequest, { params }: { params: { id: string } }) {
+  const authed = await getAdminSession()
+  if (!authed) return NextResponse.json({ error: 'Unauthorised' }, { status: 401 })
+
   try {
     const partners = await getPartners()
     const filtered = partners.filter((p) => p.id !== params.id)

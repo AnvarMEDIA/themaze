@@ -1,0 +1,98 @@
+import { z } from 'zod'
+
+/* ── Shared primitives ───────────────────────────────────────────────────── */
+
+const safeString = (max = 500) =>
+  z.string().trim().max(max, `Max ${max} characters`)
+
+const urlOrEmpty = z.string().trim().max(500).refine(
+  (v) => v === '' || v.startsWith('https://') || v.startsWith('http://'),
+  { message: 'Must be a valid URL or empty' }
+)
+
+/* ── Contact / Inquiry ───────────────────────────────────────────────────── */
+
+export const InquirySchema = z.object({
+  name:    safeString(100).min(1, 'Name is required'),
+  email:   z.string().trim().email('Invalid email').max(254),
+  company: safeString(100).optional().default(''),
+  service: safeString(100).optional().default(''),
+  budget:  safeString(50).optional().default(''),
+  message: safeString(5000).min(1, 'Message is required'),
+})
+
+export type InquiryInput = z.infer<typeof InquirySchema>
+
+/* ── Project ─────────────────────────────────────────────────────────────── */
+
+const VALID_CATEGORIES = [
+  'branding', 'identity', 'naming', 'packaging', 'print', 'art-direction',
+] as const
+
+export const ProjectSchema = z.object({
+  title:            safeString(200).min(1, 'Title is required'),
+  slug:             safeString(200).regex(/^[a-z0-9-]+$/, 'Slug must be lowercase letters, numbers, hyphens').optional(),
+  client:           safeString(200).min(1, 'Client is required'),
+  category:         z.enum(VALID_CATEGORIES, { message: 'Invalid category' }),
+  year:             z.number().int().min(2000).max(new Date().getFullYear() + 1),
+  description:      safeString(5000).optional().default(''),
+  shortDescription: safeString(500).optional().default(''),
+  coverImage:       urlOrEmpty.optional().default(''),
+  images:           z.array(urlOrEmpty).max(50).optional().default([]),
+  tags:             z.array(safeString(50)).max(20).optional().default([]),
+  services:         z.array(safeString(100)).max(20).optional().default([]),
+  featured:         z.boolean().optional().default(false),
+  accentColor:      z.string().regex(/^#[0-9A-Fa-f]{3,8}$/, 'Invalid hex color').optional().default('#C8FF47'),
+  results:          safeString(2000).optional(),
+})
+
+export const ProjectUpdateSchema = ProjectSchema.partial()
+
+export type ProjectInput = z.infer<typeof ProjectSchema>
+
+/* ── Settings ────────────────────────────────────────────────────────────── */
+
+export const SettingsSchema = z.object({
+  email:         z.string().trim().email('Invalid email').max(254).or(z.literal('')),
+  phone:         safeString(30),
+  telegram:      safeString(100),
+  address:       safeString(200),
+  addressDetail: safeString(200),
+  instagram:     urlOrEmpty,
+  behance:       urlOrEmpty,
+  linkedin:      urlOrEmpty,
+  twitter:       urlOrEmpty,
+})
+
+export type SettingsInput = z.infer<typeof SettingsSchema>
+
+/* ── Partner ─────────────────────────────────────────────────────────────── */
+
+export const PartnerSchema = z.object({
+  name:    safeString(100).min(1, 'Name is required'),
+  logo:    urlOrEmpty.optional().default(''),
+  website: urlOrEmpty.optional().default(''),
+})
+
+export type PartnerInput = z.infer<typeof PartnerSchema>
+
+/* ── Team member ─────────────────────────────────────────────────────────── */
+
+export const TeamMemberSchema = z.object({
+  id:     z.string().uuid().or(z.string().min(1).max(36)),
+  name:   safeString(100).min(1, 'Name is required'),
+  role:   safeString(100),
+  roleRu: safeString(100),
+  bio:    safeString(1000),
+  bioRu:  safeString(1000),
+  photo:  urlOrEmpty.optional().default(''),
+  order:  z.number().int().min(0),
+})
+
+export const TeamSchema = z.array(TeamMemberSchema).max(20)
+
+/* ── Login ───────────────────────────────────────────────────────────────── */
+
+export const LoginSchema = z.object({
+  password: z.string().min(1, 'Password required').max(200),
+})

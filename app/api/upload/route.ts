@@ -26,7 +26,13 @@ export async function POST(req: NextRequest) {
 
     const ext      = path.extname(file.name).toLowerCase().replace(/[^.a-z0-9]/g, '')
     const baseName = `${Date.now()}-${Math.random().toString(36).slice(2, 8)}${ext}`
-    const folder   = (formData.get('folder') as string | null) ?? 'portfolio'
+
+    const ALLOWED_FOLDERS = ['portfolio', 'team', 'partners'] as const
+    type AllowedFolder = typeof ALLOWED_FOLDERS[number]
+    const rawFolder = (formData.get('folder') as string | null) ?? 'portfolio'
+    const folder: AllowedFolder = (ALLOWED_FOLDERS as readonly string[]).includes(rawFolder)
+      ? rawFolder as AllowedFolder
+      : 'portfolio'
 
     if (process.env.BLOB_READ_WRITE_TOKEN) {
       const blob = await put(`${folder}/${baseName}`, file, { access: 'public' })

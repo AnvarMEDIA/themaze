@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getInquiries, addInquiry, markInquiryRead, deleteInquiry } from '@/lib/inquiries'
 import { getAdminSession } from '@/lib/auth'
+import { InquirySchema } from '@/lib/validation'
 
 export const dynamic = 'force-dynamic'
 
@@ -13,18 +14,11 @@ export async function GET() {
 
 export async function POST(req: NextRequest) {
   try {
-    const body = await req.json() as Record<string, string>
-    if (!body.name || !body.email || !body.message) {
-      return NextResponse.json({ error: 'Missing required fields' }, { status: 400 })
+    const parsed = InquirySchema.safeParse(await req.json())
+    if (!parsed.success) {
+      return NextResponse.json({ error: 'Invalid data', details: parsed.error.flatten() }, { status: 400 })
     }
-    const inquiry = await addInquiry({
-      name:    body.name,
-      email:   body.email,
-      company: body.company ?? '',
-      service: body.service ?? '',
-      budget:  body.budget ?? '',
-      message: body.message,
-    })
+    const inquiry = await addInquiry(parsed.data)
     return NextResponse.json(inquiry, { status: 201 })
   } catch {
     return NextResponse.json({ error: 'Server error' }, { status: 500 })

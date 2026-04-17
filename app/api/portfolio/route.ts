@@ -2,8 +2,8 @@ import { NextRequest, NextResponse } from 'next/server'
 import { getAllProjects, createProject } from '@/lib/portfolio'
 import { getAdminSession }              from '@/lib/auth'
 import { slugify }                      from '@/lib/utils'
-import type { CreateProjectInput }      from '@/lib/types'
 import { revalidatePath }               from 'next/cache'
+import { ProjectSchema }                from '@/lib/validation'
 
 export async function GET() {
   const projects = await getAllProjects()
@@ -17,27 +17,16 @@ export async function POST(req: NextRequest) {
   }
 
   try {
-    const body = (await req.json()) as Partial<CreateProjectInput>
-
-    if (!body.title || !body.client || !body.category) {
-      return NextResponse.json({ error: 'Missing required fields' }, { status: 400 })
+    const parsed = ProjectSchema.safeParse(await req.json())
+    if (!parsed.success) {
+      return NextResponse.json({ error: 'Invalid data', details: parsed.error.flatten() }, { status: 400 })
     }
 
+    const data    = parsed.data
     const project = await createProject({
-      title:            body.title,
-      slug:             body.slug ?? slugify(body.title),
-      client:           body.client,
-      category:         body.category,
-      year:             body.year ?? new Date().getFullYear(),
-      description:      body.description ?? '',
-      shortDescription: body.shortDescription ?? '',
-      coverImage:       body.coverImage ?? '',
-      images:           body.images ?? [],
-      tags:             body.tags ?? [],
-      services:         body.services ?? [],
-      featured:         body.featured ?? false,
-      accentColor:      body.accentColor ?? '#C8FF47',
-      results:          body.results,
+      ...data,
+      slug: data.slug ?? slugify(data.title),
+      year: data.year ?? new Date().getFullYear(),
     })
 
     revalidatePath('/', 'layout')

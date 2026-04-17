@@ -65,11 +65,6 @@ export default function AdminLoginPage() {
           </button>
         </form>
 
-        <p className="mt-6 text-center text-xs text-[#5A5A5A]">
-          Default password: <code className="text-[#EDEBE3]">maze2024</code>
-          <br />
-          <span className="text-[10px]">Change via ADMIN_PASSWORD env variable</span>
-        </p>
       </div>
     </div>
   )
