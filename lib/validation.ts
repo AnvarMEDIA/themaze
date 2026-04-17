@@ -26,7 +26,7 @@ export type InquiryInput = z.infer<typeof InquirySchema>
 /* ── Project ─────────────────────────────────────────────────────────────── */
 
 const VALID_CATEGORIES = [
-  'branding', 'identity', 'naming', 'packaging', 'print', 'art-direction',
+  'branding', 'identity', 'naming', 'ui-ux', 'print', 'motion', 'strategy',
 ] as const
 
 export const ProjectSchema = z.object({
@@ -69,9 +69,10 @@ export type SettingsInput = z.infer<typeof SettingsSchema>
 /* ── Partner ─────────────────────────────────────────────────────────────── */
 
 export const PartnerSchema = z.object({
-  name:    safeString(100).min(1, 'Name is required'),
-  logo:    urlOrEmpty.optional().default(''),
-  website: urlOrEmpty.optional().default(''),
+  name:  safeString(100).min(1, 'Name is required'),
+  logo:  urlOrEmpty.optional().default(''),
+  url:   urlOrEmpty.optional().default(''),
+  order: z.number().int().min(0).default(99),
 })
 
 export type PartnerInput = z.infer<typeof PartnerSchema>
