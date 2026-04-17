@@ -39,6 +39,7 @@ export async function writeStore<T>(name: string, data: T): Promise<void> {
     await put(`maze-data/${name}.json`, JSON.stringify(data, null, 2), {
       access:            'public',
       addRandomSuffix:   false,
+      allowOverwrite:    true,
       contentType:       'application/json',
     })
     return
