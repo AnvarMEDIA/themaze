@@ -4,6 +4,8 @@ import { getAdminSession } from '@/lib/auth'
 import { revalidatePath } from 'next/cache'
 import { ProjectUpdateSchema } from '@/lib/validation'
 
+export const dynamic = 'force-dynamic'
+
 interface Ctx {
   params: { id: string }
 }

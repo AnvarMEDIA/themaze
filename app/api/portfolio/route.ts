@@ -5,6 +5,8 @@ import { slugify }                      from '@/lib/utils'
 import { revalidatePath }               from 'next/cache'
 import { ProjectSchema }                from '@/lib/validation'
 
+export const dynamic = 'force-dynamic'
+
 export async function GET() {
   const projects = await getAllProjects()
   return NextResponse.json(projects)
