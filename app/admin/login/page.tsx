@@ -21,7 +21,8 @@ export default function AdminLoginPage() {
         // with the next request so middleware sees it immediately.
         window.location.href = '/admin'
       } else {
-        toast.error('Incorrect password')
+        const data = await res.json().catch(() => ({})) as { error?: string }
+        toast.error(data.error ?? 'Incorrect password')
         setPw('')
         setLoading(false)
       }

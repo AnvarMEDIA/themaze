@@ -40,18 +40,10 @@ export async function getAdminSession(): Promise<boolean> {
   return verifyToken(token)
 }
 
-/**
- * Constant-time password comparison to prevent timing attacks.
- * Uses crypto.timingSafeEqual — always compares equal-length buffers.
- */
 export function checkPassword(password: string): boolean {
   const adminPassword = requireEnv('ADMIN_PASSWORD')
-
-  // Pad/truncate both to the same length before comparing
-  // (timingSafeEqual requires same-length buffers)
-  const expected = Buffer.from(adminPassword)
-  const given    = Buffer.alloc(expected.length)
-  Buffer.from(password).copy(given)
-
-  return timingSafeEqual(expected, given) && password.length === adminPassword.length
+  const a = Buffer.from(adminPassword)
+  const b = Buffer.from(password)
+  if (a.length !== b.length) return false
+  return timingSafeEqual(a, b)
 }
