@@ -2,7 +2,6 @@
 
 import { useRef } from 'react'
 import { motion, useInView } from 'framer-motion'
-import Image from 'next/image'
 import type { Partner } from '@/lib/partners'
 
 interface Props {
@@ -61,14 +60,12 @@ export function PartnersSection({ partners, label, heading }: Props) {
               className="group relative flex items-center justify-center bg-maze-black p-8 h-28 hover:bg-maze-dark transition-colors duration-300"
               aria-label={partner.name}
             >
-              {/* Logo with image or fallback text */}
-              {partner.logo && !partner.logo.endsWith('.svg') ? (
-                <Image
+              {partner.logo ? (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img
                   src={partner.logo}
                   alt={partner.name}
-                  width={120}
-                  height={48}
-                  className="max-h-10 w-auto object-contain opacity-50 group-hover:opacity-100 transition-opacity duration-300 filter grayscale group-hover:grayscale-0"
+                  className="max-h-10 w-auto max-w-[120px] object-contain opacity-50 group-hover:opacity-100 transition-opacity duration-300 filter grayscale group-hover:grayscale-0"
                 />
               ) : (
                 <span className="text-maze-muted group-hover:text-maze-cream font-bold text-sm tracking-wide transition-colors duration-300 text-center leading-tight">

@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState, useCallback } from 'react'
+import { useEffect, useState, useCallback, useRef } from 'react'
 import type { Partner } from '@/lib/partners'
 import toast from 'react-hot-toast'
 
@@ -12,6 +12,8 @@ export default function AdminPartnersPage() {
   const [form,     setForm]     = useState(EMPTY)
   const [editing,  setEditing]  = useState<string | null>(null)
   const [saving,   setSaving]   = useState(false)
+  const [uploading, setUploading] = useState(false)
+  const fileRef = useRef<HTMLInputElement>(null)
 
   const load = useCallback(async () => {
     setLoading(true)
@@ -27,6 +29,24 @@ export default function AdminPartnersPage() {
   }, [])
 
   useEffect(() => { load() }, [load])
+
+  const uploadLogo = async (file: File) => {
+    setUploading(true)
+    try {
+      const fd = new FormData()
+      fd.append('file', file)
+      fd.append('folder', 'partners')
+      const res = await fetch('/api/upload', { method: 'POST', body: fd })
+      if (!res.ok) throw new Error('Upload failed')
+      const { url } = await res.json() as { url: string }
+      setForm((p) => ({ ...p, logo: url }))
+      toast.success('Лого загружено')
+    } catch {
+      toast.error('Ошибка загрузки')
+    } finally {
+      setUploading(false)
+    }
+  }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -83,7 +103,6 @@ export default function AdminPartnersPage() {
 
   return (
     <div className="px-8 py-8">
-      {/* Header */}
       <div className="mb-8">
         <h1 className="text-2xl font-bold text-white tracking-tight">Partners & Clients</h1>
         <p className="text-sm text-[#555] mt-1">Manage logos shown on the homepage.</p>
@@ -98,6 +117,61 @@ export default function AdminPartnersPage() {
               {editing ? 'Edit partner' : 'Add partner'}
             </h2>
             <form onSubmit={handleSubmit} className="space-y-4">
+
+              {/* Logo upload */}
+              <div>
+                <label className="text-xs font-medium text-[#555] block mb-2">Logo</label>
+                <input
+                  ref={fileRef}
+                  type="file"
+                  accept="image/*"
+                  className="hidden"
+                  onChange={(e) => {
+                    const file = e.target.files?.[0]
+                    if (file) uploadLogo(file)
+                    e.target.value = ''
+                  }}
+                />
+
+                <div className="flex items-center gap-3">
+                  {/* Preview */}
+                  <div
+                    className="w-20 h-14 rounded-lg border border-[#252525] bg-[#111] flex items-center justify-center shrink-0 overflow-hidden cursor-pointer hover:border-[#C8FF47] transition-colors"
+                    onClick={() => fileRef.current?.click()}
+                    title="Click to upload logo"
+                  >
+                    {uploading ? (
+                      <span className="w-4 h-4 border border-[#C8FF47] border-t-transparent rounded-full animate-spin" />
+                    ) : form.logo ? (
+                      // eslint-disable-next-line @next/next/no-img-element
+                      <img src={form.logo} alt="logo" className="max-h-10 max-w-[70px] object-contain" />
+                    ) : (
+                      <span className="text-[#444] text-xs text-center leading-tight px-1">Click<br/>to upload</span>
+                    )}
+                  </div>
+
+                  <div className="flex-1 space-y-2">
+                    <button
+                      type="button"
+                      onClick={() => fileRef.current?.click()}
+                      disabled={uploading}
+                      className="w-full py-2 text-xs font-medium bg-[#1A1A1A] border border-[#252525] rounded-lg text-[#888] hover:border-[#C8FF47] hover:text-[#C8FF47] transition-colors disabled:opacity-50"
+                    >
+                      {uploading ? 'Загрузка…' : 'Загрузить лого'}
+                    </button>
+                    {form.logo && (
+                      <button
+                        type="button"
+                        onClick={() => setForm((p) => ({ ...p, logo: '' }))}
+                        className="w-full py-1.5 text-xs text-[#555] hover:text-red-400 transition-colors"
+                      >
+                        Удалить лого
+                      </button>
+                    )}
+                  </div>
+                </div>
+              </div>
+
               <div>
                 <label className="text-xs font-medium text-[#555] block mb-1.5">Company name *</label>
                 <input
@@ -108,16 +182,7 @@ export default function AdminPartnersPage() {
                   className={inputClass}
                 />
               </div>
-              <div>
-                <label className="text-xs font-medium text-[#555] block mb-1.5">Logo path</label>
-                <input
-                  placeholder="/partners/company.svg"
-                  value={form.logo}
-                  onChange={(e) => setForm((p) => ({ ...p, logo: e.target.value }))}
-                  className={inputClass}
-                />
-                <p className="text-[11px] text-[#444] mt-1">Place logo in /public/partners/</p>
-              </div>
+
               <div>
                 <label className="text-xs font-medium text-[#555] block mb-1.5">Website URL</label>
                 <input
@@ -128,6 +193,7 @@ export default function AdminPartnersPage() {
                   className={inputClass}
                 />
               </div>
+
               <div>
                 <label className="text-xs font-medium text-[#555] block mb-1.5">Display order</label>
                 <input
@@ -138,6 +204,7 @@ export default function AdminPartnersPage() {
                   className={inputClass}
                 />
               </div>
+
               <div className="flex gap-3 pt-2">
                 <button
                   type="submit"
@@ -188,14 +255,20 @@ export default function AdminPartnersPage() {
                       editing === partner.id ? 'bg-[#111] border-l-2 border-l-[#C8FF47]' : ''
                     }`}
                   >
-                    {/* Order badge */}
                     <span className="text-[11px] font-mono text-[#333] w-5 text-center flex-shrink-0">
                       {String(i + 1).padStart(2, '0')}
                     </span>
 
-                    {/* Logo preview or icon */}
-                    <div className="w-9 h-9 rounded-lg bg-[#1A1A1A] border border-[#252525] flex items-center justify-center flex-shrink-0 text-[#47C8FF] text-sm font-bold">
-                      {partner.name.charAt(0).toUpperCase()}
+                    {/* Logo preview */}
+                    <div className="w-12 h-9 rounded-lg bg-[#1A1A1A] border border-[#252525] flex items-center justify-center flex-shrink-0 overflow-hidden">
+                      {partner.logo ? (
+                        // eslint-disable-next-line @next/next/no-img-element
+                        <img src={partner.logo} alt={partner.name} className="max-h-7 max-w-[44px] object-contain" />
+                      ) : (
+                        <span className="text-[#47C8FF] text-sm font-bold">
+                          {partner.name.charAt(0).toUpperCase()}
+                        </span>
+                      )}
                     </div>
 
                     <div className="flex-1 min-w-0">
