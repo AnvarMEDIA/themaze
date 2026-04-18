@@ -9,28 +9,73 @@ import { SmoothScroll } from '@/components/layout/SmoothScroll'
 import { Toaster }      from 'react-hot-toast'
 import { getSettings }  from '@/lib/settings'
 
-const jsonLd = {
-  '@context': 'https://schema.org',
-  '@type': 'ProfessionalService',
-  name: 'MAZE Studio',
-  description: 'Premium branding and design studio based in Tashkent, Uzbekistan',
-  url: process.env.NEXT_PUBLIC_SITE_URL ?? 'https://www.maze.uz',
-  logo: `${process.env.NEXT_PUBLIC_SITE_URL ?? 'https://www.maze.uz'}/logo.svg`,
-  foundingDate: '2019',
-  address: {
-    '@type': 'PostalAddress',
-    addressLocality: 'Tashkent',
-    addressCountry: 'UZ',
+const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://www.maze.uz'
+
+const jsonLd = [
+  {
+    '@context': 'https://schema.org',
+    '@type': 'Organization',
+    '@id': `${SITE_URL}/#organization`,
+    name: 'MAZE Studio',
+    alternateName: ['MAZE', 'MAZE Branding Studio', 'MAZE Design Studio'],
+    description: 'Premium branding and design studio based in Tashkent, Uzbekistan. We craft bold brand identities, logo systems, naming, packaging, and strategic design for ambitious companies across Central Asia.',
+    url: SITE_URL,
+    logo: {
+      '@type': 'ImageObject',
+      url: `${SITE_URL}/logo.svg`,
+      width: 200,
+      height: 60,
+    },
+    foundingDate: '2019',
+    address: {
+      '@type': 'PostalAddress',
+      addressLocality: 'Tashkent',
+      addressRegion: 'Tashkent',
+      addressCountry: 'UZ',
+    },
+    contactPoint: {
+      '@type': 'ContactPoint',
+      email: 'hello@maze.uz',
+      contactType: 'customer service',
+      areaServed: ['UZ', 'KZ', 'KG', 'TJ', 'TM', 'AZ', 'GE'],
+      availableLanguage: ['English', 'Russian', 'Uzbek'],
+    },
+    sameAs: [
+      'https://www.instagram.com/maze.uz',
+      'https://www.behance.net/mazestudio',
+      'https://www.linkedin.com/company/mazestudio',
+    ],
+    hasOfferCatalog: {
+      '@type': 'OfferCatalog',
+      name: 'Branding & Design Services',
+      itemListElement: [
+        { '@type': 'Offer', itemOffered: { '@type': 'Service', name: 'Brand Identity Design' } },
+        { '@type': 'Offer', itemOffered: { '@type': 'Service', name: 'Logo Design' } },
+        { '@type': 'Offer', itemOffered: { '@type': 'Service', name: 'Brand Strategy' } },
+        { '@type': 'Offer', itemOffered: { '@type': 'Service', name: 'Naming' } },
+        { '@type': 'Offer', itemOffered: { '@type': 'Service', name: 'Packaging Design' } },
+        { '@type': 'Offer', itemOffered: { '@type': 'Service', name: 'UI/UX Design' } },
+        { '@type': 'Offer', itemOffered: { '@type': 'Service', name: 'Motion Design' } },
+        { '@type': 'Offer', itemOffered: { '@type': 'Service', name: 'Print Design' } },
+      ],
+    },
   },
-  contactPoint: { '@type': 'ContactPoint', email: 'hello@maze.uz', contactType: 'customer service' },
-  sameAs: [
-    'https://instagram.com/mazestudio',
-    'https://behance.net/mazestudio',
-    'https://linkedin.com/company/mazestudio',
-  ],
-  priceRange: '$$$',
-  serviceType: ['Brand Identity Design', 'Logo Design', 'UI/UX Design', 'Brand Strategy', 'Naming', 'Print Design', 'Motion Design'],
-}
+  {
+    '@context': 'https://schema.org',
+    '@type': 'WebSite',
+    '@id': `${SITE_URL}/#website`,
+    url: SITE_URL,
+    name: 'MAZE Studio',
+    description: 'Branding & Design Studio — Tashkent, Uzbekistan',
+    publisher: { '@id': `${SITE_URL}/#organization` },
+    inLanguage: ['en', 'ru'],
+    potentialAction: {
+      '@type': 'SearchAction',
+      target: { '@type': 'EntryPoint', urlTemplate: `${SITE_URL}/portfolio?q={search_term_string}` },
+      'query-input': 'required name=search_term_string',
+    },
+  },
+]
 
 interface Props {
   children: React.ReactNode
@@ -56,7 +101,11 @@ export default async function LocaleLayout({ children, params }: Props) {
     <NextIntlClientProvider messages={messages} locale={locale}>
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd[0]) }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd[1]) }}
       />
       <SmoothScroll>
         <div className="noise">

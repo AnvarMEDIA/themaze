@@ -148,7 +148,7 @@
   "portfolio": {
     "label": "Our Work",
     "heading": "Portfolio",
-    "subtitle": "Brand identities, digital products, and print work crafted in Tashkent for clients across Central Asia and beyond.",
+    "subtitle": "Brand identities, logo systems, naming, packaging, and print — crafted in Tashkent for clients across Central Asia and beyond.",
     "allWork": "All Work",
     "projectSingular": "project",
     "projectPlural": "projects",
@@ -159,9 +159,10 @@
       "branding": "Branding",
       "identity": "Identity",
       "naming": "Naming",
-      "packaging": "Packaging",
+      "ui-ux": "UI/UX",
       "print": "Print",
-      "art-direction": "Art Direction"
+      "motion": "Motion",
+      "strategy": "Strategy"
     },
     "backToWork": "← All Work",
     "aboutProject": "About the project",
@@ -176,8 +177,8 @@
     "tags": "Tags"
   },
   "aboutPage": {
-    "metaTitle": "About MAZE — Branding Studio Tashkent",
-    "metaDesc": "Learn about MAZE Studio — a branding and design studio based in Tashkent, Uzbekistan, crafting bold visual identities since 2019.",
+    "metaTitle": "About MAZE — Branding & Design Studio Tashkent, Uzbekistan",
+    "metaDesc": "MAZE Studio — branding and design studio in Tashkent, Uzbekistan. We craft bold visual identities, logo systems, and brand strategies for ambitious companies across Central Asia since 2019.",
     "heroLabel": "About us",
     "heroHeading": "We navigate brands through complexity to clarity.",
     "heroSub": "MAZE is a branding and design studio based in Tashkent, Uzbekistan. Since 2019, we've built bold visual identities for startups, enterprises, and cultural institutions across Central Asia and beyond.",
@@ -236,8 +237,8 @@
     "readyCta": "Start a project"
   },
   "servicesPage": {
-    "metaTitle": "Services — MAZE Branding Studio",
-    "metaDesc": "MAZE Studio offers branding, identity, naming, packaging, print & packaging, and art direction.",
+    "metaTitle": "Branding & Design Services — MAZE Studio Tashkent",
+    "metaDesc": "Branding, visual identity, naming, packaging design, print, UI/UX, and motion — MAZE Studio delivers full-service brand creation for ambitious companies in Tashkent and across Central Asia.",
     "heroLabel": "What we offer",
     "heroHeading": "Services built for ambitious brands.",
     "heroSub": "From brand strategy to art direction — we offer the full creative suite that growing brands need to compete and win.",
@@ -341,8 +342,8 @@
     ]
   },
   "contactPage": {
-    "metaTitle": "Contact — MAZE Studio",
-    "metaDesc": "Get in touch with MAZE Studio. Start a branding project, ask a question, or book a discovery call.",
+    "metaTitle": "Contact MAZE Studio — Branding Agency Tashkent",
+    "metaDesc": "Get in touch with MAZE Studio in Tashkent, Uzbekistan. Start a branding project, request logo design or naming, or book a discovery call. We respond within 24 hours.",
     "label": "Get in touch",
     "heading": "Let's build something great together.",
     "sub": "Whether you have a clear brief or just an idea, we'd love to hear from you. Fill in the form and we'll respond within 24 hours.",

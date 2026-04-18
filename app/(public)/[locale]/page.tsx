@@ -1,3 +1,4 @@
+import type { Metadata } from 'next'
 import { setRequestLocale, getTranslations } from 'next-intl/server'
 import { routing } from '@/i18n/routing'
 import { Hero }            from '@/components/home/Hero'
@@ -19,6 +20,45 @@ export const dynamic = 'force-dynamic'
 
 export function generateStaticParams() {
   return routing.locales.map((locale) => ({ locale }))
+}
+
+const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://www.maze.uz'
+
+export async function generateMetadata({ params: { locale } }: Props): Promise<Metadata> {
+  const isRu = locale === 'ru'
+
+  if (isRu) {
+    return {
+      title: 'MAZE — Брендинговая и Дизайн Студия | Ташкент, Узбекистан',
+      description:
+        'MAZE — премиальная брендинговая студия из Ташкента. Разрабатываем фирменные стили, логотипы, нейминг и стратегию бренда для амбициозных компаний по всей Центральной Азии и за рубежом.',
+      keywords: [
+        'брендинг студия Ташкент',
+        'брендинговое агентство Узбекистан',
+        'фирменный стиль Ташкент',
+        'разработка логотипа',
+        'айдентика Ташкент',
+        'нейминг бренда Ташкент',
+        'упаковка дизайн Узбекистан',
+        'брендбук',
+        'визуальная идентичность',
+        'стратегия бренда Центральная Азия',
+        'дизайн студия Ташкент',
+        'MAZE Студия',
+      ],
+      alternates: {
+        canonical: `${SITE_URL}/ru`,
+        languages: { 'en-US': SITE_URL, 'ru-RU': `${SITE_URL}/ru` },
+      },
+    }
+  }
+
+  return {
+    alternates: {
+      canonical: SITE_URL,
+      languages: { 'en-US': SITE_URL, 'ru-RU': `${SITE_URL}/ru` },
+    },
+  }
 }
 
 export default async function HomePage({ params: { locale } }: Props) {
