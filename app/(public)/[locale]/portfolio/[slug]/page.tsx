@@ -45,7 +45,7 @@ export default async function ProjectPage({ params }: Props) {
 
   const all     = await getAllProjects()
   const related = all
-    .filter((p) => p.id !== project.id && p.category === project.category)
+    .filter((p) => p.id !== project.id && p.categories.some((c) => project.categories.includes(c)))
     .slice(0, 2)
 
   const isRu = locale === 'ru'
@@ -69,9 +69,13 @@ export default async function ProjectPage({ params }: Props) {
 
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 mt-6">
             <div>
-              <p className="label-sm text-maze-lime mb-4">
-                {(t.raw('categories') as Record<string,string>)[project.category] ?? project.category}
-              </p>
+              <div className="flex flex-wrap gap-2 mb-4">
+                {project.categories.map((c) => (
+                  <span key={c} className="label-sm text-maze-lime">
+                    {(t.raw('categories') as Record<string,string>)[c] ?? c}
+                  </span>
+                ))}
+              </div>
               <h1 className="display-md text-maze-cream mb-4">{title}</h1>
               <p className="heading-md text-maze-muted">{project.client}</p>
             </div>
@@ -83,7 +87,9 @@ export default async function ProjectPage({ params }: Props) {
               </div>
               <div>
                 <p className="label-sm text-maze-muted mb-1">{t('category')}</p>
-                <p className="font-semibold text-maze-cream">{(t.raw('categories') as Record<string,string>)[project.category] ?? project.category}</p>
+                <p className="font-semibold text-maze-cream">
+                  {project.categories.map((c) => (t.raw('categories') as Record<string,string>)[c] ?? c).join(', ')}
+                </p>
               </div>
               <div>
                 <p className="label-sm text-maze-muted mb-2">{t('tags')}</p>
@@ -191,7 +197,9 @@ export default async function ProjectPage({ params }: Props) {
                   className="group block p-6 rounded-xl border border-maze-border transition-colors duration-200 [@media(hover:hover)_and_(pointer:fine)]:hover:border-maze-lime"
                   data-cursor="view"
                 >
-                  <p className="label-sm text-maze-lime mb-2">{(t.raw('categories') as Record<string,string>)[p.category] ?? p.category}</p>
+                  <p className="label-sm text-maze-lime mb-2">
+                    {p.categories.map((c) => (t.raw('categories') as Record<string,string>)[c] ?? c).join(' · ')}
+                  </p>
                   <h4 className="heading-md text-maze-cream transition-colors duration-200 [@media(hover:hover)_and_(pointer:fine)]:group-hover:text-maze-lime">{p.title}</h4>
                   <p className="label-sm text-maze-muted mt-1">{p.client}</p>
                 </Link>

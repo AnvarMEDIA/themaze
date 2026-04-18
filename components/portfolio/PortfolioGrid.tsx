@@ -35,18 +35,18 @@ export function PortfolioGrid({ projects }: Props) {
   const [filter, setFilter] = useState<Filter>(ALL)
   const [view,   setView]   = useState<'grid' | 'list'>('grid')
 
-  const categories = Array.from(new Set(projects.map((p) => p.category))) as ProjectCategory[]
+  const categories = Array.from(new Set(projects.flatMap((p) => p.categories))) as ProjectCategory[]
 
   const filtered = filter === ALL
     ? projects
-    : projects.filter((p) => p.category === filter)
+    : projects.filter((p) => p.categories.includes(filter as ProjectCategory))
 
   const catLabel = (cat: string) =>
     t.raw('categories')[cat] ?? cat
 
   const filterOptions = [
     { id: ALL as Filter, label: t('allWork'), count: projects.length },
-    ...categories.map((c) => ({ id: c as Filter, label: catLabel(c), count: projects.filter((p) => p.category === c).length })),
+    ...categories.map((c) => ({ id: c as Filter, label: catLabel(c), count: projects.filter((p) => p.categories.includes(c)).length })),
   ]
 
   const countText = filtered.length === 1

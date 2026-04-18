@@ -13,7 +13,7 @@ export interface Project {
   title: string
   titleRu?: string
   client: string
-  category: ProjectCategory
+  categories: ProjectCategory[]
   year: number
   description: string
   descriptionRu?: string

@@ -116,7 +116,7 @@ export default function AdminDashboard() {
                     <p className="text-xs text-[#444] mt-0.5">{project.client} · {project.year}</p>
                   </div>
                   <span className="text-[11px] px-2.5 py-1 rounded-full border border-[#252525] text-[#555] hidden sm:block whitespace-nowrap">
-                    {project.category}
+                    {project.categories.join(', ')}
                   </span>
                   <div className="flex items-center gap-3">
                     {project.featured && (

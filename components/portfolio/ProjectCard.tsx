@@ -18,7 +18,9 @@ export function ProjectCard({ project, index, layout = 'grid' }: Props) {
   const locale = useLocale()
   const ref    = useRef<HTMLDivElement>(null)
   const inView = useInView(ref, { once: true, margin: '-10% 0px' })
-  const catLabel = (t.raw('categories') as Record<string, string>)[project.category] ?? project.category
+  const catLabel = project.categories
+    .map((c) => (t.raw('categories') as Record<string, string>)[c] ?? c)
+    .join(' · ')
 
   const isRu            = locale === 'ru'
   const title           = isRu ? (project.titleRu            || project.title)            : project.title

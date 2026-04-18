@@ -1,9 +1,19 @@
 import { v4 as uuidv4 } from 'uuid'
 import { readStore, writeStore } from './store'
-import type { Project, PortfolioData, CreateProjectInput, UpdateProjectInput } from './types'
+import type { Project, PortfolioData, CreateProjectInput, UpdateProjectInput, ProjectCategory } from './types'
+
+type StoredProject = Omit<Project, 'categories'> & { category?: ProjectCategory; categories?: ProjectCategory[] }
+
+function normalize(p: StoredProject): Project {
+  const categories = p.categories?.length ? p.categories
+    : p.category ? [p.category] : ['branding' as ProjectCategory]
+  const { category: _c, ...rest } = p as StoredProject & { category?: ProjectCategory }
+  return { ...rest, categories } as Project
+}
 
 async function readData(): Promise<PortfolioData> {
-  return readStore<PortfolioData>('portfolio', { projects: [] })
+  const raw = await readStore<{ projects: StoredProject[] }>('portfolio', { projects: [] })
+  return { projects: raw.projects.map(normalize) }
 }
 
 async function writeData(data: PortfolioData): Promise<void> {

@@ -2,7 +2,7 @@
 
 import { useEffect, useState, useCallback } from 'react'
 import Link from 'next/link'
-import type { Project } from '@/lib/types'
+import type { Project, ProjectCategory } from '@/lib/types'
 import { CATEGORY_LABELS } from '@/lib/utils'
 import toast from 'react-hot-toast'
 
@@ -39,8 +39,8 @@ export default function AdminProjectsPage() {
     }
   }
 
-  const categories = Array.from(new Set(projects.map((p) => p.category)))
-  const filtered = filter === 'all' ? projects : projects.filter((p) => p.category === filter)
+  const categories = Array.from(new Set(projects.flatMap((p) => p.categories)))
+  const filtered = filter === 'all' ? projects : projects.filter((p) => p.categories.includes(filter as ProjectCategory))
   const featured = projects.filter((p) => p.featured).length
 
   return (
@@ -123,7 +123,7 @@ export default function AdminProjectsPage() {
               </div>
             </div>
             <span className="hidden md:block text-xs px-2.5 py-1 border border-[#252525] rounded-full text-[#555] whitespace-nowrap w-fit">
-              {CATEGORY_LABELS[project.category]}
+              {project.categories.map((c) => CATEGORY_LABELS[c as keyof typeof CATEGORY_LABELS] ?? c).join(', ')}
             </span>
             <span className="hidden md:block text-xs text-[#444]">{project.year}</span>
             <div className="hidden md:flex items-center">

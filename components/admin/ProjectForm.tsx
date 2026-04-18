@@ -21,7 +21,7 @@ const CATEGORIES: { value: ProjectCategory; label: string }[] = [
 type FormState = Omit<Project, 'id' | 'createdAt' | 'updatedAt'>
 
 const EMPTY: FormState = {
-  slug: '', title: '', titleRu: '', client: '', category: 'branding',
+  slug: '', title: '', titleRu: '', client: '', categories: [],
   year: new Date().getFullYear(),
   description: '', descriptionRu: '',
   shortDescription: '', shortDescriptionRu: '',
@@ -167,18 +167,46 @@ export function ProjectForm({ project }: Props) {
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-          <div>
-            <label className={labelEn}>Category *</label>
-            <select
-              required
-              value={form.category}
-              onChange={(e) => set('category', e.target.value as ProjectCategory)}
-              className={input + ' appearance-none'}
-            >
-              {CATEGORIES.map((c) => (
-                <option key={c.value} value={c.value} className="bg-maze-dark">{c.label}</option>
-              ))}
-            </select>
+          <div className="sm:col-span-2">
+            <label className={labelEn}>
+              Categories *{' '}
+              {form.categories.length === 0 && (
+                <span className="text-red-400 normal-case font-normal">(выберите хотя бы одну)</span>
+              )}
+            </label>
+            <div className="grid grid-cols-2 gap-2 mt-1">
+              {CATEGORIES.map((c) => {
+                const checked = form.categories.includes(c.value)
+                return (
+                  <label
+                    key={c.value}
+                    className={[
+                      'flex items-center gap-2 px-3 py-2 rounded-lg border cursor-pointer transition-colors',
+                      checked
+                        ? 'border-maze-lime bg-maze-lime/10 text-maze-lime'
+                        : 'border-maze-border text-maze-muted hover:border-maze-cream hover:text-maze-cream',
+                    ].join(' ')}
+                  >
+                    <input
+                      type="checkbox"
+                      checked={checked}
+                      onChange={(e) => {
+                        const next = e.target.checked
+                          ? [...form.categories, c.value]
+                          : form.categories.filter((x) => x !== c.value)
+                        set('categories', next)
+                      }}
+                      className="hidden"
+                    />
+                    <span className={['w-3.5 h-3.5 rounded border flex items-center justify-center shrink-0 transition-colors',
+                      checked ? 'bg-maze-lime border-maze-lime' : 'border-current'].join(' ')}>
+                      {checked && <span className="text-maze-ink text-[9px] font-black leading-none">✓</span>}
+                    </span>
+                    <span className="text-xs font-medium">{c.label}</span>
+                  </label>
+                )
+              })}
+            </div>
           </div>
           <div>
             <label className={labelEn}>Year *</label>

@@ -34,7 +34,7 @@ export const ProjectSchema = z.object({
   titleRu:              safeString(200).optional().default(''),
   slug:                 safeString(200).regex(/^[a-z0-9-]+$/, 'Slug must be lowercase letters, numbers, hyphens').optional(),
   client:               safeString(200).min(1, 'Client is required'),
-  category:             z.enum(VALID_CATEGORIES, { message: 'Invalid category' }),
+  categories:           z.array(z.enum(VALID_CATEGORIES)).min(1, 'Select at least one category'),
   year:                 z.number().int().min(2000).max(new Date().getFullYear() + 1),
   description:          safeString(5000).optional().default(''),
   descriptionRu:        safeString(5000).optional().default(''),
