@@ -26,7 +26,7 @@ export type InquiryInput = z.infer<typeof InquirySchema>
 /* ── Project ─────────────────────────────────────────────────────────────── */
 
 const VALID_CATEGORIES = [
-  'branding', 'identity', 'naming', 'ui-ux', 'print', 'motion', 'strategy',
+  'branding', 'identity', 'naming', 'packaging', 'ui-ux', 'print', 'motion', 'strategy',
 ] as const
 
 export const ProjectSchema = z.object({

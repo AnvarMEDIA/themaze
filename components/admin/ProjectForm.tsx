@@ -16,6 +16,7 @@ const CATEGORIES: { value: ProjectCategory; label: string }[] = [
   { value: 'motion',   label: 'Motion' },
   { value: 'strategy', label: 'Strategy' },
   { value: 'naming',   label: 'Naming' },
+  { value: 'packaging', label: 'Packaging' },
 ]
 
 type FormState = Omit<Project, 'id' | 'createdAt' | 'updatedAt'>
