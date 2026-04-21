@@ -9,14 +9,15 @@ import type { Project, ProjectCategory } from '@/lib/types'
 import { slugify } from '@/lib/utils'
 
 const CATEGORIES: { value: ProjectCategory; label: string }[] = [
-  { value: 'branding',  label: 'Branding' },
-  { value: 'identity',  label: 'Identity' },
-  { value: 'ui-ux',    label: 'UI / UX' },
-  { value: 'print',    label: 'Print' },
-  { value: 'motion',   label: 'Motion' },
-  { value: 'strategy', label: 'Strategy' },
-  { value: 'naming',   label: 'Naming' },
-  { value: 'packaging', label: 'Packaging' },
+  { value: 'branding',   label: 'Branding' },
+  { value: 'rebranding', label: 'Rebranding' },
+  { value: 'identity',   label: 'Identity' },
+  { value: 'ui-ux',      label: 'UI / UX' },
+  { value: 'print',      label: 'Print' },
+  { value: 'motion',     label: 'Motion' },
+  { value: 'strategy',   label: 'Strategy' },
+  { value: 'naming',     label: 'Naming' },
+  { value: 'packaging',  label: 'Packaging' },
 ]
 
 type FormState = Omit<Project, 'id' | 'createdAt' | 'updatedAt'>

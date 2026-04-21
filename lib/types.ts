@@ -1,5 +1,6 @@
 export type ProjectCategory =
   | 'branding'
+  | 'rebranding'
   | 'identity'
   | 'naming'
   | 'packaging'
