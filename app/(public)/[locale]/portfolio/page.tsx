@@ -2,7 +2,7 @@ import type { Metadata } from 'next'
 import { getTranslations, setRequestLocale } from 'next-intl/server'
 import { routing } from '@/i18n/routing'
 import { PortfolioGrid } from '@/components/portfolio/PortfolioGrid'
-import { getAllProjects } from '@/lib/portfolio'
+import { getPublishedProjects } from '@/lib/portfolio'
 import { JsonLd } from '@/components/JsonLd'
 import { breadcrumbJsonLd, portfolioListJsonLd, homeCrumb, portfolioCrumb } from '@/lib/jsonLd'
 import { localizedAlternates } from '@/lib/seo'
@@ -30,7 +30,7 @@ export async function generateMetadata({ params: { locale } }: Props): Promise<M
 export default async function PortfolioPage({ params: { locale } }: Props) {
   setRequestLocale(locale)
   const t        = await getTranslations({ locale, namespace: 'portfolio' })
-  const projects = await getAllProjects()
+  const projects = await getPublishedProjects()
 
   const isRu   = locale === 'ru'
   const crumbs = breadcrumbJsonLd([

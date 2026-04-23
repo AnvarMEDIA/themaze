@@ -51,6 +51,7 @@ export const ProjectSchema = z.object({
   accentColor:          z.string().regex(/^#[0-9A-Fa-f]{3,8}$/, 'Invalid hex color').optional().default('#C8FF47'),
   results:              safeString(2000).optional(),
   resultsRu:            safeString(2000).optional(),
+  status:               z.enum(['draft', 'published']).optional().default('published'),
 })
 
 export const ProjectUpdateSchema = ProjectSchema.partial()

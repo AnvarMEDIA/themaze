@@ -31,6 +31,7 @@ const EMPTY: FormState = {
   tags: [], services: [], servicesRu: [],
   featured: false, accentColor: '#C8FF47',
   results: '', resultsRu: '',
+  status: 'published',
 }
 
 interface Props {
@@ -241,15 +242,42 @@ export function ProjectForm({ project }: Props) {
           </div>
         </div>
 
-        <div className="flex items-center gap-3">
-          <input
-            type="checkbox"
-            id="featured"
-            checked={form.featured}
-            onChange={(e) => set('featured', e.target.checked)}
-            className="w-4 h-4 rounded border-maze-border accent-maze-lime"
-          />
-          <label htmlFor="featured" className="label-sm text-maze-cream">Feature on homepage</label>
+        <div className="flex flex-wrap items-center gap-6">
+          <div className="flex items-center gap-3">
+            <input
+              type="checkbox"
+              id="featured"
+              checked={form.featured}
+              onChange={(e) => set('featured', e.target.checked)}
+              className="w-4 h-4 rounded border-maze-border accent-maze-lime"
+            />
+            <label htmlFor="featured" className="label-sm text-maze-cream">Feature on homepage</label>
+          </div>
+
+          <div className="flex items-center gap-2">
+            <label className="label-sm text-maze-muted">Status</label>
+            <div className="inline-flex rounded-full border border-maze-border p-0.5">
+              {(['published', 'draft'] as const).map((s) => {
+                const active = (form.status ?? 'published') === s
+                return (
+                  <button
+                    key={s}
+                    type="button"
+                    onClick={() => set('status', s)}
+                    className={`px-3 py-1 rounded-full label-sm transition-colors ${
+                      active
+                        ? s === 'draft'
+                          ? 'bg-yellow-400/15 text-yellow-300'
+                          : 'bg-maze-lime/15 text-maze-lime'
+                        : 'text-maze-muted hover:text-maze-cream'
+                    }`}
+                  >
+                    {s === 'draft' ? 'Draft' : 'Published'}
+                  </button>
+                )
+              })}
+            </div>
+          </div>
         </div>
       </section>
 

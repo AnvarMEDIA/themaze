@@ -9,7 +9,7 @@ import { ServicesSection } from '@/components/home/ServicesSection'
 import { ProcessSection }  from '@/components/home/ProcessSection'
 import { CTASection }      from '@/components/home/CTASection'
 import { PartnersSection } from '@/components/home/PartnersSection'
-import { getAllProjects } from '@/lib/portfolio'
+import { getPublishedProjects } from '@/lib/portfolio'
 import { getPartners } from '@/lib/partners'
 import { localizedAlternates } from '@/lib/seo'
 
@@ -57,7 +57,7 @@ export async function generateMetadata({ params: { locale } }: Props): Promise<M
 export default async function HomePage({ params: { locale } }: Props) {
   setRequestLocale(locale)
   const [featuredProjects, partners, t] = await Promise.all([
-    getAllProjects(),
+    getPublishedProjects(),
     getPartners(),
     getTranslations({ locale, namespace: 'partners' }),
   ])

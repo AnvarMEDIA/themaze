@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { getInquiries, addInquiry, markInquiryRead, deleteInquiry } from '@/lib/inquiries'
+import { getInquiries, addInquiry, markInquiryRead, deleteInquiry, deleteInquiries } from '@/lib/inquiries'
 import { getAdminSession } from '@/lib/auth'
 import { InquirySchema } from '@/lib/validation'
 import { rateLimit } from '@/lib/rateLimit'
@@ -65,9 +65,24 @@ export async function PATCH(req: NextRequest) {
 export async function DELETE(req: NextRequest) {
   const authed = await getAdminSession()
   if (!authed) return NextResponse.json({ error: 'Unauthorised' }, { status: 401 })
+
   const { searchParams } = new URL(req.url)
   const id = searchParams.get('id')
-  if (!id) return NextResponse.json({ error: 'Missing id' }, { status: 400 })
-  await deleteInquiry(id)
-  return NextResponse.json({ ok: true })
+  if (id) {
+    await deleteInquiry(id)
+    return NextResponse.json({ ok: true, deleted: 1 })
+  }
+
+  // Bulk delete via JSON body { ids: string[] }
+  try {
+    const body = await req.json() as { ids?: unknown }
+    if (!Array.isArray(body.ids) || body.ids.length === 0) {
+      return NextResponse.json({ error: 'Missing ids' }, { status: 400 })
+    }
+    const ids = body.ids.filter((x): x is string => typeof x === 'string').slice(0, 500)
+    const deleted = await deleteInquiries(ids)
+    return NextResponse.json({ ok: true, deleted })
+  } catch {
+    return NextResponse.json({ error: 'Missing id' }, { status: 400 })
+  }
 }

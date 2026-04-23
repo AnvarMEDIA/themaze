@@ -1,5 +1,5 @@
 import { MetadataRoute } from 'next'
-import { getAllProjects } from '@/lib/portfolio'
+import { getPublishedProjects } from '@/lib/portfolio'
 import { SITE_URL, localeHref } from '@/lib/seo'
 
 type Entry = MetadataRoute.Sitemap[number]
@@ -25,7 +25,7 @@ function localized(
 }
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const projects = await getAllProjects()
+  const projects = await getPublishedProjects()
   const now = new Date()
 
   const staticRoutes: MetadataRoute.Sitemap = [

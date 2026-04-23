@@ -32,6 +32,12 @@ export async function getAllProjects(): Promise<Project[]> {
   })
 }
 
+/** Public listings: hide drafts. Items without a status are treated as published. */
+export async function getPublishedProjects(): Promise<Project[]> {
+  const all = await getAllProjects()
+  return all.filter((p) => p.status !== 'draft')
+}
+
 export async function reorderProjects(orderedIds: string[]): Promise<void> {
   const data = await readData()
   const index = new Map(orderedIds.map((id, i) => [id, i]))
@@ -45,7 +51,7 @@ export async function reorderProjects(orderedIds: string[]): Promise<void> {
 }
 
 export async function getFeaturedProjects(): Promise<Project[]> {
-  const all = await getAllProjects()
+  const all = await getPublishedProjects()
   return all.filter((p) => p.featured)
 }
 

@@ -11,6 +11,7 @@ export default function AdminProjectsPage() {
   const [projects, setProjects] = useState<Project[]>([])
   const [loading,  setLoading]  = useState(true)
   const [filter,   setFilter]   = useState<string>('all')
+  const [query,    setQuery]    = useState('')
   const [savingOrder, setSavingOrder] = useState(false)
   const saveTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
 
@@ -66,9 +67,22 @@ export default function AdminProjectsPage() {
   }
 
   const categories = Array.from(new Set(projects.flatMap((p) => p.categories)))
-  const filtered = filter === 'all' ? projects : projects.filter((p) => p.categories.includes(filter as ProjectCategory))
+  const q = query.trim().toLowerCase()
+  const matchesQuery = (p: Project) => {
+    if (!q) return true
+    return (
+      p.title.toLowerCase().includes(q) ||
+      (p.titleRu ?? '').toLowerCase().includes(q) ||
+      p.client.toLowerCase().includes(q) ||
+      p.slug.toLowerCase().includes(q)
+    )
+  }
+  const filtered = projects
+    .filter((p) => filter === 'all' || p.categories.includes(filter as ProjectCategory))
+    .filter(matchesQuery)
   const featured = projects.filter((p) => p.featured).length
-  const dragEnabled = filter === 'all'
+  const drafts   = projects.filter((p) => p.status === 'draft').length
+  const dragEnabled = filter === 'all' && !q
 
   return (
     <div className="px-8 py-8">
@@ -78,7 +92,7 @@ export default function AdminProjectsPage() {
           <h1 className="text-2xl font-bold text-white tracking-tight">Projects</h1>
           {!loading && (
             <p className="text-sm text-[#555] mt-1">
-              {projects.length} total · {featured} featured
+              {projects.length} total · {featured} featured{drafts > 0 && ` · ${drafts} draft${drafts === 1 ? '' : 's'}`}
               {savingOrder && <span className="ml-2 text-[#C8FF47]">· saving order…</span>}
             </p>
           )}
@@ -91,27 +105,49 @@ export default function AdminProjectsPage() {
         </Link>
       </div>
 
-      {/* Category filters */}
-      <div className="flex flex-wrap gap-2 mb-3">
-        {['all', ...categories].map((cat) => (
-          <button
-            key={cat}
-            onClick={() => setFilter(cat)}
-            className={`text-xs px-3 py-1.5 rounded-full border transition-colors ${
-              filter === cat
-                ? 'border-[#C8FF47] text-[#C8FF47] bg-[#C8FF47]/10'
-                : 'border-[#252525] text-[#555] hover:border-[#333] hover:text-[#888]'
-            }`}
-          >
-            {cat === 'all' ? `All (${projects.length})` : CATEGORY_LABELS[cat as keyof typeof CATEGORY_LABELS]}
-          </button>
-        ))}
+      {/* Search + category filters */}
+      <div className="flex flex-col lg:flex-row lg:items-center gap-3 mb-3">
+        <div className="relative lg:w-80">
+          <input
+            type="search"
+            placeholder="Search by title, client, slug…"
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+            className="w-full bg-[#111] border border-[#252525] rounded-lg px-3 py-2 pr-8 text-sm text-white placeholder:text-[#444] focus:outline-none focus:border-[#C8FF47] transition-colors"
+            aria-label="Search projects"
+          />
+          {query && (
+            <button
+              type="button"
+              onClick={() => setQuery('')}
+              aria-label="Clear search"
+              className="absolute right-2 top-1/2 -translate-y-1/2 text-[#555] hover:text-white"
+            >
+              ×
+            </button>
+          )}
+        </div>
+        <div className="flex flex-wrap gap-2">
+          {['all', ...categories].map((cat) => (
+            <button
+              key={cat}
+              onClick={() => setFilter(cat)}
+              className={`text-xs px-3 py-1.5 rounded-full border transition-colors ${
+                filter === cat
+                  ? 'border-[#C8FF47] text-[#C8FF47] bg-[#C8FF47]/10'
+                  : 'border-[#252525] text-[#555] hover:border-[#333] hover:text-[#888]'
+              }`}
+            >
+              {cat === 'all' ? `All (${projects.length})` : CATEGORY_LABELS[cat as keyof typeof CATEGORY_LABELS]}
+            </button>
+          ))}
+        </div>
       </div>
 
       <p className="text-[11px] text-[#444] mb-5">
         {dragEnabled
           ? 'Drag the ⋮⋮ handle to reorder projects. Order is applied on the public site.'
-          : 'Switch to “All” to reorder projects.'}
+          : 'Clear search and switch to "All" to reorder projects.'}
       </p>
 
       {/* Table */}
@@ -171,6 +207,19 @@ export default function AdminProjectsPage() {
             onDelete={handleDelete}
           />
         ))}
+
+        {!loading && filtered.length === 0 && projects.length > 0 && (
+          <div className="py-16 text-center">
+            <p className="text-sm text-[#444]">No projects match your search.</p>
+            <button
+              type="button"
+              onClick={() => { setQuery(''); setFilter('all') }}
+              className="text-xs text-[#C8FF47] hover:underline mt-2"
+            >
+              Clear filters
+            </button>
+          </div>
+        )}
       </div>
     </div>
   )
@@ -205,7 +254,14 @@ function ProjectRow({
       <div className="flex items-center gap-3 min-w-0">
         <div className="w-1 h-9 rounded-full flex-shrink-0" style={{ background: project.accentColor ?? '#C8FF47' }} />
         <div className="min-w-0">
-          <p className="text-sm font-semibold text-white truncate">{project.title}</p>
+          <div className="flex items-center gap-2">
+            <p className="text-sm font-semibold text-white truncate">{project.title}</p>
+            {project.status === 'draft' && (
+              <span className="text-[10px] font-bold px-1.5 py-0.5 rounded bg-yellow-400/15 text-yellow-300 tracking-wider uppercase">
+                Draft
+              </span>
+            )}
+          </div>
           <p className="text-xs text-[#444] mt-0.5">{project.client}</p>
         </div>
       </div>
@@ -223,6 +279,15 @@ function ProjectRow({
         </span>
       </div>
       <div className="flex gap-3 ml-auto md:ml-0">
+        <a
+          href={`/portfolio/${project.slug}`}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="text-xs text-[#555] hover:text-[#47C8FF] transition-colors"
+          title="Open public page in new tab"
+        >
+          Preview
+        </a>
         <Link
           href={`/admin/edit/${project.id}`}
           className="text-xs text-[#555] hover:text-[#C8FF47] transition-colors"

@@ -4,17 +4,18 @@ import { notFound } from 'next/navigation'
 import Image from 'next/image'
 import { Link } from '@/i18n/navigation'
 import { routing } from '@/i18n/routing'
-import { getAllProjects, getProjectBySlug } from '@/lib/portfolio'
+import { getProjectBySlug, getPublishedProjects } from '@/lib/portfolio'
 import { JsonLd } from '@/components/JsonLd'
 import { breadcrumbJsonLd, projectJsonLd, homeCrumb, portfolioCrumb } from '@/lib/jsonLd'
 import { localizedAlternates } from '@/lib/seo'
+import { getAdminSession } from '@/lib/auth'
 
 interface Props {
   params: { locale: string; slug: string }
 }
 
 export async function generateStaticParams() {
-  const projects = await getAllProjects()
+  const projects = await getPublishedProjects()
   return routing.locales.flatMap((locale) =>
     projects.map((project) => ({ locale, slug: project.slug }))
   )
@@ -52,7 +53,12 @@ export default async function ProjectPage({ params }: Props) {
 
   if (!project) notFound()
 
-  const all     = await getAllProjects()
+  if (project.status === 'draft') {
+    const authed = await getAdminSession()
+    if (!authed) notFound()
+  }
+
+  const all     = await getPublishedProjects()
   const related = all
     .filter((p) => p.id !== project.id && p.categories.some((c) => project.categories.includes(c)))
     .slice(0, 2)
