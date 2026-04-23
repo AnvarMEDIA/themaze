@@ -2,6 +2,8 @@ import type { Metadata } from 'next'
 import { getTranslations, setRequestLocale } from 'next-intl/server'
 import { routing } from '@/i18n/routing'
 import { Link } from '@/i18n/navigation'
+import { JsonLd } from '@/components/JsonLd'
+import { breadcrumbJsonLd, servicesJsonLd, homeCrumb } from '@/lib/jsonLd'
 
 interface Props {
   params: { locale: string }
@@ -28,8 +30,19 @@ export default async function ServicesPage({ params: { locale } }: Props) {
     id: string; num: string; title: string; tagline: string; body: string; deliverables: string[]
   }[]
 
+  const isRu   = locale === 'ru'
+  const crumbs = breadcrumbJsonLd([
+    homeCrumb(locale, isRu ? 'Главная' : 'Home'),
+    { name: isRu ? 'Услуги' : 'Services', url: `${process.env.NEXT_PUBLIC_SITE_URL ?? 'https://www.maze.uz'}${locale === 'en' ? '' : '/' + locale}/services` },
+  ])
+  const servicesLd = servicesJsonLd(
+    services.map((s) => ({ id: s.id, name: s.title, description: s.body })),
+    locale,
+  )
+
   return (
     <div className="pt-28 min-h-screen">
+      <JsonLd data={[crumbs, servicesLd]} />
       {/* Header */}
       <div className="px-6 md:px-10 py-20 border-b border-maze-border">
         <div className="max-w-[1440px] mx-auto">

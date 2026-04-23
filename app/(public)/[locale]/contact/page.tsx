@@ -3,6 +3,8 @@ import { getTranslations, setRequestLocale } from 'next-intl/server'
 import { ContactForm } from '@/components/contact/ContactForm'
 import { getSettings } from '@/lib/settings'
 import { telegramHref, telegramDisplay } from '@/lib/utils'
+import { JsonLd } from '@/components/JsonLd'
+import { breadcrumbJsonLd, contactPageJsonLd, homeCrumb } from '@/lib/jsonLd'
 
 export const dynamic = 'force-dynamic'
 
@@ -53,8 +55,15 @@ export default async function ContactPage({ params: { locale } }: Props) {
     { label: 'LinkedIn',  href: 'https://linkedin.com/company/mazestudio' },
   ]
 
+  const isRu   = locale === 'ru'
+  const crumbs = breadcrumbJsonLd([
+    homeCrumb(locale, isRu ? 'Главная' : 'Home'),
+    { name: isRu ? 'Контакты' : 'Contact', url: `${process.env.NEXT_PUBLIC_SITE_URL ?? 'https://www.maze.uz'}${locale === 'en' ? '' : '/' + locale}/contact` },
+  ])
+
   return (
     <div className="pt-28 min-h-screen">
+      <JsonLd data={[crumbs, contactPageJsonLd(locale)]} />
       <div className="px-6 md:px-10 py-16 md:py-24 border-b border-maze-border">
         <div className="max-w-[1440px] mx-auto">
           <p className="label-sm text-maze-muted mb-6">{t('label')}</p>

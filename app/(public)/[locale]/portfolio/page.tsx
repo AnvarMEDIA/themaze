@@ -3,6 +3,8 @@ import { getTranslations, setRequestLocale } from 'next-intl/server'
 import { routing } from '@/i18n/routing'
 import { PortfolioGrid } from '@/components/portfolio/PortfolioGrid'
 import { getAllProjects } from '@/lib/portfolio'
+import { JsonLd } from '@/components/JsonLd'
+import { breadcrumbJsonLd, portfolioListJsonLd, homeCrumb, portfolioCrumb } from '@/lib/jsonLd'
 
 interface Props {
   params: { locale: string }
@@ -28,8 +30,15 @@ export default async function PortfolioPage({ params: { locale } }: Props) {
   const t        = await getTranslations({ locale, namespace: 'portfolio' })
   const projects = await getAllProjects()
 
+  const isRu   = locale === 'ru'
+  const crumbs = breadcrumbJsonLd([
+    homeCrumb(locale, isRu ? 'Главная' : 'Home'),
+    portfolioCrumb(locale, isRu ? 'Портфолио' : 'Portfolio'),
+  ])
+
   return (
     <main className="min-h-screen">
+      <JsonLd data={[crumbs, portfolioListJsonLd(projects, locale)]} />
 
       {/* Page header */}
       <section className="pt-28 pb-16 px-6 md:px-10 border-b border-maze-border">

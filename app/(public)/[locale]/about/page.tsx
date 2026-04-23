@@ -4,6 +4,8 @@ import { AnimatedCounter } from '@/components/ui/AnimatedCounter'
 import { Link } from '@/i18n/navigation'
 import { getTeam } from '@/lib/team'
 import Image from 'next/image'
+import { JsonLd } from '@/components/JsonLd'
+import { aboutPageJsonLd, breadcrumbJsonLd, homeCrumb } from '@/lib/jsonLd'
 
 interface Props {
   params: { locale: string }
@@ -33,8 +35,15 @@ export default async function AboutPage({ params: { locale } }: Props) {
   ])
   const values = t.raw('values') as { title: string; body: string }[]
 
+  const isRu   = locale === 'ru'
+  const crumbs = breadcrumbJsonLd([
+    homeCrumb(locale, isRu ? 'Главная' : 'Home'),
+    { name: isRu ? 'О нас' : 'About', url: `${process.env.NEXT_PUBLIC_SITE_URL ?? 'https://www.maze.uz'}${locale === 'en' ? '' : '/' + locale}/about` },
+  ])
+
   return (
     <div className="pt-28">
+      <JsonLd data={[crumbs, aboutPageJsonLd(team, locale)]} />
       {/* Hero */}
       <div className="px-6 md:px-10 py-20 border-b border-maze-border">
         <div className="max-w-[1440px] mx-auto">

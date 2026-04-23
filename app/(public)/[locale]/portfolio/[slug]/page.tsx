@@ -5,6 +5,8 @@ import Image from 'next/image'
 import { Link } from '@/i18n/navigation'
 import { routing } from '@/i18n/routing'
 import { getAllProjects, getProjectBySlug } from '@/lib/portfolio'
+import { JsonLd } from '@/components/JsonLd'
+import { breadcrumbJsonLd, projectJsonLd, homeCrumb, portfolioCrumb } from '@/lib/jsonLd'
 
 interface Props {
   params: { locale: string; slug: string }
@@ -55,8 +57,18 @@ export default async function ProjectPage({ params }: Props) {
   const results          = isRu ? (project.resultsRu          || project.results)          : project.results
   const services         = isRu ? (project.servicesRu?.length ? project.servicesRu : project.services) : project.services
 
+  const crumbs = breadcrumbJsonLd([
+    homeCrumb(locale, isRu ? 'Главная' : 'Home'),
+    portfolioCrumb(locale, isRu ? 'Портфолио' : 'Portfolio'),
+    {
+      name: title,
+      url: `${process.env.NEXT_PUBLIC_SITE_URL ?? 'https://www.maze.uz'}${locale === 'en' ? '' : '/' + locale}/portfolio/${project.slug}`,
+    },
+  ])
+
   return (
     <article className="pt-28 min-h-screen">
+      <JsonLd data={[crumbs, projectJsonLd(project, locale)]} />
       {/* Hero */}
       <div className="px-6 md:px-10 pb-14 border-b border-maze-border">
         <div className="max-w-[1440px] mx-auto">
