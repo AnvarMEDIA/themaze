@@ -16,3 +16,13 @@ export async function getPartners(): Promise<Partner[]> {
 export async function savePartners(partners: Partner[]): Promise<void> {
   return writeStore('partners', partners)
 }
+
+export async function reorderPartners(orderedIds: string[]): Promise<void> {
+  const all = await readStore<Partner[]>('partners', [])
+  const index = new Map(orderedIds.map((id, i) => [id, i]))
+  const next = all.map((p) => {
+    const order = index.get(p.id)
+    return order === undefined ? p : { ...p, order }
+  })
+  await writeStore('partners', next)
+}

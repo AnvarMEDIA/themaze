@@ -37,9 +37,15 @@ export default async function LocaleLayout({ children, params }: Props) {
       <JsonLd id="ld-website"      data={websiteJsonLd()} />
       <SmoothScroll>
         <div className="noise">
+          <a
+            href="#main-content"
+            className="sr-only focus:not-sr-only focus:fixed focus:top-4 focus:left-4 focus:z-[100] focus:px-4 focus:py-2 focus:bg-maze-lime focus:text-maze-ink focus:font-bold focus:rounded-lg"
+          >
+            Skip to main content
+          </a>
           <CustomCursor />
           <Navbar />
-          <main>{children}</main>
+          <main id="main-content">{children}</main>
           <Footer settings={settings} />
         </div>
       </SmoothScroll>

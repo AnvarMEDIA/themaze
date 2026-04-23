@@ -25,13 +25,18 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const isRu = params.locale === 'ru'
   const title = isRu ? (project.titleRu || project.title) : project.title
   const desc  = isRu ? (project.shortDescriptionRu || project.shortDescription) : project.shortDescription
+  // Note: OG/Twitter image is auto-generated via opengraph-image.tsx co-located with this page.
   return {
     title: `${title} — ${project.client}`,
     description: desc,
     openGraph: {
       title: `${title} | MAZE Studio`,
       description: desc,
-      images: [{ url: project.coverImage }],
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title: `${title} | MAZE Studio`,
+      description: desc,
     },
   }
 }

@@ -58,3 +58,13 @@ export async function getTeam(): Promise<TeamMember[]> {
 export async function saveTeam(members: TeamMember[]): Promise<void> {
   return writeStore('team', members)
 }
+
+export async function reorderTeam(orderedIds: string[]): Promise<void> {
+  const members = await readStore<TeamMember[]>('team', DEFAULT)
+  const index = new Map(orderedIds.map((id, i) => [id, i + 1]))
+  const next = members.map((m) => {
+    const order = index.get(m.id)
+    return order === undefined ? m : { ...m, order }
+  })
+  await writeStore('team', next)
+}

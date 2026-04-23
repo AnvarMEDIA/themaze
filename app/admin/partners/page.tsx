@@ -1,10 +1,11 @@
 'use client'
 
 import { useEffect, useState, useCallback, useRef } from 'react'
+import { Reorder, useDragControls } from 'framer-motion'
 import type { Partner } from '@/lib/partners'
 import toast from 'react-hot-toast'
 
-const EMPTY: Omit<Partner, 'id'> = { name: '', logo: '', url: '', order: 99 }
+const EMPTY: Omit<Partner, 'id' | 'order'> = { name: '', logo: '', url: '' }
 
 export default function AdminPartnersPage() {
   const [partners, setPartners] = useState<Partner[]>([])
@@ -13,7 +14,9 @@ export default function AdminPartnersPage() {
   const [editing,  setEditing]  = useState<string | null>(null)
   const [saving,   setSaving]   = useState(false)
   const [uploading, setUploading] = useState(false)
+  const [savingOrder, setSavingOrder] = useState(false)
   const fileRef = useRef<HTMLInputElement>(null)
+  const saveTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
 
   const load = useCallback(async () => {
     setLoading(true)
@@ -29,6 +32,29 @@ export default function AdminPartnersPage() {
   }, [])
 
   useEffect(() => { load() }, [load])
+
+  const persistOrder = useCallback(async (ordered: Partner[]) => {
+    setSavingOrder(true)
+    try {
+      const res = await fetch('/api/partners/reorder', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ ids: ordered.map((p) => p.id) }),
+      })
+      if (!res.ok) throw new Error()
+    } catch {
+      toast.error('Reorder failed — reloading')
+      load()
+    } finally {
+      setSavingOrder(false)
+    }
+  }, [load])
+
+  const handleReorder = (next: Partner[]) => {
+    setPartners(next)
+    if (saveTimer.current) clearTimeout(saveTimer.current)
+    saveTimer.current = setTimeout(() => persistOrder(next), 400)
+  }
 
   const uploadLogo = async (file: File) => {
     setUploading(true)
@@ -52,11 +78,14 @@ export default function AdminPartnersPage() {
     e.preventDefault()
     setSaving(true)
     try {
+      const payload = { ...form, order: editing
+        ? partners.find((p) => p.id === editing)?.order ?? partners.length
+        : partners.length }
       if (editing) {
         const res = await fetch(`/api/partners/${editing}`, {
           method: 'PUT',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(form),
+          body: JSON.stringify(payload),
         })
         if (!res.ok) throw new Error()
         toast.success('Partner updated')
@@ -64,7 +93,7 @@ export default function AdminPartnersPage() {
         const res = await fetch('/api/partners', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(form),
+          body: JSON.stringify(payload),
         })
         if (!res.ok) throw new Error()
         toast.success('Partner added')
@@ -81,7 +110,7 @@ export default function AdminPartnersPage() {
 
   const handleEdit = (partner: Partner) => {
     setEditing(partner.id)
-    setForm({ name: partner.name, logo: partner.logo, url: partner.url ?? '', order: partner.order })
+    setForm({ name: partner.name, logo: partner.logo, url: partner.url ?? '' })
     window.scrollTo({ top: 0, behavior: 'smooth' })
   }
 
@@ -105,7 +134,10 @@ export default function AdminPartnersPage() {
     <div className="px-8 py-8">
       <div className="mb-8">
         <h1 className="text-2xl font-bold text-white tracking-tight">Partners & Clients</h1>
-        <p className="text-sm text-[#555] mt-1">Manage logos shown on the homepage.</p>
+        <p className="text-sm text-[#555] mt-1">
+          Manage logos shown on the homepage.
+          {savingOrder && <span className="ml-2 text-[#C8FF47]">· saving order…</span>}
+        </p>
       </div>
 
       <div className="grid grid-cols-1 xl:grid-cols-5 gap-8">
@@ -135,9 +167,11 @@ export default function AdminPartnersPage() {
 
                 <div className="flex items-center gap-3">
                   {/* Preview */}
-                  <div
-                    className="w-20 h-14 rounded-lg border border-[#252525] bg-[#111] flex items-center justify-center shrink-0 overflow-hidden cursor-pointer hover:border-[#C8FF47] transition-colors"
+                  <button
+                    type="button"
+                    className="w-20 h-14 rounded-lg border border-[#252525] bg-[#111] flex items-center justify-center shrink-0 overflow-hidden cursor-pointer hover:border-[#C8FF47] focus:outline-none focus:border-[#C8FF47] transition-colors"
                     onClick={() => fileRef.current?.click()}
+                    aria-label="Upload logo"
                     title="Click to upload logo"
                   >
                     {uploading ? (
@@ -148,7 +182,7 @@ export default function AdminPartnersPage() {
                     ) : (
                       <span className="text-[#444] text-xs text-center leading-tight px-1">Click<br/>to upload</span>
                     )}
-                  </div>
+                  </button>
 
                   <div className="flex-1 space-y-2">
                     <button
@@ -194,17 +228,6 @@ export default function AdminPartnersPage() {
                 />
               </div>
 
-              <div>
-                <label className="text-xs font-medium text-[#555] block mb-1.5">Display order</label>
-                <input
-                  type="number"
-                  min={1}
-                  value={form.order}
-                  onChange={(e) => setForm((p) => ({ ...p, order: Number(e.target.value) }))}
-                  className={inputClass}
-                />
-              </div>
-
               <div className="flex gap-3 pt-2">
                 <button
                   type="submit"
@@ -235,6 +258,10 @@ export default function AdminPartnersPage() {
               <span className="text-xs text-[#444]">{partners.length} total</span>
             </div>
 
+            <p className="px-5 py-2 text-[11px] text-[#444] border-b border-[#1E1E1E]">
+              Drag the ⋮⋮ handle to reorder. Order is applied on the homepage.
+            </p>
+
             {loading ? (
               <div className="p-4 space-y-3">
                 {[...Array(4)].map((_, i) => (
@@ -247,66 +274,116 @@ export default function AdminPartnersPage() {
                 <p className="text-xs text-[#333] mt-1">Add your first client or partner using the form.</p>
               </div>
             ) : (
-              <div>
+              <Reorder.Group
+                axis="y"
+                values={partners}
+                onReorder={handleReorder}
+                as="div"
+              >
                 {partners.map((partner, i) => (
-                  <div
+                  <PartnerRow
                     key={partner.id}
-                    className={`flex items-center gap-4 px-5 py-4 border-b border-[#1A1A1A] last:border-b-0 hover:bg-[#111] transition-colors ${
-                      editing === partner.id ? 'bg-[#111] border-l-2 border-l-[#C8FF47]' : ''
-                    }`}
-                  >
-                    <span className="text-[11px] font-mono text-[#333] w-5 text-center flex-shrink-0">
-                      {String(i + 1).padStart(2, '0')}
-                    </span>
-
-                    {/* Logo preview */}
-                    <div className="w-12 h-9 rounded-lg bg-[#1A1A1A] border border-[#252525] flex items-center justify-center flex-shrink-0 overflow-hidden">
-                      {partner.logo ? (
-                        // eslint-disable-next-line @next/next/no-img-element
-                        <img src={partner.logo} alt={partner.name} className="max-h-7 max-w-[44px] object-contain" />
-                      ) : (
-                        <span className="text-[#47C8FF] text-sm font-bold">
-                          {partner.name.charAt(0).toUpperCase()}
-                        </span>
-                      )}
-                    </div>
-
-                    <div className="flex-1 min-w-0">
-                      <p className="text-sm font-medium text-white">{partner.name}</p>
-                      {partner.url && (
-                        <a
-                          href={partner.url}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="text-xs text-[#444] hover:text-[#47C8FF] transition-colors truncate block"
-                        >
-                          {partner.url}
-                        </a>
-                      )}
-                    </div>
-
-                    <div className="flex gap-3">
-                      <button
-                        onClick={() => handleEdit(partner)}
-                        className="text-xs text-[#555] hover:text-[#C8FF47] transition-colors"
-                      >
-                        Edit
-                      </button>
-                      <button
-                        onClick={() => handleDelete(partner.id, partner.name)}
-                        className="text-xs text-[#555] hover:text-red-400 transition-colors"
-                      >
-                        Remove
-                      </button>
-                    </div>
-                  </div>
+                    partner={partner}
+                    index={i}
+                    editing={editing === partner.id}
+                    onEdit={() => handleEdit(partner)}
+                    onDelete={() => handleDelete(partner.id, partner.name)}
+                  />
                 ))}
-              </div>
+              </Reorder.Group>
             )}
           </div>
         </div>
 
       </div>
     </div>
+  )
+}
+
+function PartnerRow({
+  partner, index, editing, onEdit, onDelete,
+}: {
+  partner:  Partner
+  index:    number
+  editing:  boolean
+  onEdit:   () => void
+  onDelete: () => void
+}) {
+  const controls = useDragControls()
+
+  return (
+    <Reorder.Item
+      value={partner}
+      dragListener={false}
+      dragControls={controls}
+      as="div"
+      whileDrag={{
+        scale: 1.01,
+        boxShadow: '0 10px 40px rgba(0,0,0,0.5)',
+        zIndex: 10,
+      }}
+      transition={{ type: 'spring', stiffness: 500, damping: 40 }}
+    >
+      <div
+        className={`flex items-center gap-4 px-5 py-4 border-b border-[#1A1A1A] last:border-b-0 hover:bg-[#111] transition-colors ${
+          editing ? 'bg-[#111] border-l-2 border-l-[#C8FF47]' : ''
+        }`}
+      >
+        <button
+          type="button"
+          onPointerDown={(e) => controls.start(e)}
+          className="cursor-grab active:cursor-grabbing touch-none text-[#444] hover:text-[#C8FF47] focus:text-[#C8FF47] focus:outline-none transition-colors select-none text-lg leading-none"
+          aria-label={`Drag ${partner.name} to reorder`}
+          title="Drag to reorder"
+        >
+          ⋮⋮
+        </button>
+
+        <span className="text-[11px] font-mono text-[#333] w-5 text-center flex-shrink-0">
+          {String(index + 1).padStart(2, '0')}
+        </span>
+
+        {/* Logo preview */}
+        <div className="w-12 h-9 rounded-lg bg-[#1A1A1A] border border-[#252525] flex items-center justify-center flex-shrink-0 overflow-hidden">
+          {partner.logo ? (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img src={partner.logo} alt={partner.name} className="max-h-7 max-w-[44px] object-contain" />
+          ) : (
+            <span className="text-[#47C8FF] text-sm font-bold" aria-hidden="true">
+              {partner.name.charAt(0).toUpperCase()}
+            </span>
+          )}
+        </div>
+
+        <div className="flex-1 min-w-0">
+          <p className="text-sm font-medium text-white">{partner.name}</p>
+          {partner.url && (
+            <a
+              href={partner.url}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-xs text-[#444] hover:text-[#47C8FF] transition-colors truncate block"
+            >
+              {partner.url}
+            </a>
+          )}
+        </div>
+
+        <div className="flex gap-3">
+          <button
+            onClick={onEdit}
+            className="text-xs text-[#555] hover:text-[#C8FF47] transition-colors"
+          >
+            Edit
+          </button>
+          <button
+            onClick={onDelete}
+            className="text-xs text-[#555] hover:text-red-400 transition-colors"
+          >
+            Remove
+          </button>
+        </div>
+      </div>
+    </Reorder.Item>
   )
 }

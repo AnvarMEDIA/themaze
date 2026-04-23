@@ -368,7 +368,8 @@
       "send": "Send message",
       "sending": "Sending...",
       "success": "Message sent! We'll be in touch within 24 hours.",
-      "error": "Something went wrong. Please try again."
+      "error": "Something went wrong. Please try again.",
+      "tooMany": "Too many attempts. Please try again in a few minutes."
     }
   }
 }

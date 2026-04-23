@@ -59,9 +59,10 @@ export function FileUpload({ label, value, onChange }: Props) {
           <button
             type="button"
             onClick={() => onChange('')}
-            className="absolute top-2 right-2 w-6 h-6 rounded-full bg-red-500 text-white flex items-center justify-center text-xs hover:bg-red-600"
+            aria-label="Remove image"
+            className="absolute top-2 right-2 w-6 h-6 rounded-full bg-red-500 text-white flex items-center justify-center text-xs hover:bg-red-600 focus:outline-none focus-visible:ring-2 focus-visible:ring-white"
           >
-            ×
+            <span aria-hidden="true">×</span>
           </button>
         </div>
       )}

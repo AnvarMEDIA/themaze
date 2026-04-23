@@ -84,10 +84,10 @@ export function Navbar() {
 
             <Link
               href="/contact"
-              className="hidden lg:flex items-center gap-2 px-5 py-2.5 bg-maze-lime text-maze-ink text-sm font-semibold tracking-wide rounded-full hover:bg-maze-paper transition-colors duration-200"
+              className="hidden lg:flex items-center gap-2 px-5 py-2.5 bg-maze-lime text-maze-ink text-sm font-semibold tracking-wide rounded-full hover:bg-maze-paper transition-colors duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-maze-cream focus-visible:ring-offset-2 focus-visible:ring-offset-maze-black"
             >
               {t('startProject')}
-              <svg width="10" height="10" viewBox="0 0 10 10" fill="none">
+              <svg width="10" height="10" viewBox="0 0 10 10" fill="none" aria-hidden="true">
                 <path d="M1 9L9 1M9 1H3M9 1V7" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
               </svg>
             </Link>
@@ -95,8 +95,10 @@ export function Navbar() {
             {/* Hamburger */}
             <button
               onClick={() => setMenuOpen(!menuOpen)}
-              className="lg:hidden flex flex-col gap-1.5 p-1"
-              aria-label="Toggle menu"
+              className="lg:hidden flex flex-col gap-1.5 p-1 focus:outline-none focus-visible:ring-2 focus-visible:ring-maze-lime rounded"
+              aria-label={menuOpen ? 'Close menu' : 'Open menu'}
+              aria-expanded={menuOpen}
+              aria-controls="mobile-menu"
             >
               <motion.span
                 animate={menuOpen ? { rotate: 45, y: 6 } : { rotate: 0, y: 0 }}
@@ -130,6 +132,10 @@ export function Navbar() {
               duration: shouldReduce ? 0 : (menuOpen ? 0.55 : 0.25),
               ease: [0.32, 0.72, 0, 1], // --ease-drawer
             }}
+            id="mobile-menu"
+            role="dialog"
+            aria-modal="true"
+            aria-label="Main menu"
             className="fixed inset-0 z-40 bg-maze-dark flex flex-col justify-center px-8"
           >
             <ul className="space-y-2">

@@ -19,6 +19,8 @@ export const InquirySchema = z.object({
   service: safeString(100).optional().default(''),
   budget:  safeString(50).optional().default(''),
   message: safeString(5000).min(1, 'Message is required'),
+  // Honeypot: a bot will fill this hidden field; humans cannot see it.
+  website: z.string().max(500).optional().default(''),
 })
 
 export type InquiryInput = z.infer<typeof InquirySchema>
@@ -54,6 +56,10 @@ export const ProjectSchema = z.object({
 export const ProjectUpdateSchema = ProjectSchema.partial()
 
 export const ProjectReorderSchema = z.object({
+  ids: z.array(z.string().min(1).max(64)).max(500),
+})
+
+export const ReorderSchema = z.object({
   ids: z.array(z.string().min(1).max(64)).max(500),
 })
 
