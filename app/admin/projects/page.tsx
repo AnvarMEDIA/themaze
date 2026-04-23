@@ -6,6 +6,7 @@ import { Reorder, useDragControls } from 'framer-motion'
 import type { Project, ProjectCategory } from '@/lib/types'
 import { CATEGORY_LABELS } from '@/lib/utils'
 import toast from 'react-hot-toast'
+import { showUndoToast } from '@/components/admin/UndoToast'
 
 export default function AdminProjectsPage() {
   const [projects, setProjects] = useState<Project[]>([])
@@ -30,13 +31,19 @@ export default function AdminProjectsPage() {
   useEffect(() => { load() }, [load])
 
   const handleDelete = async (id: string, title: string) => {
-    if (!confirm(`Delete "${title}"? This cannot be undone.`)) return
     const prev = projects
     setProjects((p) => p.filter((x) => x.id !== id))
     try {
       const res = await fetch(`/api/portfolio/${id}`, { method: 'DELETE' })
       if (!res.ok) throw new Error()
-      toast.success('Project deleted')
+      showUndoToast({
+        message: `"${title}" deleted`,
+        onUndo: async () => {
+          const r = await fetch(`/api/portfolio/${id}?action=restore`, { method: 'POST' })
+          if (!r.ok) throw new Error()
+          load()
+        },
+      })
     } catch {
       setProjects(prev)
       toast.error('Delete failed')

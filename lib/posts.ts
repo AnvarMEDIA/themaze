@@ -16,6 +16,7 @@ export interface Post {
   tags:          string[]
   status:        'draft' | 'published'
   publishedAt:   string   // ISO
+  deletedAt?:    string | null
   createdAt:     string
   updatedAt:     string
 }
@@ -33,9 +34,10 @@ async function writeData(data: PostData): Promise<void> {
   return writeStore('posts', data)
 }
 
-export async function getAllPosts(): Promise<Post[]> {
+export async function getAllPosts(opts: { includeDeleted?: boolean } = {}): Promise<Post[]> {
   const { posts } = await readData()
-  return [...posts].sort(
+  const rows = opts.includeDeleted ? posts : posts.filter((p) => !p.deletedAt)
+  return [...rows].sort(
     (a, b) => new Date(b.publishedAt).getTime() - new Date(a.publishedAt).getTime(),
   )
 }
@@ -80,6 +82,26 @@ export async function deletePost(id: string): Promise<boolean> {
   if (data.posts.length === before) return false
   await writeData(data)
   return true
+}
+
+export async function softDeletePost(id: string): Promise<Post | null> {
+  const data = await readData()
+  const idx  = data.posts.findIndex((p) => p.id === id)
+  if (idx === -1) return null
+  const now = new Date().toISOString()
+  data.posts[idx] = { ...data.posts[idx], deletedAt: now, updatedAt: now }
+  await writeData(data)
+  return data.posts[idx]
+}
+
+export async function restorePost(id: string): Promise<Post | null> {
+  const data = await readData()
+  const idx  = data.posts.findIndex((p) => p.id === id)
+  if (idx === -1) return null
+  const now = new Date().toISOString()
+  data.posts[idx] = { ...data.posts[idx], deletedAt: null, updatedAt: now }
+  await writeData(data)
+  return data.posts[idx]
 }
 
 export function estimateReadTime(body: string): { minutes: number; words: number } {

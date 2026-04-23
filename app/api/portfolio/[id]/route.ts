@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { getProjectById, updateProject, deleteProject } from '@/lib/portfolio'
+import { getProjectById, updateProject, deleteProject, softDeleteProject, restoreProject } from '@/lib/portfolio'
 import { getAdminSession } from '@/lib/auth'
 import { revalidatePath } from 'next/cache'
 import { ProjectUpdateSchema } from '@/lib/validation'
@@ -36,12 +36,34 @@ export async function PATCH(req: NextRequest, { params }: Ctx) {
   }
 }
 
-export async function DELETE(_req: NextRequest, { params }: Ctx) {
+export async function DELETE(req: NextRequest, { params }: Ctx) {
   const authed = await getAdminSession()
   if (!authed) return NextResponse.json({ error: 'Unauthorised' }, { status: 401 })
 
-  const ok = await deleteProject(params.id)
-  if (!ok) return NextResponse.json({ error: 'Not found' }, { status: 404 })
+  const hard = new URL(req.url).searchParams.get('hard') === '1'
+  if (hard) {
+    const ok = await deleteProject(params.id)
+    if (!ok) return NextResponse.json({ error: 'Not found' }, { status: 404 })
+    revalidatePath('/', 'layout')
+    return NextResponse.json({ ok: true, hard: true })
+  }
+
+  const project = await softDeleteProject(params.id)
+  if (!project) return NextResponse.json({ error: 'Not found' }, { status: 404 })
   revalidatePath('/', 'layout')
-  return NextResponse.json({ ok: true })
+  return NextResponse.json({ ok: true, deletedAt: project.deletedAt })
+}
+
+export async function POST(req: NextRequest, { params }: Ctx) {
+  const authed = await getAdminSession()
+  if (!authed) return NextResponse.json({ error: 'Unauthorised' }, { status: 401 })
+
+  const action = new URL(req.url).searchParams.get('action')
+  if (action !== 'restore') {
+    return NextResponse.json({ error: 'Unknown action' }, { status: 400 })
+  }
+  const project = await restoreProject(params.id)
+  if (!project) return NextResponse.json({ error: 'Not found' }, { status: 404 })
+  revalidatePath('/', 'layout')
+  return NextResponse.json(project)
 }

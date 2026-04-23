@@ -32,6 +32,7 @@ export interface Project {
   resultsRu?: string
   sortOrder?: number
   status?: 'draft' | 'published'
+  deletedAt?: string | null
   createdAt: string
   updatedAt: string
 }

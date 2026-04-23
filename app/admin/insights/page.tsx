@@ -4,6 +4,7 @@ import { useCallback, useEffect, useState } from 'react'
 import Link from 'next/link'
 import toast from 'react-hot-toast'
 import type { Post } from '@/lib/posts'
+import { showUndoToast } from '@/components/admin/UndoToast'
 
 function fmt(iso: string) {
   return new Intl.DateTimeFormat('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }).format(new Date(iso))
@@ -29,13 +30,19 @@ export default function AdminInsightsPage() {
   useEffect(() => { load() }, [load])
 
   const handleDelete = async (id: string, title: string) => {
-    if (!confirm(`Delete "${title}"? This cannot be undone.`)) return
     const prev = posts
     setPosts((p) => p.filter((x) => x.id !== id))
     try {
       const res = await fetch(`/api/insights/${id}`, { method: 'DELETE' })
       if (!res.ok) throw new Error()
-      toast.success('Post deleted')
+      showUndoToast({
+        message: `"${title}" deleted`,
+        onUndo: async () => {
+          const r = await fetch(`/api/insights/${id}?action=restore`, { method: 'POST' })
+          if (!r.ok) throw new Error()
+          load()
+        },
+      })
     } catch {
       setPosts(prev)
       toast.error('Delete failed')

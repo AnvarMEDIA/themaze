@@ -20,9 +20,10 @@ async function writeData(data: PortfolioData): Promise<void> {
   return writeStore('portfolio', data)
 }
 
-export async function getAllProjects(): Promise<Project[]> {
+export async function getAllProjects(opts: { includeDeleted?: boolean } = {}): Promise<Project[]> {
   const data = await readData()
-  return data.projects.sort((a, b) => {
+  const rows = opts.includeDeleted ? data.projects : data.projects.filter((p) => !p.deletedAt)
+  return rows.sort((a, b) => {
     const aHas = typeof a.sortOrder === 'number'
     const bHas = typeof b.sortOrder === 'number'
     if (aHas && bHas) return a.sortOrder! - b.sortOrder!
@@ -32,10 +33,32 @@ export async function getAllProjects(): Promise<Project[]> {
   })
 }
 
-/** Public listings: hide drafts. Items without a status are treated as published. */
+/** Public listings: hide drafts and deleted. */
 export async function getPublishedProjects(): Promise<Project[]> {
   const all = await getAllProjects()
   return all.filter((p) => p.status !== 'draft')
+}
+
+/** Soft-delete: set deletedAt. Returns the project or null if not found. */
+export async function softDeleteProject(id: string): Promise<Project | null> {
+  const data = await readData()
+  const idx  = data.projects.findIndex((p) => p.id === id)
+  if (idx === -1) return null
+  const now = new Date().toISOString()
+  data.projects[idx] = { ...data.projects[idx], deletedAt: now, updatedAt: now }
+  await writeData(data)
+  return data.projects[idx]
+}
+
+/** Restore a soft-deleted project. */
+export async function restoreProject(id: string): Promise<Project | null> {
+  const data = await readData()
+  const idx  = data.projects.findIndex((p) => p.id === id)
+  if (idx === -1) return null
+  const now = new Date().toISOString()
+  data.projects[idx] = { ...data.projects[idx], deletedAt: null, updatedAt: now }
+  await writeData(data)
+  return data.projects[idx]
 }
 
 export async function reorderProjects(orderedIds: string[]): Promise<void> {
