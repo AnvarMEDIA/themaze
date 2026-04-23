@@ -15,6 +15,24 @@ export default function AdminSettingsPage() {
   const [form,    setForm]    = useState<SiteSettings>(DEFAULT)
   const [loading, setLoading] = useState(true)
   const [saving,  setSaving]  = useState(false)
+  const [backing, setBacking] = useState(false)
+
+  const runBackup = async () => {
+    setBacking(true)
+    try {
+      const res = await fetch('/api/backup', { cache: 'no-store' })
+      const data = await res.json().catch(() => ({})) as { ok?: boolean; url?: string; error?: string; reason?: string }
+      if (!res.ok || data.ok === false) {
+        toast.error(data.error ?? data.reason ?? 'Backup failed')
+        return
+      }
+      toast.success(data.url ? 'Backup saved' : 'Backup complete')
+    } catch {
+      toast.error('Backup failed')
+    } finally {
+      setBacking(false)
+    }
+  }
 
   useEffect(() => {
     fetch('/api/settings', { cache: 'no-store' })
@@ -241,6 +259,30 @@ export default function AdminSettingsPage() {
               {saving ? 'Saving…' : 'Save settings'}
             </button>
             <p className="text-xs text-[#444]">Changes apply immediately on the site.</p>
+          </div>
+
+          {/* Backups */}
+          <div className="rounded-xl bg-[#0D0D0D] border border-[#1E1E1E] overflow-hidden">
+            <div className="px-5 py-3.5 border-b border-[#1E1E1E]">
+              <h2 className="text-xs font-semibold tracking-[0.1em] uppercase text-[#555]">Backups</h2>
+            </div>
+            <div className="p-5 flex flex-col sm:flex-row sm:items-center gap-3 justify-between">
+              <div>
+                <p className="text-sm text-white">Manual snapshot</p>
+                <p className="text-xs text-[#555] mt-1">
+                  Runs daily at 03:17 UTC automatically. You can also trigger one now —
+                  stored as <code className="font-mono text-[#C8FF47]">maze-backups/YYYY-MM-DD.json</code>.
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={runBackup}
+                disabled={backing}
+                className="shrink-0 px-4 py-2 border border-[#252525] rounded-lg text-sm text-[#999] hover:text-white hover:border-[#444] transition-colors disabled:opacity-60"
+              >
+                {backing ? 'Backing up…' : 'Backup now'}
+              </button>
+            </div>
           </div>
         </form>
       )}
