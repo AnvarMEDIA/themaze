@@ -16,7 +16,11 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'No file provided' }, { status: 400 })
     }
 
-    if (!file.type.startsWith('image/')) {
+    const isIco = /\.ico$/i.test(file.name) ||
+      file.type === 'image/x-icon' ||
+      file.type === 'image/vnd.microsoft.icon'
+
+    if (!file.type.startsWith('image/') && !isIco) {
       return NextResponse.json({ error: 'Only image files are allowed' }, { status: 400 })
     }
 
@@ -27,7 +31,7 @@ export async function POST(req: NextRequest) {
     const ext      = path.extname(file.name).toLowerCase().replace(/[^.a-z0-9]/g, '')
     const baseName = `${Date.now()}-${Math.random().toString(36).slice(2, 8)}${ext}`
 
-    const ALLOWED_FOLDERS = ['portfolio', 'team', 'partners'] as const
+    const ALLOWED_FOLDERS = ['portfolio', 'team', 'partners', 'favicon'] as const
     type AllowedFolder = typeof ALLOWED_FOLDERS[number]
     const rawFolder = (formData.get('folder') as string | null) ?? 'portfolio'
     const folder: AllowedFolder = (ALLOWED_FOLDERS as readonly string[]).includes(rawFolder)

@@ -67,6 +67,10 @@ export const SettingsSchema = z.object({
   behance:       urlOrEmpty,
   linkedin:      urlOrEmpty,
   twitter:       urlOrEmpty,
+  favicon:       z.string().trim().max(500).refine(
+    (v) => v === '' || v.startsWith('https://') || v.startsWith('http://') || v.startsWith('/'),
+    { message: 'Must be a valid URL or path' }
+  ).optional().default(''),
 })
 
 export type SettingsInput = z.infer<typeof SettingsSchema>

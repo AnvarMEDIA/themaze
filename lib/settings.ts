@@ -10,12 +10,14 @@ export interface SiteSettings {
   behance:       string
   linkedin:      string
   twitter:       string
+  favicon:       string  // URL to favicon (ICO / PNG / SVG)
 }
 
 const DEFAULT: SiteSettings = {
   email: '', phone: '', telegram: '',
   address: '', addressDetail: '',
   instagram: '', behance: '', linkedin: '', twitter: '',
+  favicon: '',
 }
 
 export async function getSettings(): Promise<SiteSettings> {

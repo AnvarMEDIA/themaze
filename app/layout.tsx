@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from 'next'
 import { Manrope, Space_Mono } from 'next/font/google'
 import { ThemeProvider } from 'next-themes'
+import { getSettings } from '@/lib/settings'
 import './globals.css'
 
 const manrope = Manrope({
@@ -19,7 +20,25 @@ const spaceMono = Space_Mono({
 
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://www.maze.uz'
 
-export const metadata: Metadata = {
+export async function generateMetadata(): Promise<Metadata> {
+  const settings = await getSettings().catch(() => null)
+  const customFavicon = settings?.favicon?.trim()
+
+  const icons: Metadata['icons'] = customFavicon
+    ? { icon: customFavicon, apple: customFavicon }
+    : {
+        icon: [
+          { url: '/favicon.ico' },
+          { url: '/favicon-16x16.png', sizes: '16x16', type: 'image/png' },
+          { url: '/favicon-32x32.png', sizes: '32x32', type: 'image/png' },
+        ],
+        apple: '/apple-touch-icon.png',
+      }
+
+  return { ...baseMetadata, icons }
+}
+
+const baseMetadata: Metadata = {
   metadataBase: new URL(SITE_URL),
   title: {
     default: 'MAZE — Branding & Design Studio | Tashkent, Uzbekistan',
@@ -83,10 +102,6 @@ export const metadata: Metadata = {
     index: true,
     follow: true,
     googleBot: { index: true, follow: true, 'max-video-preview': -1, 'max-image-preview': 'large', 'max-snippet': -1 },
-  },
-  icons: {
-    icon: [{ url: '/favicon.ico' }, { url: '/favicon-16x16.png', sizes: '16x16', type: 'image/png' }, { url: '/favicon-32x32.png', sizes: '32x32', type: 'image/png' }],
-    apple: '/apple-touch-icon.png',
   },
   manifest: '/site.webmanifest',
   alternates: {
