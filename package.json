@@ -34,6 +34,7 @@
     "react-dom": "^18.3.1",
     "react-dropzone": "^14.2.3",
     "react-hot-toast": "^2.4.1",
+    "react-phone-number-input": "^3.4.16",
     "reading-time": "^1.5.0",
     "sharp": "^0.33.4",
     "tailwind-merge": "^2.4.0",

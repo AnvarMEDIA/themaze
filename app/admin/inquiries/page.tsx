@@ -287,6 +287,7 @@ export default function InquiriesPage() {
             <div className="space-y-5">
               {[
                 { label: 'Email',   value: selected.email,   href: `mailto:${selected.email}` },
+                { label: 'Phone',   value: selected.phone,   href: selected.phone ? `tel:${selected.phone}` : undefined },
                 { label: 'Company', value: selected.company  },
                 { label: 'Service', value: selected.service  },
                 { label: 'Budget',  value: selected.budget   },

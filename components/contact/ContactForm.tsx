@@ -3,6 +3,8 @@
 import { useRef, useState } from 'react'
 import { useTranslations } from 'next-intl'
 import toast from 'react-hot-toast'
+import PhoneInput, { isValidPhoneNumber } from 'react-phone-number-input'
+import flags from 'react-phone-number-input/flags'
 
 
 export function ContactForm() {
@@ -10,15 +12,22 @@ export function ContactForm() {
   const budgets = t.raw('budgets') as string[]
   const [loading, setLoading] = useState(false)
   const [form, setForm] = useState({
-    name: '', email: '', company: '', service: '', budget: '', message: '', website: '',
+    name: '', email: '', phone: '', company: '',
+    service: '', budget: '', message: '', website: '',
   })
   const mountedAt = useRef<number>(Date.now())
 
   const set = (key: string, value: string) =>
     setForm((prev) => ({ ...prev, [key]: value }))
 
+  const phoneInvalid = form.phone.length > 0 && !isValidPhoneNumber(form.phone)
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
+    if (phoneInvalid) {
+      toast.error(t('phoneInvalid'))
+      return
+    }
     setLoading(true)
     try {
       // Client-side timing check: humans take >2s to fill the form.
@@ -26,7 +35,7 @@ export function ContactForm() {
       const elapsed = Date.now() - mountedAt.current
       if (elapsed < 2000) {
         toast.success(t('success'), { duration: 5000 })
-        setForm({ name: '', email: '', company: '', service: '', budget: '', message: '', website: '' })
+        setForm({ name: '', email: '', phone: '', company: '', service: '', budget: '', message: '', website: '' })
         return
       }
 
@@ -41,7 +50,7 @@ export function ContactForm() {
       }
       if (!res.ok) throw new Error()
       toast.success(t('success'), { duration: 5000 })
-      setForm({ name: '', email: '', company: '', service: '', budget: '', message: '', website: '' })
+      setForm({ name: '', email: '', phone: '', company: '', service: '', budget: '', message: '', website: '' })
     } catch {
       toast.error(t('error'))
     } finally {
@@ -99,6 +108,42 @@ export function ContactForm() {
             placeholder={t('emailPlaceholder')}
             value={form.email}
             onChange={(e) => set('email', e.target.value)}
+            className={inputClass}
+          />
+        </div>
+      </div>
+
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <div>
+          <label htmlFor="cf-phone" className="label-sm text-maze-muted block mb-2">{t('phone')}</label>
+          <PhoneInput
+            id="cf-phone"
+            international
+            defaultCountry="UZ"
+            flags={flags}
+            value={form.phone}
+            onChange={(v) => set('phone', v ?? '')}
+            placeholder={t('phonePlaceholder')}
+            className={`maze-phone ${phoneInvalid ? 'maze-phone--invalid' : ''}`}
+            numberInputProps={{ autoComplete: 'tel' }}
+            aria-invalid={phoneInvalid || undefined}
+            aria-describedby={phoneInvalid ? 'cf-phone-error' : undefined}
+          />
+          {phoneInvalid && (
+            <p id="cf-phone-error" className="mt-1.5 text-xs text-red-400">
+              {t('phoneInvalid')}
+            </p>
+          )}
+        </div>
+        <div>
+          <label htmlFor="cf-company" className="label-sm text-maze-muted block mb-2">{t('company')}</label>
+          <input
+            id="cf-company"
+            type="text"
+            autoComplete="organization"
+            placeholder={t('companyPlaceholder')}
+            value={form.company}
+            onChange={(e) => set('company', e.target.value)}
             className={inputClass}
           />
         </div>

@@ -15,6 +15,10 @@ const urlOrEmpty = z.string().trim().max(500).refine(
 export const InquirySchema = z.object({
   name:    safeString(100).min(1, 'Name is required'),
   email:   z.string().trim().email('Invalid email').max(254),
+  phone:   z.string().trim().max(30).refine(
+    (v) => v === '' || /^\+[1-9]\d{6,14}$/.test(v),
+    { message: 'Invalid phone' },
+  ).optional().default(''),
   company: safeString(100).optional().default(''),
   service: safeString(100).optional().default(''),
   budget:  safeString(50).optional().default(''),
