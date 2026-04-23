@@ -21,7 +21,8 @@ const DEFAULT: SiteSettings = {
 }
 
 export async function getSettings(): Promise<SiteSettings> {
-  return readStore<SiteSettings>('settings', DEFAULT)
+  const stored = await readStore<Partial<SiteSettings>>('settings', DEFAULT)
+  return { ...DEFAULT, ...stored }
 }
 
 export async function saveSettings(settings: SiteSettings): Promise<void> {

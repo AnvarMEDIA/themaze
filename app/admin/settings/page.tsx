@@ -19,24 +19,33 @@ export default function AdminSettingsPage() {
   useEffect(() => {
     fetch('/api/settings', { cache: 'no-store' })
       .then((r) => r.json())
-      .then((data: SiteSettings) => setForm(data))
+      .then((data: Partial<SiteSettings>) =>
+        setForm((prev) => ({ ...prev, ...data })),
+      )
       .catch(() => toast.error('Failed to load settings'))
       .finally(() => setLoading(false))
   }, [])
+
+  const saveForm = async (next: SiteSettings, successMsg = 'Settings saved!') => {
+    const res = await fetch('/api/settings', {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(next),
+    })
+    if (!res.ok) {
+      const data = await res.json().catch(() => ({})) as { error?: string; details?: unknown }
+      throw new Error(data.error ?? 'Save failed')
+    }
+    toast.success(successMsg)
+  }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setSaving(true)
     try {
-      const res = await fetch('/api/settings', {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(form),
-      })
-      if (!res.ok) throw new Error()
-      toast.success('Settings saved!')
-    } catch {
-      toast.error('Save failed')
+      await saveForm(form)
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : 'Save failed')
     } finally {
       setSaving(false)
     }
@@ -69,16 +78,27 @@ export default function AdminSettingsPage() {
       fd.append('folder', 'favicon')
       const res = await fetch('/api/upload', { method: 'POST', body: fd })
       const data = await res.json() as { url?: string; error?: string }
-      if (res.ok && data.url) {
-        set('favicon', data.url)
-        toast.success('Favicon uploaded!')
-      } else {
+      if (!res.ok || !data.url) {
         toast.error(data.error ?? 'Upload failed')
+        return
       }
-    } catch {
-      toast.error('Upload failed')
+      const next = { ...form, favicon: data.url }
+      setForm(next)
+      await saveForm(next, 'Favicon saved!')
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : 'Upload failed')
     } finally {
       setUploadingFavicon(false)
+    }
+  }
+
+  const removeFavicon = async () => {
+    const next = { ...form, favicon: '' }
+    setForm(next)
+    try {
+      await saveForm(next, 'Favicon removed')
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : 'Remove failed')
     }
   }
 
@@ -179,7 +199,7 @@ export default function AdminSettingsPage() {
                     {form.favicon && (
                       <button
                         type="button"
-                        onClick={() => set('favicon', '')}
+                        onClick={removeFavicon}
                         className="px-4 py-2 bg-[#111] border border-[#252525] rounded-lg text-xs text-white hover:border-red-500 hover:text-red-400 transition-colors"
                       >
                         Remove

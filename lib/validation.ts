@@ -58,15 +58,15 @@ export type ProjectInput = z.infer<typeof ProjectSchema>
 /* ── Settings ────────────────────────────────────────────────────────────── */
 
 export const SettingsSchema = z.object({
-  email:         z.string().trim().email('Invalid email').max(254).or(z.literal('')),
-  phone:         safeString(30),
-  telegram:      safeString(100),
-  address:       safeString(200),
-  addressDetail: safeString(200),
-  instagram:     urlOrEmpty,
-  behance:       urlOrEmpty,
-  linkedin:      urlOrEmpty,
-  twitter:       urlOrEmpty,
+  email:         z.string().trim().email('Invalid email').max(254).or(z.literal('')).optional().default(''),
+  phone:         safeString(30).optional().default(''),
+  telegram:      safeString(100).optional().default(''),
+  address:       safeString(200).optional().default(''),
+  addressDetail: safeString(200).optional().default(''),
+  instagram:     urlOrEmpty.optional().default(''),
+  behance:       urlOrEmpty.optional().default(''),
+  linkedin:      urlOrEmpty.optional().default(''),
+  twitter:       urlOrEmpty.optional().default(''),
   favicon:       z.string().trim().max(500).refine(
     (v) => v === '' || v.startsWith('https://') || v.startsWith('http://') || v.startsWith('/'),
     { message: 'Must be a valid URL or path' }
