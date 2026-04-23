@@ -31,7 +31,7 @@ export async function POST(req: NextRequest) {
     const ext      = path.extname(file.name).toLowerCase().replace(/[^.a-z0-9]/g, '')
     const baseName = `${Date.now()}-${Math.random().toString(36).slice(2, 8)}${ext}`
 
-    const ALLOWED_FOLDERS = ['portfolio', 'team', 'partners', 'favicon'] as const
+    const ALLOWED_FOLDERS = ['portfolio', 'team', 'partners', 'favicon', 'testimonials', 'insights'] as const
     type AllowedFolder = typeof ALLOWED_FOLDERS[number]
     const rawFolder = (formData.get('folder') as string | null) ?? 'portfolio'
     const folder: AllowedFolder = (ALLOWED_FOLDERS as readonly string[]).includes(rawFolder)

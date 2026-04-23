@@ -15,10 +15,12 @@ const NAV = [
   {
     group: 'Content',
     items: [
-      { href: '/admin/projects',   label: 'Projects',   icon: IconProjects   },
-      { href: '/admin/partners',   label: 'Partners',   icon: IconPartners   },
-      { href: '/admin/team',       label: 'Team',       icon: IconTeam       },
-      { href: '/admin/inquiries',  label: 'Inquiries',  icon: IconInquiries  },
+      { href: '/admin/projects',      label: 'Projects',     icon: IconProjects    },
+      { href: '/admin/partners',      label: 'Partners',     icon: IconPartners    },
+      { href: '/admin/team',          label: 'Team',         icon: IconTeam        },
+      { href: '/admin/testimonials',  label: 'Testimonials', icon: IconInquiries   },
+      { href: '/admin/insights',      label: 'Insights',     icon: IconProjects    },
+      { href: '/admin/inquiries',     label: 'Inquiries',    icon: IconInquiries   },
     ],
   },
   {

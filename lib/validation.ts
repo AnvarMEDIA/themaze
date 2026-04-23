@@ -112,6 +112,23 @@ export const TeamMemberSchema = z.object({
 
 export const TeamSchema = z.array(TeamMemberSchema).max(20)
 
+/* ── Testimonial ─────────────────────────────────────────────────────────── */
+
+export const TestimonialSchema = z.object({
+  id:       z.string().min(1).max(64),
+  author:   safeString(100).min(1, 'Author name is required'),
+  role:     safeString(200),
+  roleRu:   safeString(200),
+  quote:    safeString(1500).min(1, 'Quote is required'),
+  quoteRu:  safeString(1500),
+  avatar:   urlOrEmpty.optional().default(''),
+  rating:   z.number().int().min(1).max(5).optional(),
+  featured: z.boolean().optional().default(false),
+  order:    z.number().int().min(0),
+})
+
+export const TestimonialsSchema = z.array(TestimonialSchema).max(50)
+
 /* ── Login ───────────────────────────────────────────────────────────────── */
 
 export const LoginSchema = z.object({

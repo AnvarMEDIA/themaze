@@ -1,6 +1,7 @@
 import type { Project } from './types'
 import type { SiteSettings } from './settings'
 import type { TeamMember } from './team'
+import type { Testimonial } from './testimonials'
 
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://www.maze.uz'
 
@@ -233,6 +234,46 @@ export function servicesJsonLd(
         areaServed: ['Uzbekistan', 'Central Asia'],
       },
     })),
+  }
+}
+
+/* ── Testimonials / Reviews ────────────────────────────────────────────── */
+
+export function testimonialsJsonLd(items: Testimonial[], locale: string) {
+  const isRu = locale === 'ru'
+  const reviews = items.map((t) => ({
+    '@type': 'Review',
+    reviewBody: isRu && t.quoteRu ? t.quoteRu : t.quote,
+    inLanguage: isRu ? 'ru' : 'en',
+    author: {
+      '@type': 'Person',
+      name: t.author,
+      jobTitle: isRu && t.roleRu ? t.roleRu : t.role,
+    },
+    itemReviewed: { '@id': ORG_ID },
+    reviewRating: t.rating
+      ? { '@type': 'Rating', ratingValue: t.rating, bestRating: 5 }
+      : undefined,
+  }))
+
+  const ratings = items.map((t) => t.rating).filter((n): n is number => typeof n === 'number')
+  const avg     = ratings.length ? ratings.reduce((a, b) => a + b, 0) / ratings.length : undefined
+
+  return {
+    '@context': CONTEXT,
+    '@type': 'Organization',
+    '@id': ORG_ID,
+    review: reviews,
+    ...(avg !== undefined
+      ? {
+          aggregateRating: {
+            '@type': 'AggregateRating',
+            ratingValue: Number(avg.toFixed(1)),
+            reviewCount: ratings.length,
+            bestRating: 5,
+          },
+        }
+      : {}),
   }
 }
 

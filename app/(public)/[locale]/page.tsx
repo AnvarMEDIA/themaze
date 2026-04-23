@@ -9,8 +9,12 @@ import { ServicesSection } from '@/components/home/ServicesSection'
 import { ProcessSection }  from '@/components/home/ProcessSection'
 import { CTASection }      from '@/components/home/CTASection'
 import { PartnersSection } from '@/components/home/PartnersSection'
+import { TestimonialsSection } from '@/components/home/TestimonialsSection'
+import { JsonLd } from '@/components/JsonLd'
+import { testimonialsJsonLd } from '@/lib/jsonLd'
 import { getPublishedProjects } from '@/lib/portfolio'
 import { getPartners } from '@/lib/partners'
+import { getTestimonials } from '@/lib/testimonials'
 import { localizedAlternates } from '@/lib/seo'
 
 interface Props {
@@ -56,22 +60,31 @@ export async function generateMetadata({ params: { locale } }: Props): Promise<M
 
 export default async function HomePage({ params: { locale } }: Props) {
   setRequestLocale(locale)
-  const [featuredProjects, partners, t] = await Promise.all([
+  const [featuredProjects, partners, testimonials, tp, tt] = await Promise.all([
     getPublishedProjects(),
     getPartners(),
+    getTestimonials(),
     getTranslations({ locale, namespace: 'partners' }),
+    getTranslations({ locale, namespace: 'testimonialsSection' }),
   ])
 
   return (
     <>
+      {testimonials.length > 0 && <JsonLd id="ld-reviews" data={testimonialsJsonLd(testimonials, locale)} />}
       <Hero />
       <Marquee />
       <FeaturedWork projects={featuredProjects} />
       <AboutSection />
       <PartnersSection
         partners={partners}
-        label={t('label')}
-        heading={t('heading')}
+        label={tp('label')}
+        heading={tp('heading')}
+      />
+      <TestimonialsSection
+        testimonials={testimonials}
+        locale={locale}
+        label={tt('label')}
+        heading={tt('heading')}
       />
       <ServicesSection />
       <ProcessSection />

@@ -371,5 +371,9 @@
       "error": "Something went wrong. Please try again.",
       "tooMany": "Too many attempts. Please try again in a few minutes."
     }
+  },
+  "testimonialsSection": {
+    "label": "What clients say",
+    "heading": "Kind words from people we've worked with."
   }
 }
