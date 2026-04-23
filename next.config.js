@@ -1,4 +1,5 @@
 const createNextIntlPlugin = require('next-intl/plugin')
+const { withSentryConfig } = require('@sentry/nextjs')
 
 const withNextIntl = createNextIntlPlugin('./i18n/request.ts')
 
@@ -37,4 +38,19 @@ const nextConfig = {
   },
 }
 
-module.exports = withNextIntl(nextConfig)
+const withIntl = withNextIntl(nextConfig)
+
+// Only wrap with Sentry when a DSN is configured — otherwise skip the
+// extra build step to keep local builds fast.
+module.exports = process.env.SENTRY_DSN || process.env.NEXT_PUBLIC_SENTRY_DSN
+  ? withSentryConfig(withIntl, {
+      // Passing the build-time auth token is optional; without it Sentry
+      // skips source-map upload but runtime error reporting still works.
+      org:             process.env.SENTRY_ORG,
+      project:         process.env.SENTRY_PROJECT,
+      authToken:       process.env.SENTRY_AUTH_TOKEN,
+      silent:          true,
+      widenClientFileUpload: true,
+      disableLogger:   true,
+    })
+  : withIntl
