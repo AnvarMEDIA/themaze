@@ -112,6 +112,9 @@ export function AdminSidebar() {
           <IconLogout size={16} />
           Logout
         </button>
+        <p className="px-3 pt-2 text-[10px] text-[#444]">
+          Press <kbd className="font-mono px-1 py-0.5 rounded bg-[#1A1A1A] border border-[#252525] text-[#C8FF47]">?</kbd> for shortcuts
+        </p>
       </div>
     </aside>
   )
