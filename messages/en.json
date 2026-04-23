@@ -390,5 +390,10 @@
     "subtitle": "Essays on brand, design, and the craft behind what we ship.",
     "empty": "New posts are on the way.",
     "back": "Back to insights"
+  },
+  "legal": {
+    "privacy":  { "title": "Privacy Policy",     "description": "How MAZE Studio collects and protects your data." },
+    "terms":    { "title": "Terms of Service",   "description": "Terms that govern the use of the MAZE Studio website." },
+    "cookies":  { "title": "Cookie Policy",      "description": "Which cookies we use and how to manage your choice." }
   }
 }

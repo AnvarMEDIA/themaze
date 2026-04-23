@@ -36,6 +36,9 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     ...localized('insights',  now, 'weekly',  0.8),
     ...localized('about',     now, 'monthly', 0.8),
     ...localized('contact',   now, 'monthly', 0.7),
+    ...localized('legal/privacy', now, 'yearly', 0.3),
+    ...localized('legal/terms',   now, 'yearly', 0.3),
+    ...localized('legal/cookies', now, 'yearly', 0.3),
   ]
 
   const projectRoutes: MetadataRoute.Sitemap = projects.flatMap((p) =>

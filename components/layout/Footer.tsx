@@ -60,6 +60,7 @@ interface Props {
 
 export function Footer({ settings }: Props) {
   const t           = useTranslations('footer')
+  const tLegal      = useTranslations('legal')
   const currentYear = new Date().getFullYear()
 
   // Work links split into 2 columns
@@ -229,6 +230,17 @@ export function Footer({ settings }: Props) {
         <p className="text-xs text-maze-muted tracking-widest">
           © {FOUNDED}–{currentYear} MAZE Studio. {t('rights')}
         </p>
+        <nav className="flex flex-wrap items-center gap-x-5 gap-y-1 text-xs text-maze-muted">
+          <Link href="/legal/privacy" className="hover:text-maze-cream transition-colors">
+            {tLegal('privacy.title')}
+          </Link>
+          <Link href="/legal/terms" className="hover:text-maze-cream transition-colors">
+            {tLegal('terms.title')}
+          </Link>
+          <Link href="/legal/cookies" className="hover:text-maze-cream transition-colors">
+            {tLegal('cookies.title')}
+          </Link>
+        </nav>
         <p className="text-xs text-maze-muted tracking-wide">
           {t('builtBy')}
         </p>
