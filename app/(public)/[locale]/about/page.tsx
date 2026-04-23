@@ -6,6 +6,7 @@ import { getTeam } from '@/lib/team'
 import Image from 'next/image'
 import { JsonLd } from '@/components/JsonLd'
 import { aboutPageJsonLd, breadcrumbJsonLd, homeCrumb } from '@/lib/jsonLd'
+import { localizedAlternates } from '@/lib/seo'
 
 interface Props {
   params: { locale: string }
@@ -16,6 +17,7 @@ export async function generateMetadata({ params: { locale } }: Props): Promise<M
   return {
     title: t('metaTitle'),
     description: t('metaDesc'),
+    alternates: localizedAlternates(locale, 'about'),
   }
 }
 

@@ -2,6 +2,8 @@ import type { Metadata, Viewport } from 'next'
 import { Manrope, Space_Mono } from 'next/font/google'
 import { ThemeProvider } from 'next-themes'
 import { unstable_noStore as noStore } from 'next/cache'
+import { Analytics } from '@vercel/analytics/react'
+import { SpeedInsights } from '@vercel/speed-insights/next'
 import { getSettings } from '@/lib/settings'
 import './globals.css'
 
@@ -157,6 +159,8 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         >
           {children}
         </ThemeProvider>
+        <Analytics />
+        <SpeedInsights />
       </body>
     </html>
   )

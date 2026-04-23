@@ -5,6 +5,7 @@ import { PortfolioGrid } from '@/components/portfolio/PortfolioGrid'
 import { getAllProjects } from '@/lib/portfolio'
 import { JsonLd } from '@/components/JsonLd'
 import { breadcrumbJsonLd, portfolioListJsonLd, homeCrumb, portfolioCrumb } from '@/lib/jsonLd'
+import { localizedAlternates } from '@/lib/seo'
 
 interface Props {
   params: { locale: string }
@@ -22,6 +23,7 @@ export async function generateMetadata({ params: { locale } }: Props): Promise<M
     title: t('heading'),
     description:
       "Explore MAZE Studio's portfolio of brand identity, UI/UX design, print, and motion design projects across Uzbekistan and Central Asia.",
+    alternates: localizedAlternates(locale, 'portfolio'),
   }
 }
 

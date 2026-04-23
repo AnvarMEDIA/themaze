@@ -5,6 +5,7 @@ import { getSettings } from '@/lib/settings'
 import { telegramHref, telegramDisplay } from '@/lib/utils'
 import { JsonLd } from '@/components/JsonLd'
 import { breadcrumbJsonLd, contactPageJsonLd, homeCrumb } from '@/lib/jsonLd'
+import { localizedAlternates } from '@/lib/seo'
 
 export const dynamic = 'force-dynamic'
 
@@ -17,6 +18,7 @@ export async function generateMetadata({ params: { locale } }: Props): Promise<M
   return {
     title: t('metaTitle'),
     description: t('metaDesc'),
+    alternates: localizedAlternates(locale, 'contact'),
   }
 }
 

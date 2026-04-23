@@ -4,6 +4,7 @@ import { routing } from '@/i18n/routing'
 import { Link } from '@/i18n/navigation'
 import { JsonLd } from '@/components/JsonLd'
 import { breadcrumbJsonLd, servicesJsonLd, homeCrumb } from '@/lib/jsonLd'
+import { localizedAlternates } from '@/lib/seo'
 
 interface Props {
   params: { locale: string }
@@ -18,6 +19,7 @@ export async function generateMetadata({ params: { locale } }: Props): Promise<M
   return {
     title: t('metaTitle'),
     description: t('metaDesc'),
+    alternates: localizedAlternates(locale, 'services'),
   }
 }
 

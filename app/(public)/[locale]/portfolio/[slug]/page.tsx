@@ -7,6 +7,7 @@ import { routing } from '@/i18n/routing'
 import { getAllProjects, getProjectBySlug } from '@/lib/portfolio'
 import { JsonLd } from '@/components/JsonLd'
 import { breadcrumbJsonLd, projectJsonLd, homeCrumb, portfolioCrumb } from '@/lib/jsonLd'
+import { localizedAlternates } from '@/lib/seo'
 
 interface Props {
   params: { locale: string; slug: string }
@@ -29,6 +30,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   return {
     title: `${title} — ${project.client}`,
     description: desc,
+    alternates: localizedAlternates(params.locale, `portfolio/${project.slug}`),
     openGraph: {
       title: `${title} | MAZE Studio`,
       description: desc,

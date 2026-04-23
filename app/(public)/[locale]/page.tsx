@@ -11,6 +11,7 @@ import { CTASection }      from '@/components/home/CTASection'
 import { PartnersSection } from '@/components/home/PartnersSection'
 import { getAllProjects } from '@/lib/portfolio'
 import { getPartners } from '@/lib/partners'
+import { localizedAlternates } from '@/lib/seo'
 
 interface Props {
   params: { locale: string }
@@ -21,8 +22,6 @@ export const dynamic = 'force-dynamic'
 export function generateStaticParams() {
   return routing.locales.map((locale) => ({ locale }))
 }
-
-const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://www.maze.uz'
 
 export async function generateMetadata({ params: { locale } }: Props): Promise<Metadata> {
   const isRu = locale === 'ru'
@@ -46,18 +45,12 @@ export async function generateMetadata({ params: { locale } }: Props): Promise<M
         'дизайн студия Ташкент',
         'MAZE Студия',
       ],
-      alternates: {
-        canonical: `${SITE_URL}/ru`,
-        languages: { 'en-US': SITE_URL, 'ru-RU': `${SITE_URL}/ru` },
-      },
+      alternates: localizedAlternates(locale),
     }
   }
 
   return {
-    alternates: {
-      canonical: SITE_URL,
-      languages: { 'en-US': SITE_URL, 'ru-RU': `${SITE_URL}/ru` },
-    },
+    alternates: localizedAlternates(locale),
   }
 }
 
