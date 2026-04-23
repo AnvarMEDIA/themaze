@@ -30,6 +30,7 @@ export interface Project {
   accentColor: string
   results?: string
   resultsRu?: string
+  sortOrder?: number
   createdAt: string
   updatedAt: string
 }

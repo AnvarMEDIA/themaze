@@ -1,7 +1,8 @@
 'use client'
 
-import { useEffect, useState, useCallback } from 'react'
+import { useEffect, useRef, useState, useCallback } from 'react'
 import Link from 'next/link'
+import { Reorder, useDragControls } from 'framer-motion'
 import type { Project, ProjectCategory } from '@/lib/types'
 import { CATEGORY_LABELS } from '@/lib/utils'
 import toast from 'react-hot-toast'
@@ -10,6 +11,8 @@ export default function AdminProjectsPage() {
   const [projects, setProjects] = useState<Project[]>([])
   const [loading,  setLoading]  = useState(true)
   const [filter,   setFilter]   = useState<string>('all')
+  const [savingOrder, setSavingOrder] = useState(false)
+  const saveTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
 
   const load = useCallback(async () => {
     try {
@@ -39,9 +42,33 @@ export default function AdminProjectsPage() {
     }
   }
 
+  const persistOrder = useCallback(async (ordered: Project[]) => {
+    setSavingOrder(true)
+    try {
+      const res = await fetch('/api/portfolio/reorder', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ ids: ordered.map((p) => p.id) }),
+      })
+      if (!res.ok) throw new Error()
+    } catch {
+      toast.error('Reorder failed — reloading')
+      load()
+    } finally {
+      setSavingOrder(false)
+    }
+  }, [load])
+
+  const handleReorder = (next: Project[]) => {
+    setProjects(next)
+    if (saveTimer.current) clearTimeout(saveTimer.current)
+    saveTimer.current = setTimeout(() => persistOrder(next), 400)
+  }
+
   const categories = Array.from(new Set(projects.flatMap((p) => p.categories)))
   const filtered = filter === 'all' ? projects : projects.filter((p) => p.categories.includes(filter as ProjectCategory))
   const featured = projects.filter((p) => p.featured).length
+  const dragEnabled = filter === 'all'
 
   return (
     <div className="px-8 py-8">
@@ -52,6 +79,7 @@ export default function AdminProjectsPage() {
           {!loading && (
             <p className="text-sm text-[#555] mt-1">
               {projects.length} total · {featured} featured
+              {savingOrder && <span className="ml-2 text-[#C8FF47]">· saving order…</span>}
             </p>
           )}
         </div>
@@ -64,7 +92,7 @@ export default function AdminProjectsPage() {
       </div>
 
       {/* Category filters */}
-      <div className="flex flex-wrap gap-2 mb-6">
+      <div className="flex flex-wrap gap-2 mb-3">
         {['all', ...categories].map((cat) => (
           <button
             key={cat}
@@ -80,10 +108,17 @@ export default function AdminProjectsPage() {
         ))}
       </div>
 
+      <p className="text-[11px] text-[#444] mb-5">
+        {dragEnabled
+          ? 'Drag the ⋮⋮ handle to reorder projects. Order is applied on the public site.'
+          : 'Switch to “All” to reorder projects.'}
+      </p>
+
       {/* Table */}
       <div className="rounded-xl border border-[#1E1E1E] overflow-hidden">
         {/* Header */}
-        <div className="hidden md:grid grid-cols-[1fr_140px_60px_90px_90px] gap-4 px-5 py-3 bg-[#0D0D0D] border-b border-[#1E1E1E]">
+        <div className="hidden md:grid grid-cols-[28px_1fr_140px_60px_90px_90px] gap-4 px-5 py-3 bg-[#0D0D0D] border-b border-[#1E1E1E]">
+          <span />
           {['Project', 'Category', 'Year', 'Featured', 'Actions'].map((h) => (
             <span key={h} className="text-[11px] font-semibold tracking-[0.1em] uppercase text-[#444]">{h}</span>
           ))}
@@ -110,48 +145,116 @@ export default function AdminProjectsPage() {
           </div>
         )}
 
-        {!loading && filtered.map((project) => (
-          <div
-            key={project.id}
-            className="flex md:grid md:grid-cols-[1fr_140px_60px_90px_90px] gap-4 items-center px-5 py-4 border-b border-[#1A1A1A] last:border-b-0 hover:bg-[#0D0D0D] transition-colors group"
+        {!loading && filtered.length > 0 && dragEnabled && (
+          <Reorder.Group
+            axis="y"
+            values={projects}
+            onReorder={handleReorder}
+            as="div"
           >
-            <div className="flex items-center gap-3 min-w-0">
-              <div className="w-1 h-9 rounded-full flex-shrink-0" style={{ background: project.accentColor ?? '#C8FF47' }} />
-              <div className="min-w-0">
-                <p className="text-sm font-semibold text-white truncate">{project.title}</p>
-                <p className="text-xs text-[#444] mt-0.5">{project.client}</p>
-              </div>
-            </div>
-            <span className="hidden md:block text-xs px-2.5 py-1 border border-[#252525] rounded-full text-[#555] whitespace-nowrap w-fit">
-              {project.categories.map((c) => CATEGORY_LABELS[c as keyof typeof CATEGORY_LABELS] ?? c).join(', ')}
-            </span>
-            <span className="hidden md:block text-xs text-[#444]">{project.year}</span>
-            <div className="hidden md:flex items-center">
-              <span className={`text-[10px] font-semibold px-2 py-0.5 rounded-full ${
-                project.featured
-                  ? 'text-[#C8FF47] bg-[#C8FF47]/10'
-                  : 'text-[#333] bg-[#1A1A1A]'
-              }`}>
-                {project.featured ? 'Yes' : 'No'}
-              </span>
-            </div>
-            <div className="flex gap-3 ml-auto md:ml-0">
-              <Link
-                href={`/admin/edit/${project.id}`}
-                className="text-xs text-[#555] hover:text-[#C8FF47] transition-colors"
-              >
-                Edit
-              </Link>
-              <button
-                onClick={() => handleDelete(project.id, project.title)}
-                className="text-xs text-[#555] hover:text-red-400 transition-colors"
-              >
-                Delete
-              </button>
-            </div>
-          </div>
+            {projects.map((project) => (
+              <ProjectRow
+                key={project.id}
+                project={project}
+                draggable
+                onDelete={handleDelete}
+              />
+            ))}
+          </Reorder.Group>
+        )}
+
+        {!loading && filtered.length > 0 && !dragEnabled && filtered.map((project) => (
+          <ProjectRow
+            key={project.id}
+            project={project}
+            draggable={false}
+            onDelete={handleDelete}
+          />
         ))}
       </div>
     </div>
+  )
+}
+
+function ProjectRow({
+  project,
+  draggable,
+  onDelete,
+}: {
+  project: Project
+  draggable: boolean
+  onDelete: (id: string, title: string) => void
+}) {
+  const controls = useDragControls()
+
+  const Inner = (
+    <div className="flex md:grid md:grid-cols-[28px_1fr_140px_60px_90px_90px] gap-4 items-center px-5 py-4 border-b border-[#1A1A1A] last:border-b-0 bg-[#080808] hover:bg-[#0D0D0D] transition-colors group">
+      {draggable ? (
+        <button
+          type="button"
+          onPointerDown={(e) => controls.start(e)}
+          className="cursor-grab active:cursor-grabbing touch-none text-[#444] hover:text-[#C8FF47] transition-colors select-none text-lg leading-none"
+          aria-label="Drag to reorder"
+          title="Drag to reorder"
+        >
+          ⋮⋮
+        </button>
+      ) : (
+        <span className="hidden md:block" />
+      )}
+      <div className="flex items-center gap-3 min-w-0">
+        <div className="w-1 h-9 rounded-full flex-shrink-0" style={{ background: project.accentColor ?? '#C8FF47' }} />
+        <div className="min-w-0">
+          <p className="text-sm font-semibold text-white truncate">{project.title}</p>
+          <p className="text-xs text-[#444] mt-0.5">{project.client}</p>
+        </div>
+      </div>
+      <span className="hidden md:block text-xs px-2.5 py-1 border border-[#252525] rounded-full text-[#555] whitespace-nowrap w-fit">
+        {project.categories.map((c) => CATEGORY_LABELS[c as keyof typeof CATEGORY_LABELS] ?? c).join(', ')}
+      </span>
+      <span className="hidden md:block text-xs text-[#444]">{project.year}</span>
+      <div className="hidden md:flex items-center">
+        <span className={`text-[10px] font-semibold px-2 py-0.5 rounded-full ${
+          project.featured
+            ? 'text-[#C8FF47] bg-[#C8FF47]/10'
+            : 'text-[#333] bg-[#1A1A1A]'
+        }`}>
+          {project.featured ? 'Yes' : 'No'}
+        </span>
+      </div>
+      <div className="flex gap-3 ml-auto md:ml-0">
+        <Link
+          href={`/admin/edit/${project.id}`}
+          className="text-xs text-[#555] hover:text-[#C8FF47] transition-colors"
+        >
+          Edit
+        </Link>
+        <button
+          onClick={() => onDelete(project.id, project.title)}
+          className="text-xs text-[#555] hover:text-red-400 transition-colors"
+        >
+          Delete
+        </button>
+      </div>
+    </div>
+  )
+
+  if (!draggable) return Inner
+
+  return (
+    <Reorder.Item
+      value={project}
+      dragListener={false}
+      dragControls={controls}
+      as="div"
+      whileDrag={{
+        scale: 1.01,
+        boxShadow: '0 10px 40px rgba(0,0,0,0.5)',
+        zIndex: 10,
+      }}
+      transition={{ type: 'spring', stiffness: 500, damping: 40 }}
+    >
+      {Inner}
+    </Reorder.Item>
   )
 }

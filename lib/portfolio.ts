@@ -22,9 +22,26 @@ async function writeData(data: PortfolioData): Promise<void> {
 
 export async function getAllProjects(): Promise<Project[]> {
   const data = await readData()
-  return data.projects.sort(
-    (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
-  )
+  return data.projects.sort((a, b) => {
+    const aHas = typeof a.sortOrder === 'number'
+    const bHas = typeof b.sortOrder === 'number'
+    if (aHas && bHas) return a.sortOrder! - b.sortOrder!
+    if (aHas) return -1
+    if (bHas) return 1
+    return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+  })
+}
+
+export async function reorderProjects(orderedIds: string[]): Promise<void> {
+  const data = await readData()
+  const index = new Map(orderedIds.map((id, i) => [id, i]))
+  const now = new Date().toISOString()
+  data.projects = data.projects.map((p) => {
+    const next = index.get(p.id)
+    if (next === undefined || next === p.sortOrder) return p
+    return { ...p, sortOrder: next, updatedAt: now }
+  })
+  await writeData(data)
 }
 
 export async function getFeaturedProjects(): Promise<Project[]> {

@@ -53,6 +53,10 @@ export const ProjectSchema = z.object({
 
 export const ProjectUpdateSchema = ProjectSchema.partial()
 
+export const ProjectReorderSchema = z.object({
+  ids: z.array(z.string().min(1).max(64)).max(500),
+})
+
 export type ProjectInput = z.infer<typeof ProjectSchema>
 
 /* ── Settings ────────────────────────────────────────────────────────────── */

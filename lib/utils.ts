@@ -18,13 +18,15 @@ export function formatYear(year: number): string {
 }
 
 export const CATEGORY_LABELS: Record<string, string> = {
-  branding:  'Branding',
-  identity:  'Identity',
-  naming:    'Naming',
-  'ui-ux':   'UI/UX',
-  print:     'Print',
-  motion:    'Motion',
-  strategy:  'Strategy',
+  branding:   'Branding',
+  rebranding: 'Rebranding',
+  identity:   'Identity',
+  naming:     'Naming',
+  packaging:  'Packaging',
+  'ui-ux':    'UI/UX',
+  print:      'Print',
+  motion:     'Motion',
+  strategy:   'Strategy',
 }
 
 export function telegramHref(val: string): string {
