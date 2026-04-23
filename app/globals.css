@@ -379,6 +379,95 @@ html.lenis, html.lenis body {
   overscroll-behavior: contain;
 }
 
+/* ─── MDX Article (insights posts) ───────────────────────────────────── */
+.prose-mdx {
+  font-size: 1.0625rem;
+  line-height: 1.8;
+}
+.prose-mdx > * + * {
+  margin-top: 1.25em;
+}
+.prose-mdx h1 {
+  font-size: clamp(2rem, 3.5vw, 2.75rem);
+  font-weight: 800;
+  line-height: 1.1;
+  letter-spacing: -0.02em;
+  margin-top: 1.8em;
+  color: rgb(var(--text));
+}
+.prose-mdx h2 {
+  font-size: clamp(1.5rem, 2.5vw, 2rem);
+  font-weight: 700;
+  line-height: 1.2;
+  margin-top: 1.8em;
+  color: rgb(var(--text));
+}
+.prose-mdx h3 {
+  font-size: 1.25rem;
+  font-weight: 600;
+  margin-top: 1.6em;
+  color: rgb(var(--text));
+}
+.prose-mdx p, .prose-mdx li {
+  color: rgb(var(--text) / 0.82);
+}
+.prose-mdx strong { color: rgb(var(--text)); }
+.prose-mdx em     { font-style: italic; }
+.prose-mdx a {
+  color: rgb(var(--lime));
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  text-decoration-color: rgb(var(--lime) / 0.4);
+  transition: text-decoration-color 200ms var(--ease-out);
+}
+.prose-mdx a:hover { text-decoration-color: rgb(var(--lime)); }
+.prose-mdx ul, .prose-mdx ol {
+  padding-left: 1.5em;
+}
+.prose-mdx ul { list-style: disc; }
+.prose-mdx ol { list-style: decimal; }
+.prose-mdx li::marker { color: rgb(var(--lime)); }
+.prose-mdx blockquote {
+  border-left: 3px solid rgb(var(--lime));
+  padding-left: 1.25em;
+  margin: 1.5em 0;
+  font-style: italic;
+  color: rgb(var(--text));
+}
+.prose-mdx code {
+  font-family: var(--font-mono), ui-monospace, monospace;
+  font-size: 0.88em;
+  background: rgb(var(--gray) / 0.5);
+  padding: 0.15em 0.4em;
+  border-radius: 4px;
+  color: rgb(var(--lime));
+}
+.prose-mdx pre {
+  background: rgb(var(--gray) / 0.3);
+  border: 1px solid rgb(var(--border));
+  border-radius: 12px;
+  padding: 1.25em;
+  overflow-x: auto;
+  font-size: 0.88em;
+  line-height: 1.6;
+}
+.prose-mdx pre code {
+  background: transparent;
+  padding: 0;
+  color: rgb(var(--text));
+}
+.prose-mdx hr {
+  border: 0;
+  border-top: 1px solid rgb(var(--border));
+  margin: 2.5em 0;
+}
+.prose-mdx img {
+  border-radius: 16px;
+  margin: 2em 0;
+  width: 100%;
+  height: auto;
+}
+
 /* ─── Marquee ────────────────────────────────────────────────────────── */
 .marquee-track {
   display: flex;

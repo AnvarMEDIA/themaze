@@ -277,6 +277,55 @@ export function testimonialsJsonLd(items: Testimonial[], locale: string) {
   }
 }
 
+/* ── Blog / Insights ───────────────────────────────────────────────────── */
+
+export function blogJsonLd(locale: string) {
+  return {
+    '@context': CONTEXT,
+    '@type': 'Blog',
+    url: localePath(locale, '/insights'),
+    name: 'MAZE Studio — Insights',
+    inLanguage: locale,
+    publisher: { '@id': ORG_ID },
+  }
+}
+
+export function postJsonLd(
+  post: {
+    slug: string
+    title: string
+    titleRu?: string
+    excerpt: string
+    excerptRu?: string
+    coverImage: string
+    author: string
+    publishedAt: string
+    updatedAt: string
+    tags: string[]
+  },
+  locale: string,
+) {
+  const isRu    = locale === 'ru'
+  const title   = isRu ? (post.titleRu || post.title) : post.title
+  const excerpt = isRu ? (post.excerptRu || post.excerpt) : post.excerpt
+  const url     = localePath(locale, `/insights/${post.slug}`)
+  return {
+    '@context': CONTEXT,
+    '@type': 'BlogPosting',
+    '@id': `${url}#post`,
+    mainEntityOfPage: url,
+    headline: title,
+    description: excerpt || undefined,
+    image: post.coverImage || undefined,
+    datePublished: post.publishedAt,
+    dateModified: post.updatedAt,
+    inLanguage: locale,
+    author: { '@type': 'Person', name: post.author || 'MAZE Studio' },
+    publisher: { '@id': ORG_ID },
+    keywords: post.tags.join(', ') || undefined,
+  }
+}
+
 /* ── Breadcrumb helpers ────────────────────────────────────────────────── */
 
 export function homeCrumb(locale: string, label: string) {
@@ -284,4 +333,7 @@ export function homeCrumb(locale: string, label: string) {
 }
 export function portfolioCrumb(locale: string, label: string) {
   return { name: label, url: localePath(locale, '/portfolio') }
+}
+export function insightsCrumb(locale: string, label: string) {
+  return { name: label, url: localePath(locale, '/insights') }
 }

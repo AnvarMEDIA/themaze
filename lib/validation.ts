@@ -129,6 +129,25 @@ export const TestimonialSchema = z.object({
 
 export const TestimonialsSchema = z.array(TestimonialSchema).max(50)
 
+/* ── Post / Insights ────────────────────────────────────────────────────── */
+
+export const PostSchema = z.object({
+  slug:        safeString(200).regex(/^[a-z0-9-]+$/, 'Slug must be lowercase letters, numbers, hyphens'),
+  title:       safeString(200).min(1, 'Title is required'),
+  titleRu:     safeString(200).optional().default(''),
+  excerpt:     safeString(500).optional().default(''),
+  excerptRu:   safeString(500).optional().default(''),
+  body:        safeString(50000).optional().default(''),
+  bodyRu:      safeString(50000).optional().default(''),
+  coverImage:  urlOrEmpty.optional().default(''),
+  author:      safeString(100).optional().default('MAZE Studio'),
+  tags:        z.array(safeString(50)).max(20).optional().default([]),
+  status:      z.enum(['draft', 'published']).optional().default('draft'),
+  publishedAt: z.string().datetime().optional().default(() => new Date().toISOString()),
+})
+
+export const PostUpdateSchema = PostSchema.partial()
+
 /* ── Login ───────────────────────────────────────────────────────────────── */
 
 export const LoginSchema = z.object({

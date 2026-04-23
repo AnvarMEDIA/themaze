@@ -1,5 +1,6 @@
 import { MetadataRoute } from 'next'
 import { getPublishedProjects } from '@/lib/portfolio'
+import { getPublishedPosts } from '@/lib/posts'
 import { SITE_URL, localeHref } from '@/lib/seo'
 
 type Entry = MetadataRoute.Sitemap[number]
@@ -25,13 +26,14 @@ function localized(
 }
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const projects = await getPublishedProjects()
+  const [projects, posts] = await Promise.all([getPublishedProjects(), getPublishedPosts()])
   const now = new Date()
 
   const staticRoutes: MetadataRoute.Sitemap = [
     ...localized('',          now, 'weekly',  1.0),
     ...localized('portfolio', now, 'weekly',  0.9),
     ...localized('services',  now, 'monthly', 0.8),
+    ...localized('insights',  now, 'weekly',  0.8),
     ...localized('about',     now, 'monthly', 0.8),
     ...localized('contact',   now, 'monthly', 0.7),
   ]
@@ -39,7 +41,11 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const projectRoutes: MetadataRoute.Sitemap = projects.flatMap((p) =>
     localized(`portfolio/${p.slug}`, new Date(p.updatedAt), 'monthly', 0.7),
   )
+  const postRoutes: MetadataRoute.Sitemap = posts.flatMap((p) =>
+    localized(`insights/${p.slug}`, new Date(p.updatedAt), 'monthly', 0.7),
+  )
 
-  // Use the pre-computed SITE_URL check if present
-  return SITE_URL ? [...staticRoutes, ...projectRoutes] : [...staticRoutes, ...projectRoutes]
+  return SITE_URL
+    ? [...staticRoutes, ...projectRoutes, ...postRoutes]
+    : [...staticRoutes, ...projectRoutes, ...postRoutes]
 }

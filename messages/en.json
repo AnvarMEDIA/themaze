@@ -2,6 +2,7 @@
   "nav": {
     "work": "Work",
     "services": "Services",
+    "insights": "Insights",
     "about": "About",
     "contact": "Contact",
     "startProject": "Start a project",
@@ -375,5 +376,14 @@
   "testimonialsSection": {
     "label": "What clients say",
     "heading": "Kind words from people we've worked with."
+  },
+  "insights": {
+    "metaTitle": "Insights — MAZE Studio",
+    "metaDesc": "Essays and case studies on branding, design systems, and creative strategy from MAZE Studio.",
+    "label": "Insights",
+    "heading": "Notes from the studio.",
+    "subtitle": "Essays on brand, design, and the craft behind what we ship.",
+    "empty": "New posts are on the way.",
+    "back": "Back to insights"
   }
 }
