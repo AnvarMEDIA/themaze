@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from 'next'
 import { Manrope, Space_Mono } from 'next/font/google'
 import { ThemeProvider } from 'next-themes'
+import { unstable_noStore as noStore } from 'next/cache'
 import { getSettings } from '@/lib/settings'
 import './globals.css'
 
@@ -21,11 +22,21 @@ const spaceMono = Space_Mono({
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://www.maze.uz'
 
 export async function generateMetadata(): Promise<Metadata> {
+  noStore()
   const settings = await getSettings().catch(() => null)
   const customFavicon = settings?.favicon?.trim()
 
+  // Cache-bust using the uploaded filename so browsers refetch when the admin
+  // replaces the favicon. Fallback to Date.now() for external URLs.
+  const version = customFavicon
+    ? customFavicon.split('/').pop()?.split('?')[0] ?? Date.now()
+    : null
+
   const icons: Metadata['icons'] = customFavicon
-    ? { icon: customFavicon, apple: customFavicon }
+    ? {
+        icon:  [{ url: `/api/favicon?v=${version}`, type: 'image/x-icon' }],
+        apple: `/api/favicon?v=${version}`,
+      }
     : {
         icon: [
           { url: '/favicon.ico' },
