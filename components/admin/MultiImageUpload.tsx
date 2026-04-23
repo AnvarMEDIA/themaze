@@ -4,6 +4,7 @@ import { useCallback, useState } from 'react'
 import { useDropzone }           from 'react-dropzone'
 import Image                     from 'next/image'
 import toast                     from 'react-hot-toast'
+import { compressImage }         from '@/lib/compressImage'
 
 interface Props {
   label: string
@@ -19,12 +20,13 @@ export function MultiImageUpload({ label, values, onChange }: Props) {
       if (!acceptedFiles.length) return
       setUploading(true)
       const results = await Promise.allSettled(
-        acceptedFiles.map(async (file) => {
+        acceptedFiles.map(async (original) => {
+          const file = await compressImage(original)
           const formData = new FormData()
           formData.append('file', file)
           const res  = await fetch('/api/upload', { method: 'POST', body: formData })
           const data = await res.json() as { url?: string; error?: string }
-          if (!res.ok || !data.url) throw new Error(data.error ?? `Failed: ${file.name}`)
+          if (!res.ok || !data.url) throw new Error(data.error ?? `Failed: ${original.name}`)
           return data.url
         })
       )

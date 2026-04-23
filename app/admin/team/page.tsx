@@ -4,6 +4,7 @@ import { useEffect, useRef, useState, useCallback } from 'react'
 import { Reorder, useDragControls } from 'framer-motion'
 import toast from 'react-hot-toast'
 import type { TeamMember } from '@/lib/team'
+import { compressImage } from '@/lib/compressImage'
 
 const EMPTY_MEMBER = (): TeamMember => ({
   id:     crypto.randomUUID(),
@@ -73,9 +74,10 @@ export default function AdminTeamPage() {
     saveTimer.current = setTimeout(() => persistOrder(next), 400)
   }
 
-  const uploadPhoto = async (id: string, file: File) => {
+  const uploadPhoto = async (id: string, original: File) => {
     setUploading(id)
     try {
+      const file = await compressImage(original)
       const fd = new FormData()
       fd.append('file', file)
       fd.append('folder', 'team')

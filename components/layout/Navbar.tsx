@@ -178,12 +178,16 @@ export function Navbar() {
 
 function MazeLogo() {
   return (
-    // eslint-disable-next-line @next/next/no-img-element
-    <img
-      src="https://1jorjbbfajvf5rug.public.blob.vercel-storage.com/maze_logo.svg"
-      alt="MAZE Studio"
-      height={56}
-      style={{ height: '56px', width: 'auto', filter: 'brightness(0) invert(1)' }}
-    />
+    <div className="relative h-14 w-[140px]" style={{ filter: 'brightness(0) invert(1)' }}>
+      {/* SVG is served as-is (unoptimized) to avoid rasterisation of a vector. */}
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      <img
+        src="https://1jorjbbfajvf5rug.public.blob.vercel-storage.com/maze_logo.svg"
+        alt="MAZE Studio"
+        className="h-full w-auto object-contain"
+        loading="eager"
+        decoding="async"
+      />
+    </div>
   )
 }

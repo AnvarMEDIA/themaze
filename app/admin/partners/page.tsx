@@ -4,6 +4,7 @@ import { useEffect, useState, useCallback, useRef } from 'react'
 import { Reorder, useDragControls } from 'framer-motion'
 import type { Partner } from '@/lib/partners'
 import toast from 'react-hot-toast'
+import { compressImage } from '@/lib/compressImage'
 
 const EMPTY: Omit<Partner, 'id' | 'order'> = { name: '', logo: '', url: '' }
 
@@ -56,9 +57,10 @@ export default function AdminPartnersPage() {
     saveTimer.current = setTimeout(() => persistOrder(next), 400)
   }
 
-  const uploadLogo = async (file: File) => {
+  const uploadLogo = async (original: File) => {
     setUploading(true)
     try {
+      const file = await compressImage(original)
       const fd = new FormData()
       fd.append('file', file)
       fd.append('folder', 'partners')
