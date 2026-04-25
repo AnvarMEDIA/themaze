@@ -58,7 +58,7 @@ export function AdminSidebar() {
           <img
             src="https://1jorjbbfajvf5rug.public.blob.vercel-storage.com/maze_logo.svg"
             alt="MAZE Studio"
-            style={{ height: '24px', width: 'auto' }}
+            style={{ height: '24px', width: 'auto', filter: 'brightness(0) invert(1)' }}
           />
           <span className="text-[10px] font-semibold tracking-[0.15em] uppercase text-[#C8FF47] bg-[#C8FF47]/10 px-2 py-0.5 rounded-full">
             Admin
