@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from 'react'
 import type { SiteSettings } from '@/lib/settings'
 import toast from 'react-hot-toast'
+import { MfaSection } from '@/components/admin/MfaSection'
 
 const DEFAULT: SiteSettings = {
   email: '', phone: '', telegram: '',
@@ -260,6 +261,9 @@ export default function AdminSettingsPage() {
             </button>
             <p className="text-xs text-[#444]">Changes apply immediately on the site.</p>
           </div>
+
+          {/* MFA */}
+          <MfaSection />
 
           {/* Backups */}
           <div className="rounded-xl bg-[#0D0D0D] border border-[#1E1E1E] overflow-hidden">

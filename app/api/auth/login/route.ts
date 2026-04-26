@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { signToken, checkPassword, COOKIE_NAME, COOKIE_MAX_AGE } from '@/lib/auth'
 import { rateLimitAsync } from '@/lib/rateLimit'
 import { LoginSchema } from '@/lib/validation'
+import { getAuthConfig, verifyTotp } from '@/lib/mfa'
 
 export async function POST(req: NextRequest) {
   // Rate limit: 5 attempts per 15 minutes per IP
@@ -30,7 +31,7 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Invalid request' }, { status: 400 })
     }
 
-    const { password } = parsed.data
+    const { password, totp } = parsed.data
 
     if (!checkPassword(password)) {
       console.warn(`[auth] Failed login attempt from IP ${ip}`)
@@ -38,7 +39,22 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Incorrect password' }, { status: 401 })
     }
 
-    console.info(`[auth] Successful login from IP ${ip}`)
+    // MFA second factor — only if the admin has enrolled.
+    const cfg = await getAuthConfig()
+    if (cfg.mfaSecret) {
+      if (!totp) {
+        return NextResponse.json(
+          { error: 'mfa_required', mfa: true },
+          { status: 401 },
+        )
+      }
+      if (!(await verifyTotp(totp, cfg.mfaSecret))) {
+        console.warn(`[auth] Failed MFA challenge from IP ${ip}`)
+        return NextResponse.json({ error: 'Invalid code' }, { status: 401 })
+      }
+    }
+
+    console.info(`[auth] Successful login from IP ${ip}${cfg.mfaSecret ? ' (with MFA)' : ''}`)
     const token = await signToken({ role: 'admin' })
 
     const response = NextResponse.json({ ok: true })

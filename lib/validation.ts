@@ -156,4 +156,10 @@ export const PostUpdateSchema = PostSchema.partial()
 
 export const LoginSchema = z.object({
   password: z.string().min(1, 'Password required').max(200),
+  totp:     z.string().trim().regex(/^\d{6}$/, 'TOTP must be 6 digits').optional(),
+})
+
+export const MfaVerifySchema = z.object({
+  secret: z.string().trim().min(16).max(128),
+  code:   z.string().trim().regex(/^\d{6}$/, 'TOTP must be 6 digits'),
 })
