@@ -400,7 +400,7 @@
   "cookieBanner": {
     "label": "Privacy",
     "title": "We use cookies",
-    "body": "We use Yandex Metrika and Vercel Analytics to understand how the site is used. None of this runs without your consent.",
+    "body": "We use cookies to understand how the site is used and to improve your experience. Nothing is loaded without your consent.",
     "learnMore": "Read more",
     "accept": "Accept all",
     "reject": "Reject"
