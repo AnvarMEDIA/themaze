@@ -394,6 +394,15 @@
   "legal": {
     "privacy":  { "title": "Политика конфиденциальности", "description": "Как MAZE Studio собирает и защищает ваши данные." },
     "terms":    { "title": "Условия использования",       "description": "Правила использования сайта MAZE Studio." },
-    "cookies":  { "title": "Cookie-политика",             "description": "Какие cookie мы используем и как управлять согласием." }
+    "cookies":  { "title": "Cookie-политика",             "description": "Какие cookie мы используем и как управлять согласием." },
+    "cookieSettings": "Настройки cookie"
+  },
+  "cookieBanner": {
+    "label": "Приватность",
+    "title": "Мы используем cookies",
+    "body": "Мы используем Yandex Metrika и Vercel Analytics, чтобы понимать, как используют сайт. Ничего не запустится без вашего согласия.",
+    "learnMore": "Подробнее",
+    "accept": "Принять",
+    "reject": "Отклонить"
   }
 }

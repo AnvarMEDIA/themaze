@@ -4,6 +4,7 @@ import { useTranslations } from 'next-intl'
 import { Link } from '@/i18n/navigation'
 import type { SiteSettings } from '@/lib/settings'
 import { telegramHref, telegramDisplay } from '@/lib/utils'
+import { resetConsent } from '@/lib/consent'
 
 const LOGO    = 'https://1jorjbbfajvf5rug.public.blob.vercel-storage.com/maze_logo.svg'
 const FOUNDED = 2019
@@ -240,6 +241,13 @@ export function Footer({ settings }: Props) {
           <Link href="/legal/cookies" className="hover:text-maze-cream transition-colors">
             {tLegal('cookies.title')}
           </Link>
+          <button
+            type="button"
+            onClick={() => resetConsent()}
+            className="hover:text-maze-cream transition-colors text-left"
+          >
+            {tLegal('cookieSettings')}
+          </button>
         </nav>
         <p className="text-xs text-maze-muted tracking-wide">
           {t('builtBy')}

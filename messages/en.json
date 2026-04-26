@@ -394,6 +394,15 @@
   "legal": {
     "privacy":  { "title": "Privacy Policy",     "description": "How MAZE Studio collects and protects your data." },
     "terms":    { "title": "Terms of Service",   "description": "Terms that govern the use of the MAZE Studio website." },
-    "cookies":  { "title": "Cookie Policy",      "description": "Which cookies we use and how to manage your choice." }
+    "cookies":  { "title": "Cookie Policy",      "description": "Which cookies we use and how to manage your choice." },
+    "cookieSettings": "Cookie settings"
+  },
+  "cookieBanner": {
+    "label": "Privacy",
+    "title": "We use cookies",
+    "body": "We use Yandex Metrika and Vercel Analytics to understand how the site is used. None of this runs without your consent.",
+    "learnMore": "Read more",
+    "accept": "Accept all",
+    "reject": "Reject"
   }
 }

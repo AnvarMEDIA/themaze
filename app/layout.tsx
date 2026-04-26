@@ -2,8 +2,6 @@ import type { Metadata, Viewport } from 'next'
 import { Manrope, Space_Mono } from 'next/font/google'
 import { ThemeProvider } from 'next-themes'
 import { unstable_noStore as noStore } from 'next/cache'
-import { Analytics } from '@vercel/analytics/react'
-import { SpeedInsights } from '@vercel/speed-insights/next'
 import { getSettings } from '@/lib/settings'
 import './globals.css'
 
@@ -137,30 +135,6 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       suppressHydrationWarning
       className={`${manrope.variable} ${spaceMono.variable}`}
     >
-      <head>
-        {/* Yandex.Metrika counter */}
-        <script
-          type="text/javascript"
-          dangerouslySetInnerHTML={{
-            __html: `
-    (function(m,e,t,r,i,k,a){
-        m[i]=m[i]||function(){(m[i].a=m[i].a||[]).push(arguments)};
-        m[i].l=1*new Date();
-        for (var j = 0; j < document.scripts.length; j++) {if (document.scripts[j].src === r) { return; }}
-        k=e.createElement(t),a=e.getElementsByTagName(t)[0],k.async=1,k.src=r,a.parentNode.insertBefore(k,a)
-    })(window, document,'script','https://mc.yandex.ru/metrika/tag.js', 'ym');
-
-    ym(57206437, 'init', {webvisor:true, clickmap:true, referrer: document.referrer, url: location.href, accurateTrackBounce:true, trackLinks:true});
-`,
-          }}
-        />
-        <noscript>
-          <div>
-            <img src="https://mc.yandex.ru/watch/57206437" style={{ position: 'absolute', left: '-9999px' }} alt="" />
-          </div>
-        </noscript>
-        {/* /Yandex.Metrika counter */}
-      </head>
       <body>
         <ThemeProvider
           attribute="class"
@@ -170,8 +144,8 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         >
           {children}
         </ThemeProvider>
-        <Analytics />
-        <SpeedInsights />
+        {/* Analytics & Yandex.Metrika are loaded by <Analytics /> in
+            app/(public)/[locale]/layout.tsx — only after consent. */}
       </body>
     </html>
   )

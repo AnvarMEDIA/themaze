@@ -7,6 +7,8 @@ import { Footer }       from '@/components/layout/Footer'
 import { CustomCursor } from '@/components/layout/CustomCursor'
 import { SmoothScroll } from '@/components/layout/SmoothScroll'
 import { JsonLd }       from '@/components/JsonLd'
+import { Analytics }    from '@/components/Analytics'
+import { CookieBanner } from '@/components/CookieBanner'
 import { Toaster }      from 'react-hot-toast'
 import { getSettings }  from '@/lib/settings'
 import { organizationJsonLd, websiteJsonLd } from '@/lib/jsonLd'
@@ -49,6 +51,8 @@ export default async function LocaleLayout({ children, params }: Props) {
           <Footer settings={settings} />
         </div>
       </SmoothScroll>
+      <CookieBanner />
+      <Analytics />
       <Toaster
         position="bottom-right"
         toastOptions={{
