@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { signToken, checkPassword, COOKIE_NAME } from '@/lib/auth'
+import { signToken, checkPassword, COOKIE_NAME, COOKIE_MAX_AGE } from '@/lib/auth'
 import { rateLimitAsync } from '@/lib/rateLimit'
 import { LoginSchema } from '@/lib/validation'
 
@@ -46,14 +46,14 @@ export async function POST(req: NextRequest) {
       httpOnly: true,
       secure:   process.env.NODE_ENV === 'production',
       sameSite: 'strict',
-      maxAge:   60 * 60 * 24 * 7, // 7 days
+      maxAge:   COOKIE_MAX_AGE,           // matches JWT expiry (8h)
       path:     '/',
     })
 
     return response
   } catch (err) {
-    const msg = err instanceof Error ? err.message : 'Unknown error'
-    console.error('[auth] Login error:', msg)
-    return NextResponse.json({ error: msg }, { status: 500 })
+    // Log the real error server-side; never leak it to the client.
+    console.error('[auth] Login error:', err instanceof Error ? err.message : err)
+    return NextResponse.json({ error: 'Server error' }, { status: 500 })
   }
 }

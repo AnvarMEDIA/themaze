@@ -14,19 +14,29 @@ function getSecret(): Uint8Array {
 }
 
 export const COOKIE_NAME = 'maze_admin_token'
-const EXPIRES_IN         = '8h'     // Short-lived admin sessions
+const EXPIRES_IN         = '8h'                 // Short-lived admin sessions
+export const COOKIE_MAX_AGE = 60 * 60 * 8       // Match JWT expiry — 8 hours
+const ISSUER             = 'maze.uz/admin'      // Pinned to this app
+const AUDIENCE           = 'maze.uz/admin-ui'   // Pinned to the admin UI
 
 export async function signToken(payload: Record<string, unknown>): Promise<string> {
   return new SignJWT(payload)
     .setProtectedHeader({ alg: 'HS256' })
     .setIssuedAt()
+    .setIssuer(ISSUER)
+    .setAudience(AUDIENCE)
+    .setSubject('admin')
     .setExpirationTime(EXPIRES_IN)
     .sign(getSecret())
 }
 
 export async function verifyToken(token: string): Promise<boolean> {
   try {
-    await jwtVerify(token, getSecret())
+    await jwtVerify(token, getSecret(), {
+      algorithms: ['HS256'],
+      issuer:     ISSUER,
+      audience:   AUDIENCE,
+    })
     return true
   } catch {
     return false

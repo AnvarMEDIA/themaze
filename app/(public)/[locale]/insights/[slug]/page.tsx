@@ -4,7 +4,7 @@ import { notFound } from 'next/navigation'
 import Image from 'next/image'
 import { Link } from '@/i18n/navigation'
 import { routing } from '@/i18n/routing'
-import { MDXRemote } from 'next-mdx-remote/rsc'
+import { SafeMDX } from '@/components/SafeMDX'
 import { getPostBySlug, getPublishedPosts, estimateReadTime } from '@/lib/posts'
 import { getAdminSession } from '@/lib/auth'
 import { JsonLd } from '@/components/JsonLd'
@@ -136,7 +136,7 @@ export default async function InsightPage({ params }: Props) {
             // minimal, readable defaults — actual styles below
           }}
         >
-          <MDXRemote source={body} />
+          <SafeMDX source={body} />
         </div>
       </div>
     </article>

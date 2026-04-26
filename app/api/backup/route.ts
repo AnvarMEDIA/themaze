@@ -1,6 +1,14 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { timingSafeEqual } from 'node:crypto'
 import { getAdminSession } from '@/lib/auth'
 import { readStore } from '@/lib/store'
+
+function safeEqual(a: string, b: string): boolean {
+  const ab = Buffer.from(a)
+  const bb = Buffer.from(b)
+  if (ab.length !== bb.length) return false
+  return timingSafeEqual(ab, bb)
+}
 
 export const dynamic = 'force-dynamic'
 export const maxDuration = 60
@@ -27,11 +35,13 @@ const KNOWN_KEYS = [
 ] as const
 
 export async function GET(req: NextRequest) {
-  // Authorisation: either Vercel Cron bearer or admin session
+  // Authorisation: either Vercel Cron bearer or admin session.
+  // Constant-time compare prevents timing-based brute force on CRON_SECRET.
   const cronSecret = process.env.CRON_SECRET
-  const bearer    = req.headers.get('authorization')
-  const fromCron  = cronSecret && bearer === `Bearer ${cronSecret}`
-  const session   = await getAdminSession().catch(() => false)
+  const bearer     = req.headers.get('authorization') ?? ''
+  const presented  = bearer.startsWith('Bearer ') ? bearer.slice(7) : ''
+  const fromCron   = !!cronSecret && presented.length > 0 && safeEqual(presented, cronSecret)
+  const session    = await getAdminSession().catch(() => false)
   if (!fromCron && !session) {
     return NextResponse.json({ error: 'Unauthorised' }, { status: 401 })
   }

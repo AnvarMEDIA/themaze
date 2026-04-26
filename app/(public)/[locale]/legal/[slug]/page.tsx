@@ -2,7 +2,7 @@ import type { Metadata } from 'next'
 import { setRequestLocale, getTranslations } from 'next-intl/server'
 import { notFound } from 'next/navigation'
 import { routing } from '@/i18n/routing'
-import { MDXRemote } from 'next-mdx-remote/rsc'
+import { SafeMDX } from '@/components/SafeMDX'
 import fs from 'node:fs/promises'
 import path from 'node:path'
 import { Link } from '@/i18n/navigation'
@@ -92,7 +92,7 @@ export default async function LegalPage({ params }: Props) {
 
       <div className="px-6 md:px-10 py-16">
         <div className="prose-mdx max-w-3xl mx-auto text-maze-cream">
-          <MDXRemote source={source} />
+          <SafeMDX source={source} />
         </div>
       </div>
     </article>

@@ -3,10 +3,22 @@ const { withSentryConfig } = require('@sentry/nextjs')
 
 const withNextIntl = createNextIntlPlugin('./i18n/request.ts')
 
+const isProd = process.env.NODE_ENV === 'production'
+
+// Build the script-src dynamically so we can drop 'unsafe-eval' in prod.
+// Next.js requires eval in dev for Fast Refresh, but not in production.
+const scriptSrc = [
+  "'self'",
+  "'unsafe-inline'",
+  ...(isProd ? [] : ["'unsafe-eval'"]),
+  'https://va.vercel-scripts.com',
+  'https://mc.yandex.ru',
+  'https://mc.yandex.com',
+].join(' ')
+
 const CSP = [
   "default-src 'self'",
-  // unsafe-eval required by Next.js dev; Vercel Analytics + Yandex Metrika need their hosts.
-  "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://va.vercel-scripts.com https://mc.yandex.ru https://mc.yandex.com",
+  `script-src ${scriptSrc}`,
   "style-src 'self' 'unsafe-inline'",
   "img-src 'self' data: blob: https://*.vercel-storage.com https://images.unsplash.com https://mc.yandex.ru https://mc.yandex.com",
   "font-src 'self'",
@@ -14,6 +26,10 @@ const CSP = [
   "frame-ancestors 'none'",
   "form-action 'self'",
   "base-uri 'self'",
+  "object-src 'none'",
+  "worker-src 'self' blob:",
+  "manifest-src 'self'",
+  ...(isProd ? ['upgrade-insecure-requests'] : []),
 ].join('; ')
 
 /** @type {import('next').NextConfig} */

@@ -43,9 +43,14 @@ export async function GET() {
       return new NextResponse(buf, { headers })
     }
 
-    // Local path under /public
+    // Local path under /public — defend against ../ path traversal by
+    // resolving the absolute path and verifying it stays inside /public.
     if (url.startsWith('/')) {
-      const file = path.join(process.cwd(), 'public', url.replace(/^\/+/, ''))
+      const root = path.resolve(process.cwd(), 'public')
+      const file = path.resolve(root, url.replace(/^\/+/, ''))
+      if (!file.startsWith(root + path.sep) && file !== root) {
+        return NextResponse.json({ error: 'Invalid path' }, { status: 400 })
+      }
       if (!fs.existsSync(file)) return NextResponse.json({ error: 'Not found' }, { status: 404 })
       const buf = fs.readFileSync(file)
       return new NextResponse(buf, { headers })
