@@ -12,17 +12,21 @@ const scriptSrc = [
   "'unsafe-inline'",
   ...(isProd ? [] : ["'unsafe-eval'"]),
   'https://va.vercel-scripts.com',
+  // Yandex Metrika + Webvisor (tag.js, recorder, static assets)
   'https://mc.yandex.ru',
   'https://mc.yandex.com',
+  'https://yastatic.net',
 ].join(' ')
 
 const CSP = [
   "default-src 'self'",
   `script-src ${scriptSrc}`,
   "style-src 'self' 'unsafe-inline'",
-  "img-src 'self' data: blob: https://*.vercel-storage.com https://images.unsplash.com https://mc.yandex.ru https://mc.yandex.com",
+  "img-src 'self' data: blob: https://*.vercel-storage.com https://images.unsplash.com https://mc.yandex.ru https://mc.yandex.com https://yastatic.net",
   "font-src 'self'",
-  "connect-src 'self' https://vitals.vercel-insights.com https://va.vercel-scripts.com https://mc.yandex.ru https://mc.yandex.com",
+  "connect-src 'self' https://vitals.vercel-insights.com https://va.vercel-scripts.com https://mc.yandex.ru https://mc.yandex.com https://yastatic.net",
+  // Yandex Metrika injects a hidden iframe for cross-domain ID sync.
+  "frame-src 'self' https://mc.yandex.ru https://mc.yandex.com",
   "frame-ancestors 'none'",
   "form-action 'self'",
   "base-uri 'self'",
