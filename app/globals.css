@@ -88,19 +88,22 @@ body {
 /* ─── Cursor ─────────────────────────────────────────────────────────── */
 /* Only hide the native cursor where the custom cursor actually runs (fine pointer, hover-capable). */
 @media (hover: hover) and (pointer: fine) {
-  * { cursor: none !important; }
+  /* Hide the native cursor everywhere EXCEPT portfolio pages.
+     CustomCursor adds `native-cursor` to <html> on /portfolio routes;
+     scoping the rule with :not() means no cursor declarations apply
+     there at all, so the browser's standard behaviour resumes:
+     links inherit pointer to their children, text shows a caret, etc. */
+  html:not(.native-cursor) * { cursor: none !important; }
 
-  /* Portfolio pages opt out of the custom cursor — CustomCursor adds
-     `native-cursor` to <html>. Restore the system cursor: `auto` lets
-     the browser pick per element (text caret over inputs, etc.), and
-     interactive elements get an explicit pointer. */
-  html.native-cursor,
-  html.native-cursor * { cursor: auto !important; }
+  /* Browsers don't set `pointer` on <button> by default — add it (and
+     a few other clickable elements) so portfolio pages still feel
+     right. No !important needed: the `none` rule no longer matches. */
   html.native-cursor a,
   html.native-cursor button,
   html.native-cursor summary,
+  html.native-cursor label[for],
   html.native-cursor [role="button"],
-  html.native-cursor [data-cursor] { cursor: pointer !important; }
+  html.native-cursor [data-cursor] { cursor: pointer; }
 }
 
 /* ─── Keyboard focus: visible ring for all interactive elements ──────── */
