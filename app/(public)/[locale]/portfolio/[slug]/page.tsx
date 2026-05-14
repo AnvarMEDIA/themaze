@@ -5,6 +5,7 @@ import Image from 'next/image'
 import { Link } from '@/i18n/navigation'
 import { routing } from '@/i18n/routing'
 import { getProjectBySlug, getPublishedProjects } from '@/lib/portfolio'
+import { ProjectGallery } from '@/components/portfolio/ProjectGallery'
 import { JsonLd } from '@/components/JsonLd'
 import { breadcrumbJsonLd, projectJsonLd, homeCrumb, portfolioCrumb } from '@/lib/jsonLd'
 import { localizedAlternates } from '@/lib/seo'
@@ -190,25 +191,12 @@ export default async function ProjectPage({ params }: Props) {
           </div>
         </div>
 
-        {/* Gallery */}
-        {project.images.length > 0 && (
-          <div className="max-w-[1440px] mx-auto mt-20">
-            <h3 className="heading-md text-maze-cream mb-8">{t('gallery')}</h3>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {project.images.map((img, i) => (
-                <div key={i} className="relative aspect-[4/3] rounded-xl overflow-hidden bg-maze-gray">
-                  <Image
-                    src={img}
-                    alt={`${project.title} — image ${i + 1}`}
-                    fill
-                    sizes="(max-width: 768px) 100vw, 50vw"
-                    className="object-cover"
-                  />
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
+        {/* Gallery — fullscreen lightbox slider */}
+        <ProjectGallery
+          images={project.images}
+          title={project.title}
+          heading={t('gallery')}
+        />
 
         {/* Related */}
         {related.length > 0 && (

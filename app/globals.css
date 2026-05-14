@@ -89,6 +89,18 @@ body {
 /* Only hide the native cursor where the custom cursor actually runs (fine pointer, hover-capable). */
 @media (hover: hover) and (pointer: fine) {
   * { cursor: none !important; }
+
+  /* Portfolio pages opt out of the custom cursor — CustomCursor adds
+     `native-cursor` to <html>. Restore the system cursor: `auto` lets
+     the browser pick per element (text caret over inputs, etc.), and
+     interactive elements get an explicit pointer. */
+  html.native-cursor,
+  html.native-cursor * { cursor: auto !important; }
+  html.native-cursor a,
+  html.native-cursor button,
+  html.native-cursor summary,
+  html.native-cursor [role="button"],
+  html.native-cursor [data-cursor] { cursor: pointer !important; }
 }
 
 /* ─── Keyboard focus: visible ring for all interactive elements ──────── */
