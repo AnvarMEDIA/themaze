@@ -107,10 +107,12 @@ export default async function ProjectPage({ params }: Props) {
             </div>
 
             <div className="grid grid-cols-2 sm:grid-cols-3 gap-6 lg:items-end">
-              <div>
-                <p className="label-sm text-maze-muted mb-1">{t('year')}</p>
-                <p className="font-semibold text-maze-cream">{project.year}</p>
-              </div>
+              {project.showYear !== false && (
+                <div>
+                  <p className="label-sm text-maze-muted mb-1">{t('year')}</p>
+                  <p className="font-semibold text-maze-cream">{project.year}</p>
+                </div>
+              )}
               <div>
                 <p className="label-sm text-maze-muted mb-1">{t('category')}</p>
                 <p className="font-semibold text-maze-cream">

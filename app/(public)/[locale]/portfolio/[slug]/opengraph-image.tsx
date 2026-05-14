@@ -171,7 +171,7 @@ export default async function Image({ params }: Props) {
               {isRu ? 'ПРОЕКТ · MAZE.UZ' : 'CASE STUDY · MAZE.UZ'}
             </span>
           </div>
-          {project?.year && (
+          {project?.year && project.showYear !== false && (
             <span style={{ fontSize: 18, color: '#5A5A5A', letterSpacing: 4 }}>
               {project.year}
             </span>

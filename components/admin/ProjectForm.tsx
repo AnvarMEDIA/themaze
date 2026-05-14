@@ -32,6 +32,7 @@ const EMPTY: FormState = {
   featured: false, accentColor: '#C8FF47',
   results: '', resultsRu: '',
   status: 'published',
+  showYear: true,
 }
 
 interface Props {
@@ -212,7 +213,27 @@ export function ProjectForm({ project }: Props) {
             </div>
           </div>
           <div>
-            <label className={labelEn}>Year *</label>
+            <div className="flex items-center justify-between mb-2">
+              <label className={labelEn + ' mb-0'}>Year *</label>
+              <button
+                type="button"
+                role="switch"
+                aria-checked={form.showYear !== false}
+                onClick={() => set('showYear', !(form.showYear !== false))}
+                title={form.showYear !== false ? 'Year is shown on the site' : 'Year is hidden on the site'}
+                className={[
+                  'relative inline-flex h-5 w-9 items-center rounded-full transition-colors',
+                  form.showYear !== false ? 'bg-maze-lime' : 'bg-maze-border',
+                ].join(' ')}
+              >
+                <span
+                  className={[
+                    'inline-block h-3.5 w-3.5 rounded-full bg-maze-ink transition-transform',
+                    form.showYear !== false ? 'translate-x-[18px]' : 'translate-x-[3px]',
+                  ].join(' ')}
+                />
+              </button>
+            </div>
             <input
               required
               type="number"
@@ -222,6 +243,11 @@ export function ProjectForm({ project }: Props) {
               onChange={(e) => set('year', parseInt(e.target.value))}
               className={input}
             />
+            <p className="text-[11px] text-maze-muted mt-1.5">
+              {form.showYear !== false
+                ? 'Year is visible on the public site'
+                : 'Year is hidden on the public site'}
+            </p>
           </div>
           <div>
             <label className={labelEn}>Accent Colour</label>

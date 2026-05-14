@@ -42,6 +42,7 @@ export const ProjectSchema = z.object({
   client:               safeString(200).min(1, 'Client is required'),
   categories:           z.array(z.enum(VALID_CATEGORIES)).min(1, 'Select at least one category'),
   year:                 z.number().int().min(2000).max(new Date().getFullYear() + 1),
+  showYear:             z.boolean().optional().default(true),
   description:          safeString(5000).optional().default(''),
   descriptionRu:        safeString(5000).optional().default(''),
   shortDescription:     safeString(500).optional().default(''),

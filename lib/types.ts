@@ -17,6 +17,8 @@ export interface Project {
   client: string
   categories: ProjectCategory[]
   year: number
+  /** Show the year on the public site. Undefined is treated as true. */
+  showYear?: boolean
   description: string
   descriptionRu?: string
   shortDescription: string
