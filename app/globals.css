@@ -88,12 +88,13 @@ body {
 /* ─── Cursor ─────────────────────────────────────────────────────────── */
 /* Only hide the native cursor where the custom cursor actually runs (fine pointer, hover-capable). */
 @media (hover: hover) and (pointer: fine) {
-  /* Hide the native cursor everywhere EXCEPT portfolio pages.
-     CustomCursor adds `native-cursor` to <html> on /portfolio routes;
-     scoping the rule with :not() means no cursor declarations apply
-     there at all, so the browser's standard behaviour resumes:
-     links inherit pointer to their children, text shows a caret, etc. */
-  html:not(.native-cursor) * { cursor: none !important; }
+  /* The custom cursor only runs inside the public layout, whose root
+     element carries the `.noise` class. Scoping the rule there means:
+       - admin panel (no .noise wrapper) keeps the native cursor;
+       - portfolio pages opt out via `native-cursor` on <html>, so the
+         :not() makes the rule stop matching and standard browser
+         behaviour resumes (links propagate pointer to children, etc.). */
+  html:not(.native-cursor) .noise * { cursor: none !important; }
 
   /* Browsers don't set `pointer` on <button> by default — add it (and
      a few other clickable elements) so portfolio pages still feel
