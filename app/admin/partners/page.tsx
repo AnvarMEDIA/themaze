@@ -78,6 +78,9 @@ export default function AdminPartnersPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
+    // Drop any debounced reorder still queued — the create/update below
+    // changes the list, and load() will pull the authoritative order.
+    if (saveTimer.current) { clearTimeout(saveTimer.current); saveTimer.current = null }
     setSaving(true)
     try {
       const payload = { ...form, order: editing
@@ -102,7 +105,7 @@ export default function AdminPartnersPage() {
       }
       setForm(EMPTY)
       setEditing(null)
-      load()
+      await load()
     } catch {
       toast.error('Save failed')
     } finally {
@@ -118,6 +121,8 @@ export default function AdminPartnersPage() {
 
   const handleDelete = async (id: string, name: string) => {
     if (!confirm(`Remove "${name}" from partners?`)) return
+    // Cancel any queued reorder so it can't re-apply a stale list.
+    if (saveTimer.current) { clearTimeout(saveTimer.current); saveTimer.current = null }
     const prev = partners
     setPartners((p) => p.filter((x) => x.id !== id))
     try {

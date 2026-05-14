@@ -1,7 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { getPartners, savePartners } from '@/lib/partners'
+import { updatePartner, deletePartner } from '@/lib/partners'
 import { getAdminSession } from '@/lib/auth'
 import { PartnerSchema } from '@/lib/validation'
+import { revalidatePath } from 'next/cache'
+
+export const dynamic = 'force-dynamic'
 
 export async function PUT(req: NextRequest, { params }: { params: { id: string } }) {
   const authed = await getAdminSession()
@@ -12,13 +15,12 @@ export async function PUT(req: NextRequest, { params }: { params: { id: string }
     if (!parsed.success) {
       return NextResponse.json({ error: 'Invalid data', details: parsed.error.flatten() }, { status: 400 })
     }
-    const partners = await getPartners()
-    const idx      = partners.findIndex((p) => p.id === params.id)
-    if (idx === -1) return NextResponse.json({ error: 'Not found' }, { status: 404 })
-    partners[idx] = { ...partners[idx], ...parsed.data }
-    await savePartners(partners)
-    return NextResponse.json(partners[idx])
-  } catch {
+    const updated = await updatePartner(params.id, parsed.data)
+    if (!updated) return NextResponse.json({ error: 'Not found' }, { status: 404 })
+    revalidatePath('/', 'layout')
+    return NextResponse.json(updated)
+  } catch (err) {
+    console.error('[partners PUT]', err)
     return NextResponse.json({ error: 'Failed to update partner' }, { status: 500 })
   }
 }
@@ -28,14 +30,12 @@ export async function DELETE(_req: NextRequest, { params }: { params: { id: stri
   if (!authed) return NextResponse.json({ error: 'Unauthorised' }, { status: 401 })
 
   try {
-    const partners = await getPartners()
-    const filtered = partners.filter((p) => p.id !== params.id)
-    if (filtered.length === partners.length) {
-      return NextResponse.json({ error: 'Not found' }, { status: 404 })
-    }
-    await savePartners(filtered)
+    const removed = await deletePartner(params.id)
+    if (!removed) return NextResponse.json({ error: 'Not found' }, { status: 404 })
+    revalidatePath('/', 'layout')
     return NextResponse.json({ success: true })
-  } catch {
+  } catch (err) {
+    console.error('[partners DELETE]', err)
     return NextResponse.json({ error: 'Failed to delete partner' }, { status: 500 })
   }
 }
