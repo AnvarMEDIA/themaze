@@ -33,32 +33,46 @@ export default function AdminProjectsPage() {
 
   useEffect(() => { load() }, [load])
 
-  // Pull pageview stats once on mount — used to populate the "Views"
-  // and "Week" columns. A failure here must not break the table.
+  // Pull pageview stats — used to populate the "Views" and "Week"
+  // columns. A failure here must not break the table.
+  const [refreshingViews, setRefreshingViews] = useState(false)
+  const loadViews = useCallback(async () => {
+    try {
+      const res  = await fetch('/api/analytics', { cache: 'no-store' })
+      if (!res.ok) return
+      const data = await res.json() as { daily?: Record<string, Record<string, number>> }
+      if (!data?.daily) return
+      const weekStart = new Date(Date.now() - 6 * 86_400_000).toISOString().slice(0, 10)
+      const next: Record<string, Views> = {}
+      for (const [path, byDate] of Object.entries(data.daily)) {
+        if (!path.startsWith('/portfolio/')) continue
+        const slug = path.slice('/portfolio/'.length)
+        let total = 0, week = 0
+        for (const [d, c] of Object.entries(byDate)) {
+          total += c
+          if (d >= weekStart) week += c
+        }
+        next[slug] = { total, week }
+      }
+      setViews(next)
+    } catch {
+      /* swallow */
+    }
+  }, [])
+
   useEffect(() => {
     let cancelled = false
-    fetch('/api/analytics', { cache: 'no-store' })
-      .then((r) => (r.ok ? r.json() : null))
-      .then((data: { daily?: Record<string, Record<string, number>> } | null) => {
-        if (cancelled || !data?.daily) return
-        const todayMs   = Date.now()
-        const weekStart = new Date(todayMs - 6 * 86_400_000).toISOString().slice(0, 10)
-        const next: Record<string, Views> = {}
-        for (const [path, byDate] of Object.entries(data.daily)) {
-          if (!path.startsWith('/portfolio/')) continue
-          const slug = path.slice('/portfolio/'.length)
-          let total = 0, week = 0
-          for (const [d, c] of Object.entries(byDate)) {
-            total += c
-            if (d >= weekStart) week += c
-          }
-          next[slug] = { total, week }
-        }
-        setViews(next)
-      })
-      .catch(() => {})
+    void (async () => {
+      await loadViews()
+      if (cancelled) setViews({})
+    })()
     return () => { cancelled = true }
-  }, [])
+  }, [loadViews])
+
+  const refreshViews = async () => {
+    setRefreshingViews(true)
+    try { await loadViews() } finally { setRefreshingViews(false) }
+  }
 
   const handleDelete = async (id: string, title: string) => {
     const prev = projects
@@ -181,11 +195,24 @@ export default function AdminProjectsPage() {
         </div>
       </div>
 
-      <p className="text-[11px] text-[#444] mb-5">
-        {dragEnabled
-          ? 'Drag the ⋮⋮ handle to reorder projects. Order is applied on the public site.'
-          : 'Clear search and switch to "All" to reorder projects.'}
-      </p>
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 mb-5">
+        <p className="text-[11px] text-[#444]">
+          {dragEnabled
+            ? 'Drag the ⋮⋮ handle to reorder projects. Order is applied on the public site.'
+            : 'Clear search and switch to "All" to reorder projects.'}
+          <span className="ml-2 text-[#333]">·</span>
+          <span className="ml-2">Admin self-views are excluded from the Views column.</span>
+        </p>
+        <button
+          type="button"
+          onClick={refreshViews}
+          disabled={refreshingViews}
+          aria-label="Refresh view counts"
+          className="self-start sm:self-auto text-[11px] px-2.5 py-1 rounded-full border border-[#252525] text-[#888] hover:text-white hover:border-[#444] transition-colors disabled:opacity-50"
+        >
+          {refreshingViews ? '↻ Refreshing…' : '↻ Refresh views'}
+        </button>
+      </div>
 
       {/* Table */}
       <div className="rounded-xl border border-[#1E1E1E] overflow-hidden">
