@@ -146,11 +146,6 @@ export default async function ProjectPage({ params }: Props) {
             className="object-cover"
           />
         )}
-        <div className="absolute inset-0 flex items-center justify-center">
-          <span className="text-[20vw] font-black opacity-5" style={{ color: project.accentColor }}>
-            {project.title.slice(0, 2)}
-          </span>
-        </div>
       </div>
 
       {/* Content */}
