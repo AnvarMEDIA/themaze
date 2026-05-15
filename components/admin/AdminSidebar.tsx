@@ -9,7 +9,8 @@ const NAV = [
   {
     group: 'Overview',
     items: [
-      { href: '/admin',           label: 'Dashboard',  icon: IconDashboard },
+      { href: '/admin',        label: 'Dashboard',  icon: IconDashboard },
+      { href: '/admin/stats',  label: 'Statistics', icon: IconStats     },
     ],
   },
   {
@@ -129,6 +130,16 @@ function IconDashboard({ size = 16 }: { size?: number }) {
       <rect x="9" y="1" width="6" height="6" rx="1.5" fill="currentColor" opacity=".5"/>
       <rect x="1" y="9" width="6" height="6" rx="1.5" fill="currentColor" opacity=".5"/>
       <rect x="9" y="9" width="6" height="6" rx="1.5" fill="currentColor" opacity=".8"/>
+    </svg>
+  )
+}
+
+function IconStats({ size = 16 }: { size?: number }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 16 16" fill="none">
+      <rect x="2"  y="9"  width="2.5" height="5" rx="0.5" fill="currentColor" opacity=".6"/>
+      <rect x="6.75" y="6" width="2.5" height="8" rx="0.5" fill="currentColor" opacity=".8"/>
+      <rect x="11.5" y="3" width="2.5" height="11" rx="0.5" fill="currentColor"/>
     </svg>
   )
 }

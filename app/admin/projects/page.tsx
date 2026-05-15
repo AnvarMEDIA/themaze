@@ -8,8 +8,11 @@ import { CATEGORY_LABELS } from '@/lib/utils'
 import toast from 'react-hot-toast'
 import { showUndoToast } from '@/components/admin/UndoToast'
 
+type Views = { total: number; week: number }
+
 export default function AdminProjectsPage() {
   const [projects, setProjects] = useState<Project[]>([])
+  const [views,    setViews]    = useState<Record<string, Views>>({})
   const [loading,  setLoading]  = useState(true)
   const [filter,   setFilter]   = useState<string>('all')
   const [query,    setQuery]    = useState('')
@@ -29,6 +32,33 @@ export default function AdminProjectsPage() {
   }, [])
 
   useEffect(() => { load() }, [load])
+
+  // Pull pageview stats once on mount — used to populate the "Views"
+  // and "Week" columns. A failure here must not break the table.
+  useEffect(() => {
+    let cancelled = false
+    fetch('/api/analytics', { cache: 'no-store' })
+      .then((r) => (r.ok ? r.json() : null))
+      .then((data: { daily?: Record<string, Record<string, number>> } | null) => {
+        if (cancelled || !data?.daily) return
+        const todayMs   = Date.now()
+        const weekStart = new Date(todayMs - 6 * 86_400_000).toISOString().slice(0, 10)
+        const next: Record<string, Views> = {}
+        for (const [path, byDate] of Object.entries(data.daily)) {
+          if (!path.startsWith('/portfolio/')) continue
+          const slug = path.slice('/portfolio/'.length)
+          let total = 0, week = 0
+          for (const [d, c] of Object.entries(byDate)) {
+            total += c
+            if (d >= weekStart) week += c
+          }
+          next[slug] = { total, week }
+        }
+        setViews(next)
+      })
+      .catch(() => {})
+    return () => { cancelled = true }
+  }, [])
 
   const handleDelete = async (id: string, title: string) => {
     const prev = projects
@@ -160,9 +190,9 @@ export default function AdminProjectsPage() {
       {/* Table */}
       <div className="rounded-xl border border-[#1E1E1E] overflow-hidden">
         {/* Header */}
-        <div className="hidden md:grid grid-cols-[28px_1fr_140px_60px_90px_90px] gap-4 px-5 py-3 bg-[#0D0D0D] border-b border-[#1E1E1E]">
+        <div className="hidden md:grid grid-cols-[28px_1fr_130px_56px_70px_90px_120px] gap-4 px-5 py-3 bg-[#0D0D0D] border-b border-[#1E1E1E]">
           <span />
-          {['Project', 'Category', 'Year', 'Featured', 'Actions'].map((h) => (
+          {['Project', 'Category', 'Year', 'Featured', 'Views', 'Actions'].map((h) => (
             <span key={h} className="text-[11px] font-semibold tracking-[0.1em] uppercase text-[#444]">{h}</span>
           ))}
         </div>
@@ -200,6 +230,7 @@ export default function AdminProjectsPage() {
                 key={project.id}
                 project={project}
                 draggable
+                views={views[project.slug]}
                 onDelete={handleDelete}
               />
             ))}
@@ -211,6 +242,7 @@ export default function AdminProjectsPage() {
             key={project.id}
             project={project}
             draggable={false}
+            views={views[project.slug]}
             onDelete={handleDelete}
           />
         ))}
@@ -235,16 +267,20 @@ export default function AdminProjectsPage() {
 function ProjectRow({
   project,
   draggable,
+  views,
   onDelete,
 }: {
   project: Project
   draggable: boolean
+  views?: Views
   onDelete: (id: string, title: string) => void
 }) {
   const controls = useDragControls()
+  const total = views?.total ?? 0
+  const week  = views?.week  ?? 0
 
   const Inner = (
-    <div className="flex md:grid md:grid-cols-[28px_1fr_140px_60px_90px_90px] gap-4 items-center px-5 py-4 border-b border-[#1A1A1A] last:border-b-0 bg-[#080808] hover:bg-[#0D0D0D] transition-colors group">
+    <div className="flex md:grid md:grid-cols-[28px_1fr_130px_56px_70px_90px_120px] gap-4 items-center px-5 py-4 border-b border-[#1A1A1A] last:border-b-0 bg-[#080808] hover:bg-[#0D0D0D] transition-colors group">
       {draggable ? (
         <button
           type="button"
@@ -284,6 +320,10 @@ function ProjectRow({
         }`}>
           {project.featured ? 'Yes' : 'No'}
         </span>
+      </div>
+      <div className="hidden md:block text-xs tabular-nums" title="All time · last 7 days">
+        <p className="text-white font-semibold leading-tight">{total.toLocaleString('en-US')}</p>
+        <p className="text-[10px] text-[#555] mt-0.5">{week} / week</p>
       </div>
       <div className="flex gap-3 ml-auto md:ml-0">
         <a

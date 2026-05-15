@@ -6,10 +6,11 @@ import { Navbar }       from '@/components/layout/Navbar'
 import { Footer }       from '@/components/layout/Footer'
 import { CustomCursor } from '@/components/layout/CustomCursor'
 import { SmoothScroll } from '@/components/layout/SmoothScroll'
-import { JsonLd }       from '@/components/JsonLd'
-import { Analytics }    from '@/components/Analytics'
-import { CookieBanner } from '@/components/CookieBanner'
-import { Toaster }      from 'react-hot-toast'
+import { JsonLd }            from '@/components/JsonLd'
+import { Analytics }         from '@/components/Analytics'
+import { CookieBanner }      from '@/components/CookieBanner'
+import { PageviewTracker }   from '@/components/PageviewTracker'
+import { Toaster }           from 'react-hot-toast'
 import { getSettings }  from '@/lib/settings'
 import { organizationJsonLd, websiteJsonLd } from '@/lib/jsonLd'
 
@@ -53,6 +54,7 @@ export default async function LocaleLayout({ children, params }: Props) {
       </SmoothScroll>
       <CookieBanner />
       <Analytics />
+      <PageviewTracker />
       <Toaster
         position="bottom-right"
         toastOptions={{
