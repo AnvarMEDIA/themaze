@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useRef, useState, useCallback } from 'react'
+import { useEffect, useRef, useState, useCallback, useMemo } from 'react'
 import Link from 'next/link'
 import { Reorder, useDragControls } from 'framer-motion'
 import type { Project, ProjectCategory } from '@/lib/types'
@@ -17,6 +17,7 @@ export default function AdminProjectsPage() {
   const [filter,   setFilter]   = useState<string>('all')
   const [query,    setQuery]    = useState('')
   const [savingOrder, setSavingOrder] = useState(false)
+  const [refreshingViews, setRefreshingViews] = useState(false)
   const saveTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
 
   const load = useCallback(async () => {
@@ -33,9 +34,8 @@ export default function AdminProjectsPage() {
 
   useEffect(() => { load() }, [load])
 
-  // Pull pageview stats — used to populate the "Views" and "Week"
-  // columns. A failure here must not break the table.
-  const [refreshingViews, setRefreshingViews] = useState(false)
+  // Pull pageview stats — populates the "Views" column and the
+  // "Week views" KPI card. Failures here must not break the table.
   const loadViews = useCallback(async () => {
     try {
       const res  = await fetch('/api/analytics', { cache: 'no-store' })
@@ -60,14 +60,7 @@ export default function AdminProjectsPage() {
     }
   }, [])
 
-  useEffect(() => {
-    let cancelled = false
-    void (async () => {
-      await loadViews()
-      if (cancelled) setViews({})
-    })()
-    return () => { cancelled = true }
-  }, [loadViews])
+  useEffect(() => { void loadViews() }, [loadViews])
 
   const refreshViews = async () => {
     setRefreshingViews(true)
@@ -75,6 +68,7 @@ export default function AdminProjectsPage() {
   }
 
   const handleDelete = async (id: string, title: string) => {
+    if (saveTimer.current) { clearTimeout(saveTimer.current); saveTimer.current = null }
     const prev = projects
     setProjects((p) => p.filter((x) => x.id !== id))
     try {
@@ -117,43 +111,52 @@ export default function AdminProjectsPage() {
     saveTimer.current = setTimeout(() => persistOrder(next), 400)
   }
 
-  const categories = Array.from(new Set(projects.flatMap((p) => p.categories)))
+  const categories = useMemo(
+    () => Array.from(new Set(projects.flatMap((p) => p.categories))),
+    [projects],
+  )
   const q = query.trim().toLowerCase()
-  const matchesQuery = (p: Project) => {
-    if (!q) return true
-    return (
+  const filtered = useMemo(() => projects
+    .filter((p) => filter === 'all' || p.categories.includes(filter as ProjectCategory))
+    .filter((p) => !q || (
       p.title.toLowerCase().includes(q) ||
       (p.titleRu ?? '').toLowerCase().includes(q) ||
       p.client.toLowerCase().includes(q) ||
       p.slug.toLowerCase().includes(q)
-    )
-  }
-  const filtered = projects
-    .filter((p) => filter === 'all' || p.categories.includes(filter as ProjectCategory))
-    .filter(matchesQuery)
-  const featured = projects.filter((p) => p.featured).length
-  const drafts   = projects.filter((p) => p.status === 'draft').length
-  const dragEnabled = filter === 'all' && !q
+    )),
+    [projects, filter, q],
+  )
+
+  const featured       = projects.filter((p) => p.featured).length
+  const drafts         = projects.filter((p) => p.status === 'draft').length
+  const dragEnabled    = filter === 'all' && !q
+  const weekViewsTotal = Object.values(views).reduce((s, v) => s + v.week, 0)
 
   return (
     <div className="px-8 py-8">
       {/* Header */}
-      <div className="flex items-start justify-between mb-8">
+      <div className="flex items-start justify-between gap-4 mb-6">
         <div>
           <h1 className="text-2xl font-bold text-white tracking-tight">Projects</h1>
-          {!loading && (
-            <p className="text-sm text-[#555] mt-1">
-              {projects.length} total · {featured} featured{drafts > 0 && ` · ${drafts} draft${drafts === 1 ? '' : 's'}`}
-              {savingOrder && <span className="ml-2 text-[#C8FF47]">· saving order…</span>}
-            </p>
-          )}
+          <p className="text-sm text-[#555] mt-1">
+            Manage your portfolio. Drag to reorder, toggle Featured to surface on the homepage.
+            {savingOrder && <span className="ml-2 text-[#C8FF47]">· saving order…</span>}
+          </p>
         </div>
         <Link
           href="/admin/projects/new"
-          className="flex items-center gap-2 px-4 py-2.5 bg-[#C8FF47] text-[#0A0A0A] font-bold rounded-lg text-sm hover:bg-[#F0EEE6] transition-colors"
+          className="shrink-0 flex items-center gap-2 px-4 py-2.5 bg-[#C8FF47] text-[#0A0A0A] font-bold rounded-lg text-sm hover:bg-[#F0EEE6] transition-colors"
         >
           <span className="text-base leading-none">+</span> New project
         </Link>
+      </div>
+
+      {/* KPI cards */}
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-6">
+        <KpiCard label="Total"      value={projects.length} loading={loading} />
+        <KpiCard label="Drafts"     value={drafts}          loading={loading} accent={drafts   > 0 ? 'yellow' : undefined} />
+        <KpiCard label="Featured"   value={featured}        loading={loading} accent={featured > 0 ? 'lime'   : undefined} />
+        <KpiCard label="Week views" value={weekViewsTotal}  loading={loading} />
       </div>
 
       {/* Search + category filters */}
@@ -164,44 +167,54 @@ export default function AdminProjectsPage() {
             placeholder="Search by title, client, slug…"
             value={query}
             onChange={(e) => setQuery(e.target.value)}
-            className="w-full bg-[#111] border border-[#252525] rounded-lg px-3 py-2 pr-8 text-sm text-white placeholder:text-[#444] focus:outline-none focus:border-[#C8FF47] transition-colors"
+            className="w-full bg-[#111] border border-[#252525] rounded-lg pl-9 pr-8 py-2 text-sm text-white placeholder:text-[#444] focus:outline-none focus:border-[#C8FF47] transition-colors"
             aria-label="Search projects"
           />
+          <span className="absolute left-3 top-1/2 -translate-y-1/2 text-[#555] text-sm" aria-hidden="true">⌕</span>
           {query && (
             <button
               type="button"
               onClick={() => setQuery('')}
               aria-label="Clear search"
-              className="absolute right-2 top-1/2 -translate-y-1/2 text-[#555] hover:text-white"
+              className="absolute right-2 top-1/2 -translate-y-1/2 text-[#555] hover:text-white text-lg leading-none"
             >
               ×
             </button>
           )}
         </div>
         <div className="flex flex-wrap gap-2">
-          {['all', ...categories].map((cat) => (
-            <button
-              key={cat}
-              onClick={() => setFilter(cat)}
-              className={`text-xs px-3 py-1.5 rounded-full border transition-colors ${
-                filter === cat
-                  ? 'border-[#C8FF47] text-[#C8FF47] bg-[#C8FF47]/10'
-                  : 'border-[#252525] text-[#555] hover:border-[#333] hover:text-[#888]'
-              }`}
-            >
-              {cat === 'all' ? `All (${projects.length})` : CATEGORY_LABELS[cat as keyof typeof CATEGORY_LABELS]}
-            </button>
-          ))}
+          {['all', ...categories].map((cat) => {
+            const active = filter === cat
+            const count  = cat === 'all'
+              ? projects.length
+              : projects.filter((p) => p.categories.includes(cat as ProjectCategory)).length
+            return (
+              <button
+                key={cat}
+                onClick={() => setFilter(cat)}
+                className={`text-xs px-3 py-1.5 rounded-full border transition-colors ${
+                  active
+                    ? 'border-[#C8FF47] text-[#C8FF47] bg-[#C8FF47]/10'
+                    : 'border-[#252525] text-[#555] hover:border-[#333] hover:text-[#888]'
+                }`}
+              >
+                {cat === 'all' ? 'All' : CATEGORY_LABELS[cat as keyof typeof CATEGORY_LABELS]}
+                <span className={`ml-1.5 tabular-nums ${active ? 'text-[#C8FF47]/70' : 'text-[#444]'}`}>
+                  {count}
+                </span>
+              </button>
+            )
+          })}
         </div>
       </div>
 
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 mb-5">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 mb-4">
         <p className="text-[11px] text-[#444]">
           {dragEnabled
-            ? 'Drag the ⋮⋮ handle to reorder projects. Order is applied on the public site.'
+            ? 'Drag the ⋮⋮ handle to reorder · order applies on the public site.'
             : 'Clear search and switch to "All" to reorder projects.'}
-          <span className="ml-2 text-[#333]">·</span>
-          <span className="ml-2">Admin self-views are excluded from the Views column.</span>
+          <span className="mx-2 text-[#333]">·</span>
+          Admin self-views are excluded from the Views column.
         </p>
         <button
           type="button"
@@ -217,7 +230,7 @@ export default function AdminProjectsPage() {
       {/* Table */}
       <div className="rounded-xl border border-[#1E1E1E] overflow-hidden">
         {/* Header */}
-        <div className="hidden md:grid grid-cols-[28px_1fr_130px_56px_70px_90px_120px] gap-4 px-5 py-3 bg-[#0D0D0D] border-b border-[#1E1E1E]">
+        <div className="hidden md:grid grid-cols-[28px_1fr_140px_56px_70px_92px_120px] gap-4 px-5 py-3 bg-[#0D0D0D] border-b border-[#1E1E1E]">
           <span />
           {['Project', 'Category', 'Year', 'Featured', 'Views', 'Actions'].map((h) => (
             <span key={h} className="text-[11px] font-semibold tracking-[0.1em] uppercase text-[#444]">{h}</span>
@@ -225,23 +238,37 @@ export default function AdminProjectsPage() {
         </div>
 
         {loading && (
-          <div className="p-4 space-y-3">
-            {[...Array(5)].map((_, i) => (
-              <div key={i} className="h-14 rounded-lg bg-[#0D0D0D] animate-pulse" />
+          <div className="p-3 space-y-2">
+            {[...Array(6)].map((_, i) => (
+              <div key={i} className="h-16 rounded-lg bg-[#0D0D0D] animate-pulse" />
             ))}
           </div>
         )}
 
-        {!loading && filtered.length === 0 && (
+        {!loading && projects.length === 0 && (
+          <div className="py-20 text-center">
+            <p className="text-3xl mb-3" aria-hidden="true">✦</p>
+            <p className="text-sm text-white font-semibold mb-1">No projects yet</p>
+            <p className="text-xs text-[#555] mb-5">Create your first case study to populate the portfolio.</p>
+            <Link
+              href="/admin/projects/new"
+              className="inline-flex items-center gap-2 px-4 py-2 bg-[#C8FF47] text-[#0A0A0A] font-bold rounded-lg text-sm hover:bg-[#F0EEE6] transition-colors"
+            >
+              + New project
+            </Link>
+          </div>
+        )}
+
+        {!loading && projects.length > 0 && filtered.length === 0 && (
           <div className="py-16 text-center">
-            <p className="text-sm text-[#444] mb-3">
-              {filter === 'all' ? 'No projects yet.' : 'No projects in this category.'}
-            </p>
-            {filter === 'all' && (
-              <Link href="/admin/projects/new" className="text-sm text-[#C8FF47] hover:underline">
-                Add your first project →
-              </Link>
-            )}
+            <p className="text-sm text-[#888]">No projects match your filters.</p>
+            <button
+              type="button"
+              onClick={() => { setQuery(''); setFilter('all') }}
+              className="text-xs text-[#C8FF47] hover:underline mt-2"
+            >
+              Clear filters
+            </button>
           </div>
         )}
 
@@ -273,23 +300,43 @@ export default function AdminProjectsPage() {
             onDelete={handleDelete}
           />
         ))}
-
-        {!loading && filtered.length === 0 && projects.length > 0 && (
-          <div className="py-16 text-center">
-            <p className="text-sm text-[#444]">No projects match your search.</p>
-            <button
-              type="button"
-              onClick={() => { setQuery(''); setFilter('all') }}
-              className="text-xs text-[#C8FF47] hover:underline mt-2"
-            >
-              Clear filters
-            </button>
-          </div>
-        )}
       </div>
     </div>
   )
 }
+
+/* ── KPI Card ────────────────────────────────────────────────────────── */
+
+function KpiCard({
+  label, value, accent, loading,
+}: {
+  label:   string
+  value:   number
+  accent?: 'lime' | 'yellow'
+  loading?: boolean
+}) {
+  const valueColor =
+    accent === 'lime'   ? 'text-[#C8FF47]' :
+    accent === 'yellow' ? 'text-yellow-300' :
+                          'text-white'
+
+  return (
+    <div className="rounded-xl bg-[#0D0D0D] border border-[#1E1E1E] px-4 py-3">
+      <p className="text-[10px] font-semibold tracking-[0.1em] uppercase text-[#555] mb-1.5">
+        {label}
+      </p>
+      {loading ? (
+        <div className="h-7 w-12 rounded bg-[#1A1A1A] animate-pulse" />
+      ) : (
+        <p className={`text-2xl font-bold tabular-nums ${valueColor}`}>
+          {value.toLocaleString('en-US')}
+        </p>
+      )}
+    </div>
+  )
+}
+
+/* ── Project Row ─────────────────────────────────────────────────────── */
 
 function ProjectRow({
   project,
@@ -303,17 +350,26 @@ function ProjectRow({
   onDelete: (id: string, title: string) => void
 }) {
   const controls = useDragControls()
-  const total = views?.total ?? 0
-  const week  = views?.week  ?? 0
+  const total    = views?.total ?? 0
+  const week     = views?.week  ?? 0
+  const accent   = project.accentColor || '#C8FF47'
+  const isDraft  = project.status === 'draft'
+
+  const categoryLabels = project.categories.map(
+    (c) => CATEGORY_LABELS[c as keyof typeof CATEGORY_LABELS] ?? c,
+  )
+  const firstCategory = categoryLabels[0] ?? '—'
+  const moreCategories = categoryLabels.slice(1)
 
   const Inner = (
-    <div className="flex md:grid md:grid-cols-[28px_1fr_130px_56px_70px_90px_120px] gap-4 items-center px-5 py-4 border-b border-[#1A1A1A] last:border-b-0 bg-[#080808] hover:bg-[#0D0D0D] transition-colors group">
+    <div className="flex md:grid md:grid-cols-[28px_1fr_140px_56px_70px_92px_120px] gap-4 items-center px-5 py-3 border-b border-[#1A1A1A] last:border-b-0 bg-[#080808] hover:bg-[#0D0D0D] transition-colors duration-150 group">
+      {/* Drag handle */}
       {draggable ? (
         <button
           type="button"
           onPointerDown={(e) => controls.start(e)}
-          className="cursor-grab active:cursor-grabbing touch-none text-[#444] hover:text-[#C8FF47] transition-colors select-none text-lg leading-none"
-          aria-label="Drag to reorder"
+          className="cursor-grab active:cursor-grabbing touch-none text-[#444] hover:text-[#C8FF47] focus:text-[#C8FF47] focus:outline-none transition-colors select-none text-lg leading-none"
+          aria-label={`Drag ${project.title} to reorder`}
           title="Drag to reorder"
         >
           ⋮⋮
@@ -321,37 +377,90 @@ function ProjectRow({
       ) : (
         <span className="hidden md:block" />
       )}
+
+      {/* Project: thumbnail + title + client */}
       <div className="flex items-center gap-3 min-w-0">
-        <div className="w-1 h-9 rounded-full flex-shrink-0" style={{ background: project.accentColor ?? '#C8FF47' }} />
+        <div
+          className="relative w-16 h-9 rounded-md overflow-hidden shrink-0 ring-1 ring-[#1E1E1E]"
+          style={{ background: `${accent}22` }}
+        >
+          {project.coverImage ? (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img
+              src={project.coverImage}
+              alt=""
+              loading="lazy"
+              className="w-full h-full object-cover"
+              onError={(e) => { (e.target as HTMLImageElement).style.display = 'none' }}
+            />
+          ) : (
+            <span
+              className="absolute inset-0 flex items-center justify-center text-[10px] font-black tracking-wide"
+              style={{ color: accent }}
+              aria-hidden="true"
+            >
+              {project.title.slice(0, 2).toUpperCase()}
+            </span>
+          )}
+        </div>
         <div className="min-w-0">
           <div className="flex items-center gap-2">
             <p className="text-sm font-semibold text-white truncate">{project.title}</p>
-            {project.status === 'draft' && (
-              <span className="text-[10px] font-bold px-1.5 py-0.5 rounded bg-yellow-400/15 text-yellow-300 tracking-wider uppercase">
+            {isDraft && (
+              <span className="text-[9px] font-bold px-1.5 py-0.5 rounded bg-yellow-400/15 text-yellow-300 tracking-wider uppercase shrink-0">
                 Draft
               </span>
             )}
           </div>
-          <p className="text-xs text-[#444] mt-0.5">{project.client}</p>
+          <p className="text-xs text-[#555] mt-0.5 truncate">{project.client}</p>
         </div>
       </div>
-      <span className="hidden md:block text-xs px-2.5 py-1 border border-[#252525] rounded-full text-[#555] whitespace-nowrap w-fit">
-        {project.categories.map((c) => CATEGORY_LABELS[c as keyof typeof CATEGORY_LABELS] ?? c).join(', ')}
+
+      {/* Category — first as pill, others collapsed into "+N" with tooltip */}
+      <div className="hidden md:flex items-center gap-1.5 min-w-0">
+        <span className="text-[11px] px-2 py-0.5 border border-[#252525] rounded-full text-[#888] whitespace-nowrap truncate max-w-full">
+          {firstCategory}
+        </span>
+        {moreCategories.length > 0 && (
+          <span
+            className="text-[11px] text-[#555] shrink-0"
+            title={moreCategories.join(', ')}
+          >
+            +{moreCategories.length}
+          </span>
+        )}
+      </div>
+
+      {/* Year */}
+      <span className="hidden md:block text-xs text-[#555] tabular-nums">
+        {project.year}
       </span>
-      <span className="hidden md:block text-xs text-[#444]">{project.year}</span>
+
+      {/* Featured — star icon */}
       <div className="hidden md:flex items-center">
-        <span className={`text-[10px] font-semibold px-2 py-0.5 rounded-full ${
-          project.featured
-            ? 'text-[#C8FF47] bg-[#C8FF47]/10'
-            : 'text-[#333] bg-[#1A1A1A]'
-        }`}>
-          {project.featured ? 'Yes' : 'No'}
+        <span
+          className={`text-lg leading-none ${project.featured ? 'text-[#C8FF47]' : 'text-[#252525]'}`}
+          aria-label={project.featured ? 'Featured on homepage' : 'Not featured'}
+          title={project.featured ? 'Featured on homepage' : 'Not featured'}
+        >
+          {project.featured ? '★' : '☆'}
         </span>
       </div>
-      <div className="hidden md:block text-xs tabular-nums" title="All time · last 7 days">
-        <p className="text-white font-semibold leading-tight">{total.toLocaleString('en-US')}</p>
-        <p className="text-[10px] text-[#555] mt-0.5">{week} / week</p>
+
+      {/* Views */}
+      <div
+        className="hidden md:block text-xs tabular-nums"
+        title="All time · last 7 days (admin self-views excluded)"
+      >
+        <p className="text-white font-semibold leading-tight">
+          {total.toLocaleString('en-US')}
+        </p>
+        <p className="text-[10px] text-[#555] mt-0.5">
+          {week} / week
+        </p>
       </div>
+
+      {/* Actions */}
       <div className="flex gap-3 ml-auto md:ml-0">
         <a
           href={`/portfolio/${project.slug}`}
@@ -387,8 +496,8 @@ function ProjectRow({
       dragControls={controls}
       as="div"
       whileDrag={{
-        scale: 1.01,
-        boxShadow: '0 10px 40px rgba(0,0,0,0.5)',
+        scale: 1.005,
+        boxShadow: '0 12px 40px rgba(0,0,0,0.55)',
         zIndex: 10,
       }}
       transition={{ type: 'spring', stiffness: 500, damping: 40 }}
