@@ -11,6 +11,7 @@ import { breadcrumbJsonLd, projectJsonLd, homeCrumb, portfolioCrumb } from '@/li
 import { localizedAlternates } from '@/lib/seo'
 import { getAdminSession } from '@/lib/auth'
 import { imageAlt, projectMetaTitle, projectMetaDescription } from '@/lib/projectMeta'
+import { slugify } from '@/lib/utils'
 
 interface Props {
   params: { locale: string; slug: string }
@@ -61,10 +62,17 @@ export default async function ProjectPage({ params }: Props) {
     if (!authed) notFound()
   }
 
-  const all     = await getPublishedProjects()
+  const all = await getPublishedProjects()
   const related = all
     .filter((p) => p.id !== project.id && p.categories.some((c) => project.categories.includes(c)))
     .slice(0, 2)
+  const clientSlug = slugify(project.client)
+
+  // Prev / next neighbour in the published portfolio ordering, for
+  // internal linking and "keep scrolling" UX.
+  const idx  = all.findIndex((p) => p.id === project.id)
+  const prev = idx > 0                 ? all[idx - 1] : null
+  const next = idx >= 0 && idx < all.length - 1 ? all[idx + 1] : null
 
   const isRu = locale === 'ru'
   const title            = isRu ? (project.titleRu            || project.title)            : project.title
@@ -99,13 +107,22 @@ export default async function ProjectPage({ params }: Props) {
             <div>
               <div className="flex flex-wrap gap-2 mb-4">
                 {project.categories.map((c) => (
-                  <span key={c} className="label-sm text-maze-lime">
+                  <Link
+                    key={c}
+                    href={`/portfolio/category/${c}`}
+                    className="label-sm text-maze-lime hover:text-maze-cream transition-colors"
+                  >
                     {(t.raw('categories') as Record<string,string>)[c] ?? c}
-                  </span>
+                  </Link>
                 ))}
               </div>
               <h1 className="display-md text-maze-cream mb-4">{title}</h1>
-              <p className="heading-md text-maze-muted">{project.client}</p>
+              <Link
+                href={`/portfolio/client/${clientSlug}`}
+                className="heading-md text-maze-muted hover:text-maze-cream transition-colors inline-block"
+              >
+                {project.client}
+              </Link>
             </div>
 
             <div className="grid grid-cols-2 sm:grid-cols-3 gap-6 lg:items-end">
@@ -218,6 +235,44 @@ export default async function ProjectPage({ params }: Props) {
               ))}
             </div>
           </div>
+        )}
+
+        {/* Prev / next — neighbour links keep visitors in the portfolio
+            and pass internal PageRank between cases. */}
+        {(prev || next) && (
+          <nav
+            aria-label="Project navigation"
+            className="max-w-[1440px] mx-auto mt-20 pt-10 border-t border-maze-border grid grid-cols-1 md:grid-cols-2 gap-4"
+          >
+            {prev ? (
+              <Link
+                href={`/portfolio/${prev.slug}`}
+                className="group block p-5 rounded-xl border border-maze-border transition-colors hover:border-maze-lime"
+                rel="prev"
+                data-cursor="view"
+              >
+                <p className="label-sm text-maze-muted mb-2">← {isRu ? 'Предыдущий' : 'Previous'}</p>
+                <p className="heading-md text-maze-cream group-hover:text-maze-lime transition-colors truncate">
+                  {(isRu && prev.titleRu) || prev.title}
+                </p>
+                <p className="label-sm text-maze-muted mt-1 truncate">{prev.client}</p>
+              </Link>
+            ) : <span />}
+            {next ? (
+              <Link
+                href={`/portfolio/${next.slug}`}
+                className="group block p-5 rounded-xl border border-maze-border transition-colors hover:border-maze-lime md:text-right"
+                rel="next"
+                data-cursor="view"
+              >
+                <p className="label-sm text-maze-muted mb-2">{isRu ? 'Следующий' : 'Next'} →</p>
+                <p className="heading-md text-maze-cream group-hover:text-maze-lime transition-colors truncate">
+                  {(isRu && next.titleRu) || next.title}
+                </p>
+                <p className="label-sm text-maze-muted mt-1 truncate">{next.client}</p>
+              </Link>
+            ) : <span />}
+          </nav>
         )}
       </div>
     </article>

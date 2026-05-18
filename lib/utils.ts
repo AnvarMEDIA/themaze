@@ -29,6 +29,25 @@ export const CATEGORY_LABELS: Record<string, string> = {
   strategy:   'Strategy',
 }
 
+export const CATEGORY_LABELS_RU: Record<string, string> = {
+  branding:   'Брендинг',
+  rebranding: 'Ребрендинг',
+  identity:   'Айдентика',
+  naming:     'Нейминг',
+  packaging:  'Упаковка',
+  'ui-ux':    'UI/UX',
+  print:      'Полиграфия',
+  motion:     'Motion',
+  strategy:   'Стратегия',
+}
+
+export const VALID_CATEGORIES = Object.keys(CATEGORY_LABELS)
+
+export function categoryLabel(slug: string, locale = 'en'): string {
+  const map = locale === 'ru' ? CATEGORY_LABELS_RU : CATEGORY_LABELS
+  return map[slug] ?? slug
+}
+
 export function telegramHref(val: string): string {
   if (!val) return '#'
   if (val.startsWith('http')) return val

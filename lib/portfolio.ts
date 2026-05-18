@@ -1,5 +1,6 @@
 import { v4 as uuidv4 } from 'uuid'
 import { readStore, writeStore } from './store'
+import { slugify } from './utils'
 import type { Project, PortfolioData, CreateProjectInput, UpdateProjectInput, ProjectCategory } from './types'
 
 type StoredProject = Omit<Project, 'categories'> & { category?: ProjectCategory; categories?: ProjectCategory[] }
@@ -76,6 +77,61 @@ export async function reorderProjects(orderedIds: string[]): Promise<void> {
 export async function getFeaturedProjects(): Promise<Project[]> {
   const all = await getPublishedProjects()
   return all.filter((p) => p.featured)
+}
+
+/** Unique client slugs across published projects. */
+export async function getClientSlugs(): Promise<Array<{ slug: string; name: string; count: number }>> {
+  const all = await getPublishedProjects()
+  const map = new Map<string, { name: string; count: number }>()
+  for (const p of all) {
+    const slug = slugify(p.client)
+    if (!slug) continue
+    const existing = map.get(slug)
+    if (existing) existing.count += 1
+    else           map.set(slug, { name: p.client, count: 1 })
+  }
+  return Array.from(map.entries()).map(([slug, v]) => ({ slug, ...v }))
+}
+
+/** Unique tag slugs across published projects (only tags used on ≥2 projects, to avoid orphan pages). */
+export async function getTagSlugs(minCount = 2): Promise<Array<{ slug: string; tag: string; count: number }>> {
+  const all = await getPublishedProjects()
+  const map = new Map<string, { tag: string; count: number }>()
+  for (const p of all) {
+    for (const tag of p.tags ?? []) {
+      const slug = slugify(tag)
+      if (!slug) continue
+      const existing = map.get(slug)
+      if (existing) existing.count += 1
+      else           map.set(slug, { tag, count: 1 })
+    }
+  }
+  return Array.from(map.entries())
+    .filter(([, v]) => v.count >= minCount)
+    .map(([slug, v]) => ({ slug, ...v }))
+}
+
+export async function getProjectsByClientSlug(clientSlug: string): Promise<{ projects: Project[]; clientName: string } | null> {
+  const all = await getPublishedProjects()
+  const list = all.filter((p) => slugify(p.client) === clientSlug)
+  if (list.length === 0) return null
+  return { projects: list, clientName: list[0].client }
+}
+
+export async function getProjectsByTagSlug(tagSlug: string): Promise<{ projects: Project[]; tag: string } | null> {
+  const all = await getPublishedProjects()
+  let tagName = ''
+  const list = all.filter((p) => {
+    for (const t of p.tags ?? []) {
+      if (slugify(t) === tagSlug) {
+        if (!tagName) tagName = t
+        return true
+      }
+    }
+    return false
+  })
+  if (list.length === 0) return null
+  return { projects: list, tag: tagName }
 }
 
 export async function getProjectBySlug(slug: string): Promise<Project | null> {

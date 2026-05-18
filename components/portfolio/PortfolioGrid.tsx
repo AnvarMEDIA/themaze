@@ -3,15 +3,18 @@
 import { useState } from 'react'
 import { useTranslations } from 'next-intl'
 import { motion, AnimatePresence } from 'framer-motion'
+import { Link } from '@/i18n/navigation'
 import { ProjectCard } from './ProjectCard'
 import type { Project, ProjectCategory } from '@/lib/types'
 
 interface Props {
   projects: Project[]
+  /** Set on a category landing page — disables client-side category
+   *  switching; chips become navigation links instead. */
+  activeCategory?: ProjectCategory
 }
 
 const ALL = 'all'
-type Filter = typeof ALL | ProjectCategory
 
 const GridIcon = () => (
   <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
@@ -30,53 +33,65 @@ const ListIcon = () => (
   </svg>
 )
 
-export function PortfolioGrid({ projects }: Props) {
+export function PortfolioGrid({ projects, activeCategory }: Props) {
   const t = useTranslations('portfolio')
-  const [filter, setFilter] = useState<Filter>(ALL)
-  const [view,   setView]   = useState<'grid' | 'list'>('grid')
+  const [view, setView] = useState<'grid' | 'list'>('grid')
 
-  const categories = Array.from(new Set(projects.flatMap((p) => p.categories))) as ProjectCategory[]
+  // Chip counts are computed against the full input list, so a
+  // category page shows "Branding (12) · Identity (8) · …" rather
+  // than only the categories present in the filtered slice.
+  const allCats = Array.from(new Set(projects.flatMap((p) => p.categories))) as ProjectCategory[]
+  const currentKey: ProjectCategory | 'all' = activeCategory ?? ALL
+  const visible = activeCategory
+    ? projects.filter((p) => p.categories.includes(activeCategory))
+    : projects
 
-  const filtered = filter === ALL
-    ? projects
-    : projects.filter((p) => p.categories.includes(filter as ProjectCategory))
-
-  const catLabel = (cat: string) =>
-    t.raw('categories')[cat] ?? cat
+  const catLabel = (cat: string) => t.raw('categories')[cat] ?? cat
 
   const filterOptions = [
-    { id: ALL as Filter, label: t('allWork'), count: projects.length },
-    ...categories.map((c) => ({ id: c as Filter, label: catLabel(c), count: projects.filter((p) => p.categories.includes(c)).length })),
+    { id: ALL as 'all', label: t('allWork'), count: projects.length, href: '/portfolio' as const },
+    ...allCats.map((c) => ({
+      id:    c,
+      label: catLabel(c),
+      count: projects.filter((p) => p.categories.includes(c)).length,
+      href:  `/portfolio/category/${c}` as const,
+    })),
   ]
 
-  const countText = filtered.length === 1
-    ? `${filtered.length} ${t('projectSingular')}`
-    : `${filtered.length} ${t('projectPlural')}`
+  const countText = visible.length === 1
+    ? `${visible.length} ${t('projectSingular')}`
+    : `${visible.length} ${t('projectPlural')}`
 
   return (
     <div>
       {/* Controls bar */}
       <div className="flex flex-wrap items-center justify-between gap-4 mb-8">
 
-        {/* Filter pills */}
+        {/* Filter pills — real links so each category gets its own
+            indexable URL. The grid below is server-rendered for the
+            current page, so navigation also changes the count above. */}
         <div className="flex flex-wrap gap-2">
-          {filterOptions.map(({ id, label, count }) => (
-            <button
-              key={id}
-              onClick={() => setFilter(id)}
-              className={[
-                'label-sm px-4 py-2 rounded-full border transition-all duration-200',
-                filter === id
-                  ? 'bg-maze-lime text-maze-ink border-maze-lime'
-                  : 'bg-transparent text-maze-muted border-maze-border hover:border-maze-cream hover:text-maze-cream',
-              ].join(' ')}
-            >
-              {label}
-              <span className={['ml-1.5 opacity-60', filter === id ? 'text-maze-ink' : ''].join(' ')}>
-                ({count})
-              </span>
-            </button>
-          ))}
+          {filterOptions.map(({ id, label, count, href }) => {
+            const isActive = currentKey === id
+            return (
+              <Link
+                key={id}
+                href={href}
+                aria-current={isActive ? 'page' : undefined}
+                className={[
+                  'label-sm px-4 py-2 rounded-full border transition-all duration-200',
+                  isActive
+                    ? 'bg-maze-lime text-maze-ink border-maze-lime'
+                    : 'bg-transparent text-maze-muted border-maze-border hover:border-maze-cream hover:text-maze-cream',
+                ].join(' ')}
+              >
+                {label}
+                <span className={['ml-1.5 opacity-60', isActive ? 'text-maze-ink' : ''].join(' ')}>
+                  ({count})
+                </span>
+              </Link>
+            )
+          })}
         </div>
 
         {/* Right side: count + view toggle */}
@@ -113,7 +128,7 @@ export function PortfolioGrid({ projects }: Props) {
 
       {/* Grid / List */}
       <AnimatePresence mode="wait">
-        {filtered.length === 0 ? (
+        {visible.length === 0 ? (
           <motion.div
             key="empty"
             initial={{ opacity: 0 }}
@@ -126,27 +141,27 @@ export function PortfolioGrid({ projects }: Props) {
           </motion.div>
         ) : view === 'grid' ? (
           <motion.div
-            key={`grid-${filter}`}
+            key={`grid-${currentKey}`}
             initial={{ opacity: 0, y: 16 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -8 }}
             transition={{ duration: 0.25, ease: [0.23, 1, 0.32, 1] }}
             className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5"
           >
-            {filtered.map((project, i) => (
+            {visible.map((project, i) => (
               <ProjectCard key={project.id} project={project} index={i} layout="grid" />
             ))}
           </motion.div>
         ) : (
           <motion.div
-            key={`list-${filter}`}
+            key={`list-${currentKey}`}
             initial={{ opacity: 0, y: 16 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -8 }}
             transition={{ duration: 0.25, ease: [0.23, 1, 0.32, 1] }}
             className="border-t border-maze-border"
           >
-            {filtered.map((project, i) => (
+            {visible.map((project, i) => (
               <ProjectCard key={project.id} project={project} index={i} layout="list" />
             ))}
           </motion.div>
