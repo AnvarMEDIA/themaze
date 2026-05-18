@@ -80,6 +80,85 @@ export function organizationJsonLd(settings: SiteSettings | null) {
   }
 }
 
+/* ── LocalBusiness ─────────────────────────────────────────────────────── */
+
+/**
+ * Tashkent-targeted LocalBusiness payload. Sits alongside the
+ * Organization graph; sharing the @id lets Google merge them so we
+ * still get the rich knowledge panel.
+ */
+export function localBusinessJsonLd(settings: SiteSettings | null) {
+  const sameAs = [
+    settings?.instagram,
+    settings?.behance,
+    settings?.linkedin,
+    settings?.twitter,
+  ].filter((v): v is string => typeof v === 'string' && v.length > 0)
+
+  return {
+    '@context': CONTEXT,
+    '@type': ['LocalBusiness', 'ProfessionalService'],
+    '@id': `${SITE_URL}/#localbusiness`,
+    name: 'MAZE Studio',
+    description:
+      'Premium branding and design studio in Tashkent — brand identity, logo design, naming, packaging and digital products.',
+    url: SITE_URL,
+    image: `${SITE_URL}/og-image.jpg`,
+    telephone: settings?.phone || undefined,
+    email:     settings?.email || 'hello@maze.uz',
+    priceRange: '$$',
+    foundingDate: '2019',
+    areaServed: [
+      { '@type': 'Country', name: 'Uzbekistan'   },
+      { '@type': 'Country', name: 'Kazakhstan'   },
+      { '@type': 'Country', name: 'Kyrgyzstan'   },
+      { '@type': 'Country', name: 'Tajikistan'   },
+      { '@type': 'Country', name: 'Turkmenistan' },
+    ],
+    address: {
+      '@type': 'PostalAddress',
+      addressLocality: settings?.address?.split(',')[0]?.trim() || 'Tashkent',
+      addressRegion:   'Tashkent',
+      addressCountry:  'UZ',
+      ...(settings?.addressDetail ? { streetAddress: settings.addressDetail } : {}),
+    },
+    geo: {
+      '@type': 'GeoCoordinates',
+      latitude:  41.2995,
+      longitude: 69.2401,
+    },
+    openingHoursSpecification: {
+      '@type': 'OpeningHoursSpecification',
+      dayOfWeek: ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'],
+      opens:     '10:00',
+      closes:    '19:00',
+    },
+    sameAs: sameAs.length ? sameAs : undefined,
+    parentOrganization: { '@id': ORG_ID },
+  }
+}
+
+/* ── FAQPage ───────────────────────────────────────────────────────────── */
+
+export function faqJsonLd(
+  items: Array<{ question: string; answer: string }>,
+  locale = 'en',
+) {
+  return {
+    '@context': CONTEXT,
+    '@type': 'FAQPage',
+    inLanguage: locale,
+    mainEntity: items.map((q) => ({
+      '@type': 'Question',
+      name: q.question,
+      acceptedAnswer: {
+        '@type': 'Answer',
+        text: q.answer,
+      },
+    })),
+  }
+}
+
 /* ── WebSite ───────────────────────────────────────────────────────────── */
 
 export function websiteJsonLd() {
@@ -297,6 +376,8 @@ export function postJsonLd(
     titleRu?: string
     excerpt: string
     excerptRu?: string
+    body?: string
+    bodyRu?: string
     coverImage: string
     author: string
     publishedAt: string
@@ -308,7 +389,9 @@ export function postJsonLd(
   const isRu    = locale === 'ru'
   const title   = isRu ? (post.titleRu || post.title) : post.title
   const excerpt = isRu ? (post.excerptRu || post.excerpt) : post.excerpt
+  const body    = isRu ? (post.bodyRu    || post.body    || '') : (post.body || '')
   const url     = localePath(locale, `/insights/${post.slug}`)
+  const wordCount = body.trim() ? body.trim().split(/\s+/).length : undefined
   return {
     '@context': CONTEXT,
     '@type': 'BlogPosting',
@@ -316,13 +399,19 @@ export function postJsonLd(
     mainEntityOfPage: url,
     headline: title,
     description: excerpt || undefined,
-    image: post.coverImage || undefined,
+    image: post.coverImage ? [post.coverImage] : undefined,
     datePublished: post.publishedAt,
     dateModified: post.updatedAt,
     inLanguage: locale,
-    author: { '@type': 'Person', name: post.author || 'MAZE Studio' },
+    author: {
+      '@type': 'Person',
+      name: post.author || 'MAZE Studio',
+      url: SITE_URL,
+    },
     publisher: { '@id': ORG_ID },
-    keywords: post.tags.join(', ') || undefined,
+    keywords: post.tags.length ? post.tags.join(', ') : undefined,
+    articleSection: post.tags[0] || undefined,
+    wordCount,
   }
 }
 

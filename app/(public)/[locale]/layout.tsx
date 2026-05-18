@@ -12,7 +12,7 @@ import { CookieBanner }      from '@/components/CookieBanner'
 import { PageviewTracker }   from '@/components/PageviewTracker'
 import { Toaster }           from 'react-hot-toast'
 import { getSettings }  from '@/lib/settings'
-import { organizationJsonLd, websiteJsonLd } from '@/lib/jsonLd'
+import { organizationJsonLd, websiteJsonLd, localBusinessJsonLd } from '@/lib/jsonLd'
 
 interface Props {
   children: React.ReactNode
@@ -36,8 +36,9 @@ export default async function LocaleLayout({ children, params }: Props) {
 
   return (
     <NextIntlClientProvider messages={messages} locale={locale}>
-      <JsonLd id="ld-organization" data={organizationJsonLd(settings)} />
-      <JsonLd id="ld-website"      data={websiteJsonLd()} />
+      <JsonLd id="ld-organization"   data={organizationJsonLd(settings)} />
+      <JsonLd id="ld-localbusiness"  data={localBusinessJsonLd(settings)} />
+      <JsonLd id="ld-website"        data={websiteJsonLd()} />
       <SmoothScroll>
         <div className="noise">
           <a

@@ -251,6 +251,18 @@
     "notSureHeading": "Let's talk.",
     "notSureSub": "Tell us about your challenge and we'll recommend the right engagement model.",
     "notSureCta": "Book a discovery call",
+    "faqLabel": "FAQ",
+    "faqHeading": "Quick answers.",
+    "faqItems": [
+      { "q": "How much does a rebrand cost?", "a": "Most rebranding engagements at MAZE start at $8,000 for a focused refresh and scale to $40,000+ for full strategy, identity and rollout for established companies. We always send a tailored estimate after a discovery call — every project is scoped to the brief." },
+      { "q": "How long does a branding project take?", "a": "A typical brand identity runs 6 to 10 weeks from kickoff to delivery. Naming projects take 3 to 5 weeks. Packaging and large-scale rebrands can run 3 to 4 months. We share a precise timeline in the proposal." },
+      { "q": "Do you work with clients outside Uzbekistan?", "a": "Yes. We work remotely with clients across Central Asia, the CIS and Europe. Most of our process is async — Figma, Notion, Loom and a weekly call — so timezone is not an issue." },
+      { "q": "What's included in a brand identity package?", "a": "Brand strategy, naming if needed, logo and mark system, typography and color, brand guidelines, plus an initial rollout kit (business cards, social templates, signage mockups). We can extend with packaging, web design or motion." },
+      { "q": "Do you offer naming alone, without the visual identity?", "a": "Yes — we run naming as a standalone engagement. Output is a shortlist of strong, trademark-pre-screened names with rationale and example tone-of-voice copy." },
+      { "q": "Will you sign an NDA?", "a": "Absolutely. We send a mutual NDA at the start of any engagement that touches unreleased products, M&A or other sensitive context." },
+      { "q": "Can we keep ownership of the work?", "a": "Full IP transfers to you on final payment. We retain the right to display the work in our portfolio after launch unless the contract says otherwise." },
+      { "q": "What if I don't like the first round?", "a": "Each engagement includes two structured rounds of revision per stage. We start broad with directions, then narrow — so by the time we're refining, we've already aligned on the direction together." }
+    ],
     "services": [
       {
         "id": "branding",
