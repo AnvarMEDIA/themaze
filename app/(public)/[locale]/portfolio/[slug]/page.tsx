@@ -10,6 +10,7 @@ import { JsonLd } from '@/components/JsonLd'
 import { breadcrumbJsonLd, projectJsonLd, homeCrumb, portfolioCrumb } from '@/lib/jsonLd'
 import { localizedAlternates } from '@/lib/seo'
 import { getAdminSession } from '@/lib/auth'
+import { imageAlt, projectMetaTitle, projectMetaDescription } from '@/lib/projectMeta'
 
 interface Props {
   params: { locale: string; slug: string }
@@ -25,12 +26,13 @@ export async function generateStaticParams() {
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const project = await getProjectBySlug(params.slug)
   if (!project) return {}
-  const isRu = params.locale === 'ru'
-  const title = isRu ? (project.titleRu || project.title) : project.title
-  const desc  = isRu ? (project.shortDescriptionRu || project.shortDescription) : project.shortDescription
-  // Note: OG/Twitter image is auto-generated via opengraph-image.tsx co-located with this page.
+  // Admin overrides (metaTitle / metaDescription) win; otherwise we
+  // generate "{title} — {category} for {client}" plus shortDescription.
+  // OG / Twitter image is auto-generated via opengraph-image.tsx.
+  const title = projectMetaTitle(project, params.locale)
+  const desc  = projectMetaDescription(project, params.locale)
   return {
-    title: `${title} — ${project.client}`,
+    title,
     description: desc,
     alternates: localizedAlternates(params.locale, `portfolio/${project.slug}`),
     openGraph: {
@@ -139,7 +141,7 @@ export default async function ProjectPage({ params }: Props) {
         {project.coverImage && (
           <Image
             src={project.coverImage}
-            alt={project.title}
+            alt={imageAlt(project, project.coverImage, locale)}
             fill
             priority
             sizes="100vw"
@@ -190,7 +192,7 @@ export default async function ProjectPage({ params }: Props) {
 
         {/* Gallery — fullscreen lightbox slider */}
         <ProjectGallery
-          images={project.images}
+          images={project.images.map((url) => ({ url, alt: imageAlt(project, url, locale) }))}
           title={project.title}
           heading={t('gallery')}
         />

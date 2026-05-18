@@ -33,6 +33,9 @@ const EMPTY: FormState = {
   results: '', resultsRu: '',
   status: 'published',
   showYear: true,
+  imageAlts: {},
+  metaTitle: '', metaTitleRu: '',
+  metaDescription: '', metaDescriptionRu: '',
 }
 
 interface Props {
@@ -484,6 +487,83 @@ export function ProjectForm({ project }: Props) {
           values={form.images}
           onChange={(urls) => set('images', urls)}
         />
+
+        {/* Per-image alt text — important for Google Image Search */}
+        {(form.coverImage || form.images.length > 0) && (
+          <details className="rounded-xl bg-maze-dark/30 border border-maze-border">
+            <summary className="px-4 py-3 cursor-pointer label-sm text-maze-muted hover:text-maze-cream transition-colors select-none">
+              Image alt text
+              <span className="ml-2 text-[10px] text-maze-muted">
+                ({form.images.length + (form.coverImage ? 1 : 0)} images — leave blank for smart defaults)
+              </span>
+            </summary>
+            <div className="px-4 pb-4 space-y-3">
+              {[
+                ...(form.coverImage ? [{ url: form.coverImage, label: 'Cover' }] : []),
+                ...form.images.map((url, i) => ({ url, label: `Gallery ${i + 1}` })),
+              ].map(({ url, label }) => (
+                <div key={url} className="flex items-center gap-3">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img src={url} alt="" className="w-16 h-9 rounded object-cover bg-maze-gray shrink-0" />
+                  <div className="flex-1 min-w-0">
+                    <p className="label-sm text-maze-muted mb-1">{label}</p>
+                    <input
+                      type="text"
+                      maxLength={200}
+                      placeholder='e.g. "Centromed brand mark on a navy notebook"'
+                      value={form.imageAlts?.[url] ?? ''}
+                      onChange={(e) =>
+                        setForm((prev) => ({
+                          ...prev,
+                          imageAlts: { ...(prev.imageAlts ?? {}), [url]: e.target.value },
+                        }))
+                      }
+                      className={input + ' text-xs'}
+                    />
+                  </div>
+                </div>
+              ))}
+            </div>
+          </details>
+        )}
+      </section>
+
+      {/* SEO overrides */}
+      <section className="space-y-4">
+        <h2 className="label-sm text-maze-muted border-b border-maze-border pb-2">SEO</h2>
+        <p className="text-[11px] text-maze-muted -mt-2">
+          Leave blank to auto-generate <code className="font-mono text-maze-cream">&laquo;Title — Category for Client&raquo;</code> and use the short description.
+          Google shows ~60 chars in titles and ~160 in descriptions.
+        </p>
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <SeoField
+            label="Meta title (EN)" max={70} value={form.metaTitle ?? ''}
+            onChange={(v) => set('metaTitle', v)}
+            placeholder='Override the auto-generated title'
+            inputCls={input}
+          />
+          <SeoField
+            label="Meta title (RU)" max={70} value={form.metaTitleRu ?? ''}
+            onChange={(v) => set('metaTitleRu', v)}
+            placeholder='Заголовок для поиска'
+            inputCls={input}
+          />
+          <SeoField
+            label="Meta description (EN)" max={200} value={form.metaDescription ?? ''}
+            onChange={(v) => set('metaDescription', v)}
+            placeholder='One-line description shown in search results'
+            inputCls={input}
+            textarea
+          />
+          <SeoField
+            label="Meta description (RU)" max={200} value={form.metaDescriptionRu ?? ''}
+            onChange={(v) => set('metaDescriptionRu', v)}
+            placeholder='Описание для выдачи Google / Яндекса'
+            inputCls={input}
+            textarea
+          />
+        </div>
       </section>
 
       {/* Actions */}
@@ -504,5 +584,49 @@ export function ProjectForm({ project }: Props) {
         </button>
       </div>
     </form>
+  )
+}
+
+function SeoField({
+  label, max, value, onChange, placeholder, inputCls, textarea,
+}: {
+  label:       string
+  max:         number
+  value:       string
+  onChange:   (v: string) => void
+  placeholder: string
+  inputCls:    string
+  textarea?:   boolean
+}) {
+  const len     = value.length
+  const warn    = len > Math.floor(max * 0.95)
+  const overage = len > max
+  const counterCls = overage ? 'text-red-400' : warn ? 'text-yellow-400' : 'text-maze-muted'
+  return (
+    <div>
+      <div className="flex items-baseline justify-between mb-2">
+        <label className="label-sm text-maze-muted">{label}</label>
+        <span className={`text-[10px] font-mono tabular-nums ${counterCls}`}>{len}/{max}</span>
+      </div>
+      {textarea ? (
+        <textarea
+          rows={2}
+          maxLength={max}
+          placeholder={placeholder}
+          value={value}
+          onChange={(e) => onChange(e.target.value)}
+          className={inputCls + ' resize-none'}
+        />
+      ) : (
+        <input
+          type="text"
+          maxLength={max}
+          placeholder={placeholder}
+          value={value}
+          onChange={(e) => onChange(e.target.value)}
+          className={inputCls}
+        />
+      )}
+    </div>
   )
 }

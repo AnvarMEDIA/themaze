@@ -57,6 +57,11 @@ export const ProjectSchema = z.object({
   results:              safeString(2000).optional(),
   resultsRu:            safeString(2000).optional(),
   status:               z.enum(['draft', 'published']).optional().default('published'),
+  imageAlts:            z.record(z.string().max(500), safeString(200)).optional(),
+  metaTitle:            safeString(70).optional().default(''),
+  metaTitleRu:          safeString(70).optional().default(''),
+  metaDescription:      safeString(200).optional().default(''),
+  metaDescriptionRu:    safeString(200).optional().default(''),
 })
 
 export const ProjectUpdateSchema = ProjectSchema.partial()

@@ -35,6 +35,13 @@ export interface Project {
   sortOrder?: number
   status?: 'draft' | 'published'
   deletedAt?: string | null
+  /** Per-image alt text, keyed by image URL. Falls back to a generated string. */
+  imageAlts?: Record<string, string>
+  /** SEO overrides — leave blank to use auto-generated defaults. */
+  metaTitle?: string
+  metaTitleRu?: string
+  metaDescription?: string
+  metaDescriptionRu?: string
   createdAt: string
   updatedAt: string
 }

@@ -6,8 +6,13 @@ import { motion, AnimatePresence } from 'framer-motion'
 
 const EASE_OUT = [0.23, 1, 0.32, 1] as const
 
+interface GalleryImage {
+  url: string
+  alt: string
+}
+
 interface Props {
-  images:  string[]
+  images:  GalleryImage[]
   title:   string
   heading: string  // localised "Gallery" label
 }
@@ -58,16 +63,16 @@ export function ProjectGallery({ images, title, heading }: Props) {
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         {images.map((img, i) => (
           <button
-            key={i}
+            key={img.url + i}
             type="button"
             onClick={() => setIndex(i)}
             data-cursor="view"
-            aria-label={`Open image ${i + 1} of ${images.length}`}
+            aria-label={`Open image ${i + 1} of ${images.length}: ${img.alt}`}
             className="group relative aspect-[16/9] rounded-xl overflow-hidden bg-maze-gray focus:outline-none focus-visible:ring-2 focus-visible:ring-maze-lime"
           >
             <Image
-              src={img}
-              alt={`${title} — image ${i + 1}`}
+              src={img.url}
+              alt={img.alt}
               fill
               sizes="(max-width: 768px) 100vw, 50vw"
               className="object-cover transition-transform duration-500 ease-out [@media(hover:hover)]:group-hover:scale-[1.03]"
@@ -133,8 +138,8 @@ export function ProjectGallery({ images, title, heading }: Props) {
                   }}
                 >
                   <Image
-                    src={images[index]}
-                    alt={`${title} — image ${index + 1}`}
+                    src={images[index].url}
+                    alt={images[index].alt}
                     fill
                     sizes="100vw"
                     priority
@@ -174,7 +179,7 @@ export function ProjectGallery({ images, title, heading }: Props) {
               >
                 {images.map((img, i) => (
                   <button
-                    key={i}
+                    key={img.url + i}
                     type="button"
                     onClick={() => setIndex(i)}
                     aria-label={`Go to image ${i + 1}`}
@@ -185,7 +190,7 @@ export function ProjectGallery({ images, title, heading }: Props) {
                         : 'opacity-40 hover:opacity-80'
                     }`}
                   >
-                    <Image src={img} alt="" fill sizes="64px" className="object-cover" />
+                    <Image src={img.url} alt="" fill sizes="64px" className="object-cover" />
                   </button>
                 ))}
               </div>
