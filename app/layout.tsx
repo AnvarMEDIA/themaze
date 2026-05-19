@@ -121,6 +121,9 @@ const baseMetadata: Metadata = {
     follow: true,
     googleBot: { index: true, follow: true, 'max-video-preview': -1, 'max-image-preview': 'large', 'max-snippet': -1 },
   },
+  verification: {
+    yandex: '90dee1899184f344',
+  },
   manifest: '/site.webmanifest',
   alternates: {
     canonical: SITE_URL,
