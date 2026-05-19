@@ -138,8 +138,8 @@ export default function AdminProjectsPage() {
       <div className="flex items-start justify-between gap-4 mb-6">
         <div>
           <h1 className="text-2xl font-bold text-white tracking-tight">Projects</h1>
-          <p className="text-sm text-[#555] mt-1">
-            Manage your portfolio. Drag to reorder, toggle Featured to surface on the homepage.
+          <p className="text-sm text-[#777] mt-1">
+            Manage your portfolio. Drag to reorder, edit to update content, promote to share.
             {savingOrder && <span className="ml-2 text-[#C8FF47]">· saving order…</span>}
           </p>
         </div>
@@ -209,12 +209,10 @@ export default function AdminProjectsPage() {
       </div>
 
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 mb-4">
-        <p className="text-[11px] text-[#444]">
+        <p className="text-[11px] text-[#666]">
           {dragEnabled
-            ? 'Drag the ⋮⋮ handle to reorder · order applies on the public site.'
-            : 'Clear search and switch to "All" to reorder projects.'}
-          <span className="mx-2 text-[#333]">·</span>
-          Admin self-views are excluded from the Views column.
+            ? 'Drag ⋮⋮ to reorder · ★ marks featured · admin self-views excluded from counts.'
+            : 'Clear search and switch to "All" to reorder.'}
         </p>
         <button
           type="button"
@@ -229,14 +227,6 @@ export default function AdminProjectsPage() {
 
       {/* Table */}
       <div className="rounded-xl border border-[#1E1E1E] overflow-hidden">
-        {/* Header */}
-        <div className="hidden md:grid grid-cols-[28px_1fr_120px_52px_60px_84px_160px] gap-4 px-5 py-3 bg-[#0D0D0D] border-b border-[#1E1E1E]">
-          <span />
-          {['Project', 'Category', 'Year', 'Featured', 'Views', 'Actions'].map((h) => (
-            <span key={h} className="text-[11px] font-semibold tracking-[0.1em] uppercase text-[#444]">{h}</span>
-          ))}
-        </div>
-
         {loading && (
           <div className="p-3 space-y-2">
             {[...Array(6)].map((_, i) => (
@@ -362,131 +352,127 @@ function ProjectRow({
   const moreCategories = categoryLabels.slice(1)
 
   const Inner = (
-    <div className="flex md:grid md:grid-cols-[28px_1fr_120px_52px_60px_84px_160px] gap-4 items-center px-5 py-3 border-b border-[#1A1A1A] last:border-b-0 bg-[#080808] hover:bg-[#0D0D0D] transition-colors duration-150 group">
+    <div className="relative flex items-center gap-4 px-5 py-3.5 border-b border-[#1A1A1A] last:border-b-0 bg-[#080808] hover:bg-[#0D0D0D] transition-colors duration-150 group">
+      {/* Accent left bar — appears on hover, picks up the project's brand colour */}
+      <span
+        aria-hidden="true"
+        className="absolute left-0 top-0 bottom-0 w-0.5 opacity-0 group-hover:opacity-100 transition-opacity"
+        style={{ background: accent }}
+      />
+
       {/* Drag handle */}
       {draggable ? (
         <button
           type="button"
           onPointerDown={(e) => controls.start(e)}
-          className="cursor-grab active:cursor-grabbing touch-none text-[#444] hover:text-[#C8FF47] focus:text-[#C8FF47] focus:outline-none transition-colors select-none text-lg leading-none"
+          className="cursor-grab active:cursor-grabbing touch-none text-[#444] hover:text-[#C8FF47] focus:text-[#C8FF47] focus:outline-none transition-colors select-none text-lg leading-none shrink-0"
           aria-label={`Drag ${project.title} to reorder`}
           title="Drag to reorder"
         >
           ⋮⋮
         </button>
       ) : (
-        <span className="hidden md:block" />
+        <span className="hidden md:block w-3 shrink-0" />
       )}
 
-      {/* Project: thumbnail + title + client */}
-      <div className="flex items-center gap-3 min-w-0">
-        <div
-          className="relative w-16 h-9 rounded-md overflow-hidden shrink-0 ring-1 ring-[#1E1E1E]"
-          style={{ background: `${accent}22` }}
-        >
-          {project.coverImage ? (
-            // eslint-disable-next-line @next/next/no-img-element
-            <img
-              src={project.coverImage}
-              alt=""
-              loading="lazy"
-              className="w-full h-full object-cover"
-              onError={(e) => { (e.target as HTMLImageElement).style.display = 'none' }}
-            />
-          ) : (
-            <span
-              className="absolute inset-0 flex items-center justify-center text-[10px] font-black tracking-wide"
-              style={{ color: accent }}
-              aria-hidden="true"
-            >
-              {project.title.slice(0, 2).toUpperCase()}
-            </span>
-          )}
-        </div>
-        <div className="min-w-0">
-          <div className="flex items-center gap-2">
-            <p className="text-sm font-semibold text-white truncate">{project.title}</p>
-            {isDraft && (
-              <span className="text-[9px] font-bold px-1.5 py-0.5 rounded bg-yellow-400/15 text-yellow-300 tracking-wider uppercase shrink-0">
-                Draft
-              </span>
-            )}
-          </div>
-          <p className="text-xs text-[#555] mt-0.5 truncate">{project.client}</p>
-        </div>
-      </div>
-
-      {/* Category — first as pill, others collapsed into "+N" with tooltip */}
-      <div className="hidden md:flex items-center gap-1.5 min-w-0">
-        <span className="text-[11px] px-2 py-0.5 border border-[#252525] rounded-full text-[#888] whitespace-nowrap truncate max-w-full">
-          {firstCategory}
-        </span>
-        {moreCategories.length > 0 && (
+      {/* Thumbnail */}
+      <div
+        className="relative w-16 h-9 rounded-md overflow-hidden shrink-0 ring-1 ring-[#1E1E1E]"
+        style={{ background: `${accent}22` }}
+      >
+        {project.coverImage ? (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img
+            src={project.coverImage}
+            alt=""
+            loading="lazy"
+            className="w-full h-full object-cover"
+            onError={(e) => { (e.target as HTMLImageElement).style.display = 'none' }}
+          />
+        ) : (
           <span
-            className="text-[11px] text-[#555] shrink-0"
-            title={moreCategories.join(', ')}
+            className="absolute inset-0 flex items-center justify-center text-[10px] font-black tracking-wide"
+            style={{ color: accent }}
+            aria-hidden="true"
           >
-            +{moreCategories.length}
+            {project.title.slice(0, 2).toUpperCase()}
           </span>
         )}
       </div>
 
-      {/* Year */}
-      <span className="hidden md:block text-xs text-[#555] tabular-nums">
-        {project.year}
-      </span>
-
-      {/* Featured — star icon */}
-      <div className="hidden md:flex items-center">
-        <span
-          className={`text-lg leading-none ${project.featured ? 'text-[#C8FF47]' : 'text-[#252525]'}`}
-          aria-label={project.featured ? 'Featured on homepage' : 'Not featured'}
-          title={project.featured ? 'Featured on homepage' : 'Not featured'}
-        >
-          {project.featured ? '★' : '☆'}
-        </span>
+      {/* Title block — title row + inline meta row (client · category · year) */}
+      <div className="flex-1 min-w-0">
+        <div className="flex items-center gap-2">
+          <p className="text-sm font-semibold text-white truncate">{project.title}</p>
+          {project.featured && (
+            <span
+              aria-label="Featured on homepage"
+              title="Featured on homepage"
+              className="text-[#C8FF47] text-xs leading-none shrink-0"
+            >
+              ★
+            </span>
+          )}
+          {isDraft && (
+            <span className="text-[9px] font-bold px-1.5 py-0.5 rounded bg-yellow-400/15 text-yellow-300 tracking-wider uppercase shrink-0">
+              Draft
+            </span>
+          )}
+        </div>
+        <div className="flex items-center gap-1.5 mt-1 text-xs text-[#7A7A7A] min-w-0">
+          <span className="truncate">{project.client}</span>
+          <span className="text-[#3A3A3A] shrink-0" aria-hidden="true">·</span>
+          <span className="shrink-0" title={categoryLabels.join(', ')}>
+            {firstCategory}
+            {moreCategories.length > 0 && (
+              <span className="text-[#5A5A5A] ml-1">+{moreCategories.length}</span>
+            )}
+          </span>
+          <span className="text-[#3A3A3A] shrink-0" aria-hidden="true">·</span>
+          <span className="tabular-nums shrink-0">{project.year}</span>
+        </div>
       </div>
 
-      {/* Views */}
+      {/* Views — compact two-line block */}
       <div
-        className="hidden md:block text-xs tabular-nums"
+        className="hidden md:block text-right tabular-nums shrink-0 w-16"
         title="All time · last 7 days (admin self-views excluded)"
       >
-        <p className="text-white font-semibold leading-tight">
+        <p className="text-sm text-white font-semibold leading-tight">
           {total.toLocaleString('en-US')}
         </p>
-        <p className="text-[10px] text-[#555] mt-0.5">
-          {week} / week
+        <p className="text-[10px] text-[#666] mt-0.5">
+          {week} / wk
         </p>
       </div>
 
-      {/* Actions */}
-      <div className="flex gap-3 ml-auto md:ml-0">
+      {/* Actions — visible on row hover on desktop, always on mobile */}
+      <div className="flex items-center gap-3 shrink-0 md:opacity-60 md:group-hover:opacity-100 transition-opacity">
         <a
           href={`/portfolio/${project.slug}`}
           target="_blank"
           rel="noopener noreferrer"
-          className="text-xs text-[#555] hover:text-[#47C8FF] transition-colors"
+          className="text-xs text-[#888] hover:text-[#47C8FF] transition-colors"
           title="Open public page in new tab"
         >
           Preview
         </a>
         <Link
           href={`/admin/projects/${project.id}/press-kit`}
-          className="text-xs text-[#555] hover:text-[#C8FF47] transition-colors"
-          title="Generate captions, share links and submit URLs"
+          className="text-xs text-[#888] hover:text-[#C8FF47] transition-colors"
+          title="Captions, share links, submit URLs"
         >
           Promote
         </Link>
         <Link
           href={`/admin/edit/${project.id}`}
-          className="text-xs text-[#555] hover:text-[#C8FF47] transition-colors"
+          className="text-xs text-[#888] hover:text-[#C8FF47] transition-colors"
         >
           Edit
         </Link>
         <button
           onClick={() => onDelete(project.id, project.title)}
-          className="text-xs text-[#555] hover:text-red-400 transition-colors"
+          className="text-xs text-[#888] hover:text-red-400 transition-colors"
         >
           Delete
         </button>
