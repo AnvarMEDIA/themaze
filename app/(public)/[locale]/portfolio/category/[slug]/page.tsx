@@ -72,12 +72,12 @@ export default async function PortfolioCategoryPage({ params }: Props) {
     <main className="min-h-screen">
       <JsonLd data={[crumbs, portfolioListJsonLd(matching, params.locale)]} />
 
-      <section className="pt-28 pb-16 px-6 md:px-10 border-b border-maze-border">
+      <section className="pt-28 pb-12 px-6 md:px-10 border-b border-maze-border">
         <div className="max-w-[1440px] mx-auto">
           <p className="label-sm text-maze-lime mb-5">
             {isRu ? 'Категория' : 'Category'}
           </p>
-          <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-6">
+          <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-6 mb-10">
             <h1 className="display-md text-maze-cream max-w-xl">
               {isRu ? `${label} — наши работы` : `${label} — our work`}
             </h1>
@@ -85,6 +85,17 @@ export default async function PortfolioCategoryPage({ params }: Props) {
               {matching.length} {matching.length === 1 ? t('projectSingular') : t('projectPlural')}
             </p>
           </div>
+          {/* Intro copy — the actual reason this page can rank. Without
+              200+ words of context Google treats it as a thin filter
+              page; with them it competes for category-keyword queries
+              ("брендинг агентство Ташкент" etc). */}
+          {(() => {
+            const intro = t.raw('categoryIntro') as Record<string, string> | undefined
+            const text  = intro?.[params.slug]
+            return text ? (
+              <p className="body-lg text-maze-muted max-w-3xl leading-relaxed">{text}</p>
+            ) : null
+          })()}
         </div>
       </section>
 
