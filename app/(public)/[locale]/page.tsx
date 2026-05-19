@@ -9,8 +9,13 @@ import { ServicesSection } from '@/components/home/ServicesSection'
 import { ProcessSection }  from '@/components/home/ProcessSection'
 import { CTASection }      from '@/components/home/CTASection'
 import { PartnersSection } from '@/components/home/PartnersSection'
-import { getAllProjects } from '@/lib/portfolio'
+import { TestimonialsSection } from '@/components/home/TestimonialsSection'
+import { JsonLd } from '@/components/JsonLd'
+import { testimonialsJsonLd } from '@/lib/jsonLd'
+import { getPublishedProjects } from '@/lib/portfolio'
 import { getPartners } from '@/lib/partners'
+import { getTestimonials } from '@/lib/testimonials'
+import { localizedAlternates } from '@/lib/seo'
 
 interface Props {
   params: { locale: string }
@@ -21,8 +26,6 @@ export const dynamic = 'force-dynamic'
 export function generateStaticParams() {
   return routing.locales.map((locale) => ({ locale }))
 }
-
-const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://www.maze.uz'
 
 export async function generateMetadata({ params: { locale } }: Props): Promise<Metadata> {
   const isRu = locale === 'ru'
@@ -46,39 +49,42 @@ export async function generateMetadata({ params: { locale } }: Props): Promise<M
         'дизайн студия Ташкент',
         'MAZE Студия',
       ],
-      alternates: {
-        canonical: `${SITE_URL}/ru`,
-        languages: { 'en-US': SITE_URL, 'ru-RU': `${SITE_URL}/ru` },
-      },
+      alternates: localizedAlternates(locale),
     }
   }
 
   return {
-    alternates: {
-      canonical: SITE_URL,
-      languages: { 'en-US': SITE_URL, 'ru-RU': `${SITE_URL}/ru` },
-    },
+    alternates: localizedAlternates(locale),
   }
 }
 
 export default async function HomePage({ params: { locale } }: Props) {
   setRequestLocale(locale)
-  const [featuredProjects, partners, t] = await Promise.all([
-    getAllProjects(),
+  const [featuredProjects, partners, testimonials, tp, tt] = await Promise.all([
+    getPublishedProjects(),
     getPartners(),
+    getTestimonials(),
     getTranslations({ locale, namespace: 'partners' }),
+    getTranslations({ locale, namespace: 'testimonialsSection' }),
   ])
 
   return (
     <>
+      {testimonials.length > 0 && <JsonLd id="ld-reviews" data={testimonialsJsonLd(testimonials, locale)} />}
       <Hero />
       <Marquee />
       <FeaturedWork projects={featuredProjects} />
       <AboutSection />
       <PartnersSection
         partners={partners}
-        label={t('label')}
-        heading={t('heading')}
+        label={tp('label')}
+        heading={tp('heading')}
+      />
+      <TestimonialsSection
+        testimonials={testimonials}
+        locale={locale}
+        label={tt('label')}
+        heading={tt('heading')}
       />
       <ServicesSection />
       <ProcessSection />

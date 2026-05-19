@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, useRef, useState } from 'react'
+import { usePathname } from '@/i18n/navigation'
 
 type Variant = 'default' | 'hover' | 'view'
 
@@ -9,11 +10,27 @@ type Variant = 'default' | 'hover' | 'view'
  * - Position: pure RAF + direct DOM transform (zero React re-renders)
  * - Size: CSS transform: scale() — GPU-accelerated (Emil's rule: only transform + opacity)
  * - Hover detection: single delegated listener on document
+ *
+ * Disabled on the portfolio pages: when browsing work the visitor is
+ * looking at imagery, so the native cursor is less distracting and
+ * makes the gallery lightbox feel like a normal image viewer. While
+ * disabled the component adds `native-cursor` to <html> so globals.css
+ * restores the system cursor.
  */
 export function CustomCursor() {
-  const dotRef  = useRef<HTMLDivElement>(null)
-  const ringRef = useRef<HTMLDivElement>(null)
+  const dotRef   = useRef<HTMLDivElement>(null)
+  const ringRef  = useRef<HTMLDivElement>(null)
+  const pathname = usePathname()
   const [variant, setVariant] = useState<Variant>('default')
+
+  // Portfolio list (/portfolio) and any project page (/portfolio/<slug>).
+  const useNativeCursor = pathname === '/portfolio' || pathname.startsWith('/portfolio/')
+
+  useEffect(() => {
+    const html = document.documentElement
+    html.classList.toggle('native-cursor', useNativeCursor)
+    return () => html.classList.remove('native-cursor')
+  }, [useNativeCursor])
 
   // ── Position tracking (RAF, no React) ──────────────────────────────────
   useEffect(() => {
@@ -77,6 +94,9 @@ export function CustomCursor() {
     variant === 'hover' ? 3.6 : 1
 
   const blendMode = variant === 'hover' ? 'difference' : 'normal'
+
+  // On portfolio pages we show the native cursor instead.
+  if (useNativeCursor) return null
 
   return (
     <>

@@ -4,14 +4,21 @@ import { notFound } from 'next/navigation'
 import Image from 'next/image'
 import { Link } from '@/i18n/navigation'
 import { routing } from '@/i18n/routing'
-import { getAllProjects, getProjectBySlug } from '@/lib/portfolio'
+import { getProjectBySlug, getPublishedProjects } from '@/lib/portfolio'
+import { ProjectGallery } from '@/components/portfolio/ProjectGallery'
+import { JsonLd } from '@/components/JsonLd'
+import { breadcrumbJsonLd, projectJsonLd, homeCrumb, portfolioCrumb } from '@/lib/jsonLd'
+import { localizedAlternates } from '@/lib/seo'
+import { getAdminSession } from '@/lib/auth'
+import { imageAlt, projectMetaTitle, projectMetaDescription } from '@/lib/projectMeta'
+import { slugify } from '@/lib/utils'
 
 interface Props {
   params: { locale: string; slug: string }
 }
 
 export async function generateStaticParams() {
-  const projects = await getAllProjects()
+  const projects = await getPublishedProjects()
   return routing.locales.flatMap((locale) =>
     projects.map((project) => ({ locale, slug: project.slug }))
   )
@@ -20,16 +27,23 @@ export async function generateStaticParams() {
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const project = await getProjectBySlug(params.slug)
   if (!project) return {}
-  const isRu = params.locale === 'ru'
-  const title = isRu ? (project.titleRu || project.title) : project.title
-  const desc  = isRu ? (project.shortDescriptionRu || project.shortDescription) : project.shortDescription
+  // Admin overrides (metaTitle / metaDescription) win; otherwise we
+  // generate "{title} — {category} for {client}" plus shortDescription.
+  // OG / Twitter image is auto-generated via opengraph-image.tsx.
+  const title = projectMetaTitle(project, params.locale)
+  const desc  = projectMetaDescription(project, params.locale)
   return {
-    title: `${title} — ${project.client}`,
+    title,
     description: desc,
+    alternates: localizedAlternates(params.locale, `portfolio/${project.slug}`),
     openGraph: {
       title: `${title} | MAZE Studio`,
       description: desc,
-      images: [{ url: project.coverImage }],
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title: `${title} | MAZE Studio`,
+      description: desc,
     },
   }
 }
@@ -43,10 +57,22 @@ export default async function ProjectPage({ params }: Props) {
 
   if (!project) notFound()
 
-  const all     = await getAllProjects()
+  if (project.status === 'draft') {
+    const authed = await getAdminSession()
+    if (!authed) notFound()
+  }
+
+  const all = await getPublishedProjects()
   const related = all
     .filter((p) => p.id !== project.id && p.categories.some((c) => project.categories.includes(c)))
     .slice(0, 2)
+  const clientSlug = slugify(project.client)
+
+  // Prev / next neighbour in the published portfolio ordering, for
+  // internal linking and "keep scrolling" UX.
+  const idx  = all.findIndex((p) => p.id === project.id)
+  const prev = idx > 0                 ? all[idx - 1] : null
+  const next = idx >= 0 && idx < all.length - 1 ? all[idx + 1] : null
 
   const isRu = locale === 'ru'
   const title            = isRu ? (project.titleRu            || project.title)            : project.title
@@ -55,8 +81,18 @@ export default async function ProjectPage({ params }: Props) {
   const results          = isRu ? (project.resultsRu          || project.results)          : project.results
   const services         = isRu ? (project.servicesRu?.length ? project.servicesRu : project.services) : project.services
 
+  const crumbs = breadcrumbJsonLd([
+    homeCrumb(locale, isRu ? 'Главная' : 'Home'),
+    portfolioCrumb(locale, isRu ? 'Портфолио' : 'Portfolio'),
+    {
+      name: title,
+      url: `${process.env.NEXT_PUBLIC_SITE_URL ?? 'https://www.maze.uz'}${locale === 'en' ? '' : '/' + locale}/portfolio/${project.slug}`,
+    },
+  ])
+
   return (
     <article className="pt-28 min-h-screen">
+      <JsonLd data={[crumbs, projectJsonLd(project, locale)]} />
       {/* Hero */}
       <div className="px-6 md:px-10 pb-14 border-b border-maze-border">
         <div className="max-w-[1440px] mx-auto">
@@ -71,20 +107,31 @@ export default async function ProjectPage({ params }: Props) {
             <div>
               <div className="flex flex-wrap gap-2 mb-4">
                 {project.categories.map((c) => (
-                  <span key={c} className="label-sm text-maze-lime">
+                  <Link
+                    key={c}
+                    href={`/portfolio/category/${c}`}
+                    className="label-sm text-maze-lime hover:text-maze-cream transition-colors"
+                  >
                     {(t.raw('categories') as Record<string,string>)[c] ?? c}
-                  </span>
+                  </Link>
                 ))}
               </div>
               <h1 className="display-md text-maze-cream mb-4">{title}</h1>
-              <p className="heading-md text-maze-muted">{project.client}</p>
+              <Link
+                href={`/portfolio/client/${clientSlug}`}
+                className="heading-md text-maze-muted hover:text-maze-cream transition-colors inline-block"
+              >
+                {project.client}
+              </Link>
             </div>
 
             <div className="grid grid-cols-2 sm:grid-cols-3 gap-6 lg:items-end">
-              <div>
-                <p className="label-sm text-maze-muted mb-1">{t('year')}</p>
-                <p className="font-semibold text-maze-cream">{project.year}</p>
-              </div>
+              {project.showYear !== false && (
+                <div>
+                  <p className="label-sm text-maze-muted mb-1">{t('year')}</p>
+                  <p className="font-semibold text-maze-cream">{project.year}</p>
+                </div>
+              )}
               <div>
                 <p className="label-sm text-maze-muted mb-1">{t('category')}</p>
                 <p className="font-semibold text-maze-cream">
@@ -111,18 +158,13 @@ export default async function ProjectPage({ params }: Props) {
         {project.coverImage && (
           <Image
             src={project.coverImage}
-            alt={project.title}
+            alt={imageAlt(project, project.coverImage, locale)}
             fill
             priority
             sizes="100vw"
             className="object-cover"
           />
         )}
-        <div className="absolute inset-0 flex items-center justify-center">
-          <span className="text-[20vw] font-black opacity-5" style={{ color: project.accentColor }}>
-            {project.title.slice(0, 2)}
-          </span>
-        </div>
       </div>
 
       {/* Content */}
@@ -165,25 +207,12 @@ export default async function ProjectPage({ params }: Props) {
           </div>
         </div>
 
-        {/* Gallery */}
-        {project.images.length > 0 && (
-          <div className="max-w-[1440px] mx-auto mt-20">
-            <h3 className="heading-md text-maze-cream mb-8">{t('gallery')}</h3>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {project.images.map((img, i) => (
-                <div key={i} className="relative aspect-[4/3] rounded-xl overflow-hidden bg-maze-gray">
-                  <Image
-                    src={img}
-                    alt={`${project.title} — image ${i + 1}`}
-                    fill
-                    sizes="(max-width: 768px) 100vw, 50vw"
-                    className="object-cover"
-                  />
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
+        {/* Gallery — fullscreen lightbox slider */}
+        <ProjectGallery
+          images={project.images.map((url) => ({ url, alt: imageAlt(project, url, locale) }))}
+          title={project.title}
+          heading={t('gallery')}
+        />
 
         {/* Related */}
         {related.length > 0 && (
@@ -206,6 +235,44 @@ export default async function ProjectPage({ params }: Props) {
               ))}
             </div>
           </div>
+        )}
+
+        {/* Prev / next — neighbour links keep visitors in the portfolio
+            and pass internal PageRank between cases. */}
+        {(prev || next) && (
+          <nav
+            aria-label="Project navigation"
+            className="max-w-[1440px] mx-auto mt-20 pt-10 border-t border-maze-border grid grid-cols-1 md:grid-cols-2 gap-4"
+          >
+            {prev ? (
+              <Link
+                href={`/portfolio/${prev.slug}`}
+                className="group block p-5 rounded-xl border border-maze-border transition-colors hover:border-maze-lime"
+                rel="prev"
+                data-cursor="view"
+              >
+                <p className="label-sm text-maze-muted mb-2">← {isRu ? 'Предыдущий' : 'Previous'}</p>
+                <p className="heading-md text-maze-cream group-hover:text-maze-lime transition-colors truncate">
+                  {(isRu && prev.titleRu) || prev.title}
+                </p>
+                <p className="label-sm text-maze-muted mt-1 truncate">{prev.client}</p>
+              </Link>
+            ) : <span />}
+            {next ? (
+              <Link
+                href={`/portfolio/${next.slug}`}
+                className="group block p-5 rounded-xl border border-maze-border transition-colors hover:border-maze-lime md:text-right"
+                rel="next"
+                data-cursor="view"
+              >
+                <p className="label-sm text-maze-muted mb-2">{isRu ? 'Следующий' : 'Next'} →</p>
+                <p className="heading-md text-maze-cream group-hover:text-maze-lime transition-colors truncate">
+                  {(isRu && next.titleRu) || next.title}
+                </p>
+                <p className="label-sm text-maze-muted mt-1 truncate">{next.client}</p>
+              </Link>
+            ) : <span />}
+          </nav>
         )}
       </div>
     </article>

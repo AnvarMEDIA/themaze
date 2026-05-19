@@ -1,5 +1,6 @@
 import { Toaster } from 'react-hot-toast'
 import { AdminShell } from '@/components/admin/AdminShell'
+import { KeyboardShortcuts } from '@/components/admin/KeyboardShortcuts'
 
 export default function AdminRootLayout({ children }: { children: React.ReactNode }) {
   return (
@@ -9,6 +10,7 @@ export default function AdminRootLayout({ children }: { children: React.ReactNod
         * { cursor: auto !important; }
       `}</style>
       <AdminShell>{children}</AdminShell>
+      <KeyboardShortcuts />
       <Toaster
         position="bottom-right"
         toastOptions={{

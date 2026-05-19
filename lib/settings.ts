@@ -10,16 +10,19 @@ export interface SiteSettings {
   behance:       string
   linkedin:      string
   twitter:       string
+  favicon:       string  // URL to favicon (ICO / PNG / SVG)
 }
 
 const DEFAULT: SiteSettings = {
   email: '', phone: '', telegram: '',
   address: '', addressDetail: '',
   instagram: '', behance: '', linkedin: '', twitter: '',
+  favicon: '',
 }
 
 export async function getSettings(): Promise<SiteSettings> {
-  return readStore<SiteSettings>('settings', DEFAULT)
+  const stored = await readStore<Partial<SiteSettings>>('settings', DEFAULT)
+  return { ...DEFAULT, ...stored }
 }
 
 export async function saveSettings(settings: SiteSettings): Promise<void> {

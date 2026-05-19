@@ -1,8 +1,10 @@
 'use client'
 
-import { useState } from 'react'
+import { useRef, useState } from 'react'
 import { useTranslations } from 'next-intl'
 import toast from 'react-hot-toast'
+import PhoneInput, { isValidPhoneNumber } from 'react-phone-number-input'
+import flags from 'react-phone-number-input/flags'
 
 
 export function ContactForm() {
@@ -10,28 +12,50 @@ export function ContactForm() {
   const budgets = t.raw('budgets') as string[]
   const [loading, setLoading] = useState(false)
   const [form, setForm] = useState({
-    name: '', email: '', company: '', service: '', budget: '', message: '',
+    name: '', email: '', phone: '', company: '',
+    service: '', budget: '', message: '', website: '',
   })
+  const mountedAt = useRef<number>(Date.now())
 
   const set = (key: string, value: string) =>
     setForm((prev) => ({ ...prev, [key]: value }))
 
+  const phoneInvalid = form.phone.length > 0 && !isValidPhoneNumber(form.phone)
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
+    if (phoneInvalid) {
+      toast.error(t('phoneInvalid'))
+      return
+    }
     setLoading(true)
     try {
+      // Client-side timing check: humans take >2s to fill the form.
+      // A submission in under 2s is almost certainly a bot.
+      const elapsed = Date.now() - mountedAt.current
+      if (elapsed < 2000) {
+        toast.success(t('success'), { duration: 5000 })
+        setForm({ name: '', email: '', phone: '', company: '', service: '', budget: '', message: '', website: '' })
+        return
+      }
+
       const res = await fetch('/api/inquiries', {
         method:  'POST',
         headers: { 'Content-Type': 'application/json' },
         body:    JSON.stringify(form),
       })
+      if (res.status === 429) {
+        toast.error(t('tooMany'))
+        return
+      }
       if (!res.ok) throw new Error()
       toast.success(t('success'), { duration: 5000 })
-      setForm({ name: '', email: '', company: '', service: '', budget: '', message: '' })
+      setForm({ name: '', email: '', phone: '', company: '', service: '', budget: '', message: '', website: '' })
     } catch {
       toast.error(t('error'))
+    } finally {
+      setLoading(false)
     }
-    setLoading(false)
   }
 
   const inputClass =
@@ -42,13 +66,32 @@ export function ContactForm() {
   const serviceOptions = serviceItems.map((s) => s.title)
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-5">
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-        <div>
-          <label className="label-sm text-maze-muted block mb-2">{t('name')} *</label>
+    <form onSubmit={handleSubmit} className="space-y-5" noValidate>
+      {/* Honeypot: hidden from real users, irresistible to bots */}
+      <div
+        aria-hidden="true"
+        style={{ position: 'absolute', left: '-9999px', top: 'auto', width: 1, height: 1, overflow: 'hidden' }}
+      >
+        <label>
+          Website (leave empty)
           <input
             type="text"
+            tabIndex={-1}
+            autoComplete="off"
+            value={form.website}
+            onChange={(e) => set('website', e.target.value)}
+          />
+        </label>
+      </div>
+
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <div>
+          <label htmlFor="cf-name" className="label-sm text-maze-muted block mb-2">{t('name')} *</label>
+          <input
+            id="cf-name"
+            type="text"
             required
+            autoComplete="name"
             placeholder={t('namePlaceholder')}
             value={form.name}
             onChange={(e) => set('name', e.target.value)}
@@ -56,10 +99,12 @@ export function ContactForm() {
           />
         </div>
         <div>
-          <label className="label-sm text-maze-muted block mb-2">{t('email')} *</label>
+          <label htmlFor="cf-email" className="label-sm text-maze-muted block mb-2">{t('email')} *</label>
           <input
+            id="cf-email"
             type="email"
             required
+            autoComplete="email"
             placeholder={t('emailPlaceholder')}
             value={form.email}
             onChange={(e) => set('email', e.target.value)}
@@ -68,9 +113,46 @@ export function ContactForm() {
         </div>
       </div>
 
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <div>
+          <label htmlFor="cf-phone" className="label-sm text-maze-muted block mb-2">{t('phone')}</label>
+          <PhoneInput
+            id="cf-phone"
+            international
+            defaultCountry="UZ"
+            flags={flags}
+            value={form.phone}
+            onChange={(v) => set('phone', v ?? '')}
+            placeholder={t('phonePlaceholder')}
+            className={`maze-phone ${phoneInvalid ? 'maze-phone--invalid' : ''}`}
+            numberInputProps={{ autoComplete: 'tel' }}
+            aria-invalid={phoneInvalid || undefined}
+            aria-describedby={phoneInvalid ? 'cf-phone-error' : undefined}
+          />
+          {phoneInvalid && (
+            <p id="cf-phone-error" className="mt-1.5 text-xs text-red-400">
+              {t('phoneInvalid')}
+            </p>
+          )}
+        </div>
+        <div>
+          <label htmlFor="cf-company" className="label-sm text-maze-muted block mb-2">{t('company')}</label>
+          <input
+            id="cf-company"
+            type="text"
+            autoComplete="organization"
+            placeholder={t('companyPlaceholder')}
+            value={form.company}
+            onChange={(e) => set('company', e.target.value)}
+            className={inputClass}
+          />
+        </div>
+      </div>
+
       <div>
-        <label className="label-sm text-maze-muted block mb-2">{t('service')} *</label>
+        <label htmlFor="cf-service" className="label-sm text-maze-muted block mb-2">{t('service')} *</label>
         <select
+          id="cf-service"
           required
           value={form.service}
           onChange={(e) => set('service', e.target.value)}
@@ -84,28 +166,33 @@ export function ContactForm() {
       </div>
 
       <div>
-        <label className="label-sm text-maze-muted block mb-3">{t('budget')}</label>
-        <div className="flex flex-wrap gap-2">
-          {budgets.map((b) => (
-            <button
-              key={b}
-              type="button"
-              onClick={() => set('budget', b)}
-              className={`label-sm px-4 py-2 border rounded-full transition-all duration-200 ${
-                form.budget === b
-                  ? 'border-maze-lime text-maze-ink bg-maze-lime'
-                  : 'border-maze-border text-maze-muted hover:border-maze-cream hover:text-maze-cream'
-              }`}
-            >
-              {b}
-            </button>
-          ))}
+        <span id="cf-budget-label" className="label-sm text-maze-muted block mb-3">{t('budget')}</span>
+        <div className="flex flex-wrap gap-2" role="group" aria-labelledby="cf-budget-label">
+          {budgets.map((b) => {
+            const active = form.budget === b
+            return (
+              <button
+                key={b}
+                type="button"
+                aria-pressed={active}
+                onClick={() => set('budget', b)}
+                className={`label-sm px-4 py-2 border rounded-full transition-all duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-maze-lime ${
+                  active
+                    ? 'border-maze-lime text-maze-ink bg-maze-lime'
+                    : 'border-maze-border text-maze-muted hover:border-maze-cream hover:text-maze-cream'
+                }`}
+              >
+                {b}
+              </button>
+            )
+          })}
         </div>
       </div>
 
       <div>
-        <label className="label-sm text-maze-muted block mb-2">{t('message')} *</label>
+        <label htmlFor="cf-message" className="label-sm text-maze-muted block mb-2">{t('message')} *</label>
         <textarea
+          id="cf-message"
           required
           rows={5}
           placeholder={t('messagePlaceholder')}
@@ -118,7 +205,7 @@ export function ContactForm() {
       <button
         type="submit"
         disabled={loading}
-        className="w-full py-4 bg-maze-lime text-maze-ink font-bold rounded-full hover:bg-maze-paper transition-colors duration-200 disabled:opacity-60 disabled:cursor-not-allowed label-sm"
+        className="w-full py-4 bg-maze-lime text-maze-ink font-bold rounded-full hover:bg-maze-paper transition-colors duration-200 disabled:opacity-60 disabled:cursor-not-allowed label-sm focus:outline-none focus-visible:ring-2 focus-visible:ring-maze-cream"
       >
         {loading ? t('sending') : `${t('send')} ↗`}
       </button>

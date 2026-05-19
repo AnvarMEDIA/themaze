@@ -46,7 +46,11 @@ export async function middleware(req: NextRequest) {
       }
 
       try {
-        await jwtVerify(token, getSecret())
+        await jwtVerify(token, getSecret(), {
+          algorithms: ['HS256'],
+          issuer:     'maze.uz/admin',
+          audience:   'maze.uz/admin-ui',
+        })
         return addSecurityHeaders(NextResponse.next())
       } catch {
         const res = NextResponse.redirect(new URL('/admin/login', req.url))

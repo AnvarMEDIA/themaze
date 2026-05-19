@@ -51,7 +51,9 @@ export function ProjectCard({ project, index, layout = 'grid' }: Props) {
           </div>
           <div className="hidden md:flex items-center gap-6 shrink-0">
             <span className="label-sm text-maze-muted">{catLabel}</span>
-            <span className="label-sm text-maze-muted">{project.year}</span>
+            {project.showYear !== false && (
+              <span className="label-sm text-maze-muted">{project.year}</span>
+            )}
           </div>
           <span className="shrink-0 w-10 h-10 rounded-full border border-maze-border flex items-center justify-center text-maze-muted group-hover:border-maze-lime group-hover:text-maze-lime transition-all -rotate-45 group-hover:rotate-0">
             ↗
@@ -103,7 +105,9 @@ export function ProjectCard({ project, index, layout = 'grid' }: Props) {
               <div className="bg-maze-black/80 backdrop-blur-sm p-5">
                 <div className="flex items-center justify-between mb-2">
                   <span className="label-sm text-maze-lime">{catLabel}</span>
-                  <span className="label-sm text-maze-muted">{project.year}</span>
+                  {project.showYear !== false && (
+                    <span className="label-sm text-maze-muted">{project.year}</span>
+                  )}
                 </div>
                 <h3 className="heading-md text-maze-cream">{title}</h3>
                 <p className="body-lg text-maze-muted mt-1 line-clamp-2 hidden sm:block">
@@ -123,7 +127,9 @@ export function ProjectCard({ project, index, layout = 'grid' }: Props) {
             </h3>
             <p className="label-sm text-maze-muted mt-1">{project.client}</p>
           </div>
-          <span className="shrink-0 label-sm text-maze-muted pt-0.5">{project.year}</span>
+          {project.showYear !== false && (
+            <span className="shrink-0 label-sm text-maze-muted pt-0.5">{project.year}</span>
+          )}
         </div>
       </Link>
     </motion.div>

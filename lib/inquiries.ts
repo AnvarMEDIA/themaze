@@ -4,6 +4,7 @@ export interface Inquiry {
   id:        string
   name:      string
   email:     string
+  phone?:    string
   company?:  string
   service:   string
   budget:    string
@@ -41,4 +42,14 @@ export async function markInquiryRead(id: string): Promise<void> {
 export async function deleteInquiry(id: string): Promise<void> {
   const all = await getInquiries()
   await writeStore('inquiries', all.filter((i) => i.id !== id))
+}
+
+export async function deleteInquiries(ids: string[]): Promise<number> {
+  if (ids.length === 0) return 0
+  const set = new Set(ids)
+  const all = await getInquiries()
+  const next = all.filter((i) => !set.has(i.id))
+  const removed = all.length - next.length
+  await writeStore('inquiries', next)
+  return removed
 }

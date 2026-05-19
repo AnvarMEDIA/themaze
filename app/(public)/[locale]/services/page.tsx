@@ -2,6 +2,9 @@ import type { Metadata } from 'next'
 import { getTranslations, setRequestLocale } from 'next-intl/server'
 import { routing } from '@/i18n/routing'
 import { Link } from '@/i18n/navigation'
+import { JsonLd } from '@/components/JsonLd'
+import { breadcrumbJsonLd, servicesJsonLd, faqJsonLd, homeCrumb } from '@/lib/jsonLd'
+import { localizedAlternates } from '@/lib/seo'
 
 interface Props {
   params: { locale: string }
@@ -16,6 +19,7 @@ export async function generateMetadata({ params: { locale } }: Props): Promise<M
   return {
     title: t('metaTitle'),
     description: t('metaDesc'),
+    alternates: localizedAlternates(locale, 'services'),
   }
 }
 
@@ -27,9 +31,23 @@ export default async function ServicesPage({ params: { locale } }: Props) {
   const services = t.raw('services') as {
     id: string; num: string; title: string; tagline: string; body: string; deliverables: string[]
   }[]
+  const faqItems = (t.raw('faqItems') as Array<{ q: string; a: string }> | undefined) ?? []
+
+  const isRu   = locale === 'ru'
+  const crumbs = breadcrumbJsonLd([
+    homeCrumb(locale, isRu ? 'Главная' : 'Home'),
+    { name: isRu ? 'Услуги' : 'Services', url: `${process.env.NEXT_PUBLIC_SITE_URL ?? 'https://www.maze.uz'}${locale === 'en' ? '' : '/' + locale}/services` },
+  ])
+  const servicesLd = servicesJsonLd(
+    services.map((s) => ({ id: s.id, name: s.title, description: s.body })),
+    locale,
+  )
 
   return (
     <div className="pt-28 min-h-screen">
+      <JsonLd
+        data={[crumbs, servicesLd, ...(faqItems.length ? [faqJsonLd(faqItems.map((it) => ({ question: it.q, answer: it.a })), locale)] : [])]}
+      />
       {/* Header */}
       <div className="px-6 md:px-10 py-20 border-b border-maze-border">
         <div className="max-w-[1440px] mx-auto">
@@ -73,12 +91,18 @@ export default async function ServicesPage({ params: { locale } }: Props) {
                     ))}
                   </ul>
 
-                  <div className="mt-10">
+                  <div className="mt-10 flex flex-wrap gap-3">
+                    <Link
+                      href={`/services/${service.id}`}
+                      className="inline-flex items-center gap-2 label-sm px-5 py-3 border border-maze-lime/40 rounded-full text-maze-lime hover:bg-maze-lime hover:text-maze-ink transition-all duration-300"
+                    >
+                      {t('learnMore') ?? 'Learn more'} →
+                    </Link>
                     <Link
                       href={`/contact?service=${service.id}`}
-                      className="inline-flex items-center gap-2 label-sm px-5 py-3 border border-maze-border rounded-full text-maze-muted hover:border-maze-lime hover:text-maze-lime transition-all duration-300"
+                      className="inline-flex items-center gap-2 label-sm px-5 py-3 border border-maze-border rounded-full text-maze-muted hover:border-maze-cream hover:text-maze-cream transition-all duration-300"
                     >
-                      {t('enquire')} {service.title} →
+                      {t('enquire')} →
                     </Link>
                   </div>
                 </div>
@@ -87,6 +111,37 @@ export default async function ServicesPage({ params: { locale } }: Props) {
           })}
         </div>
       </div>
+
+      {/* FAQ — answers common pre-sales questions and earns the
+          FAQPage rich result in Google. */}
+      {faqItems.length > 0 && (
+        <section className="px-6 md:px-10 py-24 border-t border-maze-border">
+          <div className="max-w-3xl mx-auto">
+            <p className="label-sm text-maze-muted mb-4">{t('faqLabel')}</p>
+            <h2 className="display-md text-maze-cream mb-12">{t('faqHeading')}</h2>
+            <div className="divide-y divide-maze-border border-y border-maze-border">
+              {faqItems.map((item, i) => (
+                <details key={i} className="group">
+                  <summary className="flex items-baseline justify-between gap-4 cursor-pointer py-5 list-none [&::-webkit-details-marker]:hidden">
+                    <span className="heading-md text-maze-cream group-hover:text-maze-lime transition-colors">
+                      {item.q}
+                    </span>
+                    <span
+                      aria-hidden="true"
+                      className="label-sm text-maze-muted shrink-0 transition-transform duration-200 group-open:rotate-45"
+                    >
+                      +
+                    </span>
+                  </summary>
+                  <p className="body-lg text-maze-muted pb-6 max-w-2xl">
+                    {item.a}
+                  </p>
+                </details>
+              ))}
+            </div>
+          </div>
+        </section>
+      )}
 
       {/* CTA */}
       <div className="px-6 md:px-10 py-24 text-center">

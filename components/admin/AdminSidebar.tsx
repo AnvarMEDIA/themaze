@@ -9,16 +9,19 @@ const NAV = [
   {
     group: 'Overview',
     items: [
-      { href: '/admin',           label: 'Dashboard',  icon: IconDashboard },
+      { href: '/admin',        label: 'Dashboard',  icon: IconDashboard },
+      { href: '/admin/stats',  label: 'Statistics', icon: IconStats     },
     ],
   },
   {
     group: 'Content',
     items: [
-      { href: '/admin/projects',   label: 'Projects',   icon: IconProjects   },
-      { href: '/admin/partners',   label: 'Partners',   icon: IconPartners   },
-      { href: '/admin/team',       label: 'Team',       icon: IconTeam       },
-      { href: '/admin/inquiries',  label: 'Inquiries',  icon: IconInquiries  },
+      { href: '/admin/projects',      label: 'Projects',     icon: IconProjects    },
+      { href: '/admin/partners',      label: 'Partners',     icon: IconPartners    },
+      { href: '/admin/team',          label: 'Team',         icon: IconTeam        },
+      { href: '/admin/testimonials',  label: 'Testimonials', icon: IconInquiries   },
+      { href: '/admin/insights',      label: 'Insights',     icon: IconProjects    },
+      { href: '/admin/inquiries',     label: 'Inquiries',    icon: IconInquiries   },
     ],
   },
   {
@@ -56,7 +59,7 @@ export function AdminSidebar() {
           <img
             src="https://1jorjbbfajvf5rug.public.blob.vercel-storage.com/maze_logo.svg"
             alt="MAZE Studio"
-            style={{ height: '24px', width: 'auto' }}
+            style={{ height: '24px', width: 'auto', filter: 'brightness(0) invert(1)' }}
           />
           <span className="text-[10px] font-semibold tracking-[0.15em] uppercase text-[#C8FF47] bg-[#C8FF47]/10 px-2 py-0.5 rounded-full">
             Admin
@@ -110,6 +113,9 @@ export function AdminSidebar() {
           <IconLogout size={16} />
           Logout
         </button>
+        <p className="px-3 pt-2 text-[10px] text-[#444]">
+          Press <kbd className="font-mono px-1 py-0.5 rounded bg-[#1A1A1A] border border-[#252525] text-[#C8FF47]">?</kbd> for shortcuts
+        </p>
       </div>
     </aside>
   )
@@ -124,6 +130,16 @@ function IconDashboard({ size = 16 }: { size?: number }) {
       <rect x="9" y="1" width="6" height="6" rx="1.5" fill="currentColor" opacity=".5"/>
       <rect x="1" y="9" width="6" height="6" rx="1.5" fill="currentColor" opacity=".5"/>
       <rect x="9" y="9" width="6" height="6" rx="1.5" fill="currentColor" opacity=".8"/>
+    </svg>
+  )
+}
+
+function IconStats({ size = 16 }: { size?: number }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 16 16" fill="none">
+      <rect x="2"  y="9"  width="2.5" height="5" rx="0.5" fill="currentColor" opacity=".6"/>
+      <rect x="6.75" y="6" width="2.5" height="8" rx="0.5" fill="currentColor" opacity=".8"/>
+      <rect x="11.5" y="3" width="2.5" height="11" rx="0.5" fill="currentColor"/>
     </svg>
   )
 }

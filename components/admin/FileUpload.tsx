@@ -4,6 +4,7 @@ import { useCallback, useState } from 'react'
 import { useDropzone }           from 'react-dropzone'
 import Image                     from 'next/image'
 import toast                     from 'react-hot-toast'
+import { compressImage }         from '@/lib/compressImage'
 
 interface Props {
   label: string
@@ -16,11 +17,12 @@ export function FileUpload({ label, value, onChange }: Props) {
 
   const onDrop = useCallback(
     async (acceptedFiles: File[]) => {
-      const file = acceptedFiles[0]
-      if (!file) return
+      const original = acceptedFiles[0]
+      if (!original) return
 
       setUploading(true)
       try {
+        const file = await compressImage(original)
         const formData = new FormData()
         formData.append('file', file)
 
@@ -29,7 +31,8 @@ export function FileUpload({ label, value, onChange }: Props) {
 
         if (res.ok && data.url) {
           onChange(data.url)
-          toast.success('Image uploaded!')
+          const savedKb = Math.max(0, Math.round((original.size - file.size) / 1024))
+          toast.success(savedKb > 50 ? `Image uploaded — saved ${savedKb} KB` : 'Image uploaded!')
         } else {
           toast.error(data.error ?? 'Upload failed')
         }
@@ -59,9 +62,10 @@ export function FileUpload({ label, value, onChange }: Props) {
           <button
             type="button"
             onClick={() => onChange('')}
-            className="absolute top-2 right-2 w-6 h-6 rounded-full bg-red-500 text-white flex items-center justify-center text-xs hover:bg-red-600"
+            aria-label="Remove image"
+            className="absolute top-2 right-2 w-6 h-6 rounded-full bg-red-500 text-white flex items-center justify-center text-xs hover:bg-red-600 focus:outline-none focus-visible:ring-2 focus-visible:ring-white"
           >
-            ×
+            <span aria-hidden="true">×</span>
           </button>
         </div>
       )}

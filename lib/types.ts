@@ -1,7 +1,9 @@
 export type ProjectCategory =
   | 'branding'
+  | 'rebranding'
   | 'identity'
   | 'naming'
+  | 'packaging'
   | 'ui-ux'
   | 'print'
   | 'motion'
@@ -15,6 +17,8 @@ export interface Project {
   client: string
   categories: ProjectCategory[]
   year: number
+  /** Show the year on the public site. Undefined is treated as true. */
+  showYear?: boolean
   description: string
   descriptionRu?: string
   shortDescription: string
@@ -28,6 +32,16 @@ export interface Project {
   accentColor: string
   results?: string
   resultsRu?: string
+  sortOrder?: number
+  status?: 'draft' | 'published'
+  deletedAt?: string | null
+  /** Per-image alt text, keyed by image URL. Falls back to a generated string. */
+  imageAlts?: Record<string, string>
+  /** SEO overrides — leave blank to use auto-generated defaults. */
+  metaTitle?: string
+  metaTitleRu?: string
+  metaDescription?: string
+  metaDescriptionRu?: string
   createdAt: string
   updatedAt: string
 }

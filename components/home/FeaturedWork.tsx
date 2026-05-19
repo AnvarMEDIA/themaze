@@ -129,7 +129,9 @@ function ProjectCard({
             </p>
             <p className="label-sm text-maze-muted mt-0.5">{project.client}</p>
           </div>
-          <span className="label-sm text-maze-muted shrink-0 pt-0.5">{project.year}</span>
+          {project.showYear !== false && (
+            <span className="label-sm text-maze-muted shrink-0 pt-0.5">{project.year}</span>
+          )}
         </div>
       </Link>
     </motion.div>

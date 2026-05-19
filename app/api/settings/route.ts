@@ -26,6 +26,7 @@ export async function PUT(req: NextRequest) {
     }
     await saveSettings(parsed.data)
     revalidatePath('/', 'layout')
+    revalidatePath('/api/favicon')
     return NextResponse.json(parsed.data)
   } catch {
     return NextResponse.json({ error: 'Failed to save settings' }, { status: 500 })

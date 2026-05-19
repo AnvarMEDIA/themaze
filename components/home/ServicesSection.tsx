@@ -75,6 +75,10 @@ export function ServicesSection() {
               className="border-b border-maze-border py-6 md:py-8 cursor-default"
               onMouseEnter={() => setActive(i)}
               onMouseLeave={() => setActive(null)}
+              onFocus={() => setActive(i)}
+              onBlur={(e) => {
+                if (!e.currentTarget.contains(e.relatedTarget as Node)) setActive(null)
+              }}
             >
               <div className="flex items-start justify-between gap-4">
 
@@ -137,7 +141,7 @@ export function ServicesSection() {
                 <Link
                   href={SERVICE_HREFS[i] ?? '/services'}
                   onClick={(e) => e.stopPropagation()}
-                  className="shrink-0 w-10 h-10 rounded-full border flex items-center justify-center mt-1"
+                  className="shrink-0 w-10 h-10 rounded-full border flex items-center justify-center mt-1 focus:outline-none focus-visible:ring-2 focus-visible:ring-maze-lime focus-visible:ring-offset-2 focus-visible:ring-offset-maze-black"
                   style={{
                     borderColor: active === i ? 'rgb(var(--lime))' : 'rgb(var(--border))',
                     color:       active === i ? 'rgb(var(--lime))' : 'rgb(var(--muted))',
@@ -146,7 +150,7 @@ export function ServicesSection() {
                   }}
                   aria-label={`Go to ${service.title}`}
                 >
-                  ↗
+                  <span aria-hidden="true">↗</span>
                 </Link>
               </div>
             </div>

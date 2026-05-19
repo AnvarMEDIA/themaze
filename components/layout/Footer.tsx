@@ -4,6 +4,7 @@ import { useTranslations } from 'next-intl'
 import { Link } from '@/i18n/navigation'
 import type { SiteSettings } from '@/lib/settings'
 import { telegramHref, telegramDisplay } from '@/lib/utils'
+import { resetConsent } from '@/lib/consent'
 
 const LOGO    = 'https://1jorjbbfajvf5rug.public.blob.vercel-storage.com/maze_logo.svg'
 const FOUNDED = 2019
@@ -60,19 +61,21 @@ interface Props {
 
 export function Footer({ settings }: Props) {
   const t           = useTranslations('footer')
+  const tLegal      = useTranslations('legal')
   const currentYear = new Date().getFullYear()
 
-  // Work links split into 2 columns
+  // Work links split into 2 columns — point at the indexed category
+  // landing pages so every page on the site flows PageRank to them.
   const workLinksA = [
-    { href: '/portfolio',                   label: t('nav.portfolio') },
-    { href: '/portfolio?cat=branding',      label: t('nav.branding') },
-    { href: '/portfolio?cat=identity',      label: t('nav.identity') },
-    { href: '/portfolio?cat=naming',        label: t('nav.naming') },
+    { href: '/portfolio',                       label: t('nav.portfolio') },
+    { href: '/portfolio/category/branding',     label: t('nav.branding') },
+    { href: '/portfolio/category/identity',     label: t('nav.identity') },
+    { href: '/portfolio/category/naming',       label: t('nav.naming') },
   ]
   const workLinksB = [
-    { href: '/portfolio?cat=packaging',     label: t('nav.packaging') },
-    { href: '/portfolio?cat=print',         label: t('nav.print') },
-    { href: '/portfolio?cat=art-direction', label: t('nav.artDirection') },
+    { href: '/portfolio/category/packaging',    label: t('nav.packaging') },
+    { href: '/portfolio/category/print',        label: t('nav.print') },
+    { href: '/portfolio/category/motion',       label: t('nav.artDirection') },
   ]
 
   const studioLinks = [
@@ -229,6 +232,24 @@ export function Footer({ settings }: Props) {
         <p className="text-xs text-maze-muted tracking-widest">
           © {FOUNDED}–{currentYear} MAZE Studio. {t('rights')}
         </p>
+        <nav className="flex flex-wrap items-center gap-x-5 gap-y-1 text-xs text-maze-muted">
+          <Link href="/legal/privacy" className="hover:text-maze-cream transition-colors">
+            {tLegal('privacy.title')}
+          </Link>
+          <Link href="/legal/terms" className="hover:text-maze-cream transition-colors">
+            {tLegal('terms.title')}
+          </Link>
+          <Link href="/legal/cookies" className="hover:text-maze-cream transition-colors">
+            {tLegal('cookies.title')}
+          </Link>
+          <button
+            type="button"
+            onClick={() => resetConsent()}
+            className="hover:text-maze-cream transition-colors text-left"
+          >
+            {tLegal('cookieSettings')}
+          </button>
+        </nav>
         <p className="text-xs text-maze-muted tracking-wide">
           {t('builtBy')}
         </p>

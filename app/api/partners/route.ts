@@ -1,7 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { getPartners, savePartners } from '@/lib/partners'
+import { getPartners, createPartner } from '@/lib/partners'
 import { getAdminSession } from '@/lib/auth'
 import { PartnerSchema } from '@/lib/validation'
+import { revalidatePath } from 'next/cache'
 
 export const dynamic = 'force-dynamic'
 
@@ -23,11 +24,11 @@ export async function POST(req: NextRequest) {
     if (!parsed.success) {
       return NextResponse.json({ error: 'Invalid data', details: parsed.error.flatten() }, { status: 400 })
     }
-    const partners = await getPartners()
-    const newPartner = { ...parsed.data, id: String(Date.now()) }
-    await savePartners([...partners, newPartner])
-    return NextResponse.json(newPartner, { status: 201 })
-  } catch {
+    const partner = await createPartner(parsed.data)
+    revalidatePath('/', 'layout')
+    return NextResponse.json(partner, { status: 201 })
+  } catch (err) {
+    console.error('[partners POST]', err)
     return NextResponse.json({ error: 'Failed to create partner' }, { status: 500 })
   }
 }

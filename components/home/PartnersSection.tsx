@@ -2,6 +2,7 @@
 
 import { useRef } from 'react'
 import { motion, useInView } from 'framer-motion'
+import Image from 'next/image'
 import type { Partner } from '@/lib/partners'
 
 interface Props {
@@ -61,12 +62,16 @@ export function PartnersSection({ partners, label, heading }: Props) {
               aria-label={partner.name}
             >
               {partner.logo ? (
-                // eslint-disable-next-line @next/next/no-img-element
-                <img
-                  src={partner.logo}
-                  alt={partner.name}
-                  className="max-h-10 w-auto max-w-[120px] object-contain opacity-50 group-hover:opacity-100 transition-opacity duration-300 filter grayscale group-hover:grayscale-0"
-                />
+                <div className="relative h-10 w-[120px] opacity-50 group-hover:opacity-100 transition-opacity duration-300 grayscale group-hover:grayscale-0">
+                  <Image
+                    src={partner.logo}
+                    alt={partner.name}
+                    fill
+                    sizes="120px"
+                    className="object-contain"
+                    unoptimized={partner.logo.endsWith('.svg')}
+                  />
+                </div>
               ) : (
                 <span className="text-maze-muted group-hover:text-maze-cream font-bold text-sm tracking-wide transition-colors duration-300 text-center leading-tight">
                   {partner.name}
