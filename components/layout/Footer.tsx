@@ -64,17 +64,18 @@ export function Footer({ settings }: Props) {
   const tLegal      = useTranslations('legal')
   const currentYear = new Date().getFullYear()
 
-  // Work links split into 2 columns
+  // Work links split into 2 columns — point at the indexed category
+  // landing pages so every page on the site flows PageRank to them.
   const workLinksA = [
-    { href: '/portfolio',                   label: t('nav.portfolio') },
-    { href: '/portfolio?cat=branding',      label: t('nav.branding') },
-    { href: '/portfolio?cat=identity',      label: t('nav.identity') },
-    { href: '/portfolio?cat=naming',        label: t('nav.naming') },
+    { href: '/portfolio',                       label: t('nav.portfolio') },
+    { href: '/portfolio/category/branding',     label: t('nav.branding') },
+    { href: '/portfolio/category/identity',     label: t('nav.identity') },
+    { href: '/portfolio/category/naming',       label: t('nav.naming') },
   ]
   const workLinksB = [
-    { href: '/portfolio?cat=packaging',     label: t('nav.packaging') },
-    { href: '/portfolio?cat=print',         label: t('nav.print') },
-    { href: '/portfolio?cat=art-direction', label: t('nav.artDirection') },
+    { href: '/portfolio/category/packaging',    label: t('nav.packaging') },
+    { href: '/portfolio/category/print',        label: t('nav.print') },
+    { href: '/portfolio/category/motion',       label: t('nav.artDirection') },
   ]
 
   const studioLinks = [

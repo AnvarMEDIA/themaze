@@ -5,18 +5,25 @@ import { unstable_noStore as noStore } from 'next/cache'
 import { getSettings } from '@/lib/settings'
 import './globals.css'
 
+// Trimmed to the weights actually used in the codebase (audited via
+// font-medium / font-bold / font-black usage). Dropping the 300 weight
+// saves one woff2 per locale subset on first paint.
 const manrope = Manrope({
   subsets: ['latin', 'cyrillic'],
-  weight: ['300', '400', '500', '600', '700', '800'],
+  weight: ['400', '500', '600', '700', '800'],
   variable: '--font-sans',
   display: 'swap',
 })
 
+// Space_Mono is only used in tiny admin / debug spots. Skip the
+// preload <link> so the public critical-path stays lean — the font
+// still loads on demand when the page actually needs it.
 const spaceMono = Space_Mono({
   subsets: ['latin'],
-  weight: ['400', '700'],
+  weight: ['400'],
   variable: '--font-mono',
   display: 'swap',
+  preload: false,
 })
 
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://www.maze.uz'
