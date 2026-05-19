@@ -111,6 +111,17 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     ...localized('legal/cookies', SITE_LAUNCH,     'yearly',  0.3),
   ]
 
+  // Service cluster landing pages — 9 indexable URLs targeting each
+  // service vertical's commercial keyword. Updated each time a project
+  // in the matching category is published, since the "Selected work"
+  // block is pulled live from the portfolio.
+  const servicePages: MetadataRoute.Sitemap = VALID_CATEGORIES.flatMap((slug) => localized(
+    `services/${slug}`,
+    lastByCategory.get(slug) ?? SITE_LAUNCH,
+    'monthly',
+    0.8,
+  ))
+
   // Category landing pages — only emit ones that actually have at
   // least one project so we never ship 404s to crawlers.
   const categoryPages: MetadataRoute.Sitemap = VALID_CATEGORIES
@@ -160,6 +171,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
   return [
     ...staticPages,
+    ...servicePages,
     ...categoryPages,
     ...clientPages,
     ...tagPages,

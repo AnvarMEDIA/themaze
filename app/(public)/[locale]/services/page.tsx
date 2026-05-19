@@ -91,12 +91,18 @@ export default async function ServicesPage({ params: { locale } }: Props) {
                     ))}
                   </ul>
 
-                  <div className="mt-10">
+                  <div className="mt-10 flex flex-wrap gap-3">
+                    <Link
+                      href={`/services/${service.id}`}
+                      className="inline-flex items-center gap-2 label-sm px-5 py-3 border border-maze-lime/40 rounded-full text-maze-lime hover:bg-maze-lime hover:text-maze-ink transition-all duration-300"
+                    >
+                      {t('learnMore') ?? 'Learn more'} →
+                    </Link>
                     <Link
                       href={`/contact?service=${service.id}`}
-                      className="inline-flex items-center gap-2 label-sm px-5 py-3 border border-maze-border rounded-full text-maze-muted hover:border-maze-lime hover:text-maze-lime transition-all duration-300"
+                      className="inline-flex items-center gap-2 label-sm px-5 py-3 border border-maze-border rounded-full text-maze-muted hover:border-maze-cream hover:text-maze-cream transition-all duration-300"
                     >
-                      {t('enquire')} {service.title} →
+                      {t('enquire')} →
                     </Link>
                   </div>
                 </div>
