@@ -230,7 +230,7 @@ export default function AdminProjectsPage() {
       {/* Table */}
       <div className="rounded-xl border border-[#1E1E1E] overflow-hidden">
         {/* Header */}
-        <div className="hidden md:grid grid-cols-[28px_1fr_140px_56px_70px_92px_120px] gap-4 px-5 py-3 bg-[#0D0D0D] border-b border-[#1E1E1E]">
+        <div className="hidden md:grid grid-cols-[28px_1fr_120px_52px_60px_84px_160px] gap-4 px-5 py-3 bg-[#0D0D0D] border-b border-[#1E1E1E]">
           <span />
           {['Project', 'Category', 'Year', 'Featured', 'Views', 'Actions'].map((h) => (
             <span key={h} className="text-[11px] font-semibold tracking-[0.1em] uppercase text-[#444]">{h}</span>
@@ -362,7 +362,7 @@ function ProjectRow({
   const moreCategories = categoryLabels.slice(1)
 
   const Inner = (
-    <div className="flex md:grid md:grid-cols-[28px_1fr_140px_56px_70px_92px_120px] gap-4 items-center px-5 py-3 border-b border-[#1A1A1A] last:border-b-0 bg-[#080808] hover:bg-[#0D0D0D] transition-colors duration-150 group">
+    <div className="flex md:grid md:grid-cols-[28px_1fr_120px_52px_60px_84px_160px] gap-4 items-center px-5 py-3 border-b border-[#1A1A1A] last:border-b-0 bg-[#080808] hover:bg-[#0D0D0D] transition-colors duration-150 group">
       {/* Drag handle */}
       {draggable ? (
         <button
@@ -471,6 +471,13 @@ function ProjectRow({
         >
           Preview
         </a>
+        <Link
+          href={`/admin/projects/${project.id}/press-kit`}
+          className="text-xs text-[#555] hover:text-[#C8FF47] transition-colors"
+          title="Generate captions, share links and submit URLs"
+        >
+          Promote
+        </Link>
         <Link
           href={`/admin/edit/${project.id}`}
           className="text-xs text-[#555] hover:text-[#C8FF47] transition-colors"

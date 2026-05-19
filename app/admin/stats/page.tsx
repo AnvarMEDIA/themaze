@@ -2,6 +2,7 @@ import Link from 'next/link'
 import { getAnalytics, sumRange, dailyTotals } from '@/lib/analytics'
 import { getAllProjects } from '@/lib/portfolio'
 import { getPublishedPosts } from '@/lib/posts'
+import { NotifyIndexingButton } from '@/components/admin/NotifyIndexingButton'
 
 export const dynamic = 'force-dynamic'
 
@@ -72,12 +73,15 @@ export default async function StatsPage() {
 
   return (
     <div className="px-8 py-8 max-w-6xl">
-      <div className="mb-8">
-        <h1 className="text-2xl font-bold text-white tracking-tight">Statistics</h1>
-        <p className="text-sm text-[#555] mt-1">
-          First-party pageviews — bots, repeat refreshes within a minute and admin self-views are excluded.
-          Data is retained for 90 days.
-        </p>
+      <div className="mb-8 flex items-start justify-between gap-4">
+        <div>
+          <h1 className="text-2xl font-bold text-white tracking-tight">Statistics</h1>
+          <p className="text-sm text-[#555] mt-1">
+            First-party pageviews — bots, repeat refreshes within a minute and admin self-views are excluded.
+            Data is retained for 90 days.
+          </p>
+        </div>
+        <NotifyIndexingButton />
       </div>
 
       {/* Stat cards */}

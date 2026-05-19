@@ -4,6 +4,7 @@ import { getAdminSession } from '@/lib/auth'
 import { PostSchema } from '@/lib/validation'
 import { slugify } from '@/lib/utils'
 import { revalidatePath } from 'next/cache'
+import { notifyIndexNow, localePair } from '@/lib/indexing'
 
 export const dynamic = 'force-dynamic'
 
@@ -27,6 +28,12 @@ export async function POST(req: NextRequest) {
       slug: data.slug || slugify(data.title),
     })
     revalidatePath('/', 'layout')
+    if (post.status === 'published') {
+      void notifyIndexNow([
+        ...localePair(`insights/${post.slug}`),
+        ...localePair('insights'),
+      ])
+    }
     return NextResponse.json(post, { status: 201 })
   } catch (err) {
     console.error(err)

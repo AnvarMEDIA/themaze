@@ -1,8 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { updatePost, deletePost, softDeletePost, restorePost } from '@/lib/posts'
+import { updatePost, deletePost, softDeletePost, restorePost, getPostById } from '@/lib/posts'
 import { getAdminSession } from '@/lib/auth'
 import { PostUpdateSchema } from '@/lib/validation'
 import { revalidatePath } from 'next/cache'
+import { notifyIndexNow, localePair } from '@/lib/indexing'
 
 export const dynamic = 'force-dynamic'
 
@@ -18,6 +19,7 @@ export async function PATCH(req: NextRequest, { params }: { params: { id: string
     const post = await updatePost(params.id, parsed.data)
     if (!post) return NextResponse.json({ error: 'Not found' }, { status: 404 })
     revalidatePath('/', 'layout')
+    void notifyIndexNow(localePair(`insights/${post.slug}`))
     return NextResponse.json(post)
   } catch (err) {
     console.error(err)
@@ -30,16 +32,19 @@ export async function DELETE(req: NextRequest, { params }: { params: { id: strin
   if (!authed) return NextResponse.json({ error: 'Unauthorised' }, { status: 401 })
 
   const hard = new URL(req.url).searchParams.get('hard') === '1'
+  const previous = await getPostById(params.id)
   if (hard) {
     const removed = await deletePost(params.id)
     if (!removed) return NextResponse.json({ error: 'Not found' }, { status: 404 })
     revalidatePath('/', 'layout')
+    if (previous) void notifyIndexNow(localePair(`insights/${previous.slug}`))
     return NextResponse.json({ ok: true, hard: true })
   }
 
   const post = await softDeletePost(params.id)
   if (!post) return NextResponse.json({ error: 'Not found' }, { status: 404 })
   revalidatePath('/', 'layout')
+  void notifyIndexNow(localePair(`insights/${post.slug}`))
   return NextResponse.json({ ok: true, deletedAt: post.deletedAt })
 }
 
@@ -54,5 +59,6 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
   const post = await restorePost(params.id)
   if (!post) return NextResponse.json({ error: 'Not found' }, { status: 404 })
   revalidatePath('/', 'layout')
+  void notifyIndexNow(localePair(`insights/${post.slug}`))
   return NextResponse.json(post)
 }

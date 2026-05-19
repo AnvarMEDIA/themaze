@@ -3,6 +3,7 @@ import { getProjectById, updateProject, deleteProject, softDeleteProject, restor
 import { getAdminSession } from '@/lib/auth'
 import { revalidatePath } from 'next/cache'
 import { ProjectUpdateSchema } from '@/lib/validation'
+import { notifyIndexNow, localePair } from '@/lib/indexing'
 
 export const dynamic = 'force-dynamic'
 
@@ -28,6 +29,7 @@ export async function PATCH(req: NextRequest, { params }: Ctx) {
     const project = await updateProject(params.id, parsed.data)
     if (!project) return NextResponse.json({ error: 'Not found' }, { status: 404 })
     revalidatePath('/', 'layout')
+    void notifyIndexNow(localePair(`portfolio/${project.slug}`))
     return NextResponse.json(project)
   } catch (err) {
     const msg = err instanceof Error ? err.message : 'Unknown error'
@@ -41,16 +43,19 @@ export async function DELETE(req: NextRequest, { params }: Ctx) {
   if (!authed) return NextResponse.json({ error: 'Unauthorised' }, { status: 401 })
 
   const hard = new URL(req.url).searchParams.get('hard') === '1'
+  const previous = await getProjectById(params.id)
   if (hard) {
     const ok = await deleteProject(params.id)
     if (!ok) return NextResponse.json({ error: 'Not found' }, { status: 404 })
     revalidatePath('/', 'layout')
+    if (previous) void notifyIndexNow(localePair(`portfolio/${previous.slug}`))
     return NextResponse.json({ ok: true, hard: true })
   }
 
   const project = await softDeleteProject(params.id)
   if (!project) return NextResponse.json({ error: 'Not found' }, { status: 404 })
   revalidatePath('/', 'layout')
+  void notifyIndexNow(localePair(`portfolio/${project.slug}`))
   return NextResponse.json({ ok: true, deletedAt: project.deletedAt })
 }
 
@@ -65,5 +70,6 @@ export async function POST(req: NextRequest, { params }: Ctx) {
   const project = await restoreProject(params.id)
   if (!project) return NextResponse.json({ error: 'Not found' }, { status: 404 })
   revalidatePath('/', 'layout')
+  void notifyIndexNow(localePair(`portfolio/${project.slug}`))
   return NextResponse.json(project)
 }

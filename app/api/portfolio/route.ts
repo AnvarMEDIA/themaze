@@ -4,6 +4,7 @@ import { getAdminSession }              from '@/lib/auth'
 import { slugify }                      from '@/lib/utils'
 import { revalidatePath }               from 'next/cache'
 import { ProjectSchema }                from '@/lib/validation'
+import { notifyIndexNow, localePair }   from '@/lib/indexing'
 
 export const dynamic = 'force-dynamic'
 
@@ -32,6 +33,13 @@ export async function POST(req: NextRequest) {
     })
 
     revalidatePath('/', 'layout')
+    // Fire-and-forget IndexNow ping — never blocks the response.
+    if (project.status !== 'draft') {
+      void notifyIndexNow([
+        ...localePair(`portfolio/${project.slug}`),
+        ...localePair('portfolio'),
+      ])
+    }
     return NextResponse.json(project, { status: 201 })
   } catch (err) {
     console.error(err)
