@@ -127,7 +127,7 @@ const baseMetadata: Metadata = {
   manifest: '/site.webmanifest',
   alternates: {
     canonical: SITE_URL,
-    languages: { 'en-US': `${SITE_URL}/en`, 'ru-RU': `${SITE_URL}/ru` },
+    languages: { 'en-US': SITE_URL, 'ru-RU': `${SITE_URL}/ru` },
   },
 }
 

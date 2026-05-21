@@ -29,8 +29,8 @@ function localized(
 ): Entry[] {
   const languages = {
     'x-default': localeHref('en', path),
-    en: localeHref('en', path),
-    ru: localeHref('ru', path),
+    'en-US':     localeHref('en', path),
+    'ru-RU':     localeHref('ru', path),
   }
   return (['en', 'ru'] as const).map((locale) => ({
     url: localeHref(locale, path),

@@ -7,7 +7,7 @@ export default function robots(): MetadataRoute.Robots {
     rules: [
       {
         userAgent: '*',
-        allow: '/',
+        allow: ['/', '/api/favicon', '/api/indexnow-key'],
         disallow: ['/admin/', '/api/'],
       },
     ],
