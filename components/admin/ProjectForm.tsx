@@ -46,9 +46,10 @@ export function ProjectForm({ project }: Props) {
   const router    = useRouter()
   const isEdit    = !!project
   const [form, setForm]         = useState<FormState>(project ? { ...EMPTY, ...project } : EMPTY)
-  const [loading, setLoading]         = useState(false)
-  const [translating, setTranslating]   = useState(false)
+  const [loading, setLoading]             = useState(false)
+  const [translating, setTranslating]     = useState(false)
   const [translatingUz, setTranslatingUz] = useState(false)
+  const [generatingSeo, setGeneratingSeo] = useState(false)
 
   const set = <K extends keyof FormState>(key: K, value: FormState[K]) =>
     setForm((prev) => ({
@@ -152,6 +153,54 @@ export function ProjectForm({ project }: Props) {
       toast.error(err instanceof Error ? err.message : 'Tarjima xatosi')
     } finally {
       setTranslatingUz(false)
+    }
+  }
+
+  const handleGenerateSeo = async () => {
+    if (!form.titleRu && !form.descriptionRu && !form.shortDescriptionRu) {
+      toast.error('Заполните название и описание перед генерацией SEO')
+      return
+    }
+    setGeneratingSeo(true)
+    try {
+      const res = await fetch('/api/generate-seo', {
+        method:  'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body:    JSON.stringify({
+          title:              form.title,
+          titleRu:            form.titleRu,
+          shortDescription:   form.shortDescription,
+          shortDescriptionRu: form.shortDescriptionRu,
+          description:        form.description,
+          descriptionRu:      form.descriptionRu,
+          client:             form.client,
+          categories:         form.categories,
+          services:           form.servicesRu?.length ? form.servicesRu : form.services,
+          year:               form.year,
+        }),
+      })
+      if (!res.ok) {
+        const d = await res.json() as { error?: string }
+        throw new Error(d.error ?? 'SEO generation failed')
+      }
+      const data = await res.json() as {
+        metaTitle?: string; metaTitleRu?: string; metaTitleUz?: string
+        metaDescription?: string; metaDescriptionRu?: string; metaDescriptionUz?: string
+      }
+      setForm((prev) => ({
+        ...prev,
+        metaTitle:         data.metaTitle         ?? prev.metaTitle,
+        metaTitleRu:       data.metaTitleRu       ?? prev.metaTitleRu,
+        metaTitleUz:       data.metaTitleUz       ?? prev.metaTitleUz,
+        metaDescription:   data.metaDescription   ?? prev.metaDescription,
+        metaDescriptionRu: data.metaDescriptionRu ?? prev.metaDescriptionRu,
+        metaDescriptionUz: data.metaDescriptionUz ?? prev.metaDescriptionUz,
+      }))
+      toast.success('SEO-поля сгенерированы')
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : 'Ошибка генерации SEO')
+    } finally {
+      setGeneratingSeo(false)
     }
   }
 
@@ -644,8 +693,25 @@ export function ProjectForm({ project }: Props) {
 
       {/* SEO overrides */}
       <section className="space-y-4">
-        <h2 className="label-sm text-maze-muted border-b border-maze-border pb-2">SEO</h2>
-        <p className="text-[11px] text-maze-muted -mt-2">
+        <div className="flex flex-wrap items-center justify-between gap-2 border-b border-maze-border pb-2">
+          <h2 className="label-sm text-maze-muted">SEO</h2>
+          <button
+            type="button"
+            onClick={handleGenerateSeo}
+            disabled={generatingSeo}
+            className="flex items-center gap-2 px-4 py-2 rounded-full border border-maze-lime/40 text-maze-lime label-sm hover:bg-maze-lime/10 transition-colors disabled:opacity-50"
+          >
+            {generatingSeo ? (
+              <>
+                <span className="w-3 h-3 border border-maze-lime border-t-transparent rounded-full animate-spin" />
+                Генерируем…
+              </>
+            ) : (
+              <>✦ Сгенерировать SEO (EN / RU / UZ)</>
+            )}
+          </button>
+        </div>
+        <p className="text-[11px] text-maze-muted">
           Leave blank to auto-generate <code className="font-mono text-maze-cream">&laquo;Title — Category for Client&raquo;</code> and use the short description.
           Google shows ~60 chars in titles and ~160 in descriptions.
         </p>
