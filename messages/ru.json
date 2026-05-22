@@ -736,7 +736,7 @@
     "step4": { "heading": "Сроки и бюджет",             "sub": "Помогает правильно оценить объём проекта." },
     "fields": {
       "name":                "Ваше имя",
-      "namePlaceholder":     "Алекс Иванов",
+      "namePlaceholder":     "Ф.И.О.",
       "email":               "Email",
       "emailPlaceholder":    "go@themaze.uz",
       "phone":               "Телефон",

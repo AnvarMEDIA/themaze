@@ -736,7 +736,7 @@
     "step4": { "heading": "Timeline & budget",        "sub": "Helps us scope the project correctly." },
     "fields": {
       "name":                "Your name",
-      "namePlaceholder":     "Alex Johnson",
+      "namePlaceholder":     "Full name",
       "email":               "Email address",
       "emailPlaceholder":    "go@themaze.uz",
       "phone":               "Phone number",
