@@ -20,7 +20,12 @@ import crypto from 'node:crypto'
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://www.maze.uz'
 
 function deriveFallbackKey(): string {
-  const seed = process.env.JWT_SECRET ?? 'maze-indexnow-fallback'
+  const seed = process.env.JWT_SECRET
+  if (!seed) {
+    // JWT_SECRET is missing — derive from a random value that won't persist.
+    // Set INDEXNOW_KEY or JWT_SECRET in production to get a stable key.
+    return crypto.randomBytes(16).toString('hex')
+  }
   return crypto.createHash('sha256').update(seed).digest('hex').slice(0, 32)
 }
 

@@ -54,6 +54,12 @@ export function checkPassword(password: string): boolean {
   const adminPassword = requireEnv('ADMIN_PASSWORD')
   const a = Buffer.from(adminPassword)
   const b = Buffer.from(password)
-  if (a.length !== b.length) return false
-  return timingSafeEqual(a, b)
+  // Pad to equal length so timingSafeEqual always runs the full comparison.
+  // The length check is done separately but both buffers are always compared.
+  const len = Math.max(a.length, b.length)
+  const pa  = Buffer.alloc(len)
+  const pb  = Buffer.alloc(len)
+  a.copy(pa)
+  b.copy(pb)
+  return a.length === b.length && timingSafeEqual(pa, pb)
 }
