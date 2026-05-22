@@ -105,8 +105,12 @@ export default async function AboutPage({ params: { locale } }: Props) {
           <h2 className="heading-lg text-maze-cream mb-12">{t('teamHeading')}</h2>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
             {team.map((member) => {
-              const role = locale === 'ru' && member.roleRu ? member.roleRu : member.role
-              const bio  = locale === 'ru' && member.bioRu  ? member.bioRu  : member.bio
+              const role = locale === 'uz' ? (member.roleUz?.trim() || member.roleRu || member.role)
+                         : locale === 'ru' ? (member.roleRu || member.role)
+                         : member.role
+              const bio  = locale === 'uz' ? (member.bioUz?.trim()  || member.bioRu  || member.bio)
+                         : locale === 'ru' ? (member.bioRu  || member.bio)
+                         : member.bio
               const initials = member.name.split(' ').map((w) => w[0]).join('').slice(0, 2).toUpperCase()
               return (
                 <div key={member.id} className="group">

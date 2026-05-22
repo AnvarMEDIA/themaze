@@ -11,8 +11,10 @@ const EMPTY_MEMBER = (): TeamMember => ({
   name:   '',
   role:   '',
   roleRu: '',
+  roleUz: '',
   bio:    '',
   bioRu:  '',
+  bioUz:  '',
   photo:  '',
   order:  Date.now(),
 })
@@ -312,8 +314,8 @@ function MemberCard({
               />
             </div>
 
-            {/* Role EN / RU */}
-            <div className="grid grid-cols-2 gap-3">
+            {/* Role EN / RU / UZ */}
+            <div className="grid grid-cols-3 gap-3">
               <div>
                 <label className="text-xs font-medium text-[#555] block mb-1">Role (EN)</label>
                 <input
@@ -334,10 +336,20 @@ function MemberCard({
                   className={inputClass}
                 />
               </div>
+              <div>
+                <label className="text-xs font-medium text-[#555] block mb-1">Role (UZ)</label>
+                <input
+                  type="text"
+                  placeholder="Kreativ direktor"
+                  value={member.roleUz ?? ''}
+                  onChange={(e) => onChange('roleUz', e.target.value)}
+                  className={inputClass}
+                />
+              </div>
             </div>
 
-            {/* Bio EN / RU */}
-            <div className="grid grid-cols-2 gap-3">
+            {/* Bio EN / RU / UZ */}
+            <div className="grid grid-cols-3 gap-3">
               <div>
                 <label className="text-xs font-medium text-[#555] block mb-1">Bio (EN)</label>
                 <textarea
@@ -355,6 +367,16 @@ function MemberCard({
                   placeholder="Краткое описание на русском…"
                   value={member.bioRu}
                   onChange={(e) => onChange('bioRu', e.target.value)}
+                  className={textareaClass}
+                />
+              </div>
+              <div>
+                <label className="text-xs font-medium text-[#555] block mb-1">Bio (UZ)</label>
+                <textarea
+                  rows={3}
+                  placeholder="O'zbek tilida qisqa bio…"
+                  value={member.bioUz ?? ''}
+                  onChange={(e) => onChange('bioUz', e.target.value)}
                   className={textareaClass}
                 />
               </div>

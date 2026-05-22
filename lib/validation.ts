@@ -124,6 +124,8 @@ export const TeamMemberSchema = z.object({
   roleRu: safeString(100),
   bio:    safeString(1000),
   bioRu:  safeString(1000),
+  roleUz: safeString(100).optional().default(''),
+  bioUz:  safeString(1000).optional().default(''),
   photo:  urlOrEmpty.optional().default(''),
   order:  z.number().int().min(0),
 })
