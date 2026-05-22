@@ -3,11 +3,15 @@ import { getPartners, createPartner } from '@/lib/partners'
 import { getAdminSession } from '@/lib/auth'
 import { PartnerSchema } from '@/lib/validation'
 import { revalidatePath } from 'next/cache'
+import { rateLimitAsync } from '@/lib/rateLimit'
 
 export const dynamic = 'force-dynamic'
 
-export async function GET() {
+export async function GET(req: NextRequest) {
   try {
+    const ip = req.headers.get('x-forwarded-for')?.split(',')[0].trim() ?? 'unknown'
+    const rl = await rateLimitAsync(`partners-get:${ip}`, { limit: 60, windowMs: 60 * 1000 })
+    if (!rl.success) return NextResponse.json({ error: 'Too many requests' }, { status: 429 })
     const partners = await getPartners()
     return NextResponse.json(partners)
   } catch {

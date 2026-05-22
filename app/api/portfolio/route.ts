@@ -5,10 +5,14 @@ import { slugify }                      from '@/lib/utils'
 import { revalidatePath }               from 'next/cache'
 import { ProjectSchema }                from '@/lib/validation'
 import { notifyIndexNow, localePair }   from '@/lib/indexing'
+import { rateLimitAsync }               from '@/lib/rateLimit'
 
 export const dynamic = 'force-dynamic'
 
-export async function GET() {
+export async function GET(req: NextRequest) {
+  const ip = req.headers.get('x-forwarded-for')?.split(',')[0].trim() ?? 'unknown'
+  const rl = await rateLimitAsync(`portfolio-get:${ip}`, { limit: 60, windowMs: 60 * 1000 })
+  if (!rl.success) return NextResponse.json({ error: 'Too many requests' }, { status: 429 })
   const projects = await getAllProjects()
   return NextResponse.json(projects)
 }

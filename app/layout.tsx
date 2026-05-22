@@ -118,13 +118,11 @@ const baseMetadata: Metadata = {
     siteName: 'MAZE Studio',
     title: 'MAZE — Branding & Design Studio',
     description: 'Premium branding and design studio based in Tashkent, Uzbekistan.',
-    images: [{ url: '/og-image.jpg', width: 1200, height: 630, alt: 'MAZE — Branding & Design Studio' }],
   },
   twitter: {
     card: 'summary_large_image',
     title: 'MAZE — Branding & Design Studio',
     description: 'Premium branding and design studio based in Tashkent, Uzbekistan.',
-    images: ['/og-image.jpg'],
     creator: '@mazestudio',
   },
   robots: {
