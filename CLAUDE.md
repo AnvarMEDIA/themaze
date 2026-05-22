@@ -3,6 +3,7 @@
 ## Skills
 
 @.claude/skills/emilkowal-animations.md
+@.claude/skills/security-review.md
 
 ## Project Stack
 
