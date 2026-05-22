@@ -767,8 +767,8 @@
       "notes":               "Anything else?",
       "notesPlaceholder":    "Questions, constraints, or anything we should know before we reply."
     },
-    "timelines": ["Rush (under 2 weeks)", "Short (2–4 weeks)", "Standard (1–2 months)", "Relaxed (2–3 months)", "Flexible"],
-    "budgets":   ["Under $2,000", "$2,000 – $5,000", "$5,000 – $15,000", "$15,000 – $50,000", "$50,000+"],
+    "timelines": ["Rush (1–5 business days)", "Fast (within 10 business days)", "Standard (within 2 weeks)", "Relaxed (within a month)", "Flexible"],
+    "budgets":   ["Under $1,000", "$1,000 – $2,000", "$2,000 – $5,000", "$5,000 – $15,000", "$15,000 – $50,000"],
     "services": [
       { "id": "branding",   "label": "Branding" },
       { "id": "rebranding", "label": "Rebranding" },
