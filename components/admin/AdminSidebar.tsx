@@ -22,6 +22,7 @@ const NAV = [
       { href: '/admin/testimonials',  label: 'Testimonials', icon: IconInquiries   },
       { href: '/admin/insights',      label: 'Insights',     icon: IconProjects    },
       { href: '/admin/inquiries',     label: 'Inquiries',    icon: IconInquiries   },
+      { href: '/admin/briefs',        label: 'Briefs',       icon: IconBriefs      },
     ],
   },
   {
@@ -183,6 +184,16 @@ function IconInquiries({ size = 16 }: { size?: number }) {
     <svg width={size} height={size} viewBox="0 0 16 16" fill="none">
       <rect x="1" y="2" width="14" height="10" rx="2" stroke="currentColor" strokeWidth="1.5" opacity=".8"/>
       <path d="M4 6h8M4 9h5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" opacity=".6"/>
+    </svg>
+  )
+}
+
+function IconBriefs({ size = 16 }: { size?: number }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 16 16" fill="none">
+      <rect x="2" y="3" width="12" height="11" rx="1.5" stroke="currentColor" strokeWidth="1.5" opacity=".8"/>
+      <path d="M6 1v3M10 1v3" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" opacity=".8"/>
+      <path d="M5 8h6M5 11h4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" opacity=".6"/>
     </svg>
   )
 }

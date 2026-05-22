@@ -5,24 +5,28 @@ import Link from 'next/link'
 import type { Project } from '@/lib/types'
 import type { Partner } from '@/lib/partners'
 import type { Inquiry } from '@/lib/inquiries'
+import type { Brief } from '@/lib/briefs'
 
 export default function AdminDashboard() {
   const [projects,   setProjects]   = useState<Project[]>([])
   const [partners,   setPartners]   = useState<Partner[]>([])
   const [inquiries,  setInquiries]  = useState<Inquiry[]>([])
+  const [briefs,     setBriefs]     = useState<Brief[]>([])
   const [loading,    setLoading]    = useState(true)
 
   const load = useCallback(async () => {
     try {
-      const [pRes, partRes, inqRes] = await Promise.all([
+      const [pRes, partRes, inqRes, briefRes] = await Promise.all([
         fetch('/api/portfolio',  { cache: 'no-store' }),
         fetch('/api/partners',   { cache: 'no-store' }),
         fetch('/api/inquiries',  { cache: 'no-store' }),
+        fetch('/api/brief',      { cache: 'no-store' }),
       ])
-      const [pData, partData, inqData] = await Promise.all([pRes.json(), partRes.json(), inqRes.json()])
+      const [pData, partData, inqData, briefData] = await Promise.all([pRes.json(), partRes.json(), inqRes.json(), briefRes.json()])
       setProjects(pData)
       setPartners(partData)
       setInquiries(Array.isArray(inqData) ? inqData : [])
+      setBriefs(Array.isArray(briefData) ? briefData : [])
     } finally {
       setLoading(false)
     }
@@ -30,17 +34,18 @@ export default function AdminDashboard() {
 
   useEffect(() => { load() }, [load])
 
-  const featured    = projects.filter((p) => p.featured).length
-  const unreadCount = inquiries.filter((i) => !i.read).length
+  const featured         = projects.filter((p) => p.featured).length
+  const unreadCount      = inquiries.filter((i) => !i.read).length
+  const unreadBriefCount = briefs.filter((b) => !b.read).length
   const recentProjects = [...projects]
     .sort((a, b) => (b.year ?? 0) - (a.year ?? 0))
     .slice(0, 5)
 
   const stats = [
-    { label: 'Total Projects', value: projects.length,   icon: '◈', href: '/admin/projects',  color: '#C8FF47' },
-    { label: 'Featured',       value: featured,           icon: '★', href: '/admin/projects',  color: '#FFD447' },
-    { label: 'Partners',       value: partners.length,    icon: '◎', href: '/admin/partners',  color: '#47C8FF' },
-    { label: 'New Inquiries',  value: unreadCount,        icon: '✉', href: '/admin/inquiries', color: '#FF6B47' },
+    { label: 'Total Projects', value: projects.length,    icon: '◈', href: '/admin/projects',  color: '#C8FF47' },
+    { label: 'Featured',       value: featured,            icon: '★', href: '/admin/projects',  color: '#FFD447' },
+    { label: 'New Briefs',     value: unreadBriefCount,    icon: '📋', href: '/admin/briefs',     color: '#C8FF47' },
+    { label: 'New Inquiries',  value: unreadCount,         icon: '✉', href: '/admin/inquiries', color: '#FF6B47' },
   ]
 
   return (
