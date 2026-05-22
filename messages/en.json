@@ -738,10 +738,10 @@
       "name":                "Your name",
       "namePlaceholder":     "Alex Johnson",
       "email":               "Email address",
-      "emailPlaceholder":    "alex@company.com",
+      "emailPlaceholder":    "go@themaze.uz",
       "phone":               "Phone number",
       "company":             "Company / Brand name",
-      "companyPlaceholder":  "Acme Corp",
+      "companyPlaceholder":  "Your company name",
       "website":             "Current website",
       "websitePlaceholder":  "https://yoursite.com (if any)",
       "services":            "What do you need?",
@@ -807,9 +807,10 @@
     },
     "validation": {
       "nameRequired":  "Please enter your name",
-      "emailRequired": "Please enter a valid email address",
-      "descRequired":  "Please describe your project",
-      "phoneInvalid":  "Enter a valid phone number"
+      "phoneRequired": "Please enter your phone number",
+      "phoneInvalid":  "Enter a valid phone number",
+      "emailInvalid":  "Please enter a valid email address",
+      "descRequired":  "Please describe your project"
     },
     "success": {
       "label":   "Brief received!",

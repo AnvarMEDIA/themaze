@@ -162,11 +162,9 @@ export const PostUpdateSchema = PostSchema.partial()
 
 export const BriefSchema = z.object({
   name:        safeString(100).min(1, 'Name is required'),
-  email:       z.string().trim().email('Invalid email').max(254),
-  phone:       z.string().trim().max(30).refine(
-    (v) => v === '' || /^\+[1-9]\d{6,14}$/.test(v),
-    { message: 'Invalid phone' },
-  ).optional().default(''),
+  phone:       z.string().trim().regex(/^\+[1-9]\d{6,14}$/, 'Invalid phone'),
+  email:       z.union([z.string().trim().email('Invalid email').max(254), z.literal('')])
+                 .optional().default(''),
   company:     safeString(100).optional().default(''),
   website:     safeString(300).optional().default(''),
   services:    z.array(safeString(100)).max(10).optional().default([]),

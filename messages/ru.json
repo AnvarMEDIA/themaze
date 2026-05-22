@@ -738,10 +738,10 @@
       "name":                "Ваше имя",
       "namePlaceholder":     "Алекс Иванов",
       "email":               "Email",
-      "emailPlaceholder":    "alex@company.com",
+      "emailPlaceholder":    "go@themaze.uz",
       "phone":               "Телефон",
       "company":             "Компания / Бренд",
-      "companyPlaceholder":  "ООО «Ромашка»",
+      "companyPlaceholder":  "Название вашей компании",
       "website":             "Текущий сайт",
       "websitePlaceholder":  "https://yoursite.com (если есть)",
       "services":            "Что вам нужно?",
@@ -807,9 +807,10 @@
     },
     "validation": {
       "nameRequired":  "Введите ваше имя",
-      "emailRequired": "Введите корректный email",
-      "descRequired":  "Опишите ваш проект",
-      "phoneInvalid":  "Введите корректный номер телефона"
+      "phoneRequired": "Введите номер телефона",
+      "phoneInvalid":  "Введите корректный номер телефона",
+      "emailInvalid":  "Введите корректный email",
+      "descRequired":  "Опишите ваш проект"
     },
     "success": {
       "label":   "Получено!",

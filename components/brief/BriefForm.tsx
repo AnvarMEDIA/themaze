@@ -148,9 +148,15 @@ export function BriefForm() {
     })
 
   const phoneInvalid = form.phone.length > 0 && !isValidPhoneNumber(form.phone)
+  const emailInvalid = form.email.length > 0 && !/\S+@\S+\.\S+/.test(form.email)
 
   const canAdvance = (s: number): boolean => {
-    if (s === 1) return form.name.trim().length > 0 && /\S+@\S+\.\S+/.test(form.email) && !phoneInvalid
+    if (s === 1) {
+      if (form.name.trim().length === 0)                                 return false
+      if (form.phone.length === 0 || !isValidPhoneNumber(form.phone))    return false
+      if (emailInvalid)                                                  return false
+      return true
+    }
     if (s === 2) return form.description.trim().length > 0
     return true
   }
@@ -158,9 +164,10 @@ export function BriefForm() {
   const handleNext = () => {
     if (!canAdvance(step)) {
       if (step === 1) {
-        if (!form.name.trim()) toast.error(t('validation.nameRequired'))
-        else if (!/\S+@\S+\.\S+/.test(form.email)) toast.error(t('validation.emailRequired'))
-        else if (phoneInvalid) toast.error(t('validation.phoneInvalid'))
+        if (!form.name.trim())                                       toast.error(t('validation.nameRequired'))
+        else if (!form.phone.trim())                                 toast.error(t('validation.phoneRequired'))
+        else if (!isValidPhoneNumber(form.phone))                    toast.error(t('validation.phoneInvalid'))
+        else if (emailInvalid)                                       toast.error(t('validation.emailInvalid'))
       } else if (step === 2) {
         toast.error(t('validation.descRequired'))
       }
@@ -301,29 +308,33 @@ export function BriefForm() {
               />
             </div>
             <div>
-              <label htmlFor="bf-email" className="label-sm text-maze-muted block mb-2">{t('fields.email')} *</label>
-              <input
-                id="bf-email" type="email" required autoComplete="email"
-                placeholder={t('fields.emailPlaceholder')}
-                value={form.email} onChange={(e) => set('email', e.target.value)}
-                className={INPUT_CLASS}
-              />
-            </div>
-          </div>
-
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <div>
-              <label htmlFor="bf-phone" className="label-sm text-maze-muted block mb-2">{t('fields.phone')}</label>
+              <label htmlFor="bf-phone" className="label-sm text-maze-muted block mb-2">{t('fields.phone')} *</label>
               <PhoneInput
                 id="bf-phone" international defaultCountry="UZ" flags={flags}
                 value={form.phone} onChange={(v) => set('phone', v ?? '')}
                 placeholder="+998 90 123 45 67"
                 className={`maze-phone ${phoneInvalid ? 'maze-phone--invalid' : ''}`}
-                numberInputProps={{ autoComplete: 'tel' }}
+                numberInputProps={{ autoComplete: 'tel', required: true }}
                 aria-invalid={phoneInvalid || undefined}
               />
               {phoneInvalid && (
                 <p className="mt-1.5 text-xs text-red-400">{t('validation.phoneInvalid')}</p>
+              )}
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+              <label htmlFor="bf-email" className="label-sm text-maze-muted block mb-2">{t('fields.email')}</label>
+              <input
+                id="bf-email" type="email" autoComplete="email"
+                placeholder={t('fields.emailPlaceholder')}
+                value={form.email} onChange={(e) => set('email', e.target.value)}
+                className={INPUT_CLASS}
+                aria-invalid={emailInvalid || undefined}
+              />
+              {emailInvalid && (
+                <p className="mt-1.5 text-xs text-red-400">{t('validation.emailInvalid')}</p>
               )}
             </div>
             <div>
