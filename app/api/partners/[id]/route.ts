@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { updatePartner, deletePartner } from '@/lib/partners'
+import { updatePartner, deletePartner, softDeletePartner, restorePartner } from '@/lib/partners'
 import { getAdminSession } from '@/lib/auth'
 import { PartnerSchema } from '@/lib/validation'
 import { revalidatePath } from 'next/cache'
@@ -30,7 +30,7 @@ export async function DELETE(_req: NextRequest, { params }: { params: { id: stri
   if (!authed) return NextResponse.json({ error: 'Unauthorised' }, { status: 401 })
 
   try {
-    const removed = await deletePartner(params.id)
+    const removed = await softDeletePartner(params.id)
     if (!removed) return NextResponse.json({ error: 'Not found' }, { status: 404 })
     revalidatePath('/', 'layout')
     return NextResponse.json({ success: true })
@@ -38,4 +38,18 @@ export async function DELETE(_req: NextRequest, { params }: { params: { id: stri
     console.error('[partners DELETE]', err)
     return NextResponse.json({ error: 'Failed to delete partner' }, { status: 500 })
   }
+}
+
+export async function POST(req: NextRequest, { params }: { params: { id: string } }) {
+  const authed = await getAdminSession()
+  if (!authed) return NextResponse.json({ error: 'Unauthorised' }, { status: 401 })
+
+  const action = new URL(req.url).searchParams.get('action')
+  if (action !== 'restore') {
+    return NextResponse.json({ error: 'Unknown action' }, { status: 400 })
+  }
+  const ok = await restorePartner(params.id)
+  if (!ok) return NextResponse.json({ error: 'Not found' }, { status: 404 })
+  revalidatePath('/', 'layout')
+  return NextResponse.json({ ok: true })
 }

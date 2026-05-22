@@ -5,6 +5,7 @@ import { Reorder, useDragControls } from 'framer-motion'
 import type { Partner } from '@/lib/partners'
 import type { SiteSettings } from '@/lib/settings'
 import toast from 'react-hot-toast'
+import { showUndoToast } from '@/components/admin/UndoToast'
 import { compressImage } from '@/lib/compressImage'
 
 const EMPTY: Omit<Partner, 'id' | 'order'> = { name: '', logo: '', url: '' }
@@ -155,15 +156,20 @@ export default function AdminPartnersPage() {
   }
 
   const handleDelete = async (id: string, name: string) => {
-    if (!confirm(`Remove "${name}" from partners?`)) return
-    // Cancel any queued reorder so it can't re-apply a stale list.
     if (saveTimer.current) { clearTimeout(saveTimer.current); saveTimer.current = null }
     const prev = partners
     setPartners((p) => p.filter((x) => x.id !== id))
     try {
       const res = await fetch(`/api/partners/${id}`, { method: 'DELETE' })
       if (!res.ok) throw new Error()
-      toast.success('Partner removed')
+      showUndoToast({
+        message: `"${name}" removed`,
+        onUndo: async () => {
+          const r = await fetch(`/api/partners/${id}?action=restore`, { method: 'POST' })
+          if (!r.ok) throw new Error()
+          load()
+        },
+      })
     } catch {
       setPartners(prev)
       toast.error('Delete failed')
