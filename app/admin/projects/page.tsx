@@ -10,12 +10,15 @@ import { showUndoToast } from '@/components/admin/UndoToast'
 
 type Views = { total: number; week: number }
 
+const PAGE_SIZE = 25
+
 export default function AdminProjectsPage() {
   const [projects, setProjects] = useState<Project[]>([])
   const [views,    setViews]    = useState<Record<string, Views>>({})
   const [loading,  setLoading]  = useState(true)
   const [filter,   setFilter]   = useState<string>('all')
   const [query,    setQuery]    = useState('')
+  const [page,     setPage]     = useState(1)
   const [savingOrder, setSavingOrder] = useState(false)
   const [refreshingViews, setRefreshingViews] = useState(false)
   const saveTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
@@ -126,6 +129,11 @@ export default function AdminProjectsPage() {
     )),
     [projects, filter, q],
   )
+
+  const paginated  = filtered.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE)
+  const totalPages = Math.ceil(filtered.length / PAGE_SIZE)
+
+  useEffect(() => { setPage(1) }, [filter, query])
 
   const featured       = projects.filter((p) => p.featured).length
   const drafts         = projects.filter((p) => p.status === 'draft').length
@@ -294,17 +302,67 @@ export default function AdminProjectsPage() {
 
       {/* Filtered grid — no drag */}
       {!loading && filtered.length > 0 && !dragEnabled && (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
-          {filtered.map((project) => (
-            <ProjectCard
-              key={project.id}
-              project={project}
-              draggable={false}
-              views={views[project.slug]}
-              onDelete={handleDelete}
-            />
-          ))}
-        </div>
+        <>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+            {paginated.map((project) => (
+              <ProjectCard
+                key={project.id}
+                project={project}
+                draggable={false}
+                views={views[project.slug]}
+                onDelete={handleDelete}
+              />
+            ))}
+          </div>
+
+          {totalPages > 1 && (
+            <div className="flex items-center justify-between pt-4 border-t border-[#1E1E1E]">
+              <p className="text-xs text-[#555]">
+                Showing {(page - 1) * PAGE_SIZE + 1}–{Math.min(page * PAGE_SIZE, filtered.length)} of {filtered.length}
+              </p>
+              <div className="flex items-center gap-1">
+                <button
+                  onClick={() => setPage((p) => Math.max(1, p - 1))}
+                  disabled={page === 1}
+                  className="px-3 py-1.5 text-xs border border-[#252525] rounded text-[#555] hover:border-[#444] hover:text-white transition-colors disabled:opacity-40"
+                >
+                  ←
+                </button>
+                {Array.from({ length: totalPages }, (_, i) => i + 1)
+                  .filter((n) => n === 1 || n === totalPages || Math.abs(n - page) <= 1)
+                  .reduce<(number | '…')[]>((acc, n, i, arr) => {
+                    if (i > 0 && n - (arr[i - 1] as number) > 1) acc.push('…')
+                    acc.push(n)
+                    return acc
+                  }, [])
+                  .map((n, i) =>
+                    n === '…' ? (
+                      <span key={`ellipsis-${i}`} className="px-2 text-xs text-[#444]">…</span>
+                    ) : (
+                      <button
+                        key={n}
+                        onClick={() => setPage(n as number)}
+                        className={`px-3 py-1.5 text-xs border rounded transition-colors ${
+                          page === n
+                            ? 'border-[#C8FF47] text-[#C8FF47] bg-[#C8FF47]/10'
+                            : 'border-[#252525] text-[#555] hover:border-[#444] hover:text-white'
+                        }`}
+                      >
+                        {n}
+                      </button>
+                    )
+                  )}
+                <button
+                  onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+                  disabled={page === totalPages}
+                  className="px-3 py-1.5 text-xs border border-[#252525] rounded text-[#555] hover:border-[#444] hover:text-white transition-colors disabled:opacity-40"
+                >
+                  →
+                </button>
+              </div>
+            </div>
+          )}
+        </>
       )}
     </div>
   )
