@@ -15,6 +15,7 @@ import { testimonialsJsonLd } from '@/lib/jsonLd'
 import { getPublishedProjects } from '@/lib/portfolio'
 import { getPartners } from '@/lib/partners'
 import { getTestimonials } from '@/lib/testimonials'
+import { getSettings } from '@/lib/settings'
 import { localizedAlternates } from '@/lib/seo'
 
 interface Props {
@@ -67,10 +68,11 @@ export async function generateMetadata({ params: { locale } }: Props): Promise<M
 
 export default async function HomePage({ params: { locale } }: Props) {
   setRequestLocale(locale)
-  const [featuredProjects, partners, testimonials, tp, tt] = await Promise.all([
+  const [featuredProjects, partners, testimonials, settings, tp, tt] = await Promise.all([
     getPublishedProjects(),
     getPartners(),
     getTestimonials(),
+    getSettings(),
     getTranslations({ locale, namespace: 'partners' }),
     getTranslations({ locale, namespace: 'testimonialsSection' }),
   ])
@@ -82,11 +84,13 @@ export default async function HomePage({ params: { locale } }: Props) {
       <Marquee />
       <FeaturedWork projects={featuredProjects} />
       <AboutSection />
-      <PartnersSection
-        partners={partners}
-        label={tp('label')}
-        heading={tp('heading')}
-      />
+      {settings.partnersVisible && (
+        <PartnersSection
+          partners={partners}
+          label={tp('label')}
+          heading={tp('heading')}
+        />
+      )}
       <TestimonialsSection
         testimonials={testimonials}
         locale={locale}

@@ -99,6 +99,7 @@ export const SettingsSchema = z.object({
     (v) => v === '' || v.startsWith('https://') || v.startsWith('http://') || v.startsWith('/'),
     { message: 'Must be a valid URL or path' }
   ).optional().default(''),
+  partnersVisible: z.boolean().optional().default(false),
 })
 
 export type SettingsInput = z.infer<typeof SettingsSchema>

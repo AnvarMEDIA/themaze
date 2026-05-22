@@ -10,6 +10,7 @@ const DEFAULT: SiteSettings = {
   address: '', addressDetail: '',
   instagram: '', behance: '', linkedin: '', twitter: '',
   favicon: '',
+  partnersVisible: false,
 }
 
 export default function AdminSettingsPage() {
@@ -70,7 +71,10 @@ export default function AdminSettingsPage() {
     }
   }
 
-  const set = (key: keyof SiteSettings, val: string) =>
+  // Only string-typed setting keys can be edited in the generic field list below.
+  // Boolean toggles (e.g. partnersVisible) live in their own pages.
+  type StringKey = { [K in keyof SiteSettings]: SiteSettings[K] extends string ? K : never }[keyof SiteSettings]
+  const set = (key: StringKey, val: string) =>
     setForm((p) => ({ ...p, [key]: val }))
 
   const faviconInputRef = useRef<HTMLInputElement>(null)
@@ -124,7 +128,7 @@ export default function AdminSettingsPage() {
   const inputClass =
     'w-full bg-[#111] border border-[#252525] rounded-lg px-3 py-2.5 text-sm text-white placeholder:text-[#444] focus:outline-none focus:border-[#C8FF47] transition-colors'
 
-  const groups: { title: string; fields: { key: keyof SiteSettings; label: string; placeholder: string; type?: string }[] }[] = [
+  const groups: { title: string; fields: { key: StringKey; label: string; placeholder: string; type?: string }[] }[] = [
     {
       title: 'Contact Information',
       fields: [

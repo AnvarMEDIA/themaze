@@ -3,6 +3,7 @@
 import { useEffect, useState, useCallback, useRef } from 'react'
 import { Reorder, useDragControls } from 'framer-motion'
 import type { Partner } from '@/lib/partners'
+import type { SiteSettings } from '@/lib/settings'
 import toast from 'react-hot-toast'
 import { compressImage } from '@/lib/compressImage'
 
@@ -16,6 +17,8 @@ export default function AdminPartnersPage() {
   const [saving,   setSaving]   = useState(false)
   const [uploading, setUploading] = useState(false)
   const [savingOrder, setSavingOrder] = useState(false)
+  const [visible, setVisible] = useState<boolean | null>(null)
+  const [savingVisibility, setSavingVisibility] = useState(false)
   const fileRef = useRef<HTMLInputElement>(null)
   const saveTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
 
@@ -33,6 +36,38 @@ export default function AdminPartnersPage() {
   }, [])
 
   useEffect(() => { load() }, [load])
+
+  // Load the current visibility setting on mount.
+  useEffect(() => {
+    let cancelled = false
+    fetch('/api/settings', { cache: 'no-store' })
+      .then((r) => r.ok ? r.json() as Promise<SiteSettings> : null)
+      .then((s) => { if (!cancelled && s) setVisible(!!s.partnersVisible) })
+      .catch(() => {})
+    return () => { cancelled = true }
+  }, [])
+
+  const toggleVisibility = async () => {
+    if (visible === null || savingVisibility) return
+    const next = !visible
+    setSavingVisibility(true)
+    setVisible(next)  // optimistic
+    try {
+      const cur = await fetch('/api/settings', { cache: 'no-store' }).then((r) => r.json() as Promise<SiteSettings>)
+      const res = await fetch('/api/settings', {
+        method:  'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body:    JSON.stringify({ ...cur, partnersVisible: next }),
+      })
+      if (!res.ok) throw new Error()
+      toast.success(next ? 'Блок «Партнёры» показан на сайте' : 'Блок «Партнёры» скрыт с сайта')
+    } catch {
+      setVisible(!next)  // revert
+      toast.error('Не удалось сохранить')
+    } finally {
+      setSavingVisibility(false)
+    }
+  }
 
   const persistOrder = useCallback(async (ordered: Partner[]) => {
     setSavingOrder(true)
@@ -139,12 +174,43 @@ export default function AdminPartnersPage() {
 
   return (
     <div className="px-8 py-8">
-      <div className="mb-8">
-        <h1 className="text-2xl font-bold text-white tracking-tight">Partners & Clients</h1>
-        <p className="text-sm text-[#555] mt-1">
-          Manage logos shown on the homepage.
-          {savingOrder && <span className="ml-2 text-[#C8FF47]">· saving order…</span>}
-        </p>
+      <div className="mb-8 flex flex-wrap items-start justify-between gap-4">
+        <div>
+          <h1 className="text-2xl font-bold text-white tracking-tight">Partners & Clients</h1>
+          <p className="text-sm text-[#555] mt-1">
+            Manage logos shown on the homepage.
+            {savingOrder && <span className="ml-2 text-[#C8FF47]">· saving order…</span>}
+          </p>
+        </div>
+
+        {/* Public visibility toggle */}
+        <div className="flex items-center gap-3 rounded-xl border border-[#1E1E1E] bg-[#0D0D0D] px-4 py-3">
+          <div className="text-right">
+            <p className="text-xs font-medium text-white">Показывать на сайте</p>
+            <p className="text-[11px] text-[#555] mt-0.5">
+              {visible === null ? '…' : visible ? 'Блок виден на главной' : 'Блок скрыт с главной'}
+            </p>
+          </div>
+          <button
+            type="button"
+            role="switch"
+            aria-checked={visible === true}
+            aria-label="Toggle partners block visibility"
+            disabled={visible === null || savingVisibility}
+            onClick={toggleVisibility}
+            className={[
+              'relative inline-flex h-6 w-11 items-center rounded-full transition-colors disabled:opacity-50',
+              visible ? 'bg-[#C8FF47]' : 'bg-[#252525]',
+            ].join(' ')}
+          >
+            <span
+              className={[
+                'inline-block h-4 w-4 rounded-full bg-[#0A0A0A] transition-transform',
+                visible ? 'translate-x-[22px]' : 'translate-x-[4px]',
+              ].join(' ')}
+            />
+          </button>
+        </div>
       </div>
 
       <div className="grid grid-cols-1 xl:grid-cols-5 gap-8">
