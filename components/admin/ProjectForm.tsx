@@ -23,19 +23,19 @@ const CATEGORIES: { value: ProjectCategory; label: string }[] = [
 type FormState = Omit<Project, 'id' | 'createdAt' | 'updatedAt'>
 
 const EMPTY: FormState = {
-  slug: '', title: '', titleRu: '', client: '', categories: [],
+  slug: '', title: '', titleRu: '', titleUz: '', client: '', categories: [],
   year: new Date().getFullYear(),
-  description: '', descriptionRu: '',
-  shortDescription: '', shortDescriptionRu: '',
+  description: '', descriptionRu: '', descriptionUz: '',
+  shortDescription: '', shortDescriptionRu: '', shortDescriptionUz: '',
   coverImage: '', images: [],
-  tags: [], services: [], servicesRu: [],
+  tags: [], services: [], servicesRu: [], servicesUz: [],
   featured: false, accentColor: '#C8FF47',
-  results: '', resultsRu: '',
+  results: '', resultsRu: '', resultsUz: '',
   status: 'published',
   showYear: true,
   imageAlts: {},
-  metaTitle: '', metaTitleRu: '',
-  metaDescription: '', metaDescriptionRu: '',
+  metaTitle: '', metaTitleRu: '', metaTitleUz: '',
+  metaDescription: '', metaDescriptionRu: '', metaDescriptionUz: '',
 }
 
 interface Props {
@@ -46,8 +46,9 @@ export function ProjectForm({ project }: Props) {
   const router    = useRouter()
   const isEdit    = !!project
   const [form, setForm]         = useState<FormState>(project ? { ...EMPTY, ...project } : EMPTY)
-  const [loading, setLoading]   = useState(false)
-  const [translating, setTranslating] = useState(false)
+  const [loading, setLoading]         = useState(false)
+  const [translating, setTranslating]   = useState(false)
+  const [translatingUz, setTranslatingUz] = useState(false)
 
   const set = <K extends keyof FormState>(key: K, value: FormState[K]) =>
     setForm((prev) => ({
@@ -57,7 +58,7 @@ export function ProjectForm({ project }: Props) {
     }))
 
   const setStr = (key: keyof FormState, val: string) => {
-    const arrayKeys: (keyof FormState)[] = ['tags', 'services', 'servicesRu', 'images']
+    const arrayKeys: (keyof FormState)[] = ['tags', 'services', 'servicesRu', 'servicesUz', 'images']
     if (arrayKeys.includes(key)) {
       setForm((prev) => ({
         ...prev,
@@ -84,6 +85,7 @@ export function ProjectForm({ project }: Props) {
           description:      form.descriptionRu,
           results:          form.resultsRu,
           services:         form.servicesRu,
+          targetLang:       'en',
         }),
       })
       if (!res.ok) {
@@ -107,6 +109,49 @@ export function ProjectForm({ project }: Props) {
       toast.error(err instanceof Error ? err.message : 'Ошибка перевода')
     } finally {
       setTranslating(false)
+    }
+  }
+
+  const handleTranslateUz = async () => {
+    if (!form.titleRu && !form.descriptionRu && !form.shortDescriptionRu) {
+      toast.error('Заполните поля на русском перед переводом')
+      return
+    }
+    setTranslatingUz(true)
+    try {
+      const res = await fetch('/api/translate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          title:            form.titleRu,
+          shortDescription: form.shortDescriptionRu,
+          description:      form.descriptionRu,
+          results:          form.resultsRu,
+          services:         form.servicesRu,
+          targetLang:       'uz',
+        }),
+      })
+      if (!res.ok) {
+        const d = await res.json() as { error?: string }
+        throw new Error(d.error ?? 'Translation failed')
+      }
+      const data = await res.json() as {
+        title?: string; shortDescription?: string; description?: string
+        results?: string; services?: string[]
+      }
+      setForm((prev) => ({
+        ...prev,
+        ...(data.title            ? { titleUz: data.title } : {}),
+        ...(data.shortDescription ? { shortDescriptionUz: data.shortDescription } : {}),
+        ...(data.description      ? { descriptionUz: data.description } : {}),
+        ...(data.results          ? { resultsUz: data.results } : {}),
+        ...(data.services?.length ? { servicesUz: data.services } : {}),
+      }))
+      toast.success('O\'zbek tarjimasi tayyor')
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : 'Tarjima xatosi')
+    } finally {
+      setTranslatingUz(false)
     }
   }
 
@@ -310,35 +355,53 @@ export function ProjectForm({ project }: Props) {
         </div>
       </section>
 
-      {/* Bilingual content */}
+      {/* Trilingual content */}
       <section className="space-y-6">
-        <div className="flex items-center justify-between border-b border-maze-border pb-2">
+        <div className="flex flex-wrap items-center justify-between gap-2 border-b border-maze-border pb-2">
           <h2 className="label-sm text-maze-muted">Content</h2>
-          <button
-            type="button"
-            onClick={handleTranslate}
-            disabled={translating}
-            className="flex items-center gap-2 px-4 py-2 rounded-full border border-maze-lime/40 text-maze-lime label-sm hover:bg-maze-lime/10 transition-colors disabled:opacity-50"
-          >
-            {translating ? (
-              <>
-                <span className="w-3 h-3 border border-maze-lime border-t-transparent rounded-full animate-spin" />
-                Переводим…
-              </>
-            ) : (
-              <>✦ Перевести RU → EN</>
-            )}
-          </button>
+          <div className="flex gap-2 flex-wrap">
+            <button
+              type="button"
+              onClick={handleTranslate}
+              disabled={translating}
+              className="flex items-center gap-2 px-4 py-2 rounded-full border border-maze-lime/40 text-maze-lime label-sm hover:bg-maze-lime/10 transition-colors disabled:opacity-50"
+            >
+              {translating ? (
+                <>
+                  <span className="w-3 h-3 border border-maze-lime border-t-transparent rounded-full animate-spin" />
+                  Переводим…
+                </>
+              ) : (
+                <>✦ RU → EN</>
+              )}
+            </button>
+            <button
+              type="button"
+              onClick={handleTranslateUz}
+              disabled={translatingUz}
+              className="flex items-center gap-2 px-4 py-2 rounded-full border border-yellow-400/40 text-yellow-400 label-sm hover:bg-yellow-400/10 transition-colors disabled:opacity-50"
+            >
+              {translatingUz ? (
+                <>
+                  <span className="w-3 h-3 border border-yellow-400 border-t-transparent rounded-full animate-spin" />
+                  Tarjima qilinmoqda…
+                </>
+              ) : (
+                <>✦ RU → UZ</>
+              )}
+            </button>
+          </div>
         </div>
 
         {/* Column headers */}
-        <div className="grid grid-cols-2 gap-4">
+        <div className="grid grid-cols-3 gap-4">
           <p className="label-sm text-maze-lime">🇷🇺 Русский (основной)</p>
           <p className="label-sm text-maze-muted">🇬🇧 English (auto)</p>
+          <p className="label-sm text-yellow-400">🇺🇿 O'zbek (auto)</p>
         </div>
 
         {/* Title */}
-        <div className="grid grid-cols-2 gap-4">
+        <div className="grid grid-cols-3 gap-4">
           <div>
             <label className={labelRu}>Название *</label>
             <input
@@ -361,10 +424,20 @@ export function ProjectForm({ project }: Props) {
               className={input}
             />
           </div>
+          <div>
+            <label className="label-sm text-yellow-400/70 block mb-2">Sarlavha (UZ)</label>
+            <input
+              type="text"
+              placeholder="Loyiha nomi"
+              value={form.titleUz ?? ''}
+              onChange={(e) => set('titleUz', e.target.value)}
+              className={input}
+            />
+          </div>
         </div>
 
         {/* Short description */}
-        <div className="grid grid-cols-2 gap-4">
+        <div className="grid grid-cols-3 gap-4">
           <div>
             <label className={labelRu}>Краткое описание</label>
             <input
@@ -387,10 +460,21 @@ export function ProjectForm({ project }: Props) {
               className={input}
             />
           </div>
+          <div>
+            <label className="label-sm text-yellow-400/70 block mb-2">Qisqa tavsif (UZ)</label>
+            <input
+              type="text"
+              maxLength={500}
+              placeholder="Karta uchun bir qator"
+              value={form.shortDescriptionUz ?? ''}
+              onChange={(e) => set('shortDescriptionUz', e.target.value)}
+              className={input}
+            />
+          </div>
         </div>
 
         {/* Full description */}
-        <div className="grid grid-cols-2 gap-4">
+        <div className="grid grid-cols-3 gap-4">
           <div>
             <label className={labelRu}>Полное описание</label>
             <textarea
@@ -411,10 +495,20 @@ export function ProjectForm({ project }: Props) {
               className={textarea}
             />
           </div>
+          <div>
+            <label className="label-sm text-yellow-400/70 block mb-2">To'liq tavsif (UZ)</label>
+            <textarea
+              rows={5}
+              placeholder="Loyiha haqida batafsil…"
+              value={form.descriptionUz ?? ''}
+              onChange={(e) => set('descriptionUz', e.target.value)}
+              className={textarea}
+            />
+          </div>
         </div>
 
         {/* Results */}
-        <div className="grid grid-cols-2 gap-4">
+        <div className="grid grid-cols-3 gap-4">
           <div>
             <label className={labelRu}>Результаты</label>
             <textarea
@@ -435,10 +529,20 @@ export function ProjectForm({ project }: Props) {
               className={textarea}
             />
           </div>
+          <div>
+            <label className="label-sm text-yellow-400/70 block mb-2">Natijalar (UZ)</label>
+            <textarea
+              rows={2}
+              placeholder="O'lchangan natijalar…"
+              value={form.resultsUz ?? ''}
+              onChange={(e) => set('resultsUz', e.target.value)}
+              className={textarea}
+            />
+          </div>
         </div>
 
         {/* Services */}
-        <div className="grid grid-cols-2 gap-4">
+        <div className="grid grid-cols-3 gap-4">
           <div>
             <label className={labelRu}>Услуги (по одной строке)</label>
             <textarea
@@ -456,6 +560,16 @@ export function ProjectForm({ project }: Props) {
               placeholder={'Brand Strategy\nVisual Identity'}
               value={form.services.join('\n')}
               onChange={(e) => setStr('services', e.target.value)}
+              className={textarea}
+            />
+          </div>
+          <div>
+            <label className="label-sm text-yellow-400/70 block mb-2">Xizmatlar (UZ)</label>
+            <textarea
+              rows={4}
+              placeholder={'Brendlash\nVizual aydentika'}
+              value={(form.servicesUz ?? []).join('\n')}
+              onChange={(e) => setStr('servicesUz', e.target.value)}
               className={textarea}
             />
           </div>
@@ -536,7 +650,7 @@ export function ProjectForm({ project }: Props) {
           Google shows ~60 chars in titles and ~160 in descriptions.
         </p>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
           <SeoField
             label="Meta title (EN)" max={70} value={form.metaTitle ?? ''}
             onChange={(v) => set('metaTitle', v)}
@@ -550,6 +664,12 @@ export function ProjectForm({ project }: Props) {
             inputCls={input}
           />
           <SeoField
+            label="Meta title (UZ)" max={70} value={form.metaTitleUz ?? ''}
+            onChange={(v) => set('metaTitleUz', v)}
+            placeholder="Qidiruv uchun sarlavha"
+            inputCls={input}
+          />
+          <SeoField
             label="Meta description (EN)" max={200} value={form.metaDescription ?? ''}
             onChange={(v) => set('metaDescription', v)}
             placeholder='One-line description shown in search results'
@@ -560,6 +680,13 @@ export function ProjectForm({ project }: Props) {
             label="Meta description (RU)" max={200} value={form.metaDescriptionRu ?? ''}
             onChange={(v) => set('metaDescriptionRu', v)}
             placeholder='Описание для выдачи Google / Яндекса'
+            inputCls={input}
+            textarea
+          />
+          <SeoField
+            label="Meta description (UZ)" max={200} value={form.metaDescriptionUz ?? ''}
+            onChange={(v) => set('metaDescriptionUz', v)}
+            placeholder="Google qidiruvida ko'rsatiladi"
             inputCls={input}
             textarea
           />

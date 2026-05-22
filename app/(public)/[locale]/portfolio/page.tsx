@@ -32,10 +32,11 @@ export default async function PortfolioPage({ params: { locale } }: Props) {
   const t        = await getTranslations({ locale, namespace: 'portfolio' })
   const projects = await getPublishedProjects()
 
-  const isRu   = locale === 'ru'
+  const homeLabel      = locale === 'ru' ? 'Главная' : locale === 'uz' ? 'Bosh sahifa' : 'Home'
+  const portfolioLabel = locale === 'ru' ? 'Портфолио' : 'Portfolio'
   const crumbs = breadcrumbJsonLd([
-    homeCrumb(locale, isRu ? 'Главная' : 'Home'),
-    portfolioCrumb(locale, isRu ? 'Портфолио' : 'Portfolio'),
+    homeCrumb(locale, homeLabel),
+    portfolioCrumb(locale, portfolioLabel),
   ])
 
   return (

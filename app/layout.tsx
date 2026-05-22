@@ -82,6 +82,17 @@ const baseMetadata: Metadata = {
     'design studio Uzbekistan',
     'MAZE Studio',
     'MAZE branding',
+    // Uzbek — brand & service keywords
+    'brending studiyasi Toshkent',
+    'brending agentligi O\'zbekiston',
+    'korporativ uslub Toshkent',
+    'logotip dizayn O\'zbekiston',
+    'aydentika Toshkent',
+    'nomlash brend',
+    'qadoqlash dizayn',
+    'brendbuk yaratish',
+    'vizual identifikatsiya',
+    'brend strategiyasi Markaziy Osiyo',
     // Russian — brand & service keywords
     'брендинг студия Ташкент',
     'брендинговое агентство Узбекистан',
@@ -102,7 +113,7 @@ const baseMetadata: Metadata = {
   openGraph: {
     type: 'website',
     locale: 'en_US',
-    alternateLocale: ['ru_RU'],
+    alternateLocale: ['ru_RU', 'uz_UZ'],
     url: SITE_URL,
     siteName: 'MAZE Studio',
     title: 'MAZE — Branding & Design Studio',
@@ -127,7 +138,7 @@ const baseMetadata: Metadata = {
   manifest: '/site.webmanifest',
   alternates: {
     canonical: SITE_URL,
-    languages: { 'en-US': SITE_URL, 'ru-RU': `${SITE_URL}/ru` },
+    languages: { 'en-US': SITE_URL, 'ru-RU': `${SITE_URL}/ru`, 'uz-UZ': `${SITE_URL}/uz` },
   },
 }
 

@@ -2,6 +2,7 @@ import type { Project } from './types'
 import type { SiteSettings } from './settings'
 import type { TeamMember } from './team'
 import type { Testimonial } from './testimonials'
+import { getLocalized } from './utils'
 
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://www.maze.uz'
 
@@ -197,10 +198,9 @@ export function breadcrumbJsonLd(items: { name: string; url: string }[]) {
 /* ── CreativeWork (project detail) ─────────────────────────────────────── */
 
 export function projectJsonLd(project: Project, locale: string) {
-  const isRu = locale === 'ru'
-  const title       = isRu ? (project.titleRu            || project.title)            : project.title
-  const description = isRu ? (project.descriptionRu      || project.description)      : project.description
-  const shortDesc   = isRu ? (project.shortDescriptionRu || project.shortDescription) : project.shortDescription
+  const title       = getLocalized(locale, project.title,            project.titleRu,            project.titleUz)
+  const description = getLocalized(locale, project.description,      project.descriptionRu,      project.descriptionUz)
+  const shortDesc   = getLocalized(locale, project.shortDescription, project.shortDescriptionRu, project.shortDescriptionUz)
   const url         = localePath(locale, `/portfolio/${project.slug}`)
   const images      = [project.coverImage, ...(project.images ?? [])].filter(Boolean)
 
@@ -228,7 +228,6 @@ export function projectJsonLd(project: Project, locale: string) {
 /* ── ItemList for portfolio listing ────────────────────────────────────── */
 
 export function portfolioListJsonLd(projects: Project[], locale: string) {
-  const isRu = locale === 'ru'
   return {
     '@context': CONTEXT,
     '@type': 'ItemList',
@@ -238,7 +237,7 @@ export function portfolioListJsonLd(projects: Project[], locale: string) {
       '@type': 'ListItem',
       position: i + 1,
       url: localePath(locale, `/portfolio/${p.slug}`),
-      name: isRu ? (p.titleRu || p.title) : p.title,
+      name: getLocalized(locale, p.title, p.titleRu, p.titleUz),
     })),
   }
 }
@@ -323,7 +322,7 @@ export function testimonialsJsonLd(items: Testimonial[], locale: string) {
   const reviews = items.map((t) => ({
     '@type': 'Review',
     reviewBody: isRu && t.quoteRu ? t.quoteRu : t.quote,
-    inLanguage: isRu ? 'ru' : 'en',
+    inLanguage: locale,
     author: {
       '@type': 'Person',
       name: t.author,

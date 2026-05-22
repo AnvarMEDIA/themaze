@@ -1,0 +1,824 @@
+{
+  "nav": {
+    "work": "Ishlar",
+    "services": "Xizmatlar",
+    "insights": "Maqolalar",
+    "about": "Biz haqimizda",
+    "contact": "Aloqa",
+    "startProject": "Loyihani boshlash",
+    "brandingStudio": "Brending Studiyasi"
+  },
+  "hero": {
+    "line1": "BIZ YARATAMIZ",
+    "line2": "DADIL",
+    "words": ["BRENDLARNI", "G'OYALARNI", "KELAJAKNI", "HIKOYALARNI"],
+    "subtitle": "Biz qadriyatlarni millionlarning qalbida aks-sado beradigan shaklga aylantiramiz.",
+    "viewWork": "Ishlarni ko'rish",
+    "fillBrief": "Brifni to'ldirish",
+    "scroll": "Aylantiring",
+    "est": "2019 YILDAN — TOSHKENT"
+  },
+  "marquee": {
+    "items": [
+      "Brendlash",
+      "Aydentika",
+      "Nomlash",
+      "Qadoqlash",
+      "Bosma va qadoqlash",
+      "Art-direksiya",
+      "Brend strategiyasi",
+      "Vizual identifikatsiya",
+      "Brendbuk",
+      "Ijodiy boshqaruv"
+    ]
+  },
+  "featured": {
+    "label": "Tanlangan ishlar",
+    "heading": "Asosiy loyihalar",
+    "viewAll": "Barcha ishlar"
+  },
+  "about": {
+    "label": "MAZE haqida",
+    "heading": "Biz murakkablikni soddalashtiramiz.",
+    "body1": "MAZE — Toshkentdagi brending va dizayn studiyasi. Yaxshi loyihalashtirilgan labirint kabi, biz brendlarni murakkablikdan soddalik sari yetaklaymiz — bozorlarni belgilab beradigan, madaniyatni shakllantirib, auditoriyani oldinga yetaklab boruvchi aydentikalar yaratamiz.",
+    "body2": "O'zbekistonning yetakchi startaplaridan tortib Markaziy Osiyoga kirib kelayotgan global brendlargacha — biz aks-sado beradigan, yashaydigan va o'sib boradigan vizual tillarni yaratamiz.",
+    "cta": "Bizning hikoyamiz",
+    "stats": {
+      "projects": "Yakunlangan loyihalar",
+      "years": "Yillik tajriba",
+      "clients": "Mamnun mijozlar",
+      "countries": "Davlatlar qamrovi"
+    },
+    "quote": "Dizayn — bu faqat narsaning ko'rinishi emas. Dizayn — bu uning qanday ishlashi va odamlarga qanday his uyg'otishi."
+  },
+  "services": {
+    "label": "Biz nima qilamiz",
+    "heading": "Xizmatlar",
+    "items": [
+      {
+        "title": "Brendlash",
+        "description": "Konsepsiyadan ishga tushirishgacha strategik brend yaratish. Brendingizning mohiyatini aniqlab, uni maqsad bilan hayotga tatbiq etamiz.",
+        "tags": ["Brend platformasi", "Pozitsiyalash", "Brendbuk", "Ishga tushirish strategiyasi"]
+      },
+      {
+        "title": "Aydentika",
+        "description": "To'liq vizual til — logotip, rang, tipografika va tasvirlar. Har qanday miqyosda va har qanday muhitda ishlaydigan tizim.",
+        "tags": ["Logotip", "Rang tizimi", "Tipografika", "Vizual qoidalar"]
+      },
+      {
+        "title": "Nomlash",
+        "description": "Tillar va bozorlarda aks-sado beradigan brend nomlari — g'oyalardan tortib lingvistik tekshiruv va savdo belgisi qaydigacha.",
+        "tags": ["Nom ishlab chiqish", "Lingvistika", "Savdo belgisi", "Domen"]
+      },
+      {
+        "title": "Qadoqlash",
+        "description": "Tokchada ajralib turadigan va eng muhim daqiqada brend hikoyasini aytib beradigan qadoqlash dizayni.",
+        "tags": ["Strukturali dizayn", "Yorliq", "Yoyma", "Ishlab chiqarish"]
+      },
+      {
+        "title": "Bosma va qadoqlash",
+        "description": "Tashrif qog'ozidan billbordlargacha — aniqlik va mahorat bilan yaratilgan brendning jismoniy kommunikatsiyasi.",
+        "tags": ["Kantselyariya", "Tahririy dizayn", "Navigatsiya", "Reklama taxtalari"]
+      },
+      {
+        "title": "Art-direksiya",
+        "description": "Fotosessiya, kampaniya va kontentlar ustidan ijodiy nazorat — barcha kanallarda brend izchilligini ta'minlash.",
+        "tags": ["Foto art-direksiya", "Kampaniyalar", "Kontent strategiyasi", "Ishlab chiqarish"]
+      }
+    ]
+  },
+  "process": {
+    "label": "Biz qanday ishlaymiz",
+    "heading": "Bizning jarayonimiz",
+    "sub": "Brifdan to ishga tushirishgacha har bir loyihaga aniqlik olib keladigan strukturalashgan yondashuv.",
+    "steps": [
+      {
+        "title": "Tadqiqot",
+        "body": "Biznesingiz, auditoriyangiz va raqobat muhitiga chuqur kirib borish. Eng avval murakkab savollar beramiz."
+      },
+      {
+        "title": "Aniqlash",
+        "body": "Tushunchalarni strategik brifga aylantiramiz. Pozitsiyalash, xarakter va dizayn tamoyillari — kristalldek tiniq."
+      },
+      {
+        "title": "Dizayn",
+        "body": "Qattiqqo'llik va ijodkorlik bilan vizual yechimlar yaratamiz. Tez iteratsiya qilamiz, tinmay sayqallaymiz."
+      },
+      {
+        "title": "Yetkazib berish",
+        "body": "Keng qamrovli topshirish: brendingizni ishonch bilan ishga tushirish uchun fayllar, qoidalar va qo'llab-quvvatlash."
+      }
+    ]
+  },
+  "cta": {
+    "label": "Boshlashga tayyormisiz?",
+    "line1": "Keling birga",
+    "line2": "ajoyib narsa yarataylik.",
+    "sub": "Loyihangiz haqida bizga aytib bering. 24 soat ichida javob beramiz.",
+    "button": "Loyihani boshlash",
+    "email": "hello@maze.uz"
+  },
+  "footer": {
+    "tagline": "Brending va Dizayn Studiyasi.\nToshkent, O'zbekiston.",
+    "readyLabel": "Hamkorlikka tayyormisiz?",
+    "rights": "Barcha huquqlar himoyalangan.",
+    "builtBy": "MAZE tomonidan ishlab chiqilgan",
+    "location": "Toshkent, O'zbekiston",
+    "groups": {
+      "Work": "Ishlar",
+      "Studio": "Studiya",
+      "Social": "Ijtimoiy tarmoqlar"
+    },
+    "nav": {
+      "portfolio": "Portfolio",
+      "branding": "Brendlash",
+      "identity": "Aydentika",
+      "naming": "Nomlash",
+      "packaging": "Qadoqlash",
+      "print": "Bosma",
+      "artDirection": "Art-direksiya",
+      "about": "Biz haqimizda",
+      "services": "Xizmatlar",
+      "contact": "Aloqa"
+    }
+  },
+  "partners": {
+    "label": "Bizga ishonadilar",
+    "heading": "Mijozlar va hamkorlar"
+  },
+  "portfolio": {
+    "label": "Bizning ishlarimiz",
+    "heading": "Portfolio",
+    "subtitle": "Markaziy Osiyo va undan tashqaridagi mijozlar uchun Toshkentda yaratilgan brend aydentikalari, logotip tizimlari, nomlash, qadoqlash va bosma ishlar.",
+    "allWork": "Barcha ishlar",
+    "projectSingular": "loyiha",
+    "projectPlural": "loyihalar",
+    "empty": "Bu kategoriyada hozircha loyihalar yo'q.",
+    "gridView": "Tarmoq ko'rinishi",
+    "listView": "Ro'yxat ko'rinishi",
+    "categories": {
+      "branding": "Brendlash",
+      "rebranding": "Qayta brendlash",
+      "identity": "Aydentika",
+      "naming": "Nomlash",
+      "packaging": "Qadoqlash",
+      "ui-ux": "UI/UX",
+      "print": "Bosma",
+      "motion": "Motion",
+      "strategy": "Strategiya"
+    },
+    "categoryIntro": {
+      "branding":   "MAZE Studio tomonidan Toshkentdagi brendlash ishlari — nomlash va vizual aydentikadan tortib brend strategiyasi va joriy etishgacha. Quyidagi har bir keys tadqiqot, pozitsiyalash ustaxonasi va aniq biznes maqsadlardan boshlanib, aydentika, qoidalar va mijozga brendni dunyoga olib chiqish uchun zarur bo'lgan ishga tushirish aktivlari bilan yakunlangan. Aksariyat loyihalar 6 dan 10 haftagacha cho'ziladi.",
+      "rebranding": "Qayta brendlash keyslari — O'zbekiston va Markaziy Osiyodagi tashkil topgan kompaniyalar uchun to'liq qayta pozitsiyalash, aydentika yangilash va joriy etish. Har bir loyiha brend auditi va joriy brendning qiymatni nima uchun yo'qotayotganini aniq tashxis qilish bilan boshlanadi.",
+      "identity":   "Vizual aydentika tizimlari — logotiplar, belgilar, tipografika, rang va ularni birlashtiradigan qoidalar. Aydentika logotipdan ko'proqdir: bu 32 piksellik faviconkadan stadion bannerigacha brendning ovozini yo'qotmasdan masshtablashtiradigan tizimdir.",
+      "naming":     "Brend nomlash loyihalari — kuchli, himoyalanadigan nomlar, savdo belgisi tekshiruvi, asoslash va ovoz tonali matn namunalari bilan. Nomlash yosh kompaniya qabul qiladigan eng yuqori ahamiyatli qarordir.",
+      "packaging":  "Qadoqlash dizayni — oziq-ovqat, FMCG, go'zallik va premium tovarlar uchun struktura, yoyma, tipografika va pardozlash. Qadoqlash brend mijoz bilan eng yuqori niyatli daqiqada uchrashadigan joydir.",
+      "ui-ux":      "Raqamli mahsulot dizayni — veb va mobil uchun UI, UX, dizayn tizimlari va front-end-ga tayyor spetsifikatsiyalar. Quyidagi har bir raqamli keys foydalanuvchi tadqiqoti va muammoni aniqlashdan boshlanadi.",
+      "print":      "Bosma dizayn — kitoblar, hisobotlar, plakatlar, navigatsiya va katta formatlar. Bosma kechirimsizdir: orqaga qaytarish yo'q.",
+      "motion":     "Motion va animatsiya — brend identlari, tushuntiruv filmlari, ijtimoiy kontent va mahsulot animatsiyalari. Motion statik brendni esda qoladigan brendga aylantiradi.",
+      "strategy":   "Brend strategiyasi — pozitsiyalash, brend arxitekturasi, nomlash tizimlari va joriy etish rejalari. Strategiya — bu hech kim ko'rmaydigan, lekin hamma his qiladigan ishning qismi."
+    },
+    "backToWork": "← Barcha ishlar",
+    "aboutProject": "Loyiha haqida",
+    "results": "Natijalar",
+    "servicesDelivered": "Bajarilgan xizmatlar",
+    "likeProject": "Bu loyiha yoqdimi?",
+    "startSimilar": "Shunga o'xshash loyihani boshlash",
+    "relatedProjects": "O'xshash loyihalar",
+    "gallery": "Galereya",
+    "year": "Yil",
+    "category": "Kategoriya",
+    "tags": "Teglar"
+  },
+  "aboutPage": {
+    "metaTitle": "MAZE haqida — Brending va Dizayn Studiyasi Toshkent, O'zbekiston",
+    "metaDesc": "MAZE Studio — Toshkentdagi brending va dizayn studiyasi. 2019 yildan beri Markaziy Osiyo va undan tashqaridagi ambitsiyali kompaniyalar uchun dadil vizual aydentikalar, logotip tizimlari va brend strategiyalarini yaratamiz.",
+    "heroLabel": "Biz haqimizda",
+    "heroHeading": "Biz brendlarni murakkablikdan soddalik sari yetaklab boramiz.",
+    "heroSub": "MAZE — Toshkent, O'zbekistondagi brending va dizayn studiyasi. 2019 yildan beri biz Markaziy Osiyo va undan tashqaridagi startaplar, korxonalar va madaniyat muassasalari uchun dadil vizual aydentikalar yaratdik.",
+    "statsYears": "Yil",
+    "statsProjects": "Loyihalar",
+    "statsClients": "Mijozlar",
+    "statsAwards": "Mukofotlar",
+    "storyHeading": "Bizning hikoyamiz",
+    "story1": "MAZE 2019 yilda Toshkentda oddiy bir ishonch bilan tashkil etildi: Markaziy Osiyo brendlari jahon darajasidagi dizaynga loyiqdir. O'sha paytda mintaqaning dizayn manzarasi asosan g'arbiy trendlarning strategik niyatsiz nusxasi edi.",
+    "story2": "Biz MAZE-ni boshqacha qilib qurdik. Birinchi kundan boshlab estetikadan oldin strategiyada, qalam olishdan oldin biznesni chuqur tushunishda qat'iy turdik. Bu yondashuv bizga O'zbekistonning eng ambitsiyali kompaniyalaridan dastlabki ishonchni qozondirdi.",
+    "story3": "Bugun bizning ishimiz har kuni millionlab odamlarga yetadi — mahsulot yorliqlari, ilovalar, do'kon peshtoqlari va shahar billbordlarida. Biz tanlovimiz bilan ixcham studiya bo'lib qolamiz: chuqur g'amxo'rlik qilish uchun yetarlicha kichik, miqyosda yetkazib berish uchun yetarlicha tajribali.",
+    "valuesHeading": "Bizning qadriyatlarimiz",
+    "values": [
+      {
+        "title": "Murakkablikdan soddalik",
+        "body": "Yaxshi loyihalashtirilgan labirint kabi, biz murakkab brend qiyinchiliklari orqali aniq yo'llar yaratamiz."
+      },
+      {
+        "title": "Estetikadan oldin strategiya",
+        "body": "Muammoni hal qilmaydigan go'zal dizayn faqat bezakdir. Avval o'ylab ko'ramiz."
+      },
+      {
+        "title": "Har bir detalda mahorat",
+        "body": "Kerning, rang tanlovi, qog'oz turi — har bir detal o'z o'rnini topadi."
+      },
+      {
+        "title": "Loyihalardan ko'ra hamkorlik",
+        "body": "Biz uzoq muddatli munosabatlarni quramiz. Brendingizning rivoji bizning doimiy majburiyatimizdir."
+      }
+    ],
+    "teamHeading": "Jamoa",
+    "team": [
+      {
+        "name": "Anvar Yusupov",
+        "role": "Asoschi va ijodiy direktor",
+        "bio": "Brending, tipografika va art-direksiya bo'yicha 10 yildan ortiq tajribaga ega bo'lgan holda studiyaning ijodiy ko'rinishini yetaklab boradi."
+      },
+      {
+        "name": "Dilnoza Rashidova",
+        "role": "Strategiya bo'yicha boshqaruvchi",
+        "bio": "O'lchanadigan natijalar uchun biznes maqsadlarini va ijodiy ijroni birlashtiradigan brend strategi."
+      },
+      {
+        "name": "Bobur Mirzayev",
+        "role": "Bosh UI/UX dizayner",
+        "bio": "Dizayn tizimlari va foydalanuvchi tadqiqotlari bo'yicha chuqur tajribaga ega intuitiv raqamli tajribalar dizaynerlarni yaratadi."
+      },
+      {
+        "name": "Malika Toshmatova",
+        "role": "Katta grafik dizayner",
+        "bio": "Bosma, qadoqlash va atrof-muhit dizaynida ixtisoslashgan, tahririy mahoratga ega."
+      }
+    ],
+    "trustedBy": "Bizga ishonadilar",
+    "readyLabel": "Birga ishlashga tayyormisiz?",
+    "readyCta": "Loyihani boshlash"
+  },
+  "servicesPage": {
+    "metaTitle": "Brending va Dizayn Xizmatlari — MAZE Studio Toshkent",
+    "metaDesc": "Brendlash, vizual aydentika, nomlash, qadoqlash dizayni, bosma, UI/UX va motion — MAZE Studio Toshkent va butun Markaziy Osiyodagi ambitsiyali kompaniyalar uchun to'liq xizmat ko'rsatuvchi brend yaratish.",
+    "heroLabel": "Biz nimani taklif qilamiz",
+    "heroHeading": "Ambitsiyali brendlar uchun xizmatlar.",
+    "heroSub": "Brend strategiyasidan art-direksiyagacha — o'sib borayotgan brendlarga raqobatlashish va g'alaba qozonish uchun zarur bo'lgan to'liq ijodiy paket.",
+    "whatYouGet": "Siz nima olasiz",
+    "enquire": "So'rov yuborish",
+    "learnMore": "Batafsil",
+    "notSureLabel": "Nimaga kerakligini bilmaysizmi?",
+    "notSureHeading": "Keling, gaplashaylik.",
+    "notSureSub": "Qiyinchiligingiz haqida bizga aytib bering va biz to'g'ri ishtirok modelini tavsiya qilamiz.",
+    "notSureCta": "Tanishuv qo'ng'irog'iga yozilish",
+    "faqLabel": "Tez-tez beriladigan savollar",
+    "faqHeading": "Tezkor javoblar.",
+    "faqItems": [
+      { "q": "Qayta brendlash qancha turadi?", "a": "MAZE-da aksariyat qayta brendlash ishlari yo'naltirilgan yangilash uchun $8,000 dan boshlanadi va to'liq strategiya, aydentika va tashkil etilgan kompaniyalar uchun joriy etish uchun $40,000+ gacha o'sadi. Tanishuv qo'ng'irog'idan keyin biz har doim moslashtirilgan smeta jo'natamiz." },
+      { "q": "Brendlash loyihasi qancha vaqt oladi?", "a": "Tipik brend aydentikasi boshlanishidan yetkazib berishgacha 6 dan 10 haftagacha cho'ziladi. Nomlash loyihalari 3-5 hafta vaqt oladi. Qadoqlash va katta miqyosli qayta brendlash 3-4 oygacha cho'zilishi mumkin." },
+      { "q": "O'zbekistondan tashqari mijozlar bilan ishlaysizmi?", "a": "Ha. Markaziy Osiyo, MDH va Yevropadagi mijozlar bilan masofadan ishlaymiz. Bizning aksariyat jarayonimiz asinxron — Figma, Notion, Loom va haftalik qo'ng'iroq — shuning uchun vaqt mintaqasi muammo emas." },
+      { "q": "Brend aydentika paketiga nimalar kiradi?", "a": "Brend strategiyasi, kerak bo'lsa nomlash, logotip va belgi tizimi, tipografika va rang, brend qoidalari, shuningdek dastlabki joriy etish kompleksini (vizitkalar, ijtimoiy shablonlar, navigatsiya maketlari) qo'shadi." },
+      { "q": "Faqat nomlash bilan ishlaysizmi, vizual aydentikasiz?", "a": "Ha — biz nomlashni alohida xizmat sifatida olib boramiz. Natija — savdo belgisi oldindan tekshirilgan kuchli nomlar ro'yxati, asoslash va ovoz tonali matn namunalari." },
+      { "q": "NDA imzolaysizmi?", "a": "Albatta. Chiqarilmagan mahsulotlar, qo'shilish va sotib olish yoki boshqa nozik kontekstga tegishli har qanday ishtirok boshida o'zaro NDA yuboramiz." },
+      { "q": "Ishning egaligini saqlay olamizmi?", "a": "Yakuniy to'lovda barcha intellektual mulk huquqlari sizga o'tadi. Agar shartnomada boshqacha aytilmagan bo'lsa, ishga tushgandan keyin ishni o'z portfoliomizda namoyish etish huquqini saqlab qolamiz." },
+      { "q": "Birinchi raund yoqmasa-chi?", "a": "Har bir ishtirokda har bir bosqich uchun ikkita strukturalashgan revizyon raundi mavjud. Biz yo'nalishlar bilan keng boshlaymiz, keyin toraytamiz — shuning uchun biz takomillashtirishga o'tganimizda, biz allaqachon yo'nalishda birga kelishib olganmiz." }
+    ],
+    "cluster": {
+      "_labels": {
+        "service": "Xizmat",
+        "back": "Barcha xizmatlar",
+        "approach": "Biz qanday ishlaymiz",
+        "deliverables": "Siz nima olasiz",
+        "timeline": "Vaqt jadvali",
+        "pricing": "Investitsiya",
+        "faq": "Umumiy savollar",
+        "selectedWork": "So'nggi ishlar",
+        "seePortfolio": "To'liq portfolioni ko'rish",
+        "cta": "Loyihani boshlash",
+        "ctaBody": "Maqsadlaringiz haqida bizga aytib bering — biz bir ish kuni ichida {service} loyihangiz uchun ko'lam, vaqt va aniq smeta bilan qaytamiz."
+      },
+      "branding": {
+        "metaTitle": "Brendlash xizmatlari — MAZE Studio Toshkent",
+        "metaDescription": "Toshkentda to'liq brendlash xizmatlari: strategiya, nomlash, vizual aydentika, qoidalar, joriy etish. O'zbekiston va Markaziy Osiyodagi ambitsiyali kompaniyalar uchun.",
+        "title": "Brendlash",
+        "tagline": "Strategiya, aydentika va ishga tushirish — boshidan oxirigacha qurilgan.",
+        "intro": "MAZE-da brendlash butun tizimni qurishni anglatadi: pozitsiyalash, hikoya, nom (kerak bo'lsa), vizual aydentika, ovoz va jamoangizga mahsulot, qadoqlash, chakana savdo va raqamli sohada brendni jo'natish uchun zarur bo'lgan joriy etish kompleksi.",
+        "approach": [
+          { "title": "Tadqiqot", "body": "1-2 kunlik ustaxona: asoschilar va asosiy manfaatdor tomonlar bilan biznes, auditoriya, raqobat va siz haydashni xohlagan o'zgarishlarni xaritalashtirish. Hammasini imzolagan yozma brif bilan tugatamiz." },
+          { "title": "Strategiya", "body": "Pozitsiyalash, brend hikoyasi, auditoriya segmentlari va o'lchanadigan muvaffaqiyat ramkasi. Biz 20-30 sahifali strategiya hujjatini ishlab chiqamiz — keyingi har bir qaror uchun yagona haqiqat manbai." },
+          { "title": "Aydentika", "body": "Kerak bo'lsa nomlash, keyin vizual tizim: logotip, shrift, rang, motion tamoyillari, fotosurat yo'nalishi va ularni birlashtiruvchi qoidalar. Ikki strukturalashgan fikr-mulohazalar raundi." },
+          { "title": "Joriy etish", "body": "Brend qoidalari (PDF + Figma kutubxonasi) va sizga haqiqatda kerak bo'lgan ishga tushirish kompleksi — qadoqlash, veb, ijtimoiy shablonlar, navigatsiya, taqdimot taxtasi — birinchi kuni jo'natilishi kerak bo'lgan narsalar." }
+        ],
+        "deliverables": [
+          "Brend strategiyasi hujjati (pozitsiyalash, hikoya, auditoriya, muvaffaqiyat o'lchovlari)",
+          "Kerak bo'lsa savdo belgisi tekshiruvi bilan nomlash",
+          "To'liq logotip tizimi — asosiy, ikkinchi darajali, monogramma, qulflar",
+          "Tipografika tizimi va brend shriftlari",
+          "Mavjudligi mos keladigan paletlarni o'z ichiga olgan rang tizimi",
+          "Yagona haqiqat manbai sifatida brend qoidalari (PDF + Figma kutubxonasi)",
+          "Ishga tushirish kompleksi — qadoqlash, veb, ijtimoiy, navigatsiya, taqdimot taxtasi",
+          "Bosqich bo'yicha ikkita strukturalashgan revizyon raundi"
+        ],
+        "timeline": "Aksariyat to'liq brendlash ishlari tadqiqotdan topshirishgacha 8-12 hafta davom etadi. Sof nomlash + aydentika strategiyasiz 5-7 hafta. Biz taklifda aniq haftalik jadval taqdim etamiz.",
+        "pricing": "Brendlash ishlari yo'naltirilgan aydentika yangilash uchun $12,000 dan boshlanadi va strategiya, nomlash, qadoqlash va raqamli bilan kategoriya-belgilovchi ishga tushirish uchun $60,000+ gacha o'sadi. Har bir smeta tadqiqot ustaxonasidan keyin qat'iy ko'lamga ega.",
+        "faq": [
+          { "q": "Menga brendlash yoki qayta brendlash kerakmi?", "a": "Agar biznesingiz yangi bo'lsa — yoki auditoriyangiz, mahsulotingiz yoki kategoriyangiz brend yaratilganidan beri o'zgargan bo'lsa — toza varaqdan brendlash eng kuchli natija beradi. Agar brend ishlayotgan bo'lsa-yu, eskirgan ko'rinsa, qayta brendlash ostida yangilash yetarli." },
+          { "q": "Bizning mavjud logotipimiz bilan ishlaysizmi?", "a": "Ha, agar u ishlayotgan bo'lsa. Tadqiqot brend auditni o'z ichiga oladi — ba'zan logotip qoladi va biz uning atrofidagi hamma narsani qayta quramiz." },
+          { "q": "Ishlab chiqarish va ishga tushirish aktivlarini boshqarasizmi?", "a": "Ha. Joriy etish kompleksi har bir to'liq brendlash ishtirokining bir qismidir. Biz bosishga tayyor qadoqlash fayllarini, muhandislik jamoangiz uchun Figma kutubxonalarini, ijtimoiy shablonlarni va ishga tushirish taxtasini yetkazib beramiz." },
+          { "q": "Ishga kim egalik qiladi?", "a": "Yakuniy to'lovda to'liq intellektual mulk sizga o'tadi. Agar shartnomada boshqacha aytilmagan bo'lsa, ishga tushgandan keyin ishni o'z portfoliomizda namoyish etish huquqini saqlab qolamiz." }
+        ]
+      },
+      "rebranding": {
+        "metaTitle": "Qayta brendlash xizmatlari — MAZE Studio Toshkent",
+        "metaDescription": "O'zbekiston va Markaziy Osiyodagi tashkil topgan kompaniyalar uchun qayta brendlash — brend auditi, qayta pozitsiyalash, aydentika yangilash va ishga tushirish.",
+        "title": "Qayta brendlash",
+        "tagline": "Yo'naltirilgan yangilashdan to'liq qayta ixtirogacha.",
+        "intro": "Qayta brendlash — biznesingiz ishga tushirilgan brendidan o'zib ketganda to'g'ri qaror — yangi auditoriya, yangi mahsulot, yangi geografiya, qo'shilish, kategoriya o'zgarishi.",
+        "approach": [
+          { "title": "Brend auditi", "body": "Joriy brendingizning biznes maqsadlaringiz, mijozlaringiz va raqobatchilaringizga nisbatan diagnostikasi. Nima ishlayotgani, nima sizga xarajat qilayotgani va eng yuqori ahamiyatga ega harakatlarni yuzaga chiqaramiz." },
+          { "title": "Qayta pozitsiyalash", "body": "Yangi pozitsiyalash, yangilangan hikoya va kimga xizmat qilayotganingiz va nima uchun turishingizning aniq ifodasi. Ish sessiyasida rahbariyat bilan moslashtirilgan, jamoa uchun hujjatlashtirilgan." },
+          { "title": "Yangilash yoki qayta qurish", "body": "Yangilash ishlayotgan qiymatni saqlaydi (ko'pincha logotip, nom) va atrofidagi tizimni qayta quradi. Qayta qurish — bu to'liq qayta tiklash — yangi vizual tizim, ba'zan yangi nom." },
+          { "title": "O'tish rejasi", "body": "Ichki ishga tushirish, mijozlar bilan kommunikatsiya, mahsulot, qadoqlash, chakana savdo va raqamli aloqalarni qamrab oladigan joriy etish taqvimi." }
+        ],
+        "deliverables": [
+          "Birinchi o'ringa qo'yilgan tavsiyalar bilan brend audit hisoboti",
+          "Yangilangan pozitsiyalash, hikoya va xabar yuborish ramkasi",
+          "Logotip va aydentika tizimi — yangilangan yoki qayta qurilgan",
+          "Yangilangan tipografika, rang va motion tamoyillari",
+          "Keng qamrovli brend qoidalari",
+          "Ichki va mijozga qaratilgan joriy etishni qamrab oladigan o'tish rejasi",
+          "Ko'lamga muvofiq ishga tushirish kompleksi — qadoqlash, veb, ijtimoiy, navigatsiya",
+          "Bosqich bo'yicha ikkita strukturalashgan revizyon raundi"
+        ],
+        "timeline": "Yangilashlar odatda 6-9 hafta davom etadi. Yangi pozitsiyalash va aydentika bilan to'liq qayta qurish 10-16 hafta davom etadi.",
+        "pricing": "Yangilashlar $10,000 dan boshlanadi. Strategiya, aydentika va joriy etish bilan to'liq qayta brendlash odatda ko'lam va aloqa nuqtalari soniga qarab $30,000–$80,000 oralig'ida.",
+        "faq": [
+          { "q": "Brend qiymatini yo'qotamizmi?", "a": "Agar auditni to'g'ri o'tkazsak, yo'q. Tadqiqot qaysi qiymatni saqlash kerakligini (ko'pincha nom, ramz, ma'lum bir rang) va qaysi brendni tortayotganini aniqlaydi." },
+          { "q": "Nomlamasdan qayta brendlash mumkinmi?", "a": "Ha — aksariyat qayta brendlashlar nomni saqlab qoladi. Qayta nomlash aniq strategik sabablar (huquqiy ziddiyatlar, yangi geografiyalarga kengayish, o'tmishdan masofa olish) bilan boshqariladigan alohida qarordir." },
+          { "q": "O'zgarishni mijozlarga qanday yetkazamiz?", "a": "O'tish rejasi aynan shu narsani qamrab oladi — ketma-ket kommunikatsiya taqvimi, avval ichki ishga tushirish, keyin elektron pochta, ijtimoiy, mahsulot ichida, chakana savdo va PR bilan muvofiqlashtirilgan mijozlarga qaratilgan joriy etish." },
+          { "q": "Mavjud aktivlarimiz nima bo'ladi?", "a": "Biz ularni tadqiqot davomida inventarlashtiramiz va almashtirishni birinchi o'ringa qo'yamiz: yuqori ko'rinadigan aloqa nuqtalari avval (veb, qadoqlash, chakana savdo), keyin tabiiy qayta bosib chiqarish davrlarida almashtiriladigan uzun dumli materiallar." }
+        ]
+      },
+      "identity": {
+        "metaTitle": "Vizual aydentika dizayni — MAZE Studio Toshkent",
+        "metaDescription": "Vizual aydentika tizimlari — logotiplar, belgilar, tipografika va rang — Toshkentda O'zbekiston va Markaziy Osiyodagi brendlar uchun ishlab chiqilgan.",
+        "title": "Vizual aydentika",
+        "tagline": "Tizim, logotip emas.",
+        "intro": "Aydentika belgidan ko'proqdir. Bu tizim — tipografika, rang, fotosurat yo'nalishi, motion tamoyillari va qoidalar — bu brendga 32 piksellik faviconkadan stadion bannerigacha bo'lgan har bir aloqa nuqtasida izchil bo'lib qolish imkonini beradi.",
+        "approach": [
+          { "title": "Audit", "body": "Agar sizda mavjud brend bo'lsa, biz aktivlarni auditdan o'tkazamiz, nima ishlayotganini aniqlaymiz va kamchiliklarni yuzaga chiqaramiz. Agar bo'lmasa, yo'nalishni o'rganishga o'tamiz." },
+          { "title": "Yo'nalish", "body": "Strategiyada mustahkamlangan uchta alohida vizual yo'nalish. Biz kontekstda taqdim etamiz — moodboard-da suzuvchi logotiplar emas, balki haqiqiy aloqa nuqtalariga qo'llanilgan." },
+          { "title": "Sayqallash", "body": "Ikkita revizyon raundi yakuniy tizimga tor qiladi. Biz logotip, shrift, rang, motion va fotosurat yo'nalishini birga loyihalashtiramiz." },
+          { "title": "Hujjatlashtirish", "body": "Brend qoidalari yagona PDF sifatida, shuningdek jamoangiz tortib olishi mumkin bo'lgan jonli Figma kutubxonasi. Har bir qoidaning 'nima uchun'i bor, shuning uchun jamoangiz o'sganda tizim izchil bo'lib qoladi." }
+        ],
+        "deliverables": [
+          "Logotip tizimi — asosiy, ikkinchi darajali, monogramma, qulflar, mumkin va mumkin emas",
+          "Tipografika tizimi — shriftlar, miqyos, ierarxiya",
+          "Rang tizimi — asosiy, ikkinchi darajali, neytrallar, mavjudligi mos keladigan juftliklar",
+          "Fotosurat yo'nalishi va art-direksiya qoidalari",
+          "Raqamli aloqa nuqtalari uchun motion tamoyillari",
+          "Brend qoidalari (PDF + Figma kutubxonasi)",
+          "Barcha manba fayllari (Figma, AI, vektor)",
+          "Ikkita strukturalashgan revizyon raundi"
+        ],
+        "timeline": "Aydentika ishtiroki boshlanishidan yetkazib berishgacha 6-9 hafta davom etadi, ko'lamga qarab.",
+        "pricing": "Aydentika loyihalari yo'naltirilgan tizimlar uchun $10,000 dan boshlanadi va keng qo'llanilish kompleksiga ega kategoriya-belgilovchi brendlar uchun $30,000+ ga yetadi.",
+        "faq": [
+          { "q": "Shriftni litsenziyalashimiz mumkinmi yoki siz uni loyihalashtirasizmi?", "a": "Aksariyat loyihalar litsenziyalangan shriftdan foydalanadi — ajoyib global kutubxona mavjud va litsenziyalash oddiy." },
+          { "q": "Faqat logotiplarni qilasizmi?", "a": "Qilamiz, lekin biz minimal logotip + shrift + rang paketini tavsiya qilamiz — faqat logotip sizga belgi beradi, tizim emas." },
+          { "q": "Tizim motion / raqamli / qadoqlashda ishlaydimi?", "a": "Ha — biz tizimni sayqallash davomida o'sha kontekstlarda sinab ko'ramiz." },
+          { "q": "Manba fayllarini taqdim etasizmi?", "a": "Doim. Siz tahrirlanadigan Figma, Illustrator va vektor manba fayllarini, shuningdek jamoangizga kerak bo'lgan har bir formatda eksportlarni olasiz." }
+        ]
+      },
+      "naming": {
+        "metaTitle": "Brend nomlash xizmatlari — MAZE Studio Toshkent",
+        "metaDescription": "O'zbekiston va Markaziy Osiyodagi kompaniyalar uchun brend nomlash. Savdo belgisi tekshiruvi, asoslash va ovoz tonali namunalar bilan kuchli, himoyalanadigan nomlar.",
+        "title": "Nomlash",
+        "tagline": "Bahslarni yutadigan, huquqiy tekshiruvdan o'tadigan va o'sishdan omon qoladigan nomlar.",
+        "intro": "Nomlash yosh kompaniya qabul qiladigan eng yuqori ahamiyatli qarordir — noto'g'ri nom yillar davomida marketing byudjetiga va brend qiymatiga zarar yetkazadi.",
+        "approach": [
+          { "title": "Brif", "body": "Biz pozitsiyalash brifidan boshlaymiz — auditoriya, kategoriya, ovoz, uzunlik, u ishlashi kerak bo'lgan tillar." },
+          { "title": "O'rganish", "body": "Bir nechta nomlash yo'nalishlari (tavsifiy, evokativ, ixtiro qilingan, asoschi, abstrakt) bo'yicha raundga 200+ nomzodlar yaratamiz." },
+          { "title": "Tasdiqlash", "body": "Savdo belgisi oldindan tekshiruvi, domen mavjudligi tekshiruvi, ishlaydigan bozorlarda lingvistik tekshiruvlar." },
+          { "title": "Tavsiya", "body": "Bir tavsiya qilingan nom, ikkita ishlaydigan muqobil, to'liq asoslash va har bir nomning sarlavhalarda, reklamalarda va mahsulot matnida qanday o'qilishini ko'rsatuvchi ovoz tonali matn namunalari." }
+        ],
+        "deliverables": [
+          "Nomlash brifi va qisqa ro'yxat mezonlari",
+          "Raundga 200+ yaratilgan nomzodlar (ishchi fayllar)",
+          "Kontekstda taqdim etilgan 15-25 nomdan iborat tanlangan qisqa ro'yxat",
+          "Savdo belgisi oldindan tekshiruvi hisoboti",
+          "Domen mavjudligi tekshiruvi",
+          "Maqsadli bozorlaringizda lingvistik tekshiruv",
+          "Ikkita ishlaydigan muqobil bilan yakuniy tavsiya",
+          "Yuqori 3 nom uchun ovoz tonali matn namunalari"
+        ],
+        "timeline": "Nomlash sprintlari brifdan tavsiyagacha 3-5 hafta davom etadi.",
+        "pricing": "Nomlash ishtiroklari $6,000 dan boshlanadi va yuqori ahamiyatga ega iste'molchi yoki texnologiya ishga tushirishlari uchun $20,000 ga yetadi.",
+        "faq": [
+          { "q": "Savdo belgisini qayd qilasizmi?", "a": "Biz nomlarni maqsadli bozorlaringizdagi mavjud savdo belgilariga qarshi oldindan tekshiramiz. Haqiqiy qayd qilish sizning IP yuristingiz tomonidan amalga oshiriladi." },
+          { "q": "Tavsiya qilingan nom savdo belgisidan o'tmasligi mumkinmi?", "a": "Bu kamdan-kam sodir bo'ladi — oldindan tekshirish aniq ziddiyatlarni qamrab oladi." },
+          { "q": "Nom o'zbek / rus / ingliz tillarida ishlaydimi?", "a": "Ha — biz ishlaydigan har bir tilda talaffuz, ma'no va ohangni tekshiramiz." },
+          { "q": "Logotipni ham loyihalashtirasizmi?", "a": "Nomlash ko'pincha mustaqil ishtirokdir. Agar bir jamoadan nomlash + aydentika xohlasangiz, biz ularni birlashtiramiz." }
+        ]
+      },
+      "packaging": {
+        "metaTitle": "Qadoqlash dizayni xizmatlari — MAZE Studio Toshkent",
+        "metaDescription": "O'zbekiston va Markaziy Osiyodagi oziq-ovqat, FMCG, go'zallik va premium tovarlar uchun qadoqlash dizayni.",
+        "title": "Qadoqlash",
+        "tagline": "Brend mijoz bilan uchrashadigan joy.",
+        "intro": "Qadoqlash — bu mijozning brend bilan sayohatidagi eng yuqori niyatli daqiqa — ular mahsulotni olishni xohlaganlarini hal qilgan daqiqa.",
+        "approach": [
+          { "title": "Strategiya", "body": "Tokcha auditi — raqobatchilar, premium daraja, narx nuqtasi, kategoriyada fotosurat konventsiyalari." },
+          { "title": "Struktura", "body": "Yoyma dizayni, material tanlash, ochilish mexanizmi." },
+          { "title": "Vizual", "body": "Tipografika, illyustratsiya yoki fotosurat, qoidaviy matn, til versiyalari." },
+          { "title": "Ishlab chiqarish", "body": "Bosish uchun tayyor fayllar sizning bosmaxonangiz so'ragan formatda (PDF/X-1a, X-4, kerak bo'lganda ajratish)." }
+        ],
+        "deliverables": [
+          "Tokcha auditi va kategoriya pozitsiyalash",
+          "Strukturali dizayn va yoyma",
+          "SKU diapazoni bo'yicha to'liq vizual dizayn",
+          "Tipografika, illyustratsiya yoki fotosurat yo'nalishi",
+          "Qoidaviy matn va til lokalizatsiyasi (UZ / RU / EN, so'rov bo'yicha boshqalari)",
+          "Bosishga tayyor fayllar sizning bosmaxonangiz so'ragan formatda",
+          "Birinchi ishlab chiqarish uchun ishlab chiqarish nazorati",
+          "Ishga tushgandan keyin marketing aktivlari uchun fotosurat yo'nalishi"
+        ],
+        "timeline": "Yo'naltirilgan 1-3 SKU qadoqlash loyihasi 6-10 hafta davom etadi.",
+        "pricing": "Qadoqlash bitta asosiy SKU uchun $7,000 dan boshlanadi va diapazon kattaligi va murakkabligi bilan miqyoslanadi.",
+        "faq": [
+          { "q": "Qadoqlash uchun fotosuratni boshqarasizmi?", "a": "Biz fotosuratni art-direktsiya qilamiz — fotografni tanlaymiz, ularni brifiymiz, suratga olishni nazorat qilamiz." },
+          { "q": "Mavjud bosmaxonamiz bilan ishlaysizmi?", "a": "Ha — biz sizda mavjud bo'lgan har qanday ishlab chiqarish stekiga moslashamiz." },
+          { "q": "Qoidaviy matn nima?", "a": "Biz tartibni uni qamrab olish uchun loyihalashtiramiz va uyaga taqdim etamiz." },
+          { "q": "Ishlab chiqarishni nazorat qilasizmi?", "a": "Birinchi ishlab chiqarish, ha — rang moslashtirish, pardozlash tekshirish, har qanday so'nggi tuzatishlar." }
+        ]
+      },
+      "ui-ux": {
+        "metaTitle": "UI / UX dizayn xizmatlari — MAZE Studio Toshkent",
+        "metaDescription": "Raqamli mahsulot dizayni — UI, UX, dizayn tizimlari va veb va mobil uchun muhandislikka tayyor spetsifikatsiyalar.",
+        "title": "UI / UX dizayn",
+        "tagline": "Jo'natiladigan mahsulot dizayni.",
+        "intro": "Raqamli mahsulot dizayni strategiya muhandislik haqiqati bilan uchrashadigan joydir.",
+        "approach": [
+          { "title": "Tadqiqot", "body": "Foydalanuvchi tadqiqoti, biznes maqsadlari, texnik cheklovlar, raqobatchi mahsulot tahlili." },
+          { "title": "Arxitektura", "body": "Axborot arxitekturasi, navigatsiya, simlar." },
+          { "title": "Dizayn", "body": "Boshidan komponentlar kutubxonasi bilan yuqori sodiqlikdagi dizayn." },
+          { "title": "Topshirish", "body": "Muhandislik uchun strukturalangan Figma fayl, komponentlar, variantlar, avtomatik tartib va aniq spetsifikatsiyalar bilan." }
+        ],
+        "deliverables": [
+          "Foydalanuvchi tadqiqoti xulosasi va personalar",
+          "Axborot arxitekturasi va foydalanuvchi sayohati xaritalari",
+          "Har bir asosiy oqim uchun simlar",
+          "Sindirishlar bo'yicha yuqori sodiqlikdagi dizayn (ish stoli, planshet, mobil)",
+          "Figma komponent kutubxonasi — muhandislikka tayyor, variantlar va avtomatik tartib bilan",
+          "Muhim joylarda o'zaro ta'sir va motion spetsifikatsiyalari",
+          "Kodga eksport qilinadigan dizayn tokenlari (rang, shrift, masofa)",
+          "Qurish davomida dizayn-muhandislik sinxronlashtirish"
+        ],
+        "timeline": "MVP ko'lami 8-14 haftada ishga tushadi. To'liq mahsulot ishtiroklari odatda 3-6 oy davom etadi.",
+        "pricing": "UI/UX ishtiroklari yo'naltirilgan MVP uchun $15,000 dan boshlanadi va tadqiqot, dizayn tizimi va muhandislik bilan to'liq mahsulot dizayni uchun $80,000+ gacha o'sadi.",
+        "faq": [
+          { "q": "Mahsulotni quryapsizmi yoki faqat dizayn qilyapsizmi?", "a": "Biz dizayn studiyasimiz — biz dizayn qilamiz, muhandislik jamoangiz quradi." },
+          { "q": "Mavjud dizayn tizimimiz bilan ishlay olasizmi?", "a": "Ha — mavjud tizimni kengaytirish ko'pincha to'g'ri harakatdir." },
+          { "q": "Foydalanuvchi tadqiqotini qilasizmi yoki bu bizdami?", "a": "Ikkalasi ham. Biz tadqiqot o'tkazishimiz mumkin (5-10 suhbat, foydalanish testi, so'rovlar)." },
+          { "q": "Mavjudlik nima haqida?", "a": "WCAG AA har bir loyihada minimal — rang kontrasti, fokus holatlari, klaviatura navigatsiyasi, ekran o'quvchi semantikasi." }
+        ]
+      },
+      "print": {
+        "metaTitle": "Bosma dizayn xizmatlari — MAZE Studio Toshkent",
+        "metaDescription": "Bosma dizayn — yillik hisobotlar, kitoblar, jurnallar, plakatlar, navigatsiya va katta format.",
+        "title": "Bosma dizayn",
+        "tagline": "Doimiylik uchun loyihalangan.",
+        "intro": "Bosma kechirimsizdir — orqaga qaytarish yo'q, yamoq nashri yo'q.",
+        "approach": [
+          { "title": "Brif", "body": "Format, auditoriya, tarqatish, qog'oz byudjeti, ishlab chiqarish vaqti." },
+          { "title": "Kontent", "body": "Tahririy dizayn matndan boshlanadi." },
+          { "title": "Tartib", "body": "Asosiy tarmoqlar, tipografika, tasvir yo'nalishi, qog'oz tanlash." },
+          { "title": "Ishlab chiqarish", "body": "Bosmaxonangiz so'ragan formatda bosishga tayyor fayllar." }
+        ],
+        "deliverables": [
+          "Tahririy dizayn tizimi — tipografika, tarmoq, ierarxiya",
+          "Barcha sahifalar yoki formatlar bo'yicha to'liq tartib",
+          "Byudjetga mos keladigan qog'oz va pardozlash tavsiyalari",
+          "Bosmaxonaning afzal formatida bosishga tayyor fayllar",
+          "Profil tavsiyalari bilan rang boshqaruvi",
+          "Yuqori ahamiyatga ega bo'laklar uchun pres tekshiruvi davomati",
+          "Kelajakdagi nashrlar uchun manba fayllari (InDesign, Illustrator)",
+          "Ikkita strukturalashgan revizyon raundi"
+        ],
+        "timeline": "Hisobotlar va kitoblar odatda uzunligiga qarab 6-12 hafta davom etadi.",
+        "pricing": "Bosma ishtiroklari plakatlar va qisqa materiallar uchun $5,000 dan boshlanadi.",
+        "faq": [
+          { "q": "Bosmaxonamiz bilan ishlaysizmi yoki tavsiya qilasizmi?", "a": "Ikkalasi ham. Bizning Toshkentda va xalqaro miqyosda ishonchli bosmaxonalarimiz bor." },
+          { "q": "Kopirayterlikni boshqarasizmi?", "a": "Boshqaramiz. Yaxshi matnsiz tahririy dizayn ishlamaydi." },
+          { "q": "Fotosurat nima haqida?", "a": "Biz art-direktsiya qilamiz, brifiymiz va buyurtma qilamiz." },
+          { "q": "Katta format / navigatsiyani qilasizmi?", "a": "Ha — yo'l topish tizimlari, ko'rgazma grafikasi, billbordlar." }
+        ]
+      },
+      "motion": {
+        "metaTitle": "Motion dizayn xizmatlari — MAZE Studio Toshkent",
+        "metaDescription": "Motion dizayn va brend animatsiyasi — identlar, tushuntirish filmlari, ijtimoiy kontent va mahsulot animatsiyalari.",
+        "title": "Motion dizayn",
+        "tagline": "Maqsadli ravishda harakatdagi brend.",
+        "intro": "Motion statik brendni esda qoladigan brendga aylantiradi — lekin faqat motion aydentika tizimining bir qismi bo'lganda.",
+        "approach": [
+          { "title": "Brif", "body": "Motion qayerda yashaydi (TV reklamasi, ident, ijtimoiy, mahsulot)? Ish vaqti qancha?" },
+          { "title": "Storyboard", "body": "Hikoya bo'laklari uchun kadr-kadr storyboard, tizim darajasidagi ish uchun motion tamoyillari." },
+          { "title": "Animatsiya", "body": "Bo'lakka qarab After Effects yoki Cinema 4D-da animatsiya." },
+          { "title": "Yetkazib berish", "body": "Kanallaringiz uchun zarur formatlarda yakuniy video fayllar (16:9, 1:1, 9:16)." }
+        ],
+        "deliverables": [
+          "Animatsiyadan oldin manfaatdor tomonlarning tasdig'i bilan storyboard",
+          "Brend motion tamoyillari — yengillashtirish, vaqt, o'tishlar",
+          "Kanallaringiz uchun zarur har bir formatda yakuniy video fayllar",
+          "Mos joylarda mahsulot / veb uchun Lottie animatsiyalari",
+          "Kelajakdagi tahrirlar uchun manba fayllari (After Effects, Cinema 4D)",
+          "Agar kerak bo'lsa audio yo'nalishi yoki ovoz dizayni muvofiqlashtirishi",
+          "Bosqich bo'yicha ikkita strukturalashgan revizyon raundi",
+          "Formatga xos kesimlar (16:9, 1:1, 9:16, kvadrat) kiritilgan"
+        ],
+        "timeline": "Logotip identlari va qisqa bo'laklar 2-4 hafta davom etadi.",
+        "pricing": "Motion ishtiroklari logotip identlari va qisqa siklar uchun $4,000 dan boshlanadi.",
+        "faq": [
+          { "q": "3D / Cinema 4D ishini qilasizmi?", "a": "Ha. Biz bo'lakka nima kerakligiga qarab 2D yoki 3D ni tanlaymiz." },
+          { "q": "Mavjud video jamoamiz bilan ishlay olasizmi?", "a": "Albatta — biz dizayn qilamiz va animatsiya qilamiz." },
+          { "q": "Ovoz dizayni nima haqida?", "a": "Biz art-direktsiya qilamiz va ovoz dizaynerlari bilan muvofiqlashtiramiz." },
+          { "q": "Lottie yoki video?", "a": "Mahsulot animatsiyalari va kichik UI lahzalari uchun Lottie. Hikoya kontenti va ijtimoiy uchun video." }
+        ]
+      },
+      "strategy": {
+        "metaTitle": "Brend strategiyasi xizmatlari — MAZE Studio Toshkent",
+        "metaDescription": "Brend strategiyasi — pozitsiyalash, arxitektura, nomlash tizimlari va joriy etish rejalari.",
+        "title": "Brend strategiyasi",
+        "tagline": "Hech kim ko'rmaydigan, lekin hamma his qiladigan qism.",
+        "intro": "Strategiya — bu Behance-da tugamaydigan brend ishining qismi — lekin bu brendning o'n yil ichida o'z qiymatini topadimi yoki yo'qmi, hal qiluvchi qismidir.",
+        "approach": [
+          { "title": "Tadqiqot", "body": "Manfaatdor tomonlar bilan suhbatlar (asoschilar, asosiy jamoa, ba'zan mijozlar), kategoriya tadqiqoti, raqobatchi tahlili, auditoriya segmentlash." },
+          { "title": "Pozitsiyalash", "body": "Rahbariyat bilan ish sessiyasi: kimga xizmat qilasiz, nima uchun turasiz, nima uchun turmaysiz, dunyoda haydashni xohlagan o'zgarish." },
+          { "title": "Arxitektura", "body": "Ko'p mahsulotli yoki ko'p brendli kompaniyalar uchun — arxitektura xaritasi (asosiy brend, ostki brendlar, mahsulot nomlari, tasdiqlangan brendlar)." },
+          { "title": "Ramka", "body": "O'lchanadigan muvaffaqiyat ramkasi — bu brend 1 / 3 / 5 yil ichida muvaffaqiyatli bo'lishi uchun nima qilishi kerak va biz g'alaba qozonayotganimizni qanday bilamiz." }
+        ],
+        "deliverables": [
+          "Manfaatdor tomonlar bilan suhbat xulosasi",
+          "Kategoriya va raqobatchi tahlili",
+          "Auditoriya segmentlash va personalar",
+          "Pozitsiyalash bayoni va brend hikoyasi",
+          "Brend arxitektura xaritasi (ko'p qatorli bo'lsa)",
+          "O'lchanadigan muvaffaqiyat ramkasi",
+          "20-30 sahifali strategiya hujjati",
+          "Rahbariyat bilan ish sessiyasini boshqarish"
+        ],
+        "timeline": "Mustaqil strategiya ishtiroklari 4-8 hafta davom etadi.",
+        "pricing": "Strategiya ishtiroklari yo'naltirilgan pozitsiyalash ishi uchun $8,000 dan boshlanadi.",
+        "faq": [
+          { "q": "Sizdan dizaynni sotib olmasdan strategiyani qila olamizmi?", "a": "Ha — strategiya ko'pincha mustaqil ishtirokdir." },
+          { "q": "Bu marketing strategiyasidan qanday farq qiladi?", "a": "Brend strategiyasi yuqori oqimda — biz kimmiz va nima uchun turibmiz. Marketing strategiyasi pastki oqimda — odamlarga qanday aytamiz." },
+          { "q": "Mijoz tadqiqotini qilasizmi?", "a": "Qila olamiz — sifatli (suhbatlar, etnografiya) yoki muvofiqlashtirilgan miqdoriy (hamkorlar bilan so'rovlar)." },
+          { "q": "Pozitsiyalashimiz keyinroq o'zgarishi kerak bo'lsa-chi?", "a": "Strategiya hujjati tirik artefaktdir — biznes va kategoriya harakat qilganda har 18-24 oyda ko'rib chiqishni tavsiya qilamiz." }
+        ]
+      }
+    },
+    "services": [
+      {
+        "id": "branding",
+        "num": "01",
+        "title": "Brendlash",
+        "tagline": "Ma'noli brend qurish.",
+        "body": "Biz brendlarni asosidan yaratamiz — birinchi vizual element loyihalashtirilishidan oldin pozitsiyalash, xarakter va maqsadni aniqlash. Bir izchil ishtirokda strategiya va aydentika.",
+        "deliverables": [
+          "Brend platformasi va strategiyasi",
+          "Pozitsiyalash va xabarlar",
+          "Logotip tizimi",
+          "Rang va tipografika",
+          "Brend qoidalari",
+          "Ishga tushirish aktivlari"
+        ]
+      },
+      {
+        "id": "identity",
+        "num": "02",
+        "title": "Aydentika",
+        "tagline": "Brendingizning to'liq vizual tili.",
+        "body": "Har qanday miqyosda va har qanday muhitda ishlash uchun mo'ljallangan keng qamrovli brend aydentika tizimlari — logotip, rang paleti, tipografika, tasvirlar va ikonografiya.",
+        "deliverables": [
+          "Logotip tizimi (asosiy, variantlar, ikona)",
+          "Rang paleti",
+          "Tipografika tizimi",
+          "Ikonografiya va illyustratsiya uslubi",
+          "Brend qoidalari hujjati",
+          "Aktivlar kutubxonasi"
+        ]
+      },
+      {
+        "id": "naming",
+        "num": "03",
+        "title": "Nomlash",
+        "tagline": "To'g'ri nom har bir eshikni ochadi.",
+        "body": "Brend nomi sizning eng doimiy ijodiy qaroringizdir. Biz madaniy aks-sado, lingvistik aniqlik va savdo belgisi mavjudligida ildiz olgan yuzlab tushunchalarni o'rganamiz.",
+        "deliverables": [
+          "Nomlash brifi va mezonlar",
+          "100+ nom tushunchalari",
+          "Lingvistik va madaniy tahlil",
+          "Savdo belgisi mavjudligi tekshiruvi",
+          "Domen mavjudligi tekshiruvi",
+          "Nomlash asoslash taqdimoti"
+        ]
+      },
+      {
+        "id": "packaging",
+        "num": "04",
+        "title": "Qadoqlash",
+        "tagline": "Tokchada g'alaba qozonadigan qadoqlash dizayni.",
+        "body": "Biz brend qadriyatlarini bir zumda yetkazib beradigan va xaridni majburlaydigan qadoqlash loyihalashtiramiz. Strukturali dizayndan va yorliq tartibidan tortib material tanlash va bosma ishlab chiqarishgacha.",
+        "deliverables": [
+          "Strukturali va yoyma dizayni",
+          "Yorliq va sirt dizayni",
+          "Material va pardozlash spetsifikatsiyasi",
+          "Chakana savdo maketlari",
+          "Bosishga tayyor fayllar",
+          "Ishlab chiqarish boshqaruvi"
+        ]
+      },
+      {
+        "id": "print",
+        "num": "05",
+        "title": "Bosma va qadoqlash",
+        "tagline": "Doimiy ta'siri bo'lgan jismoniy dizayn.",
+        "body": "Bosma eng kuchli brend aloqa nuqtalaridan biri bo'lib qoladi. Biz raqamli ishimizga qo'llaydigan o'sha qattiqqo'llik bilan kantselyariya tizimlarini, nashrlarni, atrof-muhit grafikasini va kampaniya materiallarini loyihalashtiramiz.",
+        "deliverables": [
+          "Brend kantselyariya tizimi",
+          "Tahririy va nashr dizayni",
+          "Atrof-muhit va navigatsiya dizayni",
+          "Kampaniya materiallari",
+          "Tashqi va katta format",
+          "Bosma ishlab chiqarish boshqaruvi"
+        ]
+      },
+      {
+        "id": "art-direction",
+        "num": "06",
+        "title": "Art-direksiya",
+        "tagline": "Birlashgan brend ovozi uchun ijodiy nazorat.",
+        "body": "Biz fotosessiyalar, kampaniyalar va doimiy kontent uchun art-direksiya taqdim etamiz — har bir vizual element brendga sodiq qolishini ta'minlaymiz. Bir martalik loyiha yoki doimiy ijodiy hamkorlik sifatida mavjud.",
+        "deliverables": [
+          "Fotosurat yo'nalishi va moodboardlar",
+          "Kampaniya konsepsiyasi va yo'nalishi",
+          "Sotuvchi va fotograf boshqaruvi",
+          "Kontent qoidalari",
+          "Doimiy ijodiy konsultatsiya",
+          "Brend izchillik tekshiruvlari"
+        ]
+      }
+    ]
+  },
+  "contactPage": {
+    "metaTitle": "MAZE Studio bilan bog'lanish — Brending agentligi Toshkent",
+    "metaDesc": "Toshkent, O'zbekistondagi MAZE Studio bilan bog'laning. Brending loyihasini boshlang, logotip dizayni yoki nomlashni so'rang yoki tanishuv qo'ng'irog'iga yozilib oling.",
+    "label": "Bog'lanish",
+    "heading": "Keling birga ajoyib narsa yarataylik.",
+    "sub": "Aniq brifingiz yoki shunchaki g'oyangiz bo'lsa-da, sizdan eshitishni xohlaymiz. Formani to'ldiring va biz 24 soat ichida javob beramiz.",
+    "emailLabel": "Elektron pochta",
+    "phoneLabel": "Telefon",
+    "telegramLabel": "Telegram",
+    "locationLabel": "Manzil",
+    "followUs": "Bizni kuzating",
+    "form": {
+      "name": "Ism",
+      "namePlaceholder": "Ismingiz",
+      "email": "Elektron pochta",
+      "emailPlaceholder": "siz@email.com",
+      "phone": "Telefon",
+      "phonePlaceholder": "Telefon raqami",
+      "phoneInvalid": "To'g'ri telefon raqamini kiriting",
+      "company": "Kompaniya",
+      "companyPlaceholder": "Kompaniya nomi",
+      "service": "Xizmat",
+      "servicePlaceholder": "Nima bilan yordam bera olamiz?",
+      "budget": "Byudjet",
+      "budgets": ["$2,000 dan kam", "$2,000 – $5,000", "$5,000 – $15,000", "$15,000 – $50,000", "$50,000+"],
+      "message": "Xabar",
+      "messagePlaceholder": "Loyihangiz haqida bizga aytib bering...",
+      "send": "Xabar yuborish",
+      "sending": "Yuborilmoqda...",
+      "success": "Xabar yuborildi! Biz 24 soat ichida bog'lanamiz.",
+      "error": "Nimadir noto'g'ri ketdi. Iltimos qayta urinib ko'ring.",
+      "tooMany": "Juda ko'p urinishlar. Iltimos, bir necha daqiqadan keyin qayta urinib ko'ring."
+    }
+  },
+  "testimonialsSection": {
+    "label": "Mijozlar nima deyishadi",
+    "heading": "Biz bilan ishlagan odamlarning yaxshi so'zlari."
+  },
+  "insights": {
+    "metaTitle": "Maqolalar — MAZE Studio",
+    "metaDesc": "MAZE Studio'dan brending, dizayn tizimlari va ijodiy strategiya bo'yicha insho va keyslar.",
+    "label": "Maqolalar",
+    "heading": "Studiyadan eslatmalar.",
+    "subtitle": "Brend, dizayn va biz jo'natadigan narsaning ortidagi hunarmandchilik haqida insho.",
+    "empty": "Yangi postlar yo'lda.",
+    "back": "Maqolalarga qaytish"
+  },
+  "legal": {
+    "privacy":  { "title": "Maxfiylik siyosati", "description": "MAZE Studio ma'lumotlaringizni qanday yig'adi va himoya qiladi." },
+    "terms":    { "title": "Foydalanish shartlari", "description": "MAZE Studio veb-saytidan foydalanishni boshqaradigan shartlar." },
+    "cookies":  { "title": "Cookie siyosati", "description": "Qaysi cookies-lardan foydalanamiz va tanlovingizni qanday boshqarish." },
+    "cookieSettings": "Cookie sozlamalari"
+  },
+  "cookieBanner": {
+    "label": "Maxfiylik",
+    "title": "Biz cookies'lardan foydalanamiz",
+    "body": "Biz saytdan qanday foydalanilishini tushunish va tajribangizni yaxshilash uchun cookies'lardan foydalanamiz. Sizning roziligingizsiz hech narsa yuklanmaydi.",
+    "learnMore": "Batafsil o'qish",
+    "accept": "Hammasini qabul qilish",
+    "reject": "Rad etish"
+  },
+  "brief": {
+    "metaTitle": "Mijoz brifi — Loyihangizni boshlang | MAZE Studio",
+    "metaDesc": "Loyiha brifini to'ldiring va biz 24 soat ichida moslashtirilgan taklif tayyorlaymiz.",
+    "label": "Loyihani boshlash",
+    "heading": "Loyihangiz haqida bizga aytib bering.",
+    "sub": "Brifni to'ldiring — bu 3-5 daqiqani oladi. Biz uni 24 soat ichida moslashtirilgan taklif tayyorlash uchun ishlatamiz.",
+    "steps": ["Aloqa", "Loyiha", "Uslub", "Vaqt jadvali"],
+    "step1": { "heading": "Siz kimsiz?",             "sub": "Biz bu manzilga 24 soat ichida javob beramiz." },
+    "step2": { "heading": "Loyiha haqida",           "sub": "Qancha ko'p kontekst bersangiz, taklifimiz shuncha kuchli bo'ladi." },
+    "step3": { "heading": "Vizual yo'nalish",        "sub": "Visioningizga eng yaqin estetikalarni tanlang. Agar ishonchsiz bo'lsangiz o'tkazib yuboring." },
+    "step4": { "heading": "Vaqt jadvali va byudjet", "sub": "Loyihani to'g'ri ko'lamlashtirishga yordam beradi." },
+    "fields": {
+      "name":                "Ismingiz",
+      "namePlaceholder":     "F.I.O.",
+      "email":               "Elektron pochta manzili",
+      "emailPlaceholder":    "go@themaze.uz",
+      "phone":               "Telefon raqami",
+      "company":             "Kompaniya / Brend nomi",
+      "companyPlaceholder":  "Kompaniyangiz nomi",
+      "website":             "Joriy veb-sayt",
+      "websitePlaceholder":  "https://saytingiz.com (agar mavjud bo'lsa)",
+      "services":            "Sizga nima kerak?",
+      "servicesHint":        "Mos keladiganlarning barchasini tanlang",
+      "description":         "Loyihangizni tasvirlab bering",
+      "descriptionPlaceholder": "Sizga nima kerak? Qancha ko'p tafsilot, loyihani shuncha yaxshi ko'lamlashtirishimiz mumkin.",
+      "goals":               "Maqsadlar va qiyinchiliklar",
+      "goalsPlaceholder":    "Bu loyiha nimaga erishishi kerak? Hozir nima ishlamayapti?",
+      "audience":            "Maqsadli auditoriya",
+      "audiencePlaceholder": "Mijozlaringiz kimlar? Yosh, qadriyatlar, turmush tarzi…",
+      "competitors":         "Raqobatchilar va havolalar",
+      "competitorsPlaceholder": "Raqobat qilayotgan brendlar yoki sevgan brendlaringiz.",
+      "styles":              "Estetik yo'nalish",
+      "stylesHint":          "Aks-sado beradigan bir yoki bir nechtasini tanlang",
+      "colors":              "Rang kayfiyati",
+      "colorsHint":          "Brendingizga qaysi palet to'g'ri keladi?",
+      "refLinks":            "Havolalar (ixtiyoriy)",
+      "refLinksPlaceholder": "Yoqgan veb-saytlarga, Behance taxtalariga yoki rasmlarga havolalarni joylashtiring…",
+      "timeline":            "Istalgan vaqt jadvali",
+      "budget":              "Byudjet",
+      "source":              "Bizni qanday topdingiz?",
+      "sourcePlaceholder":   "Instagram, Google, og'izdan og'iz…",
+      "notes":               "Yana biror narsa?",
+      "notesPlaceholder":    "Savollar, cheklovlar yoki javob berishdan oldin bilishimiz kerak bo'lgan har qanday narsa."
+    },
+    "timelines": ["Shoshilinch (1–5 ish kuni)", "Tez (10 ish kuni ichida)", "Standart (2 hafta ichida)", "Shoshilmagan (oy ichida)", "Moslashuvchan"],
+    "budgets":   ["$1,000 dan kam", "$1,000 – $2,000", "$2,000 – $5,000", "$5,000 – $15,000", "$15,000 – $50,000"],
+    "services": [
+      { "id": "branding",   "label": "Brendlash" },
+      { "id": "rebranding", "label": "Qayta brendlash" },
+      { "id": "identity",   "label": "Vizual aydentika" },
+      { "id": "naming",     "label": "Nomlash" },
+      { "id": "packaging",  "label": "Qadoqlash" },
+      { "id": "ui-ux",      "label": "UI / UX dizayn" },
+      { "id": "print",      "label": "Bosma va qadoqlash" },
+      { "id": "motion",     "label": "Motion dizayn" },
+      { "id": "strategy",   "label": "Brend strategiyasi" },
+      { "id": "unsure",     "label": "Hali aniq emas" }
+    ],
+    "styleCards": [
+      { "id": "bold",     "label": "Dadil va kuchli",          "desc": "Og'ir shrift, kuchli kontrast, kechirilmas og'irlik" },
+      { "id": "minimal",  "label": "Minimal va toza",          "desc": "Bo'sh joy, vazminlik, sokin ishonch" },
+      { "id": "playful",  "label": "O'ynoqi va do'stona",       "desc": "Yumaloqlashgan shakllar, iliqlik, qabul qiluvchi energiya" },
+      { "id": "classic",  "label": "Klassik va abadiy",         "desc": "Sayqallangan proportsiyalar, doimiy nafislik" },
+      { "id": "tech",     "label": "Texnik va zamonaviy",       "desc": "O'tkir geometriya, aniqlik, oldinga qaragan" },
+      { "id": "luxury",   "label": "Hashamatli va premium",     "desc": "Sayqallangan detallar, ko'tarilgan vazminlik, prestige" },
+      { "id": "organic",  "label": "Tabiiy va organik",         "desc": "Oqar shakllar, yer rangli, inson tomonidan yaratilgan tuyg'u" },
+      { "id": "abstract", "label": "Mavhum va ifodali",         "desc": "Konseptual fikrlash, badiiy, harf bo'yicha emas" }
+    ],
+    "colorCards": [
+      { "id": "dark",    "label": "Qora va kayfiy",      "desc": "Qora, ko'mir, chuqur tonlar",            "swatches": ["#0a0a0a","#2a2a2a","#4a4a4a"] },
+      { "id": "light",   "label": "Yorug' va toza",      "desc": "Oq, krem, yumshoq neytrallar",           "swatches": ["#ffffff","#f5f0e8","#e8e4dc"] },
+      { "id": "vibrant", "label": "Yorqin va elektr",    "desc": "Yuqori to'yinganlik, dadil rang",        "swatches": ["#ff3b5c","#ff8c00","#ffdc00"] },
+      { "id": "earthy",  "label": "Yer rangli va iliq",  "desc": "Terrakota, zang, qum",                   "swatches": ["#c0522b","#8b4513","#d4a96a"] },
+      { "id": "natural", "label": "Tabiiy va yashil",    "desc": "Adaçayı, o'rmon, botanika",              "swatches": ["#2d5a27","#7daa6e","#c5d9b0"] },
+      { "id": "mono",    "label": "Monoxrom",            "desc": "Faqat qora va oq",                       "swatches": ["#000000","#888888","#ffffff"] }
+    ],
+    "nav": {
+      "back":       "Orqaga",
+      "next":       "Davom etish",
+      "submit":     "Brifni yuborish ↗",
+      "submitting": "Yuborilmoqda…"
+    },
+    "validation": {
+      "nameRequired":  "Iltimos, ismingizni kiriting",
+      "phoneRequired": "Iltimos, telefon raqamingizni kiriting",
+      "phoneInvalid":  "To'g'ri telefon raqamini kiriting",
+      "emailInvalid":  "Iltimos, to'g'ri elektron pochta manzilini kiriting",
+      "descRequired":  "Iltimos, loyihangizni tasvirlab bering"
+    },
+    "success": {
+      "label":   "Brif qabul qilindi!",
+      "heading": "Brif qabul qilindi.",
+      "body":    "Biz loyihangizni ko'rib chiqamiz va 24 soat ichida moslashtirilgan taklif bilan sizga qaytamiz.",
+      "cta":     "Bosh sahifaga qaytish"
+    },
+    "tooMany": "Juda ko'p yuborishlar. Iltimos, keyinroq qayta urinib ko'ring.",
+    "error":   "Nimadir noto'g'ri ketdi. Iltimos qayta urinib ko'ring."
+  }
+}

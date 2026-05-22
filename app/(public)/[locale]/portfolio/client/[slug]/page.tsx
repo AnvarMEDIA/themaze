@@ -24,12 +24,16 @@ export async function generateStaticParams() {
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const data = await getProjectsByClientSlug(params.slug)
   if (!data) return {}
-  const isRu = params.locale === 'ru'
-  const title = isRu
+  const loc = params.locale
+  const title = loc === 'ru'
     ? `Работы для ${data.clientName} | MAZE Studio`
+    : loc === 'uz'
+    ? `${data.clientName} uchun ishlar | MAZE Studio`
     : `Work for ${data.clientName} | MAZE Studio`
-  const description = isRu
+  const description = loc === 'ru'
     ? `Все проекты MAZE Studio для бренда ${data.clientName}: брендинг, айдентика, упаковка и больше.`
+    : loc === 'uz'
+    ? `MAZE Studio tomonidan ${data.clientName} uchun barcha loyihalar: brendlash, aydentika, qadoqlash va boshqalar.`
     : `Every MAZE Studio project for ${data.clientName} — branding, identity, packaging and more.`
   return {
     title,
@@ -47,10 +51,12 @@ export default async function PortfolioClientPage({ params }: Props) {
 
   const t = await getTranslations({ locale: params.locale, namespace: 'portfolio' })
 
-  const isRu = params.locale === 'ru'
+  const loc2      = params.locale
+  const homeLabel = loc2 === 'ru' ? 'Главная' : loc2 === 'uz' ? 'Bosh sahifa' : 'Home'
+  const portLabel = loc2 === 'ru' ? 'Портфолио' : 'Portfolio'
   const crumbs = breadcrumbJsonLd([
-    homeCrumb(params.locale, isRu ? 'Главная' : 'Home'),
-    portfolioCrumb(params.locale, isRu ? 'Портфолио' : 'Portfolio'),
+    homeCrumb(params.locale, homeLabel),
+    portfolioCrumb(params.locale, portLabel),
     {
       name: data.clientName,
       url:  `${SITE_URL}${params.locale === 'en' ? '' : '/' + params.locale}/portfolio/client/${params.slug}`,
@@ -63,10 +69,10 @@ export default async function PortfolioClientPage({ params }: Props) {
 
       <section className="pt-28 pb-16 px-6 md:px-10 border-b border-maze-border">
         <div className="max-w-[1440px] mx-auto">
-          <p className="label-sm text-maze-lime mb-5">{isRu ? 'Клиент' : 'Client'}</p>
+          <p className="label-sm text-maze-lime mb-5">{loc2 === 'ru' ? 'Клиент' : loc2 === 'uz' ? 'Mijoz' : 'Client'}</p>
           <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-6">
             <h1 className="display-md text-maze-cream max-w-xl">
-              {isRu ? `Работы для ${data.clientName}` : `Work for ${data.clientName}`}
+              {loc2 === 'ru' ? `Работы для ${data.clientName}` : loc2 === 'uz' ? `${data.clientName} uchun ishlar` : `Work for ${data.clientName}`}
             </h1>
             <p className="body-lg text-maze-muted max-w-sm md:text-right">
               {data.projects.length} {data.projects.length === 1 ? t('projectSingular') : t('projectPlural')}

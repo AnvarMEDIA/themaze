@@ -3,7 +3,7 @@ import type { Metadata } from 'next'
 export const SITE_URL =
   process.env.NEXT_PUBLIC_SITE_URL ?? 'https://www.maze.uz'
 
-const LOCALES = ['en', 'ru'] as const
+const LOCALES = ['en', 'ru', 'uz'] as const
 type Locale = (typeof LOCALES)[number]
 
 /**
@@ -31,8 +31,9 @@ export function localizedAlternates(
   const languages: Record<string, string> = {
     'x-default': localeHref('en', clean),
   }
+  const bcp47: Record<string, string> = { en: 'en-US', ru: 'ru-RU', uz: 'uz-UZ' }
   for (const l of LOCALES) {
-    languages[l === 'en' ? 'en-US' : 'ru-RU'] = localeHref(l, clean)
+    languages[bcp47[l]] = localeHref(l, clean)
   }
   return {
     canonical: localeHref(locale, clean),

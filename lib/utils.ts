@@ -41,11 +41,38 @@ export const CATEGORY_LABELS_RU: Record<string, string> = {
   strategy:   'Стратегия',
 }
 
+export const CATEGORY_LABELS_UZ: Record<string, string> = {
+  branding:   'Brendlash',
+  rebranding: 'Qayta brendlash',
+  identity:   'Aydentika',
+  naming:     'Nomlash',
+  packaging:  'Qadoqlash',
+  'ui-ux':    'UI/UX',
+  print:      'Bosma',
+  motion:     'Motion',
+  strategy:   'Strategiya',
+}
+
 export const VALID_CATEGORIES = Object.keys(CATEGORY_LABELS)
 
 export function categoryLabel(slug: string, locale = 'en'): string {
-  const map = locale === 'ru' ? CATEGORY_LABELS_RU : CATEGORY_LABELS
-  return map[slug] ?? slug
+  if (locale === 'ru') return CATEGORY_LABELS_RU[slug] ?? slug
+  if (locale === 'uz') return CATEGORY_LABELS_UZ[slug] ?? slug
+  return CATEGORY_LABELS[slug] ?? slug
+}
+
+/** Locale-aware string field lookup with fallback chain: uz→ru→en */
+export function getLocalized(locale: string, en: string, ru?: string | null, uz?: string | null): string {
+  if (locale === 'uz') return uz?.trim() || ru?.trim() || en
+  if (locale === 'ru') return ru?.trim() || en
+  return en
+}
+
+/** Locale-aware array field lookup with fallback chain: uz→ru→en */
+export function getLocalizedArray(locale: string, en: string[], ru?: string[] | null, uz?: string[] | null): string[] {
+  if (locale === 'uz') return uz?.length ? uz : ru?.length ? ru : en
+  if (locale === 'ru') return ru?.length ? ru : en
+  return en
 }
 
 export function telegramHref(val: string): string {

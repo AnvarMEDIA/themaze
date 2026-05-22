@@ -14,6 +14,7 @@ export interface Project {
   slug: string
   title: string
   titleRu?: string
+  titleUz?: string
   client: string
   categories: ProjectCategory[]
   year: number
@@ -21,17 +22,21 @@ export interface Project {
   showYear?: boolean
   description: string
   descriptionRu?: string
+  descriptionUz?: string
   shortDescription: string
   shortDescriptionRu?: string
+  shortDescriptionUz?: string
   coverImage: string
   images: string[]
   tags: string[]
   services: string[]
   servicesRu?: string[]
+  servicesUz?: string[]
   featured: boolean
   accentColor: string
   results?: string
   resultsRu?: string
+  resultsUz?: string
   sortOrder?: number
   status?: 'draft' | 'published'
   deletedAt?: string | null
@@ -40,8 +45,10 @@ export interface Project {
   /** SEO overrides — leave blank to use auto-generated defaults. */
   metaTitle?: string
   metaTitleRu?: string
+  metaTitleUz?: string
   metaDescription?: string
   metaDescriptionRu?: string
+  metaDescriptionUz?: string
   createdAt: string
   updatedAt: string
 }

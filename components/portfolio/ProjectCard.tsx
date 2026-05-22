@@ -6,6 +6,7 @@ import { Link } from '@/i18n/navigation'
 import Image from 'next/image'
 import { motion, useInView } from 'framer-motion'
 import type { Project } from '@/lib/types'
+import { getLocalized } from '@/lib/utils'
 
 interface Props {
   project: Project
@@ -22,9 +23,8 @@ export function ProjectCard({ project, index, layout = 'grid' }: Props) {
     .map((c) => (t.raw('categories') as Record<string, string>)[c] ?? c)
     .join(' · ')
 
-  const isRu            = locale === 'ru'
-  const title           = isRu ? (project.titleRu            || project.title)            : project.title
-  const shortDescription = isRu ? (project.shortDescriptionRu || project.shortDescription) : project.shortDescription
+  const title            = getLocalized(locale, project.title,            project.titleRu,            project.titleUz)
+  const shortDescription = getLocalized(locale, project.shortDescription, project.shortDescriptionRu, project.shortDescriptionUz)
 
   if (layout === 'list') {
     return (

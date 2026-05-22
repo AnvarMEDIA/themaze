@@ -11,7 +11,7 @@ import { breadcrumbJsonLd, projectJsonLd, homeCrumb, portfolioCrumb } from '@/li
 import { localizedAlternates } from '@/lib/seo'
 import { getAdminSession } from '@/lib/auth'
 import { imageAlt, projectMetaTitle, projectMetaDescription } from '@/lib/projectMeta'
-import { slugify } from '@/lib/utils'
+import { slugify, getLocalized, getLocalizedArray } from '@/lib/utils'
 
 interface Props {
   params: { locale: string; slug: string }
@@ -74,16 +74,17 @@ export default async function ProjectPage({ params }: Props) {
   const prev = idx > 0                 ? all[idx - 1] : null
   const next = idx >= 0 && idx < all.length - 1 ? all[idx + 1] : null
 
-  const isRu = locale === 'ru'
-  const title            = isRu ? (project.titleRu            || project.title)            : project.title
-  const description      = isRu ? (project.descriptionRu      || project.description)      : project.description
-  const shortDescription = isRu ? (project.shortDescriptionRu || project.shortDescription) : project.shortDescription
-  const results          = isRu ? (project.resultsRu          || project.results)          : project.results
-  const services         = isRu ? (project.servicesRu?.length ? project.servicesRu : project.services) : project.services
+  const title            = getLocalized(locale, project.title,            project.titleRu,            project.titleUz)
+  const description      = getLocalized(locale, project.description,      project.descriptionRu,      project.descriptionUz)
+  const shortDescription = getLocalized(locale, project.shortDescription, project.shortDescriptionRu, project.shortDescriptionUz)
+  const results          = getLocalized(locale, project.results ?? '',    project.resultsRu,          project.resultsUz)
+  const services         = getLocalizedArray(locale, project.services, project.servicesRu, project.servicesUz)
+  const homeLabel        = locale === 'ru' ? 'Главная' : locale === 'uz' ? 'Bosh sahifa' : 'Home'
+  const portfolioLabel   = locale === 'ru' ? 'Портфолио' : 'Portfolio'
 
   const crumbs = breadcrumbJsonLd([
-    homeCrumb(locale, isRu ? 'Главная' : 'Home'),
-    portfolioCrumb(locale, isRu ? 'Портфолио' : 'Portfolio'),
+    homeCrumb(locale, homeLabel),
+    portfolioCrumb(locale, portfolioLabel),
     {
       name: title,
       url: `${process.env.NEXT_PUBLIC_SITE_URL ?? 'https://www.maze.uz'}${locale === 'en' ? '' : '/' + locale}/portfolio/${project.slug}`,
@@ -251,9 +252,9 @@ export default async function ProjectPage({ params }: Props) {
                 rel="prev"
                 data-cursor="view"
               >
-                <p className="label-sm text-maze-muted mb-2">← {isRu ? 'Предыдущий' : 'Previous'}</p>
+                <p className="label-sm text-maze-muted mb-2">← {locale === 'ru' ? 'Предыдущий' : locale === 'uz' ? 'Oldingi' : 'Previous'}</p>
                 <p className="heading-md text-maze-cream group-hover:text-maze-lime transition-colors truncate">
-                  {(isRu && prev.titleRu) || prev.title}
+                  {getLocalized(locale, prev.title, prev.titleRu, prev.titleUz)}
                 </p>
                 <p className="label-sm text-maze-muted mt-1 truncate">{prev.client}</p>
               </Link>
@@ -265,9 +266,9 @@ export default async function ProjectPage({ params }: Props) {
                 rel="next"
                 data-cursor="view"
               >
-                <p className="label-sm text-maze-muted mb-2">{isRu ? 'Следующий' : 'Next'} →</p>
+                <p className="label-sm text-maze-muted mb-2">{locale === 'ru' ? 'Следующий' : locale === 'uz' ? 'Keyingi' : 'Next'} →</p>
                 <p className="heading-md text-maze-cream group-hover:text-maze-lime transition-colors truncate">
-                  {(isRu && next.titleRu) || next.title}
+                  {getLocalized(locale, next.title, next.titleRu, next.titleUz)}
                 </p>
                 <p className="label-sm text-maze-muted mt-1 truncate">{next.client}</p>
               </Link>

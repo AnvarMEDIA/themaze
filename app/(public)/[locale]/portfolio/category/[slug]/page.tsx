@@ -28,13 +28,17 @@ export function generateStaticParams() {
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   if (!isCategory(params.slug)) return {}
-  const isRu  = params.locale === 'ru'
-  const label = categoryLabel(params.slug, params.locale)
-  const title = isRu
+  const loc   = params.locale
+  const label = categoryLabel(params.slug, loc)
+  const title = loc === 'ru'
     ? `${label} — портфолио | MAZE Studio Ташкент`
+    : loc === 'uz'
+    ? `${label} — portfolio | MAZE Studio Toshkent`
     : `${label} — Portfolio | MAZE Studio Tashkent`
-  const description = isRu
+  const description = loc === 'ru'
     ? `Кейсы MAZE Studio в категории «${label}». Брендинговая студия в Ташкенте, проекты для компаний Узбекистана и Центральной Азии.`
+    : loc === 'uz'
+    ? `MAZE Studio ${label.toLowerCase()} bo'yicha loyihalari. Toshkentdagi brend studiyasi, O'zbekiston va Markaziy Osiyo kompaniyalari uchun.`
     : `MAZE Studio ${label.toLowerCase()} case studies. A Tashkent-based branding studio working with brands across Uzbekistan and Central Asia.`
   return {
     title,
@@ -56,12 +60,13 @@ export default async function PortfolioCategoryPage({ params }: Props) {
   const matching = allProjects.filter((p) => p.categories.includes(params.slug as ProjectCategory))
   if (matching.length === 0) notFound()
 
-  const isRu  = params.locale === 'ru'
-  const label = categoryLabel(params.slug, params.locale)
+  const label      = categoryLabel(params.slug, params.locale)
+  const homeLabel  = params.locale === 'ru' ? 'Главная' : params.locale === 'uz' ? 'Bosh sahifa' : 'Home'
+  const portLabel  = params.locale === 'ru' ? 'Портфолио' : 'Portfolio'
 
   const crumbs = breadcrumbJsonLd([
-    homeCrumb(params.locale, isRu ? 'Главная' : 'Home'),
-    portfolioCrumb(params.locale, isRu ? 'Портфолио' : 'Portfolio'),
+    homeCrumb(params.locale, homeLabel),
+    portfolioCrumb(params.locale, portLabel),
     {
       name: label,
       url: `${SITE_URL}${params.locale === 'en' ? '' : '/' + params.locale}/portfolio/category/${params.slug}`,
@@ -75,11 +80,11 @@ export default async function PortfolioCategoryPage({ params }: Props) {
       <section className="pt-28 pb-12 px-6 md:px-10 border-b border-maze-border">
         <div className="max-w-[1440px] mx-auto">
           <p className="label-sm text-maze-lime mb-5">
-            {isRu ? 'Категория' : 'Category'}
+            {params.locale === 'ru' ? 'Категория' : params.locale === 'uz' ? 'Kategoriya' : 'Category'}
           </p>
           <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-6 mb-10">
             <h1 className="display-md text-maze-cream max-w-xl">
-              {isRu ? `${label} — наши работы` : `${label} — our work`}
+              {params.locale === 'ru' ? `${label} — наши работы` : params.locale === 'uz' ? `${label} — ishlarimiz` : `${label} — our work`}
             </h1>
             <p className="body-lg text-maze-muted max-w-sm md:text-right">
               {matching.length} {matching.length === 1 ? t('projectSingular') : t('projectPlural')}

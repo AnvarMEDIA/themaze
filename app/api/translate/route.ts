@@ -10,6 +10,7 @@ interface TranslateInput {
   description?: string
   results?: string
   services?: string[]
+  targetLang?: 'en' | 'uz'
 }
 
 interface TranslateOutput {
@@ -29,10 +30,17 @@ export async function POST(req: NextRequest) {
 
   try {
     const body = await req.json() as TranslateInput
+    const targetLang = body.targetLang ?? 'en'
+
+    const { targetLang: _, ...fields } = body
 
     const client = new Anthropic({ apiKey })
 
-    const prompt = `You are a professional translator for a design studio portfolio. Translate the following project fields from Russian to English.
+    const targetName = targetLang === 'uz'
+      ? 'Uzbek (Latin script, modern standard)'
+      : 'English'
+
+    const prompt = `You are a professional translator for a design studio portfolio. Translate the following project fields from Russian to ${targetName}.
 
 Rules:
 - Keep proper nouns (brand names, company names, city names) as-is
@@ -40,9 +48,11 @@ Rules:
 - Keep the same tone and style
 - For arrays, return the same number of items
 - Return ONLY valid JSON, no explanation
+${targetLang === 'uz' ? `- Use modern Uzbek Latin script (post-1992 orthography)
+- Use professional Uzbek design terms: brendlash (branding), aydentika (identity), nomlash (naming), qadoqlash (packaging), dizayn (design), logotip (logo), tipografika (typography), rang (color), strategiya (strategy)` : ''}
 
 Input JSON:
-${JSON.stringify(body, null, 2)}
+${JSON.stringify(fields, null, 2)}
 
 Return JSON with exactly these keys: title, shortDescription, description, results, services
 "results" and "description" may be empty strings if the input is empty.
@@ -56,7 +66,6 @@ Return JSON with exactly these keys: title, shortDescription, description, resul
 
     const text = message.content[0].type === 'text' ? message.content[0].text : ''
 
-    // Extract JSON from response (handle markdown code blocks)
     const jsonMatch = text.match(/```(?:json)?\s*([\s\S]*?)```/) ?? text.match(/(\{[\s\S]*\})/)
     const jsonStr = jsonMatch ? (jsonMatch[1] ?? jsonMatch[0]) : text
 

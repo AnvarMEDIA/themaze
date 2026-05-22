@@ -31,8 +31,9 @@ function localized(
     'x-default': localeHref('en', path),
     'en-US':     localeHref('en', path),
     'ru-RU':     localeHref('ru', path),
+    'uz-UZ':     localeHref('uz', path),
   }
-  return (['en', 'ru'] as const).map((locale) => ({
+  return (['en', 'ru', 'uz'] as const).map((locale) => ({
     url: localeHref(locale, path),
     lastModified,
     changeFrequency,

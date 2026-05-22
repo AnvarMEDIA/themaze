@@ -28,26 +28,33 @@ export function generateStaticParams() {
 }
 
 export async function generateMetadata({ params: { locale } }: Props): Promise<Metadata> {
-  const isRu = locale === 'ru'
-
-  if (isRu) {
+  if (locale === 'ru') {
     return {
       title: 'MAZE — Брендинговая и Дизайн Студия | Ташкент, Узбекистан',
       description:
         'MAZE — премиальная брендинговая студия из Ташкента. Разрабатываем фирменные стили, логотипы, нейминг и стратегию бренда для амбициозных компаний по всей Центральной Азии и за рубежом.',
       keywords: [
-        'брендинг студия Ташкент',
-        'брендинговое агентство Узбекистан',
-        'фирменный стиль Ташкент',
-        'разработка логотипа',
-        'айдентика Ташкент',
-        'нейминг бренда Ташкент',
-        'упаковка дизайн Узбекистан',
-        'брендбук',
-        'визуальная идентичность',
-        'стратегия бренда Центральная Азия',
-        'дизайн студия Ташкент',
-        'MAZE Студия',
+        'брендинг студия Ташкент', 'брендинговое агентство Узбекистан',
+        'фирменный стиль Ташкент', 'разработка логотипа', 'айдентика Ташкент',
+        'нейминг бренда Ташкент', 'упаковка дизайн Узбекистан', 'брендбук',
+        'визуальная идентичность', 'стратегия бренда Центральная Азия',
+        'дизайн студия Ташкент', 'MAZE Студия',
+      ],
+      alternates: localizedAlternates(locale),
+    }
+  }
+
+  if (locale === 'uz') {
+    return {
+      title: 'MAZE — Brending va Dizayn Studiyasi | Toshkent, O\'zbekiston',
+      description:
+        'MAZE — Toshkentdagi premium brending studiyasi. O\'zbekiston va Markaziy Osiyodagi ambitsiyali kompaniyalar uchun brendlash, logotip, nomlash va brend strategiyasini ishlab chiqamiz.',
+      keywords: [
+        'brending studiyasi Toshkent', 'brending agentligi O\'zbekiston',
+        'korporativ uslub Toshkent', 'logotip dizayn', 'aydentika Toshkent',
+        'nomlash brendlash', 'qadoqlash dizayn O\'zbekiston', 'brendbuk',
+        'vizual identifikatsiya', 'brend strategiyasi Markaziy Osiyo',
+        'dizayn studiyasi Toshkent', 'MAZE Studiyasi',
       ],
       alternates: localizedAlternates(locale),
     }

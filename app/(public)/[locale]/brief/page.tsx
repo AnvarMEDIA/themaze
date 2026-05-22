@@ -26,11 +26,11 @@ export async function generateMetadata({ params: { locale } }: Props): Promise<M
 
 export default async function BriefPage({ params: { locale } }: Props) {
   setRequestLocale(locale)
-  const t    = await getTranslations({ locale, namespace: 'brief' })
-  const isRu = locale === 'ru'
+  const t = await getTranslations({ locale, namespace: 'brief' })
+  const homeLabel = locale === 'ru' ? 'Главная' : locale === 'uz' ? 'Bosh sahifa' : 'Home'
 
   const crumbs = breadcrumbJsonLd([
-    homeCrumb(locale, isRu ? 'Главная' : 'Home'),
+    homeCrumb(locale, homeLabel),
     {
       name: t('label'),
       url:  `${SITE_URL}${locale === 'en' ? '' : '/' + locale}/brief`,
