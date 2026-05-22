@@ -35,12 +35,12 @@ export function TestimonialsSection({ testimonials, locale, label, heading }: Pr
           >
             {label}
           </motion.p>
-          <div className="overflow-hidden pb-[0.15em]">
+          <div className="overflow-hidden">
             <motion.h2
               initial={{ y: '100%' }}
               animate={inView ? { y: '0%' } : {}}
               transition={{ duration: 0.85, ease: [0.23, 1, 0.32, 1] }}
-              className="display-md text-maze-cream"
+              className="display-md text-maze-cream pb-[0.18em]"
             >
               {heading}
             </motion.h2>

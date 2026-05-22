@@ -49,12 +49,12 @@ export function AboutSection() {
           </motion.p>
 
           {/* Big heading — "We navigate complexity." */}
-          <div className="overflow-hidden pb-[0.15em] mb-6">
+          <div className="overflow-hidden mb-6">
             <motion.h2
               initial={{ y: '100%' }}
               animate={inView ? { y: '0%' } : {}}
               transition={{ duration: 0.9, ease: EASE_OUT }}
-              className="display-md text-maze-cream"
+              className="display-md text-maze-cream pb-[0.18em]"
             >
               {t('heading')}
             </motion.h2>

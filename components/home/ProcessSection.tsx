@@ -27,12 +27,12 @@ export function ProcessSection() {
             >
               {t('label')}
             </motion.p>
-            <div className="overflow-hidden pb-[0.15em]">
+            <div className="overflow-hidden">
               <motion.h2
                 initial={{ y: '100%' }}
                 animate={inView ? { y: '0%' } : {}}
                 transition={{ duration: 0.9, ease: [0.19, 1, 0.22, 1] }}
-                className="display-md text-maze-cream"
+                className="display-md text-maze-cream pb-[0.18em]"
               >
                 {t('heading')}
               </motion.h2>

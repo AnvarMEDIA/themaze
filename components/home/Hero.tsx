@@ -86,7 +86,7 @@ export function Hero() {
 
             {/* Rotating word slot — y-slide + opacity via AnimatePresence mode="wait" */}
             <span
-              className="relative inline-block overflow-hidden pb-[0.15em]"
+              className="relative inline-block overflow-hidden"
               style={{ minWidth: '4ch' }}
             >
               <AnimatePresence mode="wait">
@@ -104,7 +104,7 @@ export function Hero() {
                       : { opacity: 0, y: '-40%' }
                   }
                   transition={{ duration: 0.38, ease: EASE_OUT }}
-                  className="display-lg font-black text-maze-lime inline-block leading-none"
+                  className="display-lg font-black text-maze-lime inline-block leading-none pb-[0.18em]"
                 >
                   {words[wordIndex]}
                 </motion.span>

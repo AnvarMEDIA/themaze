@@ -52,24 +52,24 @@ export function CTASection() {
         </motion.p>
 
         {/* Line 1 — cream display-lg */}
-        <div className="overflow-hidden pb-[0.15em]">
+        <div className="overflow-hidden">
           <motion.h2
             initial={shouldReduce ? { opacity: 0 } : { y: '100%' }}
             animate={inView ? { opacity: 1, y: '0%' } : {}}
             transition={{ duration: 1, ease: EASE_EXPRESSIVE }}
-            className="display-lg text-maze-cream"
+            className="display-lg text-maze-cream pb-[0.18em]"
           >
             {t('line1')}
           </motion.h2>
         </div>
 
         {/* Line 2 — lime display-lg */}
-        <div className="overflow-hidden pb-[0.15em] mb-10">
+        <div className="overflow-hidden mb-10">
           <motion.h2
             initial={shouldReduce ? { opacity: 0 } : { y: '100%' }}
             animate={inView ? { opacity: 1, y: '0%' } : {}}
             transition={{ delay: 0.08, duration: 1, ease: EASE_EXPRESSIVE }}
-            className="display-lg text-maze-lime"
+            className="display-lg text-maze-lime pb-[0.18em]"
           >
             {t('line2')}
           </motion.h2>
