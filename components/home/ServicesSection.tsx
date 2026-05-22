@@ -46,7 +46,7 @@ export function ServicesSection() {
         >
           {t('label')}
         </motion.p>
-        <div className="overflow-hidden">
+        <div className="overflow-hidden pb-[0.15em]">
           <motion.h2
             initial={{ y: '100%' }}
             animate={inView ? { y: '0%' } : {}}

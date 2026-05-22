@@ -52,7 +52,7 @@ export function CTASection() {
         </motion.p>
 
         {/* Line 1 — cream display-lg */}
-        <div className="overflow-hidden mb-2">
+        <div className="overflow-hidden pb-[0.15em]">
           <motion.h2
             initial={shouldReduce ? { opacity: 0 } : { y: '100%' }}
             animate={inView ? { opacity: 1, y: '0%' } : {}}
@@ -64,7 +64,7 @@ export function CTASection() {
         </div>
 
         {/* Line 2 — lime display-lg */}
-        <div className="overflow-hidden mb-10">
+        <div className="overflow-hidden pb-[0.15em] mb-10">
           <motion.h2
             initial={shouldReduce ? { opacity: 0 } : { y: '100%' }}
             animate={inView ? { opacity: 1, y: '0%' } : {}}

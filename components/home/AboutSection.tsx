@@ -49,7 +49,7 @@ export function AboutSection() {
           </motion.p>
 
           {/* Big heading — "We navigate complexity." */}
-          <div className="overflow-hidden mb-8">
+          <div className="overflow-hidden pb-[0.15em] mb-6">
             <motion.h2
               initial={{ y: '100%' }}
               animate={inView ? { y: '0%' } : {}}

@@ -27,15 +27,18 @@ export function LangToggle() {
       aria-label="Language switcher"
       className="relative flex items-center gap-0.5 p-0.5 rounded-full border border-maze-border bg-maze-black/40"
     >
-      {(['en', 'ru'] as const).map((lang) => {
+      {(['en', 'ru', 'uz'] as const).map((lang) => {
         const isActive = locale === lang
+        const ariaLabel = lang === 'en' ? 'Switch to English'
+                        : lang === 'ru' ? 'Switch to Russian'
+                        : 'Switch to Uzbek'
         return (
           <button
             key={lang}
             onClick={() => switchTo(lang)}
             disabled={pending}
             aria-pressed={isActive}
-            aria-label={lang === 'en' ? 'Switch to English' : 'Switch to Russian'}
+            aria-label={ariaLabel}
             className={cn(
               'relative z-10 px-3 py-1 rounded-full label-sm disabled:opacity-50',
               'transition-[color,transform] duration-150 active:scale-[0.95]',
