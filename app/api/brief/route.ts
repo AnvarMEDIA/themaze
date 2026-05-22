@@ -3,6 +3,7 @@ import { getBriefs, addBrief, markBriefRead, deleteBrief } from '@/lib/briefs'
 import { getAdminSession } from '@/lib/auth'
 import { BriefSchema } from '@/lib/validation'
 import { rateLimitAsync } from '@/lib/rateLimit'
+import { notifyTelegram, formatBrief } from '@/lib/telegram'
 
 export const dynamic = 'force-dynamic'
 
@@ -45,6 +46,7 @@ export async function POST(req: NextRequest) {
 
     const { hp: _hp, ...data } = parsed.data
     const brief = await addBrief(data)
+    await notifyTelegram(formatBrief(data))
     return NextResponse.json(brief, { status: 201 })
   } catch {
     return NextResponse.json({ error: 'Server error' }, { status: 500 })

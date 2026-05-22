@@ -3,6 +3,7 @@ import { getInquiries, addInquiry, markInquiryRead, deleteInquiry, deleteInquiri
 import { getAdminSession } from '@/lib/auth'
 import { InquirySchema } from '@/lib/validation'
 import { rateLimitAsync } from '@/lib/rateLimit'
+import { notifyTelegram, formatInquiry } from '@/lib/telegram'
 
 export const dynamic = 'force-dynamic'
 
@@ -48,6 +49,7 @@ export async function POST(req: NextRequest) {
 
     const { website: _hp, ...data } = parsed.data
     const inquiry = await addInquiry(data)
+    await notifyTelegram(formatInquiry(data))
     return NextResponse.json(inquiry, { status: 201 })
   } catch {
     return NextResponse.json({ error: 'Server error' }, { status: 500 })
