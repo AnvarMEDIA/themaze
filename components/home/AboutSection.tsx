@@ -54,7 +54,7 @@ export function AboutSection() {
               initial={{ y: '100%' }}
               animate={inView ? { y: '0%' } : {}}
               transition={{ duration: 0.9, ease: EASE_OUT }}
-              className="display-md text-maze-cream pb-[0.18em]"
+              className="display-md text-maze-cream pb-[0.18em] [overflow-wrap:break-word]"
             >
               {t('heading')}
             </motion.h2>
