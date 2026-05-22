@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getAdminSession } from '@/lib/auth'
+import { rateLimitAsync } from '@/lib/rateLimit'
 import Anthropic from '@anthropic-ai/sdk'
 import { categoryLabel } from '@/lib/utils'
 
@@ -31,6 +32,10 @@ export async function POST(req: NextRequest) {
   const authed = await getAdminSession()
   if (!authed) return NextResponse.json({ error: 'Unauthorised' }, { status: 401 })
 
+  const ip = req.headers.get('x-forwarded-for')?.split(',')[0].trim() ?? 'unknown'
+  const rl = await rateLimitAsync(`generate-seo:${ip}`, { limit: 20, windowMs: 60 * 1000 })
+  if (!rl.success) return NextResponse.json({ error: 'Too many requests' }, { status: 429 })
+
   const apiKey = process.env.ANTHROPIC_API_KEY
   if (!apiKey) return NextResponse.json({ error: 'ANTHROPIC_API_KEY is not set' }, { status: 500 })
 
@@ -49,6 +54,17 @@ export async function POST(req: NextRequest) {
 
     const client = new Anthropic({ apiKey })
 
+    const projectData = {
+      titleRu:            body.titleRu            ?? '',
+      titleEn:            body.title              ?? '',
+      client:             body.client             ?? '',
+      year:               body.year               ?? '',
+      categories:         catLabels               || '',
+      servicesRu:         (body.services ?? []).join(', ') || '',
+      shortDescriptionRu: body.shortDescriptionRu ?? body.shortDescription ?? '',
+      descriptionRu:      (body.descriptionRu     ?? body.description ?? '').slice(0, 1200),
+    }
+
     const prompt = `You are an SEO copywriter for MAZE Studio — a branding and design studio based in Tashkent, Uzbekistan.
 
 Generate search-optimised meta titles and descriptions for a portfolio project page, in three languages:
@@ -56,15 +72,8 @@ Generate search-optimised meta titles and descriptions for a portfolio project p
 - Russian (ru)
 - Uzbek (uz, modern Latin script)
 
-Project source data (Russian is the primary language):
-- Russian title:         ${body.titleRu ?? '—'}
-- English title:         ${body.title ?? '—'}
-- Client:                ${body.client ?? '—'}
-- Year:                  ${body.year ?? '—'}
-- Categories:            ${catLabels || '—'}
-- Services (RU):         ${(body.services ?? []).join(', ') || '—'}
-- Russian short summary: ${body.shortDescriptionRu ?? body.shortDescription ?? '—'}
-- Russian description:   ${(body.descriptionRu ?? body.description ?? '').slice(0, 1200)}
+Project source data (JSON):
+${JSON.stringify(projectData, null, 2)}
 
 Rules:
 1. Meta title: 50–60 chars, include the project name + main category + "MAZE Studio". Format like "{Project} — {Category} for {Client} | MAZE Studio" but adapt naturally.
@@ -110,8 +119,11 @@ Return JSON with exactly these keys:
 
     return NextResponse.json(out)
   } catch (err) {
-    const msg = err instanceof Error ? err.message : 'SEO generation failed'
+    const msg = err instanceof Error ? err.message : 'Generation failed'
     console.error('[generate-seo]', msg)
-    return NextResponse.json({ error: msg }, { status: 500 })
+    return NextResponse.json(
+      { error: process.env.NODE_ENV === 'production' ? 'Generation failed' : msg },
+      { status: 500 }
+    )
   }
 }

@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getAdminSession } from '@/lib/auth'
+import { rateLimitAsync } from '@/lib/rateLimit'
 import Anthropic from '@anthropic-ai/sdk'
 
 export const dynamic = 'force-dynamic'
@@ -24,6 +25,10 @@ interface TranslateOutput {
 export async function POST(req: NextRequest) {
   const authed = await getAdminSession()
   if (!authed) return NextResponse.json({ error: 'Unauthorised' }, { status: 401 })
+
+  const ip = req.headers.get('x-forwarded-for')?.split(',')[0].trim() ?? 'unknown'
+  const rl = await rateLimitAsync(`translate:${ip}`, { limit: 20, windowMs: 60 * 1000 })
+  if (!rl.success) return NextResponse.json({ error: 'Too many requests' }, { status: 429 })
 
   const apiKey = process.env.ANTHROPIC_API_KEY
   if (!apiKey) return NextResponse.json({ error: 'ANTHROPIC_API_KEY is not set' }, { status: 500 })
@@ -75,6 +80,9 @@ Return JSON with exactly these keys: title, shortDescription, description, resul
   } catch (err) {
     const msg = err instanceof Error ? err.message : 'Translation failed'
     console.error('[translate]', msg)
-    return NextResponse.json({ error: msg }, { status: 500 })
+    return NextResponse.json(
+      { error: process.env.NODE_ENV === 'production' ? 'Translation failed' : msg },
+      { status: 500 }
+    )
   }
 }
