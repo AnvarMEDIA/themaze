@@ -7,6 +7,8 @@ import { SettingsSchema } from '@/lib/validation'
 export const dynamic = 'force-dynamic'
 
 export async function GET() {
+  const authed = await getAdminSession()
+  if (!authed) return NextResponse.json({ error: 'Unauthorised' }, { status: 401 })
   try {
     const settings = await getSettings()
     return NextResponse.json(settings)

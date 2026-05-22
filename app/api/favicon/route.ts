@@ -37,9 +37,12 @@ export async function GET() {
   try {
     // External URL (e.g. Vercel Blob) → proxy the bytes
     if (url.startsWith('http://') || url.startsWith('https://')) {
-      const res = await fetch(url, { cache: 'no-store' })
+      const res = await fetch(url, { cache: 'no-store', signal: AbortSignal.timeout(5000) })
       if (!res.ok) return NextResponse.json({ error: 'Upstream error' }, { status: 502 })
       const buf = Buffer.from(await res.arrayBuffer())
+      if (buf.length > 100 * 1024) {
+        return NextResponse.json({ error: 'Favicon too large' }, { status: 413 })
+      }
       return new NextResponse(buf, { headers })
     }
 

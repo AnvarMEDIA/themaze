@@ -20,6 +20,11 @@ export async function POST(req: NextRequest) {
       file.type === 'image/x-icon' ||
       file.type === 'image/vnd.microsoft.icon'
 
+    // SVG files can contain embedded JavaScript — block regardless of allowed image types.
+    if (file.type === 'image/svg+xml' || /\.svg$/i.test(file.name)) {
+      return NextResponse.json({ error: 'SVG files are not allowed for security reasons' }, { status: 400 })
+    }
+
     if (!file.type.startsWith('image/') && !isIco) {
       return NextResponse.json({ error: 'Only image files are allowed' }, { status: 400 })
     }
@@ -44,10 +49,16 @@ export async function POST(req: NextRequest) {
     }
 
     // Dev fallback — local filesystem
-    const dir = path.join(process.cwd(), 'public', folder, 'uploads')
+    const root     = path.resolve(process.cwd(), 'public')
+    const dir      = path.resolve(root, folder, 'uploads')
+    const filePath = path.resolve(dir, baseName)
+    // Defend against path traversal
+    if (!filePath.startsWith(root + path.sep)) {
+      return NextResponse.json({ error: 'Invalid file path' }, { status: 400 })
+    }
     if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true })
     const buffer = Buffer.from(await file.arrayBuffer())
-    fs.writeFileSync(path.join(dir, baseName), buffer)
+    fs.writeFileSync(filePath, buffer)
     return NextResponse.json({ url: `/${folder}/uploads/${baseName}` })
 
   } catch (err) {
