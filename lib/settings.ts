@@ -12,7 +12,15 @@ export interface SiteSettings {
   twitter:         string
   favicon:         string  // URL to favicon (ICO / PNG / SVG)
   /** When false (default), the public homepage hides the Partners & Clients block. */
-  partnersVisible: boolean
+  partnersVisible:   boolean
+  /** Custom label above the heading (e.g. "Нам доверяют"). Falls back to i18n if empty. */
+  partnersLabel:     string
+  partnersLabelRu:   string
+  partnersLabelUz:   string
+  /** Custom heading (e.g. "Клиенты и партнёры"). Falls back to i18n if empty. */
+  partnersHeading:   string
+  partnersHeadingRu: string
+  partnersHeadingUz: string
 }
 
 const DEFAULT: SiteSettings = {
@@ -20,7 +28,9 @@ const DEFAULT: SiteSettings = {
   address: '', addressDetail: '',
   instagram: '', behance: '', linkedin: '', twitter: '',
   favicon: '',
-  partnersVisible: false,
+  partnersVisible:   false,
+  partnersLabel:     '', partnersLabelRu:    '', partnersLabelUz:    '',
+  partnersHeading:   '', partnersHeadingRu:  '', partnersHeadingUz:  '',
 }
 
 export async function getSettings(): Promise<SiteSettings> {

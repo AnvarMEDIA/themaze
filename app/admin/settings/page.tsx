@@ -10,7 +10,9 @@ const DEFAULT: SiteSettings = {
   address: '', addressDetail: '',
   instagram: '', behance: '', linkedin: '', twitter: '',
   favicon: '',
-  partnersVisible: false,
+  partnersVisible:   false,
+  partnersLabel:     '', partnersLabelRu:    '', partnersLabelUz:    '',
+  partnersHeading:   '', partnersHeadingRu:  '', partnersHeadingUz:  '',
 }
 
 export default function AdminSettingsPage() {

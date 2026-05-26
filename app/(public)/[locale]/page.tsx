@@ -87,8 +87,14 @@ export default async function HomePage({ params: { locale } }: Props) {
       {settings.partnersVisible && (
         <PartnersSection
           partners={partners}
-          label={tp('label')}
-          heading={tp('heading')}
+          label={
+            (locale === 'uz' ? settings.partnersLabelUz : locale === 'ru' ? settings.partnersLabelRu : settings.partnersLabel)
+            || tp('label')
+          }
+          heading={
+            (locale === 'uz' ? settings.partnersHeadingUz : locale === 'ru' ? settings.partnersHeadingRu : settings.partnersHeading)
+            || tp('heading')
+          }
         />
       )}
       <TestimonialsSection

@@ -99,7 +99,13 @@ export const SettingsSchema = z.object({
     (v) => v === '' || v.startsWith('https://') || v.startsWith('http://') || v.startsWith('/'),
     { message: 'Must be a valid URL or path' }
   ).optional().default(''),
-  partnersVisible: z.boolean().optional().default(false),
+  partnersVisible:   z.boolean().optional().default(false),
+  partnersLabel:     safeString(100).optional().default(''),
+  partnersLabelRu:   safeString(100).optional().default(''),
+  partnersLabelUz:   safeString(100).optional().default(''),
+  partnersHeading:   safeString(200).optional().default(''),
+  partnersHeadingRu: safeString(200).optional().default(''),
+  partnersHeadingUz: safeString(200).optional().default(''),
 })
 
 export type SettingsInput = z.infer<typeof SettingsSchema>

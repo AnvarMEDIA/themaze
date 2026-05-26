@@ -10,6 +10,20 @@ import { compressImage } from '@/lib/compressImage'
 
 const EMPTY: Omit<Partner, 'id' | 'order'> = { name: '', logo: '', url: '' }
 
+interface HeadingForm {
+  partnersLabel:     string
+  partnersLabelRu:   string
+  partnersLabelUz:   string
+  partnersHeading:   string
+  partnersHeadingRu: string
+  partnersHeadingUz: string
+}
+
+const EMPTY_HEADING: HeadingForm = {
+  partnersLabel: '', partnersLabelRu: '', partnersLabelUz: '',
+  partnersHeading: '', partnersHeadingRu: '', partnersHeadingUz: '',
+}
+
 export default function AdminPartnersPage() {
   const [partners, setPartners] = useState<Partner[]>([])
   const [loading,  setLoading]  = useState(true)
@@ -20,6 +34,8 @@ export default function AdminPartnersPage() {
   const [savingOrder, setSavingOrder] = useState(false)
   const [visible, setVisible] = useState<boolean | null>(null)
   const [savingVisibility, setSavingVisibility] = useState(false)
+  const [headingForm, setHeadingForm] = useState<HeadingForm>(EMPTY_HEADING)
+  const [savingHeading, setSavingHeading] = useState(false)
   const fileRef = useRef<HTMLInputElement>(null)
   const saveTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
 
@@ -43,7 +59,19 @@ export default function AdminPartnersPage() {
     let cancelled = false
     fetch('/api/settings', { cache: 'no-store' })
       .then((r) => r.ok ? r.json() as Promise<SiteSettings> : null)
-      .then((s) => { if (!cancelled && s) setVisible(!!s.partnersVisible) })
+      .then((s) => {
+        if (!cancelled && s) {
+          setVisible(!!s.partnersVisible)
+          setHeadingForm({
+            partnersLabel:     s.partnersLabel     ?? '',
+            partnersLabelRu:   s.partnersLabelRu   ?? '',
+            partnersLabelUz:   s.partnersLabelUz   ?? '',
+            partnersHeading:   s.partnersHeading   ?? '',
+            partnersHeadingRu: s.partnersHeadingRu ?? '',
+            partnersHeadingUz: s.partnersHeadingUz ?? '',
+          })
+        }
+      })
       .catch(() => {})
     return () => { cancelled = true }
   }, [])
@@ -52,7 +80,7 @@ export default function AdminPartnersPage() {
     if (visible === null || savingVisibility) return
     const next = !visible
     setSavingVisibility(true)
-    setVisible(next)  // optimistic
+    setVisible(next)
     try {
       const cur = await fetch('/api/settings', { cache: 'no-store' }).then((r) => r.json() as Promise<SiteSettings>)
       const res = await fetch('/api/settings', {
@@ -61,12 +89,30 @@ export default function AdminPartnersPage() {
         body:    JSON.stringify({ ...cur, partnersVisible: next }),
       })
       if (!res.ok) throw new Error()
-      toast.success(next ? 'Блок «Партнёры» показан на сайте' : 'Блок «Партнёры» скрыт с сайта')
+      toast.success(next ? 'Блок показан на сайте' : 'Блок скрыт с сайта')
     } catch {
-      setVisible(!next)  // revert
+      setVisible(!next)
       toast.error('Не удалось сохранить')
     } finally {
       setSavingVisibility(false)
+    }
+  }
+
+  const saveHeading = async () => {
+    setSavingHeading(true)
+    try {
+      const cur = await fetch('/api/settings', { cache: 'no-store' }).then((r) => r.json() as Promise<SiteSettings>)
+      const res = await fetch('/api/settings', {
+        method:  'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body:    JSON.stringify({ ...cur, ...headingForm }),
+      })
+      if (!res.ok) throw new Error()
+      toast.success('Заголовок сохранён')
+    } catch {
+      toast.error('Не удалось сохранить')
+    } finally {
+      setSavingHeading(false)
     }
   }
 
@@ -179,22 +225,30 @@ export default function AdminPartnersPage() {
   const inputClass = 'w-full bg-[#111] border border-[#252525] rounded-lg px-3 py-2.5 text-sm text-white placeholder:text-[#444] focus:outline-none focus:border-[#C8FF47] transition-colors'
 
   return (
-    <div className="px-8 py-8">
-      <div className="mb-8 flex flex-wrap items-start justify-between gap-4">
-        <div>
-          <h1 className="text-2xl font-bold text-white tracking-tight">Partners & Clients</h1>
-          <p className="text-sm text-[#555] mt-1">
-            Manage logos shown on the homepage.
-            {savingOrder && <span className="ml-2 text-[#C8FF47]">· saving order…</span>}
-          </p>
-        </div>
+    <div className="px-8 py-8 max-w-5xl">
+      {/* Page header */}
+      <div className="mb-8">
+        <h1 className="text-2xl font-bold text-white tracking-tight">Partners & Clients</h1>
+        <p className="text-sm text-[#555] mt-1">
+          Управление блоком партнёров на главной странице.
+          {savingOrder && <span className="ml-2 text-[#C8FF47]">· saving order…</span>}
+        </p>
+      </div>
 
-        {/* Public visibility toggle */}
-        <div className="flex items-center gap-3 rounded-xl border border-[#1E1E1E] bg-[#0D0D0D] px-4 py-3">
-          <div className="text-right">
-            <p className="text-xs font-medium text-white">Показывать на сайте</p>
-            <p className="text-[11px] text-[#555] mt-0.5">
-              {visible === null ? '…' : visible ? 'Блок виден на главной' : 'Блок скрыт с главной'}
+      {/* ── Visibility toggle ─────────────────────────────────────────────── */}
+      <div className="rounded-xl bg-[#0D0D0D] border border-[#1E1E1E] overflow-hidden mb-6">
+        <div className="px-5 py-3.5 border-b border-[#1E1E1E]">
+          <h2 className="text-xs font-semibold tracking-[0.1em] uppercase text-[#555]">Видимость на сайте</h2>
+        </div>
+        <div className="px-5 py-4 flex items-center justify-between gap-6">
+          <div>
+            <p className="text-sm font-medium text-white">Показывать блок «Нам доверяют»</p>
+            <p className="text-xs text-[#555] mt-1">
+              {visible === null
+                ? 'Загрузка…'
+                : visible
+                  ? '✓ Блок сейчас виден на главной странице'
+                  : '✗ Блок сейчас скрыт с главной страницы'}
             </p>
           </div>
           <button
@@ -205,16 +259,106 @@ export default function AdminPartnersPage() {
             disabled={visible === null || savingVisibility}
             onClick={toggleVisibility}
             className={[
-              'relative inline-flex h-6 w-11 items-center rounded-full transition-colors disabled:opacity-50',
+              'relative inline-flex h-7 w-12 shrink-0 items-center rounded-full transition-colors disabled:opacity-50',
               visible ? 'bg-[#C8FF47]' : 'bg-[#252525]',
             ].join(' ')}
           >
             <span
               className={[
-                'inline-block h-4 w-4 rounded-full bg-[#0A0A0A] transition-transform',
-                visible ? 'translate-x-[22px]' : 'translate-x-[4px]',
+                'inline-block h-5 w-5 rounded-full bg-[#0A0A0A] transition-transform',
+                visible ? 'translate-x-[26px]' : 'translate-x-[4px]',
               ].join(' ')}
             />
+          </button>
+        </div>
+      </div>
+
+      {/* ── Block text (heading / label) ──────────────────────────────────── */}
+      <div className="rounded-xl bg-[#0D0D0D] border border-[#1E1E1E] overflow-hidden mb-8">
+        <div className="px-5 py-3.5 border-b border-[#1E1E1E]">
+          <h2 className="text-xs font-semibold tracking-[0.1em] uppercase text-[#555]">Текст блока</h2>
+        </div>
+        <div className="p-5 space-y-5">
+          <p className="text-xs text-[#555]">
+            Если оставить пустым — будут использованы переводы по умолчанию
+            (EN: «Clients & Partners», RU: «Клиенты и партнёры», UZ: «Mijozlar va hamkorlar»).
+          </p>
+
+          {/* Label row */}
+          <div>
+            <p className="text-xs font-medium text-[#777] mb-2">Лейбл (мелкий текст над заголовком)</p>
+            <div className="grid grid-cols-3 gap-3">
+              <div>
+                <label className="text-[11px] text-[#444] block mb-1">EN</label>
+                <input
+                  placeholder="Trusted by"
+                  value={headingForm.partnersLabel}
+                  onChange={(e) => setHeadingForm((p) => ({ ...p, partnersLabel: e.target.value }))}
+                  className={inputClass}
+                />
+              </div>
+              <div>
+                <label className="text-[11px] text-[#444] block mb-1">RU</label>
+                <input
+                  placeholder="Нам доверяют"
+                  value={headingForm.partnersLabelRu}
+                  onChange={(e) => setHeadingForm((p) => ({ ...p, partnersLabelRu: e.target.value }))}
+                  className={inputClass}
+                />
+              </div>
+              <div>
+                <label className="text-[11px] text-[#444] block mb-1">UZ</label>
+                <input
+                  placeholder="Bizga ishonadilar"
+                  value={headingForm.partnersLabelUz}
+                  onChange={(e) => setHeadingForm((p) => ({ ...p, partnersLabelUz: e.target.value }))}
+                  className={inputClass}
+                />
+              </div>
+            </div>
+          </div>
+
+          {/* Heading row */}
+          <div>
+            <p className="text-xs font-medium text-[#777] mb-2">Заголовок (крупный текст)</p>
+            <div className="grid grid-cols-3 gap-3">
+              <div>
+                <label className="text-[11px] text-[#444] block mb-1">EN</label>
+                <input
+                  placeholder="Clients & Partners"
+                  value={headingForm.partnersHeading}
+                  onChange={(e) => setHeadingForm((p) => ({ ...p, partnersHeading: e.target.value }))}
+                  className={inputClass}
+                />
+              </div>
+              <div>
+                <label className="text-[11px] text-[#444] block mb-1">RU</label>
+                <input
+                  placeholder="Клиенты и партнёры"
+                  value={headingForm.partnersHeadingRu}
+                  onChange={(e) => setHeadingForm((p) => ({ ...p, partnersHeadingRu: e.target.value }))}
+                  className={inputClass}
+                />
+              </div>
+              <div>
+                <label className="text-[11px] text-[#444] block mb-1">UZ</label>
+                <input
+                  placeholder="Mijozlar va hamkorlar"
+                  value={headingForm.partnersHeadingUz}
+                  onChange={(e) => setHeadingForm((p) => ({ ...p, partnersHeadingUz: e.target.value }))}
+                  className={inputClass}
+                />
+              </div>
+            </div>
+          </div>
+
+          <button
+            type="button"
+            onClick={saveHeading}
+            disabled={savingHeading}
+            className="px-5 py-2.5 bg-[#C8FF47] text-[#0A0A0A] font-bold rounded-lg text-sm hover:bg-[#F0EEE6] transition-colors disabled:opacity-60"
+          >
+            {savingHeading ? 'Сохраняем…' : 'Сохранить текст'}
           </button>
         </div>
       </div>
