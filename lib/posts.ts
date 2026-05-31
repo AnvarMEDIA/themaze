@@ -1,4 +1,4 @@
-import { v4 as uuidv4 } from 'uuid'
+import { randomUUID } from 'crypto'
 import readingTime from 'reading-time'
 import { readStore, writeStore } from './store'
 
@@ -60,7 +60,7 @@ export async function getPostById(id: string): Promise<Post | null> {
 export async function createPost(input: PostInput): Promise<Post> {
   const data = await readData()
   const now  = new Date().toISOString()
-  const post: Post = { ...input, id: uuidv4(), createdAt: now, updatedAt: now }
+  const post: Post = { ...input, id: randomUUID(), createdAt: now, updatedAt: now }
   data.posts.push(post)
   await writeData(data)
   return post

@@ -1,4 +1,4 @@
-import { v4 as uuidv4 } from 'uuid'
+import { randomUUID } from 'crypto'
 import { readStore, writeStore } from './store'
 import { slugify } from './utils'
 import type { Project, PortfolioData, CreateProjectInput, UpdateProjectInput, ProjectCategory } from './types'
@@ -147,7 +147,7 @@ export async function getProjectById(id: string): Promise<Project | null> {
 export async function createProject(input: CreateProjectInput): Promise<Project> {
   const data = await readData()
   const now = new Date().toISOString()
-  const project: Project = { ...input, id: uuidv4(), createdAt: now, updatedAt: now }
+  const project: Project = { ...input, id: randomUUID(), createdAt: now, updatedAt: now }
   data.projects.push(project)
   await writeData(data)
   return project
