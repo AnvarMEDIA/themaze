@@ -113,10 +113,11 @@ export type SettingsInput = z.infer<typeof SettingsSchema>
 /* ── Partner ─────────────────────────────────────────────────────────────── */
 
 export const PartnerSchema = z.object({
-  name:  safeString(100).min(1, 'Name is required'),
-  logo:  urlOrEmpty.optional().default(''),
-  url:   urlOrEmpty.optional().default(''),
-  order: z.number().int().min(0).default(99),
+  name:   safeString(100).min(1, 'Name is required'),
+  logo:   urlOrEmpty.optional().default(''),
+  url:    urlOrEmpty.optional().default(''),
+  order:  z.number().int().min(0).default(99),
+  active: z.boolean().optional().default(true),
 })
 
 export type PartnerInput = z.infer<typeof PartnerSchema>

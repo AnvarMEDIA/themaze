@@ -1,3 +1,4 @@
+import { unstable_noStore } from 'next/cache'
 import { readStore, writeStore } from './store'
 
 export interface SiteSettings {
@@ -34,6 +35,7 @@ const DEFAULT: SiteSettings = {
 }
 
 export async function getSettings(): Promise<SiteSettings> {
+  unstable_noStore()
   const stored = await readStore<Partial<SiteSettings>>('settings', DEFAULT)
   return { ...DEFAULT, ...stored }
 }

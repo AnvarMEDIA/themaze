@@ -201,6 +201,22 @@ export default function AdminPartnersPage() {
     window.scrollTo({ top: 0, behavior: 'smooth' })
   }
 
+  const handleToggleActive = async (id: string, current: boolean) => {
+    const next = !current
+    setPartners((p) => p.map((x) => x.id === id ? { ...x, active: next } : x))
+    try {
+      const res = await fetch(`/api/partners/${id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ active: next }),
+      })
+      if (!res.ok) throw new Error()
+    } catch {
+      setPartners((p) => p.map((x) => x.id === id ? { ...x, active: current } : x))
+      toast.error('Не удалось сохранить')
+    }
+  }
+
   const handleDelete = async (id: string, name: string) => {
     if (saveTimer.current) { clearTimeout(saveTimer.current); saveTimer.current = null }
     const prev = partners
@@ -511,6 +527,7 @@ export default function AdminPartnersPage() {
                     editing={editing === partner.id}
                     onEdit={() => handleEdit(partner)}
                     onDelete={() => handleDelete(partner.id, partner.name)}
+                    onToggleActive={() => handleToggleActive(partner.id, partner.active !== false)}
                   />
                 ))}
               </Reorder.Group>
@@ -524,13 +541,14 @@ export default function AdminPartnersPage() {
 }
 
 function PartnerRow({
-  partner, index, editing, onEdit, onDelete,
+  partner, index, editing, onEdit, onDelete, onToggleActive,
 }: {
-  partner:  Partner
-  index:    number
-  editing:  boolean
-  onEdit:   () => void
-  onDelete: () => void
+  partner:        Partner
+  index:          number
+  editing:        boolean
+  onEdit:         () => void
+  onDelete:       () => void
+  onToggleActive: () => void
 }) {
   const controls = useDragControls()
 
@@ -592,7 +610,26 @@ function PartnerRow({
           )}
         </div>
 
-        <div className="flex gap-3">
+        <div className="flex items-center gap-3">
+          {/* Active / inactive toggle */}
+          <button
+            type="button"
+            role="switch"
+            aria-checked={partner.active !== false}
+            onClick={onToggleActive}
+            title={partner.active !== false ? 'Скрыть с сайта' : 'Показать на сайте'}
+            className={[
+              'relative inline-flex h-5 w-9 items-center rounded-full transition-colors shrink-0',
+              partner.active !== false ? 'bg-[#C8FF47]' : 'bg-[#252525]',
+            ].join(' ')}
+          >
+            <span
+              className={[
+                'inline-block h-3.5 w-3.5 rounded-full bg-[#0A0A0A] transition-transform',
+                partner.active !== false ? 'translate-x-[19px]' : 'translate-x-[3px]',
+              ].join(' ')}
+            />
+          </button>
           <button
             onClick={onEdit}
             className="text-xs text-[#555] hover:text-[#C8FF47] transition-colors"

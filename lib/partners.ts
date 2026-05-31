@@ -7,13 +7,14 @@ export interface Partner {
   logo:      string
   url?:      string
   order:     number
+  active?:   boolean     // undefined / true = visible; false = hidden on public site
   deletedAt?: string | null
 }
 
-export async function getPartners(): Promise<Partner[]> {
+export async function getPartners(opts?: { activeOnly?: boolean }): Promise<Partner[]> {
   const all = await readStore<Partner[]>('partners', [])
   return [...all]
-    .filter((p) => !p.deletedAt)
+    .filter((p) => !p.deletedAt && (!opts?.activeOnly || p.active !== false))
     .sort((a, b) => a.order - b.order)
 }
 

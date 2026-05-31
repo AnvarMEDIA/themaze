@@ -70,7 +70,7 @@ export default async function HomePage({ params: { locale } }: Props) {
   setRequestLocale(locale)
   const [featuredProjects, partners, testimonials, settings, tp, tt] = await Promise.all([
     getPublishedProjects(),
-    getPartners(),
+    getPartners({ activeOnly: true }),
     getTestimonials(),
     getSettings(),
     getTranslations({ locale, namespace: 'partners' }),
