@@ -160,3 +160,13 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     </html>
   )
 }
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=AW-18186688175">
+</script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'AW-18186688175');
+</script>
