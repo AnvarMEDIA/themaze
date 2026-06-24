@@ -5,7 +5,7 @@ import { Link } from '@/i18n/navigation'
 import Image from 'next/image'
 import { getPublishedPosts, estimateReadTime } from '@/lib/posts'
 import { JsonLd } from '@/components/JsonLd'
-import { blogJsonLd, breadcrumbJsonLd, homeCrumb } from '@/lib/jsonLd'
+import { blogJsonLd, breadcrumbJsonLd, homeCrumb, postListJsonLd } from '@/lib/jsonLd'
 import { localizedAlternates } from '@/lib/seo'
 
 interface Props {
@@ -48,7 +48,7 @@ export default async function InsightsPage({ params: { locale } }: Props) {
 
   return (
     <main className="min-h-screen">
-      <JsonLd data={[crumbs, blogJsonLd(locale)]} />
+      <JsonLd data={[crumbs, blogJsonLd(locale), postListJsonLd(posts, locale)]} />
 
       <section className="pt-28 pb-16 px-6 md:px-10 border-b border-maze-border">
         <div className="max-w-[1440px] mx-auto">

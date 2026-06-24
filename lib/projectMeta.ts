@@ -1,5 +1,5 @@
 import type { Project } from './types'
-import { CATEGORY_LABELS } from './utils'
+import { categoryLabel } from './utils'
 
 /**
  * Resolve the alt text for a project image:
@@ -16,7 +16,7 @@ export function imageAlt(project: Project, url: string, locale = 'en'): string {
   const isRu      = locale === 'ru'
   const title     = isRu ? (project.titleRu || project.title) : project.title
   const first     = project.categories[0]
-  const catLabel  = first ? (CATEGORY_LABELS[first as keyof typeof CATEGORY_LABELS] ?? first) : ''
+  const catLabel  = first ? categoryLabel(first, locale) : ''
   const for_      = isRu ? 'для' : 'for'
   const projWord  = isRu ? 'проект' : 'project'
 
@@ -33,7 +33,7 @@ export function projectMetaTitle(project: Project, locale = 'en'): string {
 
   const title    = isRu ? (project.titleRu || project.title) : project.title
   const first    = project.categories[0]
-  const catLabel = first ? (CATEGORY_LABELS[first as keyof typeof CATEGORY_LABELS] ?? first) : ''
+  const catLabel = first ? categoryLabel(first, locale) : ''
   const for_     = isRu ? 'для' : 'for'
 
   return catLabel

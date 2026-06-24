@@ -309,6 +309,7 @@ export function servicesJsonLd(
         '@type': 'Service',
         name: s.name,
         description: s.description,
+        url: localePath(locale, `/services/${s.id}`),
         provider: { '@id': ORG_ID },
         areaServed: ['Uzbekistan', 'Central Asia'],
       },
@@ -425,4 +426,65 @@ export function portfolioCrumb(locale: string, label: string) {
 }
 export function insightsCrumb(locale: string, label: string) {
   return { name: label, url: localePath(locale, '/insights') }
+}
+
+/* ── ItemList for insights/blog listing ────────────────────────────────── */
+
+export function postListJsonLd(
+  posts: Array<{ slug: string; title: string; titleRu?: string }>,
+  locale: string,
+) {
+  const isRu = locale === 'ru'
+  return {
+    '@context': CONTEXT,
+    '@type': 'ItemList',
+    itemListOrder: 'https://schema.org/ItemListOrderDescending',
+    numberOfItems: posts.length,
+    itemListElement: posts.slice(0, 50).map((p, i) => ({
+      '@type': 'ListItem',
+      position: i + 1,
+      url: localePath(locale, `/insights/${p.slug}`),
+      name: isRu ? (p.titleRu || p.title) : p.title,
+    })),
+  }
+}
+
+/* ── Legal documents (privacy / terms / cookies) ───────────────────────── */
+
+export function legalPageJsonLd(slug: string, title: string, locale: string) {
+  const url = localePath(locale, `/legal/${slug}`)
+  return {
+    '@context': CONTEXT,
+    '@type': 'WebPage',
+    '@id': `${url}#page`,
+    url,
+    name: title,
+    inLanguage: locale,
+    isPartOf:  { '@id': SITE_ID },
+    about:     { '@id': ORG_ID },
+    publisher: { '@id': ORG_ID },
+  }
+}
+
+/* ── Client work collection ────────────────────────────────────────────── */
+
+/**
+ * A portfolio/client/[slug] page is a CollectionPage *about* the
+ * client organization. Modelling it this way (rather than claiming an
+ * Organization node on our own domain) lets search engines connect the
+ * showcased work to the client entity without misattributing identity.
+ */
+export function clientWorkJsonLd(clientName: string, slug: string, locale: string) {
+  const url = localePath(locale, `/portfolio/client/${slug}`)
+  return {
+    '@context': CONTEXT,
+    '@type': 'CollectionPage',
+    '@id': `${url}#collection`,
+    url,
+    name: locale === 'ru' ? `Работы для ${clientName}` : `Work for ${clientName}`,
+    inLanguage: locale,
+    isPartOf: { '@id': SITE_ID },
+    about: { '@type': 'Organization', name: clientName },
+    publisher: { '@id': ORG_ID },
+  }
 }

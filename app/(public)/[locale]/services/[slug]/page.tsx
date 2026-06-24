@@ -11,7 +11,7 @@ import {
   faqJsonLd,
   homeCrumb,
 } from '@/lib/jsonLd'
-import { localizedAlternates, SITE_URL } from '@/lib/seo'
+import { localizedAlternates, ogLocale, SITE_URL } from '@/lib/seo'
 import type { ProjectCategory } from '@/lib/types'
 
 const SERVICE_SLUGS = [
@@ -57,7 +57,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     title:       metaTitle,
     description: metaDesc,
     alternates:  localizedAlternates(params.locale, `services/${params.slug}`),
-    openGraph:   { title: metaTitle, description: metaDesc },
+    openGraph:   { title: metaTitle, description: metaDesc, ...ogLocale(params.locale) },
     twitter:     { card: 'summary_large_image', title: metaTitle, description: metaDesc },
   }
 }

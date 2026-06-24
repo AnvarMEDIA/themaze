@@ -7,7 +7,7 @@ import fs from 'node:fs/promises'
 import path from 'node:path'
 import { Link } from '@/i18n/navigation'
 import { JsonLd } from '@/components/JsonLd'
-import { breadcrumbJsonLd, homeCrumb } from '@/lib/jsonLd'
+import { breadcrumbJsonLd, homeCrumb, legalPageJsonLd } from '@/lib/jsonLd'
 import { localizedAlternates, SITE_URL } from '@/lib/seo'
 
 const LEGAL_SLUGS = ['privacy', 'terms', 'cookies'] as const
@@ -74,7 +74,7 @@ export default async function LegalPage({ params }: Props) {
 
   return (
     <article className="pt-28 min-h-screen">
-      <JsonLd data={crumbs} />
+      <JsonLd data={[crumbs, legalPageJsonLd(params.slug, t(`${params.slug}.title`), params.locale)]} />
 
       <header className="px-6 md:px-10 pb-10 border-b border-maze-border">
         <div className="max-w-3xl mx-auto">
