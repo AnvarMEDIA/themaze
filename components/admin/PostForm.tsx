@@ -1,9 +1,10 @@
 'use client'
 
-import { useState } from 'react'
+import { useRef, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import toast from 'react-hot-toast'
 import { FileUpload } from './FileUpload'
+import { ImageInsertButton } from './ImageInsertButton'
 import type { Post } from '@/lib/posts'
 import { slugify } from '@/lib/utils'
 
@@ -36,6 +37,33 @@ export function PostForm({ post }: Props) {
       [key]: value,
       ...(key === 'title' && !isEdit ? { slug: slugify(String(value)) } : {}),
     }))
+
+  const bodyRef   = useRef<HTMLTextAreaElement>(null)
+  const bodyRuRef = useRef<HTMLTextAreaElement>(null)
+
+  /** Splice a Markdown image tag into a body field at the caret. */
+  const insertImage = (
+    field: 'body' | 'bodyRu',
+    ref: React.RefObject<HTMLTextAreaElement>,
+    url: string,
+  ) => {
+    const md = `\n\n![](${url})\n\n`
+    const el = ref.current
+    if (!el) {
+      set(field, (form[field] || '') + md)
+      return
+    }
+    const start = el.selectionStart ?? el.value.length
+    const end   = el.selectionEnd ?? el.value.length
+    set(field, el.value.slice(0, start) + md + el.value.slice(end))
+    // Restore focus with the caret between the ![ ] brackets so the
+    // editor can immediately type the alt text.
+    requestAnimationFrame(() => {
+      el.focus()
+      const caret = start + 4
+      el.setSelectionRange(caret, caret)
+    })
+  }
 
   const submit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -189,7 +217,9 @@ export function PostForm({ post }: Props) {
         <div className="grid grid-cols-1 gap-4">
           <details open>
             <summary className="label-sm text-maze-muted cursor-pointer mb-2">English body</summary>
+            <ImageInsertButton onInsert={(url) => insertImage('body', bodyRef, url)} />
             <textarea
+              ref={bodyRef}
               rows={18}
               placeholder={"# Heading\n\nWrite in **markdown**. Use ![alt](url) for images."}
               value={form.body}
@@ -199,7 +229,9 @@ export function PostForm({ post }: Props) {
           </details>
           <details>
             <summary className="label-sm text-maze-muted cursor-pointer mb-2">Russian body</summary>
+            <ImageInsertButton onInsert={(url) => insertImage('bodyRu', bodyRuRef, url)} />
             <textarea
+              ref={bodyRuRef}
               rows={18}
               placeholder={"# Заголовок\n\nПиши на **markdown**…"}
               value={form.bodyRu}
