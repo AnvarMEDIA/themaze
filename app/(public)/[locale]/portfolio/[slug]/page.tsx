@@ -17,6 +17,13 @@ interface Props {
   params: { locale: string; slug: string }
 }
 
+// Projects come from the dynamic store and the page reads the admin
+// session for draft preview (a dynamic, cookie-based API). Without
+// force-dynamic the route is SSG: a project published after the last
+// deploy isn't prerendered, renders on-demand in static mode, and 500s
+// (DYNAMIC_SERVER_USAGE). Matches the insights detail + listing pages.
+export const dynamic = 'force-dynamic'
+
 export async function generateStaticParams() {
   const projects = await getPublishedProjects()
   return routing.locales.flatMap((locale) =>

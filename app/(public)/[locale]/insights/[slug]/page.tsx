@@ -15,6 +15,14 @@ interface Props {
   params: { locale: string; slug: string }
 }
 
+// Content is served from the dynamic store, exactly like the insights
+// list and every other store-backed page. Without this the route is
+// treated as SSG: only posts that existed at build time get prerendered,
+// and a post created afterwards renders on-demand in static mode, hits a
+// dynamic server API and 500s (DYNAMIC_SERVER_USAGE). Force-dynamic keeps
+// new posts working the moment they're published.
+export const dynamic = 'force-dynamic'
+
 export async function generateStaticParams() {
   const posts = await getPublishedPosts()
   return routing.locales.flatMap((locale) =>
@@ -82,7 +90,7 @@ export default async function InsightPage({ params }: Props) {
   // on-site and lets PageRank flow between articles.
   const related = (await getPublishedPosts())
     .filter((p) => p.slug !== post.slug)
-    .map((p) => ({ p, score: p.tags.filter((tag) => post.tags.includes(tag)).length }))
+    .map((p) => ({ p, score: (p.tags ?? []).filter((tag) => (post.tags ?? []).includes(tag)).length }))
     .sort((a, b) =>
       b.score - a.score ||
       new Date(b.p.publishedAt).getTime() - new Date(a.p.publishedAt).getTime(),
