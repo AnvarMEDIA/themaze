@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { getAllPosts, createPost } from '@/lib/posts'
+import { getAllPosts, getPublishedPosts, createPost } from '@/lib/posts'
 import { getAdminSession } from '@/lib/auth'
 import { PostSchema } from '@/lib/validation'
 import { slugify } from '@/lib/utils'
@@ -9,7 +9,9 @@ import { notifyIndexNow, localePair } from '@/lib/indexing'
 export const dynamic = 'force-dynamic'
 
 export async function GET() {
-  const posts = await getAllPosts()
+  // Drafts are admin-only; anonymous callers get published posts only.
+  const authed = await getAdminSession()
+  const posts  = authed ? await getAllPosts() : await getPublishedPosts()
   return NextResponse.json(posts)
 }
 

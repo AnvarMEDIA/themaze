@@ -7,6 +7,23 @@ interface Props {
   id?: string
 }
 
+// U+2028 / U+2029 are valid in JSON strings but are JS line terminators,
+// so they must be referenced via char code (never written literally in
+// source). Combined with escaping `<`/`>`/`&`, this prevents any
+// user-supplied field (project/post title, client name…) from breaking
+// out of the inline <script> — i.e. stored XSS on every public page.
+const LS = String.fromCharCode(0x2028)
+const PS = String.fromCharCode(0x2029)
+
+function escapeJsonForScript(value: string): string {
+  return value
+    .replace(/</g, '\\u003c')
+    .replace(/>/g, '\\u003e')
+    .replace(/&/g, '\\u0026')
+    .split(LS).join('\\u2028')
+    .split(PS).join('\\u2029')
+}
+
 export function JsonLd({ data, id }: Props) {
   const payload = Array.isArray(data)
     ? data.length === 1
@@ -18,7 +35,7 @@ export function JsonLd({ data, id }: Props) {
     <script
       id={id}
       type="application/ld+json"
-      dangerouslySetInnerHTML={{ __html: JSON.stringify(payload) }}
+      dangerouslySetInnerHTML={{ __html: escapeJsonForScript(JSON.stringify(payload)) }}
     />
   )
 }

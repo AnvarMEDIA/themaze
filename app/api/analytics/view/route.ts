@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { trackPageview } from '@/lib/analytics'
-import { rateLimitAsync } from '@/lib/rateLimit'
+import { trackPageview, normalizePath } from '@/lib/analytics'
+import { rateLimitAsync, clientIp } from '@/lib/rateLimit'
 import { COOKIE_NAME } from '@/lib/auth'
 
 export const dynamic = 'force-dynamic'
@@ -28,18 +28,28 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ ok: true, skipped: 'admin' })
   }
 
-  let path: string
+  let rawPath: string
   try {
     const body = await req.json() as { path?: unknown }
     if (typeof body.path !== 'string') {
       return NextResponse.json({ error: 'Invalid path' }, { status: 400 })
     }
-    path = body.path
+    rawPath = body.path
   } catch {
     return NextResponse.json({ error: 'Invalid body' }, { status: 400 })
   }
 
-  const ip = req.headers.get('x-forwarded-for')?.split(',')[0].trim() ?? 'unknown'
+  // Normalise first so the store key is bounded to real routes and the
+  // rate-limit key can't be inflated with arbitrary path variants.
+  const path = normalizePath(rawPath)
+  if (!path) return NextResponse.json({ ok: true, skipped: 'ignored' })
+
+  const ip = clientIp(req)
+  // Path-independent per-IP cap bounds total writes no matter how many
+  // distinct paths one client rotates through (prevents store flooding).
+  const ipRl = await rateLimitAsync(`view-ip:${ip}`, { limit: 60, windowMs: 60_000 })
+  if (!ipRl.success) return NextResponse.json({ ok: true, skipped: 'rate' })
+
   const rl = await rateLimitAsync(`view:${ip}:${path}`, { limit: 1, windowMs: 60_000 })
   if (!rl.success) {
     return NextResponse.json({ ok: true, skipped: 'rate' })

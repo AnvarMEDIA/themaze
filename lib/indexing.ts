@@ -20,7 +20,12 @@ import crypto from 'node:crypto'
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://www.maze.uz'
 
 function deriveFallbackKey(): string {
-  const seed = process.env.JWT_SECRET ?? 'maze-indexnow-fallback'
+  // The IndexNow key is PUBLIC — it is served verbatim at
+  // /api/indexnow-key for verification. It must therefore NEVER be
+  // derived from a secret: hashing JWT_SECRET here would publish a
+  // brute-forceable function of the signing key. Use a dedicated,
+  // non-secret seed (override with INDEXNOW_SEED if desired).
+  const seed = process.env.INDEXNOW_SEED ?? 'maze-indexnow-public-key-v1'
   return crypto.createHash('sha256').update(seed).digest('hex').slice(0, 32)
 }
 

@@ -1,12 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { signToken, checkPassword, COOKIE_NAME, COOKIE_MAX_AGE } from '@/lib/auth'
-import { rateLimitAsync } from '@/lib/rateLimit'
+import { rateLimitAsync, clientIp } from '@/lib/rateLimit'
 import { LoginSchema } from '@/lib/validation'
 import { getAuthConfig, verifyTotp } from '@/lib/mfa'
 
 export async function POST(req: NextRequest) {
   // Rate limit: 5 attempts per 15 minutes per IP
-  const ip  = req.headers.get('x-forwarded-for')?.split(',')[0].trim() ?? 'unknown'
+  const ip  = clientIp(req)
   const rl  = await rateLimitAsync(`login:${ip}`, { limit: 5, windowMs: 15 * 60 * 1000 })
 
   if (!rl.success) {
