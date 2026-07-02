@@ -1,6 +1,6 @@
 'use client'
 
-import { useRef } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { motion, useInView, useReducedMotion } from 'framer-motion'
 import { cn } from '@/lib/utils'
 
@@ -8,6 +8,17 @@ import { cn } from '@/lib/utils'
 // morphs (the image clip reveal below).
 const EASE_OUT = [0.23, 1, 0.32, 1] as const
 const EASE_IN_OUT = [0.77, 0, 0.175, 1] as const
+
+/** Reveal shortly after mount if the intersection observer never fires, so
+ *  content can never stay permanently hidden. inView still wins earlier. */
+function useRevealTrigger(inView: boolean): boolean {
+  const [fallback, setFallback] = useState(false)
+  useEffect(() => {
+    const id = setTimeout(() => setFallback(true), 500)
+    return () => clearTimeout(id)
+  }, [])
+  return inView || fallback
+}
 
 interface RevealProps {
   children: React.ReactNode
@@ -28,12 +39,13 @@ export function Reveal({ children, className, delay = 0, y = 22, once = true }: 
   const ref    = useRef<HTMLDivElement>(null)
   const inView = useInView(ref, { once, margin: '-12% 0px' })
   const reduce = useReducedMotion()
+  const show   = useRevealTrigger(inView)
 
   return (
     <motion.div
       ref={ref}
       initial={reduce ? { opacity: 0 } : { opacity: 0, y }}
-      animate={inView ? { opacity: 1, y: 0 } : (reduce ? { opacity: 0 } : { opacity: 0, y })}
+      animate={show ? { opacity: 1, y: 0 } : (reduce ? { opacity: 0 } : { opacity: 0, y })}
       transition={{ duration: reduce ? 0.2 : 0.6, delay, ease: EASE_OUT }}
       className={className}
     >
@@ -55,12 +67,13 @@ export function RevealImage({ children, className, delay = 0 }: {
   const ref    = useRef<HTMLDivElement>(null)
   const inView = useInView(ref, { once: true, margin: '-15% 0px' })
   const reduce = useReducedMotion()
+  const show   = useRevealTrigger(inView)
 
   return (
     <motion.div
       ref={ref}
       initial={reduce ? { opacity: 0 } : { clipPath: 'inset(0 0 100% 0)' }}
-      animate={inView
+      animate={show
         ? (reduce ? { opacity: 1 } : { clipPath: 'inset(0 0 0% 0)' })
         : (reduce ? { opacity: 0 } : { clipPath: 'inset(0 0 100% 0)' })}
       transition={{ duration: reduce ? 0.2 : 0.85, delay, ease: EASE_IN_OUT }}

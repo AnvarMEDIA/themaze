@@ -1,6 +1,6 @@
 'use client'
 
-import { useRef } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { motion, useInView, useReducedMotion } from 'framer-motion'
 import { cn } from '@/lib/utils'
 
@@ -24,26 +24,30 @@ export function TextReveal({
   as: Tag = 'span',
   stagger = false,
 }: Props) {
-  const ref           = useRef<HTMLSpanElement>(null)
-  const inView        = useInView(ref, { once, margin: '-10% 0px' })
-  const shouldReduce  = useReducedMotion()
+  const ref          = useRef<HTMLElement>(null)
+  const inView       = useInView(ref, { once, margin: '-10% 0px' })
+  const shouldReduce = useReducedMotion()
 
-  // Emil: never animate from scale(0) / extreme positions if reduced motion
-  const initial = shouldReduce ? { y: 0, opacity: 0 } : { y: '110%' }
-  const animate = inView
-    ? (shouldReduce ? { y: 0, opacity: 1 } : { y: '0%' })
-    : initial
+  // Fail-safe: never leave the text permanently hidden if the intersection
+  // observer doesn't fire (hydration edge cases, off-screen-on-mount, etc.).
+  // Reveal shortly after mount; inView still wins earlier for the scroll effect.
+  const [fallback, setFallback] = useState(false)
+  useEffect(() => {
+    const id = setTimeout(() => setFallback(true), 500)
+    return () => clearTimeout(id)
+  }, [])
+  const show = inView || fallback
 
   if (stagger) {
     const words = children.split(' ')
     return (
-      <Tag className={cn('overflow-hidden', className)} aria-label={children}>
+      <Tag ref={ref as React.Ref<never>} className={cn('overflow-hidden', className)} aria-label={children}>
         {words.map((word, i) => (
           <span key={i} className="inline-block overflow-hidden mr-[0.25em]">
             <motion.span
               className="inline-block"
               initial={shouldReduce ? { opacity: 0 } : { y: '110%' }}
-              animate={inView
+              animate={show
                 ? (shouldReduce ? { opacity: 1 } : { y: '0%' })
                 : (shouldReduce ? { opacity: 0 } : { y: '110%' })
               }
@@ -62,13 +66,14 @@ export function TextReveal({
     )
   }
 
+  const initial = shouldReduce ? { y: 0, opacity: 0 } : { y: '110%' }
   return (
     <span className="inline-block overflow-hidden">
       <motion.span
-        ref={ref}
+        ref={ref as React.Ref<HTMLSpanElement>}
         className={cn('inline-block', className)}
         initial={initial}
-        animate={animate}
+        animate={show ? (shouldReduce ? { y: 0, opacity: 1 } : { y: '0%' }) : initial}
         transition={{
           duration: shouldReduce ? 0.2 : 0.8,
           delay,
