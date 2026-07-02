@@ -11,7 +11,9 @@ import {
   faqJsonLd,
   homeCrumb,
 } from '@/lib/jsonLd'
-import { localizedAlternates, SITE_URL } from '@/lib/seo'
+import { localizedAlternates, ogLocale, SITE_URL } from '@/lib/seo'
+import { TextReveal } from '@/components/ui/TextReveal'
+import { Arrow } from '@/components/ui/Arrow'
 import type { ProjectCategory } from '@/lib/types'
 
 const SERVICE_SLUGS = [
@@ -57,7 +59,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     title:       metaTitle,
     description: metaDesc,
     alternates:  localizedAlternates(params.locale, `services/${params.slug}`),
-    openGraph:   { title: metaTitle, description: metaDesc },
+    openGraph:   { title: metaTitle, description: metaDesc, ...ogLocale(params.locale) },
     twitter:     { card: 'summary_large_image', title: metaTitle, description: metaDesc },
   }
 }
@@ -139,7 +141,7 @@ export default async function ServiceClusterPage({ params }: Props) {
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 mt-6">
             <div>
               <p className="label-sm text-maze-lime mb-4">{tLabels('service')}</p>
-              <h1 className="display-md text-maze-cream mb-4">{content.title}</h1>
+              <TextReveal as="h1" stagger className="display-md text-maze-cream mb-4">{content.title}</TextReveal>
               <p className="heading-md text-maze-muted">{content.tagline}</p>
             </div>
             <div className="flex flex-col gap-4 lg:items-end lg:justify-end">
@@ -147,7 +149,8 @@ export default async function ServiceClusterPage({ params }: Props) {
                 href={`/contact?service=${slug}`}
                 className="inline-flex items-center gap-2 self-start lg:self-end px-6 py-3 bg-maze-lime text-maze-ink font-bold rounded-full label-sm hover:bg-maze-paper transition-colors"
               >
-                {tLabels('cta')} ↗
+                {tLabels('cta')}
+                <Arrow direction="up-right" className="text-base" />
               </Link>
               <Link
                 href={`/portfolio/category/${slug}`}

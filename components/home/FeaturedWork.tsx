@@ -157,14 +157,14 @@ export function FeaturedWork({ projects }: Props) {
         ref={headerRef}
         className="mb-14 border-b border-maze-border pb-6"
       >
-        <motion.p
+        <motion.h2
           initial={{ opacity: 0, y: 8 }}
           animate={inView ? { opacity: 1, y: 0 } : {}}
           transition={{ duration: 0.5, ease: EASE_OUT }}
           className="label-sm text-maze-muted"
         >
           {t('label')}
-        </motion.p>
+        </motion.h2>
       </div>
 
       {/* 3 random projects — single row, equal 16:9 cards */}

@@ -17,6 +17,18 @@ const MIME_BY_EXT: Record<string, string> = {
   '.avif': 'image/avif',
 }
 
+/** Block private / loopback / link-local hosts to blunt SSRF via an
+ *  admin-set favicon URL. String heuristic (no DNS resolution) — defense
+ *  in depth alongside redirect:'error'. */
+function isBlockedHost(host: string): boolean {
+  const h = host.toLowerCase().replace(/^\[|\]$/g, '')
+  if (h === 'localhost' || h.endsWith('.localhost') || h === '0.0.0.0') return true
+  if (h === '::1' || h.startsWith('fc') || h.startsWith('fd') || h.startsWith('fe80')) return true
+  if (/^127\./.test(h) || /^10\./.test(h) || /^192\.168\./.test(h) || /^169\.254\./.test(h)) return true
+  if (/^172\.(1[6-9]|2\d|3[01])\./.test(h)) return true
+  return false
+}
+
 export async function GET() {
   noStore()
 
@@ -30,14 +42,28 @@ export async function GET() {
   const ext = path.extname(url.split('?')[0]).toLowerCase()
   const contentType = MIME_BY_EXT[ext] ?? 'image/x-icon'
   const headers = {
-    'Content-Type':  contentType,
-    'Cache-Control': 'public, max-age=0, must-revalidate',
+    'Content-Type':            contentType,
+    'Cache-Control':           'public, max-age=0, must-revalidate',
+    'X-Content-Type-Options':  'nosniff',
+    // Make the proxied bytes inert when fetched directly — neutralises any
+    // active content (e.g. a crafted SVG) that slipped past upload.
+    'Content-Security-Policy': "default-src 'none'; style-src 'unsafe-inline'; sandbox",
   }
 
   try {
-    // External URL (e.g. Vercel Blob) → proxy the bytes
+    // External URL (e.g. Vercel Blob) → proxy the bytes. Guard against SSRF:
+    // reject private hosts and disallow redirects.
     if (url.startsWith('http://') || url.startsWith('https://')) {
-      const res = await fetch(url, { cache: 'no-store' })
+      let target: URL
+      try {
+        target = new URL(url)
+      } catch {
+        return NextResponse.json({ error: 'Invalid favicon URL' }, { status: 400 })
+      }
+      if (isBlockedHost(target.hostname)) {
+        return NextResponse.json({ error: 'Blocked favicon host' }, { status: 400 })
+      }
+      const res = await fetch(target, { cache: 'no-store', redirect: 'error' })
       if (!res.ok) return NextResponse.json({ error: 'Upstream error' }, { status: 502 })
       const buf = Buffer.from(await res.arrayBuffer())
       return new NextResponse(buf, { headers })

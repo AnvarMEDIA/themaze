@@ -72,13 +72,18 @@ export async function GET(req: NextRequest) {
   try {
     const { put } = await import('@vercel/blob')
     const today   = new Date().toISOString().slice(0, 10)
+    // The bundle contains contact-form PII (name/email/message). Vercel
+    // Blob only supports public access, so we make the URL unguessable
+    // with a random suffix instead of a predictable `YYYY-MM-DD.json`
+    // path anyone could enumerate. The URL is returned only to the
+    // authenticated caller / cron and is never published.
     const blob    = await put(
       `maze-backups/${today}.json`,
       JSON.stringify(snapshot, null, 2),
       {
         access:          'public',
-        addRandomSuffix: false,
-        allowOverwrite:  true,
+        addRandomSuffix: true,
+        allowOverwrite:  false,
         contentType:     'application/json',
       },
     )

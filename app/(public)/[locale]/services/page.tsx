@@ -5,6 +5,7 @@ import { Link } from '@/i18n/navigation'
 import { JsonLd } from '@/components/JsonLd'
 import { breadcrumbJsonLd, servicesJsonLd, faqJsonLd, homeCrumb } from '@/lib/jsonLd'
 import { localizedAlternates } from '@/lib/seo'
+import { TextReveal } from '@/components/ui/TextReveal'
 
 interface Props {
   params: { locale: string }
@@ -52,7 +53,7 @@ export default async function ServicesPage({ params: { locale } }: Props) {
       <div className="px-6 md:px-10 py-20 border-b border-maze-border">
         <div className="max-w-[1440px] mx-auto">
           <p className="label-sm text-maze-muted mb-6">{t('heroLabel')}</p>
-          <h1 className="display-md text-maze-cream max-w-2xl mb-8">{t('heroHeading')}</h1>
+          <TextReveal as="h1" stagger className="display-md text-maze-cream max-w-2xl mb-8">{t('heroHeading')}</TextReveal>
           <p className="body-lg text-maze-muted max-w-xl">{t('heroSub')}</p>
         </div>
       </div>

@@ -1,4 +1,5 @@
 import { Link } from '@/i18n/navigation'
+import { Arrow } from '@/components/ui/Arrow'
 
 export const metadata = {
   robots: { index: false, follow: false },
@@ -21,9 +22,10 @@ export default function LocaleNotFound() {
         <div className="flex flex-wrap justify-center gap-3">
           <Link
             href="/"
-            className="inline-flex items-center gap-2 px-6 py-3.5 bg-maze-lime text-maze-ink font-bold rounded-full label-sm hover:bg-maze-paper transition-colors"
+            className="group inline-flex items-center gap-2 px-6 py-3.5 bg-maze-lime text-maze-ink font-bold rounded-full label-sm hover:bg-maze-paper transition-colors active:scale-[0.97]"
           >
-            Back to home ↗
+            Back to home
+            <Arrow direction="up-right" className="text-sm transition-transform duration-200 group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
           </Link>
           <Link
             href="/portfolio"

@@ -10,8 +10,31 @@
  *    hold their own counter, so effective limit = limit × N.
  */
 
+import type { NextRequest } from 'next/server'
 import { Redis } from '@upstash/redis'
 import { Ratelimit } from '@upstash/ratelimit'
+
+/**
+ * Trustworthy client IP for rate-limit keys.
+ *
+ * NEVER use the leftmost X-Forwarded-For entry — the client controls it,
+ * so an attacker can rotate it to get a fresh rate-limit bucket on every
+ * request and bypass login/inquiry throttling entirely. Prefer the
+ * platform-populated `req.ip` (Vercel), then `x-real-ip`, then the
+ * RIGHTMOST XFF hop (the one our own edge appended).
+ */
+export function clientIp(req: NextRequest): string {
+  const direct = (req as NextRequest & { ip?: string }).ip
+  if (direct) return direct
+  const real = req.headers.get('x-real-ip')?.trim()
+  if (real) return real
+  const xff = req.headers.get('x-forwarded-for')
+  if (xff) {
+    const parts = xff.split(',').map((s) => s.trim()).filter(Boolean)
+    if (parts.length) return parts[parts.length - 1]
+  }
+  return 'unknown'
+}
 
 interface Window {
   count:   number

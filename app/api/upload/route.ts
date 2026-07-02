@@ -16,19 +16,30 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'No file provided' }, { status: 400 })
     }
 
-    const isIco = /\.ico$/i.test(file.name) ||
-      file.type === 'image/x-icon' ||
-      file.type === 'image/vnd.microsoft.icon'
+    // Reject SVG (active content → stored XSS) and anything outside a
+    // raster/icon allowlist. MIME is client-controlled, so we also pin the
+    // stored extension to the allowlist instead of trusting the filename.
+    const ALLOWED_EXT  = new Set(['.png', '.jpg', '.jpeg', '.webp', '.gif', '.avif', '.ico'])
+    const ALLOWED_MIME = new Set([
+      'image/png', 'image/jpeg', 'image/webp', 'image/gif', 'image/avif',
+      'image/x-icon', 'image/vnd.microsoft.icon',
+    ])
+    const rawExt = path.extname(file.name).toLowerCase().replace(/[^.a-z0-9]/g, '')
 
-    if (!file.type.startsWith('image/') && !isIco) {
-      return NextResponse.json({ error: 'Only image files are allowed' }, { status: 400 })
+    if (file.type === 'image/svg+xml' || rawExt === '.svg') {
+      return NextResponse.json({ error: 'SVG uploads are not allowed' }, { status: 400 })
     }
-
+    if (!ALLOWED_MIME.has(file.type) && !ALLOWED_EXT.has(rawExt)) {
+      return NextResponse.json(
+        { error: 'Only PNG, JPG, WEBP, GIF, AVIF or ICO images are allowed' },
+        { status: 400 },
+      )
+    }
     if (file.size > 10 * 1024 * 1024) {
       return NextResponse.json({ error: 'File too large (max 10MB)' }, { status: 400 })
     }
 
-    const ext      = path.extname(file.name).toLowerCase().replace(/[^.a-z0-9]/g, '')
+    const ext      = ALLOWED_EXT.has(rawExt) ? rawExt : '.png'
     const baseName = `${Date.now()}-${Math.random().toString(36).slice(2, 8)}${ext}`
 
     const ALLOWED_FOLDERS = ['portfolio', 'team', 'partners', 'favicon', 'testimonials', 'insights'] as const

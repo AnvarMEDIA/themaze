@@ -14,6 +14,11 @@ interface Ctx {
 export async function GET(_req: NextRequest, { params }: Ctx) {
   const project = await getProjectById(params.id)
   if (!project) return NextResponse.json({ error: 'Not found' }, { status: 404 })
+  // Don't expose drafts to anonymous callers — they'd otherwise be
+  // readable by id even though the public site hides them.
+  if (project.status === 'draft' && !(await getAdminSession())) {
+    return NextResponse.json({ error: 'Not found' }, { status: 404 })
+  }
   return NextResponse.json(project)
 }
 

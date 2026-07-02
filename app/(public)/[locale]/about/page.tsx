@@ -7,6 +7,9 @@ import Image from 'next/image'
 import { JsonLd } from '@/components/JsonLd'
 import { aboutPageJsonLd, breadcrumbJsonLd, homeCrumb } from '@/lib/jsonLd'
 import { localizedAlternates } from '@/lib/seo'
+import { Reveal } from '@/components/ui/Reveal'
+import { TextReveal } from '@/components/ui/TextReveal'
+import { Arrow } from '@/components/ui/Arrow'
 
 interface Props {
   params: { locale: string }
@@ -50,7 +53,7 @@ export default async function AboutPage({ params: { locale } }: Props) {
       <div className="px-6 md:px-10 py-20 border-b border-maze-border">
         <div className="max-w-[1440px] mx-auto">
           <p className="label-sm text-maze-muted mb-6">{t('heroLabel')}</p>
-          <h1 className="display-md text-maze-cream max-w-3xl mb-8">{t('heroHeading')}</h1>
+          <TextReveal as="h1" stagger className="display-md text-maze-cream max-w-3xl mb-8">{t('heroHeading')}</TextReveal>
           <p className="body-lg text-maze-muted max-w-2xl">{t('heroSub')}</p>
         </div>
       </div>
@@ -78,7 +81,7 @@ export default async function AboutPage({ params: { locale } }: Props) {
       <div className="px-6 md:px-10 py-20 md:py-32 border-b border-maze-border">
         <div className="max-w-[1440px] mx-auto grid grid-cols-1 lg:grid-cols-2 gap-16">
           <div>
-            <h2 className="heading-lg text-maze-cream mb-6">{t('storyHeading')}</h2>
+            <Reveal><h2 className="heading-lg text-maze-cream mb-6">{t('storyHeading')}</h2></Reveal>
             <div className="space-y-5 body-lg text-maze-muted">
               <p>{t('story1')}</p>
               <p>{t('story2')}</p>
@@ -86,9 +89,9 @@ export default async function AboutPage({ params: { locale } }: Props) {
             </div>
           </div>
           <div className="space-y-4">
-            <h2 className="heading-lg text-maze-cream mb-6">{t('valuesHeading')}</h2>
+            <Reveal><h2 className="heading-lg text-maze-cream mb-6">{t('valuesHeading')}</h2></Reveal>
             {values.map((v, i) => (
-              <div key={i} className="p-5 border border-maze-border rounded-xl hover:border-maze-lime transition-colors group">
+              <div key={i} className="card-lift p-5 border border-maze-border rounded-xl hover:border-maze-lime group">
                 <h3 className="font-semibold text-maze-cream group-hover:text-maze-lime transition-colors mb-1.5">
                   {v.title}
                 </h3>
@@ -102,7 +105,7 @@ export default async function AboutPage({ params: { locale } }: Props) {
       {/* Team */}
       <div className="px-6 md:px-10 py-20 md:py-32 border-b border-maze-border">
         <div className="max-w-[1440px] mx-auto">
-          <h2 className="heading-lg text-maze-cream mb-12">{t('teamHeading')}</h2>
+          <Reveal><h2 className="heading-lg text-maze-cream mb-12">{t('teamHeading')}</h2></Reveal>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
             {team.map((member) => {
               const role = locale === 'ru' && member.roleRu ? member.roleRu : member.role
@@ -116,7 +119,7 @@ export default async function AboutPage({ params: { locale } }: Props) {
                         src={member.photo}
                         alt={member.name}
                         fill
-                        className="object-cover"
+                        className="object-cover transition-transform duration-500 ease-out [@media(hover:hover)]:group-hover:scale-105"
                       />
                     ) : (
                       <div className="w-full h-full flex items-center justify-center">
@@ -153,12 +156,13 @@ export default async function AboutPage({ params: { locale } }: Props) {
 
       {/* CTA */}
       <div className="px-6 md:px-10 py-20 text-center">
-        <h2 className="display-md text-maze-cream mb-6">{t('readyLabel')}</h2>
+        <Reveal><h2 className="display-md text-maze-cream mb-6">{t('readyLabel')}</h2></Reveal>
         <Link
           href="/contact"
-          className="inline-flex items-center gap-3 px-8 py-4 bg-maze-lime text-maze-ink font-bold rounded-full hover:bg-maze-paper transition-colors"
+          className="group inline-flex items-center gap-3 px-8 py-4 bg-maze-lime text-maze-ink font-bold rounded-full hover:bg-maze-paper transition-colors active:scale-[0.97]"
         >
-          {t('readyCta')} ↗
+          {t('readyCta')}
+          <Arrow direction="up-right" className="text-base transition-transform duration-200 group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
         </Link>
       </div>
     </div>

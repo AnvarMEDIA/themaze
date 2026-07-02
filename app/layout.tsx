@@ -3,6 +3,7 @@ import { Manrope, Space_Mono } from 'next/font/google'
 import { ThemeProvider } from 'next-themes'
 import { unstable_noStore as noStore } from 'next/cache'
 import { getSettings } from '@/lib/settings'
+import { GoogleTagManager, GoogleTagManagerNoScript } from '@/components/GoogleTagManager'
 import './globals.css'
 
 // Trimmed to the weights actually used in the codebase (audited via
@@ -128,6 +129,7 @@ const baseMetadata: Metadata = {
   alternates: {
     canonical: SITE_URL,
     languages: { 'en-US': `${SITE_URL}/en`, 'ru-RU': `${SITE_URL}/ru` },
+    types: { 'application/rss+xml': `${SITE_URL}/feed.xml` },
   },
 }
 
@@ -146,6 +148,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       className={`${manrope.variable} ${spaceMono.variable}`}
     >
       <body>
+        {/* Google Tag Manager (noscript) — must be the first element
+            inside <body> per Google's install instructions. */}
+        <GoogleTagManagerNoScript />
         <ThemeProvider
           attribute="class"
           defaultTheme="dark"
@@ -154,8 +159,10 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         >
           {children}
         </ThemeProvider>
-        {/* Analytics & Yandex.Metrika are loaded by <Analytics /> in
+        {/* Google Tag Manager loader (afterInteractive). Yandex.Metrika
+            & Vercel Analytics are still loaded by <Analytics /> in
             app/(public)/[locale]/layout.tsx — only after consent. */}
+        <GoogleTagManager />
       </body>
     </html>
   )

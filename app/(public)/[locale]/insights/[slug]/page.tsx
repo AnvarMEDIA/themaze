@@ -6,14 +6,24 @@ import { Link } from '@/i18n/navigation'
 import { routing } from '@/i18n/routing'
 import { SafeMDX } from '@/components/SafeMDX'
 import { getPostBySlug, getPublishedPosts, estimateReadTime } from '@/lib/posts'
+import { getPublishedProjects } from '@/lib/portfolio'
+import { rankRelatedPosts, relatedProjectsForPost } from '@/lib/recommend'
 import { getAdminSession } from '@/lib/auth'
 import { JsonLd } from '@/components/JsonLd'
 import { breadcrumbJsonLd, homeCrumb, insightsCrumb, postJsonLd } from '@/lib/jsonLd'
-import { localizedAlternates, SITE_URL } from '@/lib/seo'
+import { localizedAlternates, ogLocale, SITE_URL } from '@/lib/seo'
 
 interface Props {
   params: { locale: string; slug: string }
 }
+
+// Content is served from the dynamic store, exactly like the insights
+// list and every other store-backed page. Without this the route is
+// treated as SSG: only posts that existed at build time get prerendered,
+// and a post created afterwards renders on-demand in static mode, hits a
+// dynamic server API and 500s (DYNAMIC_SERVER_USAGE). Force-dynamic keeps
+// new posts working the moment they're published.
+export const dynamic = 'force-dynamic'
 
 export async function generateStaticParams() {
   const posts = await getPublishedPosts()
@@ -34,6 +44,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     alternates: localizedAlternates(params.locale, `insights/${post.slug}`),
     openGraph: {
       type: 'article',
+      ...ogLocale(params.locale),
       title,
       description: desc,
       images: post.coverImage ? [{ url: post.coverImage }] : undefined,
@@ -75,6 +86,16 @@ export default async function InsightPage({ params }: Props) {
   const body  = isRu ? (post.bodyRu    || post.body)    : post.body
   const excerpt = isRu ? (post.excerptRu || post.excerpt) : post.excerpt
   const { minutes } = estimateReadTime(body)
+
+  // Recommendation engine: same-type related posts + cross-links to
+  // portfolio work sharing this article's topics. Threads internal links
+  // between the blog and the portfolio and keeps readers on-site.
+  const [allPosts, allProjects] = await Promise.all([
+    getPublishedPosts(),
+    getPublishedProjects(),
+  ])
+  const related     = rankRelatedPosts(post, allPosts, 3)
+  const relatedWork = relatedProjectsForPost(post, allProjects, 3)
 
   const crumbs = breadcrumbJsonLd([
     homeCrumb(locale, isRu ? 'Главная' : 'Home'),
@@ -139,6 +160,74 @@ export default async function InsightPage({ params }: Props) {
           <SafeMDX source={body} />
         </div>
       </div>
+
+      {related.length > 0 && (
+        <aside className="px-6 md:px-10 pb-24 border-t border-maze-border">
+          <div className="max-w-5xl mx-auto pt-16">
+            <h2 className="heading-lg text-maze-cream mb-10">
+              {isRu ? 'Похожие статьи' : 'Related reading'}
+            </h2>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              {related.map((p) => {
+                const rTitle = isRu ? (p.titleRu || p.title) : p.title
+                return (
+                  <Link key={p.id} href={`/insights/${p.slug}`} className="group block">
+                    {p.coverImage && (
+                      <div className="relative aspect-[16/10] rounded-xl overflow-hidden bg-maze-gray mb-4">
+                        <Image
+                          src={p.coverImage}
+                          alt={rTitle}
+                          fill
+                          sizes="(max-width: 768px) 100vw, 33vw"
+                          className="object-cover transition-transform duration-500 ease-out [@media(hover:hover)]:group-hover:scale-105"
+                        />
+                      </div>
+                    )}
+                    <p className="label-sm text-maze-muted mb-2">{fmt(p.publishedAt, locale)}</p>
+                    <h3 className="font-semibold text-maze-cream group-hover:text-maze-lime transition-colors">
+                      {rTitle}
+                    </h3>
+                  </Link>
+                )
+              })}
+            </div>
+          </div>
+        </aside>
+      )}
+
+      {relatedWork.length > 0 && (
+        <aside className="px-6 md:px-10 pb-24 border-t border-maze-border">
+          <div className="max-w-5xl mx-auto pt-16">
+            <h2 className="heading-lg text-maze-cream mb-10">
+              {isRu ? 'Связанные работы' : 'Related work'}
+            </h2>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              {relatedWork.map((p) => {
+                const wTitle = isRu ? (p.titleRu || p.title) : p.title
+                return (
+                  <Link key={p.id} href={`/portfolio/${p.slug}`} className="group block">
+                    {p.coverImage && (
+                      <div className="relative aspect-[16/10] rounded-xl overflow-hidden bg-maze-gray mb-4">
+                        <Image
+                          src={p.coverImage}
+                          alt={wTitle}
+                          fill
+                          sizes="(max-width: 768px) 100vw, 33vw"
+                          className="object-cover transition-transform duration-500 ease-out [@media(hover:hover)]:group-hover:scale-105"
+                        />
+                      </div>
+                    )}
+                    <p className="label-sm text-maze-lime mb-1">{p.client}</p>
+                    <h3 className="font-semibold text-maze-cream group-hover:text-maze-lime transition-colors">
+                      {wTitle}
+                    </h3>
+                  </Link>
+                )
+              })}
+            </div>
+          </div>
+        </aside>
+      )}
     </article>
   )
 }

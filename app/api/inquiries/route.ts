@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { getInquiries, addInquiry, markInquiryRead, deleteInquiry, deleteInquiries } from '@/lib/inquiries'
 import { getAdminSession } from '@/lib/auth'
 import { InquirySchema } from '@/lib/validation'
-import { rateLimitAsync } from '@/lib/rateLimit'
+import { rateLimitAsync, clientIp } from '@/lib/rateLimit'
 
 export const dynamic = 'force-dynamic'
 
@@ -15,7 +15,7 @@ export async function GET() {
 
 export async function POST(req: NextRequest) {
   // Rate limit: 5 submissions per 10 minutes per IP
-  const ip = req.headers.get('x-forwarded-for')?.split(',')[0].trim() ?? 'unknown'
+  const ip = clientIp(req)
   const rl = await rateLimitAsync(`inquiry:${ip}`, { limit: 5, windowMs: 10 * 60 * 1000 })
 
   if (!rl.success) {

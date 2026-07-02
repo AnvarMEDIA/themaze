@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { getAllProjects, createProject } from '@/lib/portfolio'
+import { getAllProjects, getPublishedProjects, createProject } from '@/lib/portfolio'
 import { getAdminSession }              from '@/lib/auth'
 import { slugify }                      from '@/lib/utils'
 import { revalidatePath }               from 'next/cache'
@@ -9,7 +9,9 @@ import { notifyIndexNow, localePair }   from '@/lib/indexing'
 export const dynamic = 'force-dynamic'
 
 export async function GET() {
-  const projects = await getAllProjects()
+  // Drafts are admin-only; anonymous callers get published projects only.
+  const authed   = await getAdminSession()
+  const projects = authed ? await getAllProjects() : await getPublishedProjects()
   return NextResponse.json(projects)
 }
 

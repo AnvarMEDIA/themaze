@@ -5,8 +5,8 @@ import { routing } from '@/i18n/routing'
 import { PortfolioGrid } from '@/components/portfolio/PortfolioGrid'
 import { getClientSlugs, getProjectsByClientSlug } from '@/lib/portfolio'
 import { JsonLd } from '@/components/JsonLd'
-import { breadcrumbJsonLd, portfolioListJsonLd, homeCrumb, portfolioCrumb } from '@/lib/jsonLd'
-import { localizedAlternates, SITE_URL } from '@/lib/seo'
+import { breadcrumbJsonLd, portfolioListJsonLd, homeCrumb, portfolioCrumb, clientWorkJsonLd } from '@/lib/jsonLd'
+import { localizedAlternates, ogLocale, SITE_URL } from '@/lib/seo'
 
 interface Props {
   params: { locale: string; slug: string }
@@ -35,7 +35,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     title,
     description,
     alternates: localizedAlternates(params.locale, `portfolio/client/${params.slug}`),
-    openGraph: { title, description },
+    openGraph: { title, description, ...ogLocale(params.locale) },
     twitter:   { card: 'summary_large_image', title, description },
   }
 }
@@ -59,7 +59,7 @@ export default async function PortfolioClientPage({ params }: Props) {
 
   return (
     <main className="min-h-screen">
-      <JsonLd data={[crumbs, portfolioListJsonLd(data.projects, params.locale)]} />
+      <JsonLd data={[crumbs, clientWorkJsonLd(data.clientName, params.slug, params.locale), portfolioListJsonLd(data.projects, params.locale)]} />
 
       <section className="pt-28 pb-16 px-6 md:px-10 border-b border-maze-border">
         <div className="max-w-[1440px] mx-auto">
