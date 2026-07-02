@@ -5,6 +5,7 @@ import { useTranslations } from 'next-intl'
 import { Link } from '@/i18n/navigation'
 import { motion, AnimatePresence, useReducedMotion } from 'framer-motion'
 import { MagneticButton } from '@/components/ui/MagneticButton'
+import { Arrow } from '@/components/ui/Arrow'
 
 // Strong ease-out curve (Emil Kowalski)
 const EASE_OUT = [0.23, 1, 0.32, 1] as const
@@ -144,10 +145,11 @@ export function Hero() {
               >
                 {t('viewWork')}
                 <motion.span
+                  className="inline-flex text-base"
                   animate={{ x: [0, 4, 0] }}
                   transition={{ duration: 2, repeat: Infinity, ease: 'easeInOut' }}
                 >
-                  →
+                  <Arrow direction="right" />
                 </motion.span>
               </Link>
             </MagneticButton>
@@ -161,7 +163,8 @@ export function Hero() {
                 onMouseEnter={e => { e.currentTarget.style.backgroundColor = '#F0EEE6' }}
                 onMouseLeave={e => { e.currentTarget.style.backgroundColor = '' }}
               >
-                {t('startProject')} ↗
+                {t('startProject')}
+                <Arrow direction="up-right" className="text-sm" />
               </Link>
             </MagneticButton>
           </div>

@@ -77,7 +77,8 @@ export default async function InsightsPage({ params: { locale } }: Props) {
                   <Link
                     key={p.id}
                     href={`/insights/${p.slug}`}
-                    className="group rounded-2xl overflow-hidden border border-maze-border bg-maze-dark/30 hover:border-maze-lime/40 transition-colors duration-200 flex flex-col"
+                    data-cursor="view"
+                    className="group card-lift rounded-2xl overflow-hidden border border-maze-border bg-maze-dark/30 hover:border-maze-lime/40 flex flex-col"
                   >
                     {p.coverImage && (
                       <div className="relative aspect-[16/10] bg-maze-gray overflow-hidden">

@@ -6,6 +6,9 @@ import { telegramHref, telegramDisplay } from '@/lib/utils'
 import { JsonLd } from '@/components/JsonLd'
 import { breadcrumbJsonLd, contactPageJsonLd, homeCrumb } from '@/lib/jsonLd'
 import { localizedAlternates } from '@/lib/seo'
+import { Reveal } from '@/components/ui/Reveal'
+import { TextReveal } from '@/components/ui/TextReveal'
+import { Arrow } from '@/components/ui/Arrow'
 
 export const dynamic = 'force-dynamic'
 
@@ -69,36 +72,64 @@ export default async function ContactPage({ params: { locale } }: Props) {
       <div className="px-6 md:px-10 py-16 md:py-24 border-b border-maze-border">
         <div className="max-w-[1440px] mx-auto">
           <p className="label-sm text-maze-muted mb-6">{t('label')}</p>
-          <h1 className="display-md text-maze-cream max-w-2xl">{t('heading')}</h1>
+          <TextReveal as="h1" stagger className="display-md text-maze-cream max-w-2xl">
+            {t('heading')}
+          </TextReveal>
         </div>
       </div>
 
       <div className="px-6 md:px-10 py-16 md:py-24">
         <div className="max-w-[1440px] mx-auto grid grid-cols-1 lg:grid-cols-2 gap-16 lg:gap-24">
           <div>
-            <p className="body-lg text-maze-muted mb-10 max-w-md">{t('sub')}</p>
+            <Reveal>
+              <p className="body-lg text-maze-muted mb-10 max-w-md">{t('sub')}</p>
+            </Reveal>
 
-            <div className="space-y-6 mb-12">
-              {info.map((item) => (
-                <div key={item.key}>
-                  <p className="label-sm text-maze-muted mb-1">{t(item.key)}</p>
-                  {item.href ? (
-                    <a
-                      href={item.href}
-                      className="body-lg text-maze-cream hover:text-maze-lime transition-colors"
-                      target={item.href.startsWith('http') ? '_blank' : undefined}
-                      rel="noopener noreferrer"
-                    >
-                      {item.value}
-                    </a>
-                  ) : (
-                    <p className="body-lg text-maze-cream">{item.value}</p>
-                  )}
-                </div>
-              ))}
+            {/* Contact methods — editorial divided list with sliding arrows */}
+            <div className="border-t border-maze-border mb-12">
+              {info.map((item, i) => {
+                const num  = String(i + 1).padStart(2, '0')
+                const body = (
+                  <>
+                    <div className="flex items-baseline gap-4 min-w-0">
+                      <span className="label-sm text-maze-muted tabular-nums shrink-0">{num}</span>
+                      <div className="min-w-0">
+                        <p className="label-sm text-maze-muted mb-1">{t(item.key)}</p>
+                        <span className="body-lg text-maze-cream break-words transition-colors [@media(hover:hover)_and_(pointer:fine)]:group-hover:text-maze-lime">
+                          {item.value}
+                        </span>
+                      </div>
+                    </div>
+                    {item.href && (
+                      <Arrow
+                        direction="up-right"
+                        className="text-lg text-maze-muted transition-transform duration-200 [@media(hover:hover)_and_(pointer:fine)]:group-hover:text-maze-lime [@media(hover:hover)_and_(pointer:fine)]:group-hover:translate-x-1 [@media(hover:hover)_and_(pointer:fine)]:group-hover:-translate-y-1"
+                      />
+                    )}
+                  </>
+                )
+                return (
+                  <Reveal key={item.key} delay={i * 0.06}>
+                    {item.href ? (
+                      <a
+                        href={item.href}
+                        target={item.href.startsWith('http') ? '_blank' : undefined}
+                        rel="noopener noreferrer"
+                        className="group flex items-center justify-between gap-6 py-5 border-b border-maze-border"
+                      >
+                        {body}
+                      </a>
+                    ) : (
+                      <div className="flex items-center justify-between gap-6 py-5 border-b border-maze-border">
+                        {body}
+                      </div>
+                    )}
+                  </Reveal>
+                )
+              })}
             </div>
 
-            <div>
+            <Reveal delay={0.1}>
               <p className="label-sm text-maze-muted mb-4">{t('followUs')}</p>
               <div className="flex flex-wrap gap-3">
                 {displaySocials.map((s) => (
@@ -107,18 +138,18 @@ export default async function ContactPage({ params: { locale } }: Props) {
                     href={s.href}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="label-sm px-4 py-2 border border-maze-border rounded-full text-maze-muted hover:border-maze-lime hover:text-maze-lime transition-all duration-200"
+                    className="label-sm px-4 py-2 border border-maze-border rounded-full text-maze-muted hover:border-maze-lime hover:text-maze-lime transition-all duration-200 active:scale-[0.97]"
                   >
                     {s.label}
                   </a>
                 ))}
               </div>
-            </div>
+            </Reveal>
           </div>
 
-          <div>
+          <Reveal delay={0.12}>
             <ContactForm />
-          </div>
+          </Reveal>
         </div>
       </div>
     </div>
