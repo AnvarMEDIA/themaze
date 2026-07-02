@@ -5,6 +5,7 @@ import { Link } from '@/i18n/navigation'
 import type { SiteSettings } from '@/lib/settings'
 import { telegramHref, telegramDisplay } from '@/lib/utils'
 import { resetConsent } from '@/lib/consent'
+import { Arrow } from '@/components/ui/Arrow'
 
 const LOGO    = 'https://1jorjbbfajvf5rug.public.blob.vercel-storage.com/maze_logo.svg'
 const FOUNDED = 2019
@@ -115,10 +116,11 @@ export function Footer({ settings }: Props) {
         {/* Email — largest */}
         <a
           href={`mailto:${email}`}
-          className="display-lg text-maze-cream hover:text-maze-lime transition-colors duration-300 inline-block"
+          className="group display-lg text-maze-cream hover:text-maze-lime transition-colors duration-300 inline-flex items-center gap-3"
           data-cursor="hover"
         >
-          {email} ↗
+          {email}
+          <Arrow direction="up-right" className="w-[0.5em] h-[0.5em] transition-transform duration-300 [@media(hover:hover)_and_(pointer:fine)]:group-hover:translate-x-2 [@media(hover:hover)_and_(pointer:fine)]:group-hover:-translate-y-2" />
         </a>
 
         {/* Phone + Telegram — large */}
@@ -170,7 +172,7 @@ export function Footer({ settings }: Props) {
           <ul className="space-y-3">
             {workLinksA.map((link) => (
               <li key={link.href}>
-                <Link href={link.href} className="text-sm text-maze-muted hover:text-maze-cream transition-colors duration-200">
+                <Link href={link.href} className="link-underline text-sm text-maze-muted hover:text-maze-cream transition-colors duration-200">
                   {link.label}
                 </Link>
               </li>
@@ -184,7 +186,7 @@ export function Footer({ settings }: Props) {
           <ul className="space-y-3">
             {workLinksB.map((link) => (
               <li key={link.href}>
-                <Link href={link.href} className="text-sm text-maze-muted hover:text-maze-cream transition-colors duration-200">
+                <Link href={link.href} className="link-underline text-sm text-maze-muted hover:text-maze-cream transition-colors duration-200">
                   {link.label}
                 </Link>
               </li>
@@ -198,7 +200,7 @@ export function Footer({ settings }: Props) {
           <ul className="space-y-3">
             {studioLinks.map((link) => (
               <li key={link.href}>
-                <Link href={link.href} className="text-sm text-maze-muted hover:text-maze-cream transition-colors duration-200">
+                <Link href={link.href} className="link-underline text-sm text-maze-muted hover:text-maze-cream transition-colors duration-200">
                   {link.label}
                 </Link>
               </li>
@@ -233,13 +235,13 @@ export function Footer({ settings }: Props) {
           © {FOUNDED}–{currentYear} MAZE Studio. {t('rights')}
         </p>
         <nav className="flex flex-wrap items-center gap-x-5 gap-y-1 text-xs text-maze-muted">
-          <Link href="/legal/privacy" className="hover:text-maze-cream transition-colors">
+          <Link href="/legal/privacy" className="link-underline hover:text-maze-cream transition-colors">
             {tLegal('privacy.title')}
           </Link>
-          <Link href="/legal/terms" className="hover:text-maze-cream transition-colors">
+          <Link href="/legal/terms" className="link-underline hover:text-maze-cream transition-colors">
             {tLegal('terms.title')}
           </Link>
-          <Link href="/legal/cookies" className="hover:text-maze-cream transition-colors">
+          <Link href="/legal/cookies" className="link-underline hover:text-maze-cream transition-colors">
             {tLegal('cookies.title')}
           </Link>
           <button

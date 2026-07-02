@@ -6,6 +6,7 @@ import { getPublishedProjects } from '@/lib/portfolio'
 import { JsonLd } from '@/components/JsonLd'
 import { breadcrumbJsonLd, portfolioListJsonLd, homeCrumb, portfolioCrumb } from '@/lib/jsonLd'
 import { localizedAlternates } from '@/lib/seo'
+import { TextReveal } from '@/components/ui/TextReveal'
 
 interface Props {
   params: { locale: string }
@@ -47,9 +48,7 @@ export default async function PortfolioPage({ params: { locale } }: Props) {
         <div className="max-w-[1440px] mx-auto">
           <p className="label-sm text-maze-lime mb-5">{t('label')}</p>
           <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-6">
-            <h1 className="display-md text-maze-cream max-w-xl">
-              {t('heading')}
-            </h1>
+            <TextReveal as="h1" stagger className="display-md text-maze-cream max-w-xl">{t('heading')}</TextReveal>
             <p className="body-lg text-maze-muted max-w-sm md:text-right">
               {t('subtitle')}
             </p>
