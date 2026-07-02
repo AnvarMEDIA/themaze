@@ -5,6 +5,8 @@ import Image from 'next/image'
 import { Link } from '@/i18n/navigation'
 import { routing } from '@/i18n/routing'
 import { getProjectBySlug, getPublishedProjects } from '@/lib/portfolio'
+import { getPublishedPosts } from '@/lib/posts'
+import { rankRelatedProjects, relatedPostsForProject } from '@/lib/recommend'
 import { ProjectGallery } from '@/components/portfolio/ProjectGallery'
 import { JsonLd } from '@/components/JsonLd'
 import { breadcrumbJsonLd, projectJsonLd, homeCrumb, portfolioCrumb } from '@/lib/jsonLd'
@@ -69,10 +71,14 @@ export default async function ProjectPage({ params }: Props) {
     if (!authed) notFound()
   }
 
-  const all = await getPublishedProjects()
-  const related = all
-    .filter((p) => p.id !== project.id && p.categories.some((c) => project.categories.includes(c)))
-    .slice(0, 2)
+  const [all, allPosts] = await Promise.all([
+    getPublishedProjects(),
+    getPublishedPosts(),
+  ])
+  // Weighted recommendations (same client ≫ category > tags > services,
+  // recency tie-break) plus cross-links to insights on the same topics.
+  const related = rankRelatedProjects(project, all, 3)
+  const journal = relatedPostsForProject(project, allPosts, 2)
   const clientSlug = slugify(project.client)
 
   // Prev / next neighbour in the published portfolio ordering, for
@@ -221,27 +227,72 @@ export default async function ProjectPage({ params }: Props) {
           heading={t('gallery')}
         />
 
-        {/* Related */}
+        {/* Related work — ranked by shared client, category, tags & services */}
         {related.length > 0 && (
           <div className="max-w-[1440px] mx-auto mt-24 pt-12 border-t border-maze-border">
             <h3 className="heading-md text-maze-cream mb-8">{t('relatedProjects')}</h3>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-              {related.map((p) => (
-                <Link
-                  key={p.id}
-                  href={`/portfolio/${p.slug}`}
-                  className="group block p-6 rounded-xl border border-maze-border transition-colors duration-200 [@media(hover:hover)_and_(pointer:fine)]:hover:border-maze-lime"
-                  data-cursor="view"
-                >
-                  <p className="label-sm text-maze-lime mb-2">
-                    {p.categories.map((c) => (t.raw('categories') as Record<string,string>)[c] ?? c).join(' · ')}
-                  </p>
-                  <h4 className="heading-md text-maze-cream transition-colors duration-200 [@media(hover:hover)_and_(pointer:fine)]:group-hover:text-maze-lime">{p.title}</h4>
-                  <p className="label-sm text-maze-muted mt-1">{p.client}</p>
-                </Link>
-              ))}
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+              {related.map((p) => {
+                const rTitle = isRu ? (p.titleRu || p.title) : p.title
+                return (
+                  <Link
+                    key={p.id}
+                    href={`/portfolio/${p.slug}`}
+                    className="group block"
+                    data-cursor="view"
+                  >
+                    {p.coverImage && (
+                      <div className="relative aspect-[4/3] rounded-xl overflow-hidden bg-maze-gray border border-maze-border mb-4">
+                        <Image
+                          src={p.coverImage}
+                          alt={imageAlt(p, p.coverImage, locale)}
+                          fill
+                          sizes="(max-width: 768px) 100vw, 33vw"
+                          className="object-cover transition-transform duration-500 ease-out [@media(hover:hover)]:group-hover:scale-105"
+                        />
+                      </div>
+                    )}
+                    <p className="label-sm text-maze-lime mb-2">
+                      {p.categories.map((c) => (t.raw('categories') as Record<string,string>)[c] ?? c).join(' · ')}
+                    </p>
+                    <h4 className="heading-md text-maze-cream transition-colors duration-200 [@media(hover:hover)_and_(pointer:fine)]:group-hover:text-maze-lime">{rTitle}</h4>
+                    <p className="label-sm text-maze-muted mt-1">{p.client}</p>
+                  </Link>
+                )
+              })}
             </div>
           </div>
+        )}
+
+        {/* From the journal — insights sharing this project's topics,
+            threading internal links between portfolio and blog. */}
+        {journal.length > 0 && (
+          <aside className="max-w-[1440px] mx-auto mt-20 pt-12 border-t border-maze-border">
+            <h3 className="heading-md text-maze-cream mb-8">{isRu ? 'Из журнала' : 'From the journal'}</h3>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+              {journal.map((post) => {
+                const jTitle = isRu ? (post.titleRu || post.title) : post.title
+                return (
+                  <Link
+                    key={post.id}
+                    href={`/insights/${post.slug}`}
+                    className="group flex items-center gap-4 p-4 rounded-xl border border-maze-border transition-colors hover:border-maze-lime"
+                    data-cursor="view"
+                  >
+                    {post.coverImage && (
+                      <div className="relative w-28 h-20 shrink-0 rounded-lg overflow-hidden bg-maze-gray">
+                        <Image src={post.coverImage} alt={jTitle} fill sizes="112px" className="object-cover" />
+                      </div>
+                    )}
+                    <div className="min-w-0">
+                      <p className="label-sm text-maze-lime mb-1">{isRu ? 'Статья' : 'Article'}</p>
+                      <h4 className="font-semibold text-maze-cream group-hover:text-maze-lime transition-colors">{jTitle}</h4>
+                    </div>
+                  </Link>
+                )
+              })}
+            </div>
+          </aside>
         )}
 
         {/* Prev / next — neighbour links keep visitors in the portfolio

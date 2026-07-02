@@ -6,6 +6,8 @@ import { Link } from '@/i18n/navigation'
 import { routing } from '@/i18n/routing'
 import { SafeMDX } from '@/components/SafeMDX'
 import { getPostBySlug, getPublishedPosts, estimateReadTime } from '@/lib/posts'
+import { getPublishedProjects } from '@/lib/portfolio'
+import { rankRelatedPosts, relatedProjectsForPost } from '@/lib/recommend'
 import { getAdminSession } from '@/lib/auth'
 import { JsonLd } from '@/components/JsonLd'
 import { breadcrumbJsonLd, homeCrumb, insightsCrumb, postJsonLd } from '@/lib/jsonLd'
@@ -85,18 +87,15 @@ export default async function InsightPage({ params }: Props) {
   const excerpt = isRu ? (post.excerptRu || post.excerpt) : post.excerpt
   const { minutes } = estimateReadTime(body)
 
-  // Recommendation base: surface up to 3 other published posts, ranked
-  // by shared-tag overlap (falling back to most-recent). Keeps readers
-  // on-site and lets PageRank flow between articles.
-  const related = (await getPublishedPosts())
-    .filter((p) => p.slug !== post.slug)
-    .map((p) => ({ p, score: (p.tags ?? []).filter((tag) => (post.tags ?? []).includes(tag)).length }))
-    .sort((a, b) =>
-      b.score - a.score ||
-      new Date(b.p.publishedAt).getTime() - new Date(a.p.publishedAt).getTime(),
-    )
-    .slice(0, 3)
-    .map(({ p }) => p)
+  // Recommendation engine: same-type related posts + cross-links to
+  // portfolio work sharing this article's topics. Threads internal links
+  // between the blog and the portfolio and keeps readers on-site.
+  const [allPosts, allProjects] = await Promise.all([
+    getPublishedPosts(),
+    getPublishedProjects(),
+  ])
+  const related     = rankRelatedPosts(post, allPosts, 3)
+  const relatedWork = relatedProjectsForPost(post, allProjects, 3)
 
   const crumbs = breadcrumbJsonLd([
     homeCrumb(locale, isRu ? 'Главная' : 'Home'),
@@ -187,6 +186,40 @@ export default async function InsightPage({ params }: Props) {
                     <p className="label-sm text-maze-muted mb-2">{fmt(p.publishedAt, locale)}</p>
                     <h3 className="font-semibold text-maze-cream group-hover:text-maze-lime transition-colors">
                       {rTitle}
+                    </h3>
+                  </Link>
+                )
+              })}
+            </div>
+          </div>
+        </aside>
+      )}
+
+      {relatedWork.length > 0 && (
+        <aside className="px-6 md:px-10 pb-24 border-t border-maze-border">
+          <div className="max-w-5xl mx-auto pt-16">
+            <h2 className="heading-lg text-maze-cream mb-10">
+              {isRu ? 'Связанные работы' : 'Related work'}
+            </h2>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              {relatedWork.map((p) => {
+                const wTitle = isRu ? (p.titleRu || p.title) : p.title
+                return (
+                  <Link key={p.id} href={`/portfolio/${p.slug}`} className="group block">
+                    {p.coverImage && (
+                      <div className="relative aspect-[16/10] rounded-xl overflow-hidden bg-maze-gray mb-4">
+                        <Image
+                          src={p.coverImage}
+                          alt={wTitle}
+                          fill
+                          sizes="(max-width: 768px) 100vw, 33vw"
+                          className="object-cover transition-transform duration-500 ease-out [@media(hover:hover)]:group-hover:scale-105"
+                        />
+                      </div>
+                    )}
+                    <p className="label-sm text-maze-lime mb-1">{p.client}</p>
+                    <h3 className="font-semibold text-maze-cream group-hover:text-maze-lime transition-colors">
+                      {wTitle}
                     </h3>
                   </Link>
                 )
