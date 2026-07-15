@@ -9,6 +9,10 @@ export const CONTEXT = 'https://schema.org'
 export const ORG_ID  = `${SITE_URL}/#organization`
 export const SITE_ID = `${SITE_URL}/#website`
 
+// Real, hosted logo (Vercel Blob) used site-wide. `${SITE_URL}/logo.svg`
+// is not served, so entity/knowledge-graph references must use this URL.
+const LOGO_URL = 'https://1jorjbbfajvf5rug.public.blob.vercel-storage.com/maze_logo.svg'
+
 function localePath(locale: string, path = ''): string {
   const base = locale === 'en' ? SITE_URL : `${SITE_URL}/${locale}`
   return path ? `${base}${path}` : base
@@ -35,11 +39,20 @@ export function organizationJsonLd(settings: SiteSettings | null) {
     url: SITE_URL,
     logo: {
       '@type': 'ImageObject',
-      url: `${SITE_URL}/logo.svg`,
+      url: LOGO_URL,
       width: 200,
       height: 60,
     },
     foundingDate: '2019',
+    slogan: 'We navigate brands through complexity to clarity.',
+    // Topics the studio is authoritative on — helps AI answer engines and
+    // knowledge graphs understand what MAZE can be cited for.
+    knowsAbout: [
+      'Brand Identity', 'Logo Design', 'Brand Strategy', 'Naming',
+      'Packaging Design', 'Rebranding', 'Visual Identity', 'Design Systems',
+      'UI/UX Design', 'Motion Design', 'Print Design', 'Art Direction',
+      'Brand Guidelines',
+    ],
     email:     settings?.email    || 'hello@maze.uz',
     telephone: settings?.phone    || undefined,
     address: {
