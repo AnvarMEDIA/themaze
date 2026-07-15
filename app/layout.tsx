@@ -108,13 +108,14 @@ const baseMetadata: Metadata = {
     siteName: 'MAZE Studio',
     title: 'MAZE — Branding & Design Studio',
     description: 'Premium branding and design studio based in Tashkent, Uzbekistan.',
-    images: [{ url: '/og-image.jpg', width: 1200, height: 630, alt: 'MAZE — Branding & Design Studio' }],
+    // og:image is supplied by the generated app/(public)/[locale]/opengraph-image.tsx
+    // (a real, branded 1200×630). No static /og-image.jpg to 404.
   },
   twitter: {
     card: 'summary_large_image',
     title: 'MAZE — Branding & Design Studio',
     description: 'Premium branding and design studio based in Tashkent, Uzbekistan.',
-    images: ['/og-image.jpg'],
+    // twitter:image falls back to the generated og:image.
     creator: '@mazestudio',
   },
   robots: {

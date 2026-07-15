@@ -116,7 +116,7 @@ export function localBusinessJsonLd(settings: SiteSettings | null) {
     description:
       'Premium branding and design studio in Tashkent — brand identity, logo design, naming, packaging and digital products.',
     url: SITE_URL,
-    image: `${SITE_URL}/og-image.jpg`,
+    image: LOGO_URL,
     telephone: settings?.phone || undefined,
     email:     settings?.email || 'hello@maze.uz',
     priceRange: '$$',

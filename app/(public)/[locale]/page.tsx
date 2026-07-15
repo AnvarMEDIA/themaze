@@ -10,9 +10,11 @@ import { ProcessSection }  from '@/components/home/ProcessSection'
 import { CTASection }      from '@/components/home/CTASection'
 import { PartnersSection } from '@/components/home/PartnersSection'
 import { TestimonialsSection } from '@/components/home/TestimonialsSection'
+import { InsightsSection } from '@/components/home/InsightsSection'
 import { JsonLd } from '@/components/JsonLd'
 import { testimonialsJsonLd } from '@/lib/jsonLd'
 import { getPublishedProjects } from '@/lib/portfolio'
+import { getPublishedPosts } from '@/lib/posts'
 import { getPartners } from '@/lib/partners'
 import { getTestimonials } from '@/lib/testimonials'
 import { localizedAlternates } from '@/lib/seo'
@@ -60,10 +62,11 @@ export async function generateMetadata({ params: { locale } }: Props): Promise<M
 
 export default async function HomePage({ params: { locale } }: Props) {
   setRequestLocale(locale)
-  const [featuredProjects, partners, testimonials, tp, tt] = await Promise.all([
+  const [featuredProjects, partners, testimonials, posts, tp, tt] = await Promise.all([
     getPublishedProjects(),
     getPartners(),
     getTestimonials(),
+    getPublishedPosts(),
     getTranslations({ locale, namespace: 'partners' }),
     getTranslations({ locale, namespace: 'testimonialsSection' }),
   ])
@@ -88,6 +91,7 @@ export default async function HomePage({ params: { locale } }: Props) {
       />
       <ServicesSection />
       <ProcessSection />
+      <InsightsSection posts={posts.slice(0, 3)} locale={locale} />
       <CTASection />
     </>
   )
