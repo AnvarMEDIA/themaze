@@ -11,7 +11,7 @@ import { rankRelatedPosts, relatedProjectsForPost } from '@/lib/recommend'
 import { getAdminSession } from '@/lib/auth'
 import { JsonLd } from '@/components/JsonLd'
 import { breadcrumbJsonLd, homeCrumb, insightsCrumb, postJsonLd } from '@/lib/jsonLd'
-import { localizedAlternates, ogLocale, SITE_URL } from '@/lib/seo'
+import { localizedAlternates, ogLocale, SITE_URL, notFoundMetadata } from '@/lib/seo'
 
 interface Props {
   params: { locale: string; slug: string }
@@ -34,7 +34,7 @@ export async function generateStaticParams() {
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const post = await getPostBySlug(params.slug)
-  if (!post) return {}
+  if (!post) return notFoundMetadata
   const isRu  = params.locale === 'ru'
   const title = isRu ? (post.titleRu   || post.title)   : post.title
   const desc  = isRu ? (post.excerptRu || post.excerpt) : post.excerpt

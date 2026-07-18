@@ -127,9 +127,14 @@ const baseMetadata: Metadata = {
     yandex: '90dee1899184f344',
   },
   manifest: '/site.webmanifest',
+  // NOTE: intentionally NO `canonical` or `languages` here. A canonical set
+  // on the root layout is inherited by every page that doesn't override it
+  // (e.g. a not-found route whose generateMetadata returns `{}`), which makes
+  // those URLs falsely declare the homepage as their canonical — Google then
+  // reports "Duplicate without user-selected canonical". Each public page sets
+  // its own self-referential canonical + hreflang via `localizedAlternates`.
+  // Pages that set nothing correctly emit no canonical and self-canonicalize.
   alternates: {
-    canonical: SITE_URL,
-    languages: { 'en-US': `${SITE_URL}/en`, 'ru-RU': `${SITE_URL}/ru` },
     types: { 'application/rss+xml': `${SITE_URL}/feed.xml` },
   },
 }

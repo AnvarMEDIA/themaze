@@ -10,7 +10,7 @@ import { rankRelatedProjects, relatedPostsForProject } from '@/lib/recommend'
 import { ProjectGallery } from '@/components/portfolio/ProjectGallery'
 import { JsonLd } from '@/components/JsonLd'
 import { breadcrumbJsonLd, projectJsonLd, homeCrumb, portfolioCrumb } from '@/lib/jsonLd'
-import { localizedAlternates } from '@/lib/seo'
+import { localizedAlternates, notFoundMetadata } from '@/lib/seo'
 import { getAdminSession } from '@/lib/auth'
 import { imageAlt, projectMetaTitle, projectMetaDescription } from '@/lib/projectMeta'
 import { slugify } from '@/lib/utils'
@@ -35,7 +35,7 @@ export async function generateStaticParams() {
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const project = await getProjectBySlug(params.slug)
-  if (!project) return {}
+  if (!project) return notFoundMetadata
   // Admin overrides (metaTitle / metaDescription) win; otherwise we
   // generate "{title} — {category} for {client}" plus shortDescription.
   // OG / Twitter image is auto-generated via opengraph-image.tsx.

@@ -8,7 +8,7 @@ import path from 'node:path'
 import { Link } from '@/i18n/navigation'
 import { JsonLd } from '@/components/JsonLd'
 import { breadcrumbJsonLd, homeCrumb, legalPageJsonLd } from '@/lib/jsonLd'
-import { localizedAlternates, SITE_URL } from '@/lib/seo'
+import { localizedAlternates, SITE_URL, notFoundMetadata } from '@/lib/seo'
 
 const LEGAL_SLUGS = ['privacy', 'terms', 'cookies'] as const
 type LegalSlug = (typeof LEGAL_SLUGS)[number]
@@ -43,7 +43,7 @@ export function generateStaticParams() {
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
-  if (!isLegalSlug(params.slug)) return {}
+  if (!isLegalSlug(params.slug)) return notFoundMetadata
   const t = await getTranslations({ locale: params.locale, namespace: 'legal' })
   return {
     title: t(`${params.slug}.title`),

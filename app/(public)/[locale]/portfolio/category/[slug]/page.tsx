@@ -6,7 +6,7 @@ import { PortfolioGrid } from '@/components/portfolio/PortfolioGrid'
 import { getPublishedProjects } from '@/lib/portfolio'
 import { JsonLd } from '@/components/JsonLd'
 import { breadcrumbJsonLd, portfolioListJsonLd, homeCrumb, portfolioCrumb } from '@/lib/jsonLd'
-import { localizedAlternates, SITE_URL } from '@/lib/seo'
+import { localizedAlternates, SITE_URL, notFoundMetadata } from '@/lib/seo'
 import { VALID_CATEGORIES, categoryLabel } from '@/lib/utils'
 import type { ProjectCategory } from '@/lib/types'
 
@@ -27,7 +27,7 @@ export function generateStaticParams() {
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
-  if (!isCategory(params.slug)) return {}
+  if (!isCategory(params.slug)) return notFoundMetadata
   const isRu  = params.locale === 'ru'
   const label = categoryLabel(params.slug, params.locale)
   const title = isRu

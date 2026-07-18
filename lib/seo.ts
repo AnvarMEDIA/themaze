@@ -41,6 +41,17 @@ export function localizedAlternates(
 }
 
 /**
+ * Metadata to return from a dynamic route's `generateMetadata` when the
+ * slug doesn't resolve (the page then calls `notFound()`). Explicitly
+ * noindex so a placeholder/404 URL is never indexed or clustered as a
+ * duplicate. Returning `{}` here would instead inherit whatever the parent
+ * layout declares — which is exactly the canonical-leak we want to avoid.
+ */
+export const notFoundMetadata: Metadata = {
+  robots: { index: false, follow: false },
+}
+
+/**
  * Per-locale Open Graph locale fields. Next.js shallow-merges metadata,
  * so a page that declares its own `openGraph` loses the root's
  * `og:locale` (hardcoded `en_US`). Spread this into each page's

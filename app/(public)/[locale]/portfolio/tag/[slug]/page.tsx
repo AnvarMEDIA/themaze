@@ -6,7 +6,7 @@ import { PortfolioGrid } from '@/components/portfolio/PortfolioGrid'
 import { getTagSlugs, getProjectsByTagSlug } from '@/lib/portfolio'
 import { JsonLd } from '@/components/JsonLd'
 import { breadcrumbJsonLd, portfolioListJsonLd, homeCrumb, portfolioCrumb } from '@/lib/jsonLd'
-import { localizedAlternates, SITE_URL } from '@/lib/seo'
+import { localizedAlternates, SITE_URL, notFoundMetadata } from '@/lib/seo'
 
 interface Props {
   params: { locale: string; slug: string }
@@ -23,7 +23,7 @@ export async function generateStaticParams() {
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const data = await getProjectsByTagSlug(params.slug)
-  if (!data) return {}
+  if (!data) return notFoundMetadata
   const isRu = params.locale === 'ru'
   const title = isRu
     ? `${data.tag} — портфолио | MAZE Studio`

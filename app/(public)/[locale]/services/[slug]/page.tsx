@@ -11,7 +11,7 @@ import {
   faqJsonLd,
   homeCrumb,
 } from '@/lib/jsonLd'
-import { localizedAlternates, ogLocale, SITE_URL } from '@/lib/seo'
+import { localizedAlternates, ogLocale, SITE_URL, notFoundMetadata } from '@/lib/seo'
 import { TextReveal } from '@/components/ui/TextReveal'
 import { Arrow } from '@/components/ui/Arrow'
 import type { ProjectCategory } from '@/lib/types'
@@ -51,7 +51,7 @@ export function generateStaticParams() {
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
-  if (!isServiceSlug(params.slug)) return {}
+  if (!isServiceSlug(params.slug)) return notFoundMetadata
   const t = await getTranslations({ locale: params.locale, namespace: `servicesPage.cluster.${params.slug}` })
   const metaTitle = t('metaTitle')
   const metaDesc  = t('metaDescription')
