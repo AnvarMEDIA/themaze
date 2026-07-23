@@ -65,7 +65,9 @@ export function missingRates(currencies: Currency[], settings: FinanceSettings):
 
 export const DEFAULT_FINANCE_SETTINGS: FinanceSettings = {
   baseCurrency: 'UZS',
-  // Seed approximate rates (value of 1 unit in UZS) — the admin edits these.
+  // Fallback rates (value of 1 unit in UZS) used only if CBU is unreachable
+  // and the admin has switched auto-rates off. Live rates come from the CBU.
   rates: { USD: 12650, EUR: 13700, RUB: 140 },
+  autoRates: true,
   updatedAt: '1970-01-01T00:00:00.000Z',
 }

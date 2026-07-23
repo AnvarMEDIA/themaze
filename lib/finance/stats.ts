@@ -4,7 +4,7 @@
  * keeps native amounts so the user can sanity-check the conversion.
  */
 import { listClients, listProjects, listTransactions } from './data'
-import { getFinanceSettings } from './settings'
+import { getEffectiveFinanceSettings } from './settings'
 import { toBase } from './money'
 import type {
   FinanceSummary,
@@ -24,7 +24,7 @@ export async function buildSummary(): Promise<FinanceSummary> {
     listClients(),
     listProjects(),
     listTransactions(),
-    getFinanceSettings(),
+    getEffectiveFinanceSettings(),
   ])
 
   const nowDate = new Date()

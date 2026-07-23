@@ -69,6 +69,8 @@ export interface FinanceSettings {
   baseCurrency: Currency
   /** Value of 1 unit of the keyed currency expressed in `baseCurrency`. */
   rates: Partial<Record<Currency, number>>
+  /** When true, live rates from the Central Bank (CBU) override `rates`. */
+  autoRates: boolean
   updatedAt: string
 }
 

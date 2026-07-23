@@ -83,6 +83,7 @@ export const TransactionUpdateSchema = TransactionSchema.partial()
 export const FinanceSettingsSchema = z.object({
   baseCurrency: currencyEnum,
   rates: z.record(currencyEnum, z.number().positive().max(1e9)).optional(),
+  autoRates: z.boolean().optional().default(true),
 })
 
 /* ── Auth (finance gate) ─────────────────────────────────────────────────── */
