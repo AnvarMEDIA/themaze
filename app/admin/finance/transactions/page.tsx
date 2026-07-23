@@ -6,12 +6,13 @@ import toast from 'react-hot-toast'
 import { formatMoney } from '@/lib/finance/money'
 import type { FinanceClient, FinanceProject, FinanceTransaction, TransactionType } from '@/lib/finance/types'
 import { TransactionForm } from '@/components/admin/finance/TransactionForm'
-import { METHOD_LABEL } from '@/components/admin/finance/tokens'
+import { useFinanceLang } from '@/components/admin/finance/lang'
 
 type Filter = 'all' | TransactionType
 
 export default function TransactionsPage() {
   const router = useRouter()
+  const { t, locale, tMethod } = useFinanceLang()
   const [txns, setTxns] = useState<FinanceTransaction[]>([])
   const [projects, setProjects] = useState<FinanceProject[]>([])
   const [clients, setClients] = useState<FinanceClient[]>([])
@@ -40,27 +41,30 @@ export default function TransactionsPage() {
   const cliName = useMemo(() => new Map(clients.map((c) => [c.id, c.company || c.name])), [clients])
 
   const openNew = () => { setEditing(null); setFormOpen(true) }
-  const openEdit = (t: FinanceTransaction) => { setEditing(t); setFormOpen(true) }
+  const openEdit = (tx: FinanceTransaction) => { setEditing(tx); setFormOpen(true) }
 
-  const del = async (t: FinanceTransaction) => {
-    if (!window.confirm('Delete this transaction? This cannot be undone.')) return
-    const res = await fetch(`/api/finance/transactions/${t.id}`, { method: 'DELETE' })
+  const del = async (tx: FinanceTransaction) => {
+    if (!window.confirm(t('txns.confirmDelete'))) return
+    const res = await fetch(`/api/finance/transactions/${tx.id}`, { method: 'DELETE' })
     if (res.status === 401) { router.push('/admin/finance/unlock'); return }
-    if (res.ok) { toast.success('Deleted'); setTxns((x) => x.filter((r) => r.id !== t.id)) }
-    else toast.error('Could not delete')
+    if (res.ok) { toast.success(t('toast.deleted')); setTxns((x) => x.filter((r) => r.id !== tx.id)) }
+    else toast.error(t('toast.deleteFail'))
   }
 
-  const rows = filter === 'all' ? txns : txns.filter((t) => t.type === filter)
+  const rows = filter === 'all' ? txns : txns.filter((tx) => tx.type === filter)
+  const filterLabel: Record<Filter, string> = {
+    all: t('txns.filterAll'), income: t('txns.filterIncome'), expense: t('txns.filterExpense'),
+  }
 
   return (
     <div className="px-6 py-8 max-w-[1400px] mx-auto">
       <div className="flex items-center justify-between gap-4 mb-6">
         <div>
-          <h1 className="text-xl font-bold text-white tracking-tight">Transactions</h1>
-          <p className="text-sm text-[#555] mt-0.5">Every payment in and out.</p>
+          <h1 className="text-xl font-bold text-white tracking-tight">{t('txns.title')}</h1>
+          <p className="text-sm text-[#555] mt-0.5">{t('txns.subtitle')}</p>
         </div>
         <button onClick={openNew} className="inline-flex items-center gap-2 px-4 py-2.5 rounded-lg bg-[#C8FF47] text-[#0A0A0A] text-sm font-bold hover:bg-[#F0EEE6] transition-colors active:scale-[0.97]">
-          <span className="text-base leading-none">+</span> Record
+          <span className="text-base leading-none">+</span> {t('txns.record')}
         </button>
       </div>
 
@@ -74,7 +78,7 @@ export default function TransactionsPage() {
               filter === k ? 'bg-[#161616] text-white border border-[#2A2A2A]' : 'text-[#777] hover:text-white border border-transparent'
             }`}
           >
-            {k}
+            {filterLabel[k]}
           </button>
         ))}
       </div>
@@ -84,44 +88,44 @@ export default function TransactionsPage() {
           <div className="p-4 space-y-2">{[...Array(6)].map((_, i) => <div key={i} className="h-12 rounded bg-[#141414] animate-pulse" />)}</div>
         ) : rows.length === 0 ? (
           <div className="py-16 text-center">
-            <p className="text-sm text-[#666] mb-3">No transactions {filter !== 'all' ? `(${filter})` : 'yet'}.</p>
-            <button onClick={openNew} className="text-sm text-[#C8FF47] hover:underline">Record your first one →</button>
+            <p className="text-sm text-[#666] mb-3">{filter !== 'all' ? t('txns.emptyFiltered', { f: filterLabel[filter] }) : t('txns.emptyAll')}</p>
+            <button onClick={openNew} className="text-sm text-[#C8FF47] hover:underline">{t('txns.recordFirst')}</button>
           </div>
         ) : (
           <table className="w-full text-sm">
             <thead>
               <tr className="text-left text-[11px] uppercase tracking-wide text-[#555] border-b border-[#1A1A1A]">
-                <th className="font-medium px-5 py-3">Date</th>
-                <th className="font-medium px-3 py-3">Category</th>
-                <th className="font-medium px-3 py-3 hidden md:table-cell">Project</th>
-                <th className="font-medium px-3 py-3 hidden lg:table-cell">Client</th>
-                <th className="font-medium px-3 py-3 hidden sm:table-cell">Method</th>
-                <th className="font-medium px-3 py-3 text-right">Amount</th>
+                <th className="font-medium px-5 py-3">{t('txns.colDate')}</th>
+                <th className="font-medium px-3 py-3">{t('txns.colCategory')}</th>
+                <th className="font-medium px-3 py-3 hidden md:table-cell">{t('txns.colProject')}</th>
+                <th className="font-medium px-3 py-3 hidden lg:table-cell">{t('txns.colClient')}</th>
+                <th className="font-medium px-3 py-3 hidden sm:table-cell">{t('txns.colMethod')}</th>
+                <th className="font-medium px-3 py-3 text-right">{t('txns.colAmount')}</th>
                 <th className="px-5 py-3" />
               </tr>
             </thead>
             <tbody>
-              {rows.map((t) => (
-                <tr key={t.id} className="border-b border-[#151515] last:border-b-0 hover:bg-[#111] transition-colors group">
-                  <td className="px-5 py-3 text-[#999] tabular-nums whitespace-nowrap">{t.date}</td>
+              {rows.map((tx) => (
+                <tr key={tx.id} className="border-b border-[#151515] last:border-b-0 hover:bg-[#111] transition-colors group">
+                  <td className="px-5 py-3 text-[#999] tabular-nums whitespace-nowrap">{tx.date}</td>
                   <td className="px-3 py-3">
                     <span className="flex items-center gap-2">
-                      <span className="text-xs" style={{ color: t.type === 'income' ? '#8FC748' : '#E27A5C' }} aria-hidden="true">
-                        {t.type === 'income' ? '↓' : '↑'}
+                      <span className="text-xs" style={{ color: tx.type === 'income' ? '#8FC748' : '#E27A5C' }} aria-hidden="true">
+                        {tx.type === 'income' ? '↓' : '↑'}
                       </span>
-                      <span className="text-white truncate max-w-[160px]">{t.category || (t.type === 'income' ? 'Payment' : 'Expense')}</span>
+                      <span className="text-white truncate max-w-[160px]">{tx.category || (tx.type === 'income' ? t('txn.payment') : t('txn.expense'))}</span>
                     </span>
                   </td>
-                  <td className="px-3 py-3 text-[#888] hidden md:table-cell truncate max-w-[160px]">{t.projectId ? projName.get(t.projectId) ?? '—' : '—'}</td>
-                  <td className="px-3 py-3 text-[#888] hidden lg:table-cell truncate max-w-[140px]">{t.clientId ? cliName.get(t.clientId) ?? '—' : '—'}</td>
-                  <td className="px-3 py-3 text-[#777] hidden sm:table-cell">{METHOD_LABEL[t.method]}</td>
-                  <td className="px-3 py-3 text-right tabular-nums font-medium whitespace-nowrap" style={{ color: t.type === 'income' ? '#8FC748' : '#E27A5C' }}>
-                    {t.type === 'income' ? '+' : '−'}{formatMoney(t.amount, t.currency)}
+                  <td className="px-3 py-3 text-[#888] hidden md:table-cell truncate max-w-[160px]">{tx.projectId ? projName.get(tx.projectId) ?? '—' : '—'}</td>
+                  <td className="px-3 py-3 text-[#888] hidden lg:table-cell truncate max-w-[140px]">{tx.clientId ? cliName.get(tx.clientId) ?? '—' : '—'}</td>
+                  <td className="px-3 py-3 text-[#777] hidden sm:table-cell">{tMethod(tx.method)}</td>
+                  <td className="px-3 py-3 text-right tabular-nums font-medium whitespace-nowrap" style={{ color: tx.type === 'income' ? '#8FC748' : '#E27A5C' }}>
+                    {tx.type === 'income' ? '+' : '−'}{formatMoney(tx.amount, tx.currency, { locale })}
                   </td>
                   <td className="px-5 py-3 text-right whitespace-nowrap">
                     <span className="opacity-0 group-hover:opacity-100 transition-opacity">
-                      <button onClick={() => openEdit(t)} className="text-xs text-[#666] hover:text-[#C8FF47] mr-3">Edit</button>
-                      <button onClick={() => del(t)} className="text-xs text-[#666] hover:text-red-400">Delete</button>
+                      <button onClick={() => openEdit(tx)} className="text-xs text-[#666] hover:text-[#C8FF47] mr-3">{t('common.edit')}</button>
+                      <button onClick={() => del(tx)} className="text-xs text-[#666] hover:text-red-400">{t('common.delete')}</button>
                     </span>
                   </td>
                 </tr>

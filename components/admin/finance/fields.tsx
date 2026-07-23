@@ -1,6 +1,7 @@
 'use client'
 
 import type { ReactNode } from 'react'
+import { useFinanceLang } from './lang'
 
 const inputCls =
   'w-full bg-[#111] border border-[#252525] rounded-lg px-3.5 py-2.5 text-sm text-[#EDEBE3] placeholder:text-[#4A4A4A] focus:outline-none focus:border-[#C8FF47] transition-colors'
@@ -96,12 +97,13 @@ export function NumberField({
 }
 
 export function FormActions({
-  busy, onCancel, submitLabel = 'Save',
+  busy, onCancel, submitLabel,
 }: {
   busy?: boolean
   onCancel: () => void
   submitLabel?: string
 }) {
+  const { t } = useFinanceLang()
   return (
     <div className="flex items-center justify-end gap-2 pt-2">
       <button
@@ -109,14 +111,14 @@ export function FormActions({
         onClick={onCancel}
         className="px-4 py-2.5 rounded-lg text-sm text-[#999] hover:text-white hover:bg-[#161616] transition-colors active:scale-[0.97]"
       >
-        Cancel
+        {t('common.cancel')}
       </button>
       <button
         type="submit"
         disabled={busy}
         className="px-5 py-2.5 rounded-lg bg-[#C8FF47] text-[#0A0A0A] text-sm font-bold hover:bg-[#F0EEE6] transition-colors disabled:opacity-60 active:scale-[0.97]"
       >
-        {busy ? 'Saving…' : submitLabel}
+        {busy ? t('common.saving') : (submitLabel ?? t('common.save'))}
       </button>
     </div>
   )

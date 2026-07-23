@@ -21,17 +21,5 @@ export const FIN_COLORS = {
   },
 } as const
 
-export const STATUS_LABEL: Record<string, string> = {
-  lead: 'Lead',
-  active: 'Active',
-  completed: 'Completed',
-  cancelled: 'Cancelled',
-}
-
-export const METHOD_LABEL: Record<string, string> = {
-  bank: 'Bank transfer',
-  cash: 'Cash',
-  card: 'Card',
-  crypto: 'Crypto',
-  other: 'Other',
-}
+// Human-readable status/method labels now live in the finance i18n dictionary
+// (lib/finance/i18n.ts) and are resolved via useFinanceLang().tStatus / tMethod.

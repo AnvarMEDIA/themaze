@@ -5,9 +5,11 @@ import { useRouter } from 'next/navigation'
 import toast from 'react-hot-toast'
 import type { FinanceClient } from '@/lib/finance/types'
 import { ClientForm } from '@/components/admin/finance/ClientForm'
+import { useFinanceLang } from '@/components/admin/finance/lang'
 
 export default function ClientsPage() {
   const router = useRouter()
+  const { t } = useFinanceLang()
   const [clients, setClients] = useState<FinanceClient[]>([])
   const [loading, setLoading] = useState(true)
   const [formOpen, setFormOpen] = useState(false)
@@ -27,22 +29,22 @@ export default function ClientsPage() {
   const openEdit = (c: FinanceClient) => { setEditing(c); setFormOpen(true) }
 
   const del = async (c: FinanceClient) => {
-    if (!window.confirm(`Delete “${c.company || c.name}”? Their projects and payments stay, but lose the link.`)) return
+    if (!window.confirm(t('clients.confirmDelete', { name: c.company || c.name }))) return
     const res = await fetch(`/api/finance/clients/${c.id}`, { method: 'DELETE' })
     if (res.status === 401) { router.push('/admin/finance/unlock'); return }
-    if (res.ok) { toast.success('Client deleted'); setClients((x) => x.filter((r) => r.id !== c.id)) }
-    else toast.error('Could not delete')
+    if (res.ok) { toast.success(t('toast.deleted')); setClients((x) => x.filter((r) => r.id !== c.id)) }
+    else toast.error(t('toast.deleteFail'))
   }
 
   return (
     <div className="px-6 py-8 max-w-[1400px] mx-auto">
       <div className="flex items-center justify-between gap-4 mb-6">
         <div>
-          <h1 className="text-xl font-bold text-white tracking-tight">Clients</h1>
-          <p className="text-sm text-[#555] mt-0.5">{loading ? '…' : `${clients.length} in your book`}</p>
+          <h1 className="text-xl font-bold text-white tracking-tight">{t('clients.title')}</h1>
+          <p className="text-sm text-[#555] mt-0.5">{loading ? '…' : t('clients.inBook', { n: clients.length })}</p>
         </div>
         <button onClick={openNew} className="inline-flex items-center gap-2 px-4 py-2.5 rounded-lg bg-[#C8FF47] text-[#0A0A0A] text-sm font-bold hover:bg-[#F0EEE6] transition-colors active:scale-[0.97]">
-          <span className="text-base leading-none">+</span> Add client
+          <span className="text-base leading-none">+</span> {t('clients.add')}
         </button>
       </div>
 
@@ -52,9 +54,9 @@ export default function ClientsPage() {
         </div>
       ) : clients.length === 0 ? (
         <div className="rounded-xl border border-[#1E1E1E] bg-[#0D0D0D] py-16 text-center">
-          <p className="text-white font-semibold mb-1">No clients yet</p>
-          <p className="text-sm text-[#666] mb-5">Add the companies and people you work with.</p>
-          <button onClick={openNew} className="px-4 py-2 rounded-lg bg-[#C8FF47] text-[#0A0A0A] text-sm font-bold hover:bg-[#F0EEE6] transition-colors active:scale-[0.97]">Add your first client</button>
+          <p className="text-white font-semibold mb-1">{t('clients.emptyTitle')}</p>
+          <p className="text-sm text-[#666] mb-5">{t('clients.emptyBody')}</p>
+          <button onClick={openNew} className="px-4 py-2 rounded-lg bg-[#C8FF47] text-[#0A0A0A] text-sm font-bold hover:bg-[#F0EEE6] transition-colors active:scale-[0.97]">{t('clients.addFirst')}</button>
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
@@ -66,7 +68,7 @@ export default function ClientsPage() {
                   {c.company && c.name && <p className="text-[12px] text-[#777] truncate">{c.name}</p>}
                 </div>
                 {c.status === 'archived' && (
-                  <span className="text-[10px] font-semibold text-[#888] bg-[#1A1A1A] border border-[#252525] px-2 py-0.5 rounded-full flex-shrink-0">Archived</span>
+                  <span className="text-[10px] font-semibold text-[#888] bg-[#1A1A1A] border border-[#252525] px-2 py-0.5 rounded-full flex-shrink-0">{t('clients.archived')}</span>
                 )}
               </div>
               <div className="space-y-1 mb-4">
@@ -75,8 +77,8 @@ export default function ClientsPage() {
                 {c.notes && <p className="text-[12px] text-[#666] line-clamp-2 pt-1">{c.notes}</p>}
               </div>
               <div className="flex items-center gap-3 pt-3 border-t border-[#161616] opacity-0 group-hover:opacity-100 transition-opacity">
-                <button onClick={() => openEdit(c)} className="text-xs text-[#888] hover:text-[#C8FF47]">Edit</button>
-                <button onClick={() => del(c)} className="text-xs text-[#888] hover:text-red-400">Delete</button>
+                <button onClick={() => openEdit(c)} className="text-xs text-[#888] hover:text-[#C8FF47]">{t('common.edit')}</button>
+                <button onClick={() => del(c)} className="text-xs text-[#888] hover:text-red-400">{t('common.delete')}</button>
               </div>
             </div>
           ))}

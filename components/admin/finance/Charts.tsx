@@ -3,16 +3,18 @@
 import { formatMoney } from '@/lib/finance/money'
 import type { Currency, MonthlyPoint } from '@/lib/finance/types'
 import { FIN_COLORS } from './tokens'
+import { useFinanceLang } from './lang'
 
 /* ── Monthly revenue bars (single series → no legend, title names it) ─────── */
 
 export function MonthlyBars({ data, currency }: { data: MonthlyPoint[]; currency: Currency }) {
+  const { t, locale, month } = useFinanceLang()
   const max = Math.max(1, ...data.map((d) => d.income))
   const peakIdx = data.reduce((best, d, i) => (d.income > data[best].income ? i : best), 0)
 
   const label = (m: string) => {
     const [, mm] = m.split('-')
-    return ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'][Number(mm) - 1] ?? ''
+    return month(Number(mm) - 1)
   }
 
   return (
@@ -26,18 +28,18 @@ export function MonthlyBars({ data, currency }: { data: MonthlyPoint[]; currency
               {/* Hover tooltip */}
               <div className="pointer-events-none absolute bottom-full mb-2 z-10 hidden group-hover:block whitespace-nowrap rounded-lg border border-[#252525] bg-[#141414] px-3 py-2 text-left shadow-xl">
                 <p className="text-[10px] uppercase tracking-wide text-[#666] mb-1">{label(d.month)} {d.month.split('-')[0]}</p>
-                <p className="text-[12px] text-white tabular-nums">{formatMoney(d.income, currency, { compact: true })} <span className="text-[#6FA02E]">in</span></p>
+                <p className="text-[12px] text-white tabular-nums">{formatMoney(d.income, currency, { compact: true, locale })} <span className="text-[#6FA02E]">{t('dash.in')}</span></p>
                 {d.expense > 0 && (
                   <>
-                    <p className="text-[12px] text-white tabular-nums">{formatMoney(d.expense, currency, { compact: true })} <span className="text-[#D9563A]">out</span></p>
-                    <p className="text-[11px] text-[#888] tabular-nums mt-0.5">net {formatMoney(net, currency, { compact: true })}</p>
+                    <p className="text-[12px] text-white tabular-nums">{formatMoney(d.expense, currency, { compact: true, locale })} <span className="text-[#D9563A]">{t('dash.out')}</span></p>
+                    <p className="text-[11px] text-[#888] tabular-nums mt-0.5">{t('dash.net')} {formatMoney(net, currency, { compact: true, locale })}</p>
                   </>
                 )}
               </div>
               {/* Peak direct-label */}
               {i === peakIdx && d.income > 0 && (
                 <span className="absolute -top-0.5 text-[9px] font-semibold text-[#C8FF47] tabular-nums">
-                  {formatMoney(d.income, currency, { compact: true })}
+                  {formatMoney(d.income, currency, { compact: true, locale })}
                 </span>
               )}
               <div
@@ -77,6 +79,7 @@ export function HBars({
   currency: Currency
   emptyText?: string
 }) {
+  const { locale } = useFinanceLang()
   if (!items.length) return <p className="py-8 text-center text-sm text-[#444]">{emptyText}</p>
   const max = Math.max(1, ...items.map((i) => i.value))
 
@@ -92,7 +95,7 @@ export function HBars({
                 <span className="truncate">{it.label}</span>
                 {it.sub && <span className="text-[#555] text-[11px]">{it.sub}</span>}
               </span>
-              <span className="text-white tabular-nums flex-shrink-0 ml-3">{formatMoney(it.value, currency, { compact: true })}</span>
+              <span className="text-white tabular-nums flex-shrink-0 ml-3">{formatMoney(it.value, currency, { compact: true, locale })}</span>
             </div>
             <div className="h-2 rounded-full bg-[#1A1A1A] overflow-hidden">
               <div

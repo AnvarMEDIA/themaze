@@ -38,7 +38,8 @@ export function formatMoney(
     notation: compact ? 'compact' : 'standard',
   })
   const num = nf.format(amount)
-  if (currency === 'UZS') return `${num} so’m`
+  // UZS symbol is unfamiliar; spell it out, localised (so'm / сум).
+  if (currency === 'UZS') return `${num} ${locale.startsWith('ru') ? 'сум' : 'so’m'}`
   return `${CURRENCY_META[currency].symbol}${num}`
 }
 

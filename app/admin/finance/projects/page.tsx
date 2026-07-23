@@ -6,10 +6,12 @@ import toast from 'react-hot-toast'
 import { formatMoney } from '@/lib/finance/money'
 import type { Currency, FinanceClient, FinanceProject, FinanceTransaction } from '@/lib/finance/types'
 import { ProjectForm } from '@/components/admin/finance/ProjectForm'
-import { FIN_COLORS, STATUS_LABEL } from '@/components/admin/finance/tokens'
+import { FIN_COLORS } from '@/components/admin/finance/tokens'
+import { useFinanceLang } from '@/components/admin/finance/lang'
 
 export default function ProjectsPage() {
   const router = useRouter()
+  const { t, locale, tStatus } = useFinanceLang()
   const [projects, setProjects] = useState<FinanceProject[]>([])
   const [clients, setClients] = useState<FinanceClient[]>([])
   const [txns, setTxns] = useState<FinanceTransaction[]>([])
@@ -34,30 +36,28 @@ export default function ProjectsPage() {
   useEffect(() => { if (new URLSearchParams(window.location.search).get('new')) openNew() }, [])
 
   const cliName = useMemo(() => new Map(clients.map((c) => [c.id, c.company || c.name])), [clients])
-  // Received per project, counting only same-currency income (avoids mixing).
   const paidByProject = useMemo(() => {
     const m = new Map<string, number>()
-    for (const t of txns) {
-      if (t.type !== 'income' || !t.projectId) continue
-      const proj = projects.find((p) => p.id === t.projectId)
-      if (!proj || proj.currency !== t.currency) continue
-      m.set(t.projectId, (m.get(t.projectId) ?? 0) + t.amount)
+    for (const tx of txns) {
+      if (tx.type !== 'income' || !tx.projectId) continue
+      const proj = projects.find((p) => p.id === tx.projectId)
+      if (!proj || proj.currency !== tx.currency) continue
+      m.set(tx.projectId, (m.get(tx.projectId) ?? 0) + tx.amount)
     }
     return m
   }, [txns, projects])
 
-  // Prepayment per project: the payment tagged "Prepayment", else the earliest.
   const prepayByProject = useMemo(() => {
     const byProj = new Map<string, FinanceTransaction[]>()
-    for (const t of txns) {
-      if (t.type !== 'income' || !t.projectId) continue
-      if (!byProj.has(t.projectId)) byProj.set(t.projectId, [])
-      byProj.get(t.projectId)!.push(t)
+    for (const tx of txns) {
+      if (tx.type !== 'income' || !tx.projectId) continue
+      if (!byProj.has(tx.projectId)) byProj.set(tx.projectId, [])
+      byProj.get(tx.projectId)!.push(tx)
     }
     const m = new Map<string, { amount: number; date: string; currency: Currency }>()
     for (const [pid, list] of byProj) {
       const pre =
-        list.find((t) => t.category.trim().toLowerCase() === 'prepayment') ??
+        list.find((tx) => tx.category.trim().toLowerCase() === 'prepayment') ??
         [...list].sort((a, b) => (a.date < b.date ? -1 : 1))[0]
       if (pre) m.set(pid, { amount: pre.amount, date: pre.date, currency: pre.currency })
     }
@@ -68,22 +68,22 @@ export default function ProjectsPage() {
   const openEdit = (p: FinanceProject) => { setEditing(p); setFormOpen(true) }
 
   const del = async (p: FinanceProject) => {
-    if (!window.confirm(`Delete “${p.title}”? Linked payments stay but lose the link.`)) return
+    if (!window.confirm(t('projs.confirmDelete', { name: p.title }))) return
     const res = await fetch(`/api/finance/projects/${p.id}`, { method: 'DELETE' })
     if (res.status === 401) { router.push('/admin/finance/unlock'); return }
-    if (res.ok) { toast.success('Project deleted'); setProjects((x) => x.filter((r) => r.id !== p.id)) }
-    else toast.error('Could not delete')
+    if (res.ok) { toast.success(t('toast.deleted')); setProjects((x) => x.filter((r) => r.id !== p.id)) }
+    else toast.error(t('toast.deleteFail'))
   }
 
   return (
     <div className="px-6 py-8 max-w-[1400px] mx-auto">
       <div className="flex items-center justify-between gap-4 mb-6">
         <div>
-          <h1 className="text-xl font-bold text-white tracking-tight">Projects</h1>
-          <p className="text-sm text-[#555] mt-0.5">Contracts and their payment progress.</p>
+          <h1 className="text-xl font-bold text-white tracking-tight">{t('projs.title')}</h1>
+          <p className="text-sm text-[#555] mt-0.5">{t('projs.subtitle')}</p>
         </div>
         <button onClick={openNew} className="inline-flex items-center gap-2 px-4 py-2.5 rounded-lg bg-[#C8FF47] text-[#0A0A0A] text-sm font-bold hover:bg-[#F0EEE6] transition-colors active:scale-[0.97]">
-          <span className="text-base leading-none">+</span> Add project
+          <span className="text-base leading-none">+</span> {t('projs.add')}
         </button>
       </div>
 
@@ -91,9 +91,9 @@ export default function ProjectsPage() {
         <div className="space-y-3">{[...Array(5)].map((_, i) => <div key={i} className="h-24 rounded-xl bg-[#0D0D0D] border border-[#1A1A1A] animate-pulse" />)}</div>
       ) : projects.length === 0 ? (
         <div className="rounded-xl border border-[#1E1E1E] bg-[#0D0D0D] py-16 text-center">
-          <p className="text-white font-semibold mb-1">No projects yet</p>
-          <p className="text-sm text-[#666] mb-5">Add a contract to track its value and payments.</p>
-          <button onClick={openNew} className="px-4 py-2 rounded-lg bg-[#C8FF47] text-[#0A0A0A] text-sm font-bold hover:bg-[#F0EEE6] transition-colors active:scale-[0.97]">Add your first project</button>
+          <p className="text-white font-semibold mb-1">{t('projs.emptyTitle')}</p>
+          <p className="text-sm text-[#666] mb-5">{t('projs.emptyBody')}</p>
+          <button onClick={openNew} className="px-4 py-2 rounded-lg bg-[#C8FF47] text-[#0A0A0A] text-sm font-bold hover:bg-[#F0EEE6] transition-colors active:scale-[0.97]">{t('projs.addFirst')}</button>
         </div>
       ) : (
         <div className="space-y-3">
@@ -112,13 +112,13 @@ export default function ProjectsPage() {
                       <h3 className="text-[15px] font-semibold text-white truncate">{p.title}</h3>
                     </div>
                     <p className="text-[12px] text-[#777]">
-                      {p.clientId ? cliName.get(p.clientId) ?? 'Unknown client' : 'No client'}
+                      {p.clientId ? cliName.get(p.clientId) ?? t('projs.unknownClient') : t('projs.noClient')}
                       {p.startDate && <span className="text-[#444]"> · {p.startDate}{p.endDate ? ` → ${p.endDate}` : ''}</span>}
                     </p>
                   </div>
                   <div className="text-right flex-shrink-0">
-                    <p className="text-[15px] font-bold text-white tabular-nums">{formatMoney(p.amount, p.currency)}</p>
-                    <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full" style={{ color, background: `${color}1A` }}>{STATUS_LABEL[p.status]}</span>
+                    <p className="text-[15px] font-bold text-white tabular-nums">{formatMoney(p.amount, p.currency, { locale })}</p>
+                    <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full" style={{ color, background: `${color}1A` }}>{tStatus(p.status)}</span>
                   </div>
                 </div>
 
@@ -129,18 +129,18 @@ export default function ProjectsPage() {
                     </div>
                     <div className="grid grid-cols-3 gap-2 text-[11px] tabular-nums">
                       <div>
-                        <p className="text-[#555] mb-0.5">Prepaid</p>
-                        <p className="text-[#bbb]">{prepay ? formatMoney(prepay.amount, prepay.currency) : '—'}</p>
+                        <p className="text-[#555] mb-0.5">{t('projs.prepaid')}</p>
+                        <p className="text-[#bbb]">{prepay ? formatMoney(prepay.amount, prepay.currency, { locale }) : '—'}</p>
                         {prepay && <p className="text-[#444] mt-0.5">{prepay.date}</p>}
                       </div>
                       <div>
-                        <p className="text-[#555] mb-0.5">Received</p>
-                        <p className="text-[#8FC748]">{formatMoney(paid, p.currency)}</p>
+                        <p className="text-[#555] mb-0.5">{t('projs.received')}</p>
+                        <p className="text-[#8FC748]">{formatMoney(paid, p.currency, { locale })}</p>
                       </div>
                       <div>
-                        <p className="text-[#555] mb-0.5">Outstanding</p>
+                        <p className="text-[#555] mb-0.5">{t('projs.outstanding')}</p>
                         <p className={outstanding > 0 ? 'text-[#ddd]' : 'text-[#6FA02E]'}>
-                          {outstanding > 0 ? formatMoney(outstanding, p.currency) : 'Paid in full'}
+                          {outstanding > 0 ? formatMoney(outstanding, p.currency, { locale }) : t('projs.paidInFull')}
                         </p>
                       </div>
                     </div>
@@ -148,8 +148,8 @@ export default function ProjectsPage() {
                 )}
 
                 <div className="flex items-center gap-3 pt-3 mt-2 border-t border-[#161616] opacity-0 group-hover:opacity-100 transition-opacity">
-                  <button onClick={() => openEdit(p)} className="text-xs text-[#888] hover:text-[#C8FF47]">Edit</button>
-                  <button onClick={() => del(p)} className="text-xs text-[#888] hover:text-red-400">Delete</button>
+                  <button onClick={() => openEdit(p)} className="text-xs text-[#888] hover:text-[#C8FF47]">{t('common.edit')}</button>
+                  <button onClick={() => del(p)} className="text-xs text-[#888] hover:text-red-400">{t('common.delete')}</button>
                 </div>
               </div>
             )

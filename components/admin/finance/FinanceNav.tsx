@@ -4,18 +4,20 @@ import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
 import { useState } from 'react'
 import toast from 'react-hot-toast'
+import { useFinanceLang, LangToggle } from './lang'
 
 const TABS = [
-  { href: '/admin/finance',              label: 'Dashboard' },
-  { href: '/admin/finance/transactions', label: 'Transactions' },
-  { href: '/admin/finance/projects',     label: 'Projects' },
-  { href: '/admin/finance/clients',      label: 'Clients' },
-  { href: '/admin/finance/settings',     label: 'Settings' },
+  { href: '/admin/finance',              key: 'nav.dashboard' },
+  { href: '/admin/finance/transactions', key: 'nav.transactions' },
+  { href: '/admin/finance/projects',     key: 'nav.projects' },
+  { href: '/admin/finance/clients',      key: 'nav.clients' },
+  { href: '/admin/finance/settings',     key: 'nav.settings' },
 ]
 
 export function FinanceNav() {
   const pathname = usePathname()
   const router = useRouter()
+  const { t } = useFinanceLang()
   const [locking, setLocking] = useState(false)
 
   // The unlock screen renders without the nav (user isn't in yet).
@@ -27,7 +29,7 @@ export function FinanceNav() {
   const lock = async () => {
     setLocking(true)
     await fetch('/api/finance/lock', { method: 'POST' })
-    toast.success('Finance locked')
+    toast.success(t('toast.locked'))
     router.push('/admin/finance/unlock')
     router.refresh()
   }
@@ -39,34 +41,37 @@ export function FinanceNav() {
           <span className="w-6 h-6 flex items-center justify-center rounded-md bg-[#C8FF47]/12 text-[#C8FF47]">
             <IconVault size={14} />
           </span>
-          <span className="text-[13px] font-semibold text-white tracking-tight hidden sm:block">Finance</span>
+          <span className="text-[13px] font-semibold text-white tracking-tight hidden sm:block">{t('nav.finance')}</span>
         </div>
 
         <nav className="flex items-center gap-0.5 overflow-x-auto">
-          {TABS.map((t) => (
+          {TABS.map((tab) => (
             <Link
-              key={t.href}
-              href={t.href}
+              key={tab.href}
+              href={tab.href}
               className={`px-3 py-1.5 rounded-lg text-[13px] font-medium whitespace-nowrap transition-colors duration-150 ${
-                isActive(t.href)
+                isActive(tab.href)
                   ? 'bg-[#C8FF47]/10 text-[#C8FF47]'
                   : 'text-[#888] hover:text-white hover:bg-[#161616]'
               }`}
             >
-              {t.label}
+              {t(tab.key)}
             </Link>
           ))}
         </nav>
 
-        <button
-          onClick={lock}
-          disabled={locking}
-          className="ml-auto flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[13px] font-medium text-[#888] hover:text-[#C8FF47] hover:bg-[#161616] transition-colors active:scale-[0.97] disabled:opacity-50"
-          title="Lock the finance area"
-        >
-          <IconLock size={14} />
-          <span className="hidden sm:inline">Lock</span>
-        </button>
+        <div className="ml-auto flex items-center gap-2">
+          <LangToggle />
+          <button
+            onClick={lock}
+            disabled={locking}
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[13px] font-medium text-[#888] hover:text-[#C8FF47] hover:bg-[#161616] transition-colors active:scale-[0.97] disabled:opacity-50"
+            title={t('nav.lockTitle')}
+          >
+            <IconLock size={14} />
+            <span className="hidden sm:inline">{t('nav.lock')}</span>
+          </button>
+        </div>
       </div>
     </div>
   )
