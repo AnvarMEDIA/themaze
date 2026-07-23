@@ -655,3 +655,12 @@ html.lenis, html.lenis body {
   from { opacity: 0; transform: scale(0.97); }
   to   { opacity: 1; transform: scale(1); }
 }
+
+/* Hide the horizontal scrollbar on the finance tab strip (still scrolls) */
+.scrollbar-none {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+.scrollbar-none::-webkit-scrollbar {
+  display: none;
+}

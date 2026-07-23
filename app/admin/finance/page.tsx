@@ -53,18 +53,19 @@ export default function FinanceDashboard() {
   return (
     <div className="px-6 py-8 max-w-[1400px] mx-auto">
       {/* Header */}
-      <div className="flex items-end justify-between gap-4 mb-8">
-        <div>
-          <h1 className="text-2xl font-bold text-white tracking-tight">{t('dash.title')}</h1>
+      <div className="flex items-start sm:items-end justify-between gap-4 mb-8">
+        <div className="min-w-0">
+          <h1 className="text-xl sm:text-2xl font-bold text-white tracking-tight">{t('dash.title')}</h1>
           <p className="text-sm text-[#555] mt-1">
             {t('dash.figuresIn')} <span className="text-[#888] font-medium">{baseCurrency}</span> · {t('dash.convertedAt')}
           </p>
         </div>
         <Link
           href="/admin/finance/transactions?new=1"
-          className="hidden sm:inline-flex items-center gap-2 px-4 py-2.5 rounded-lg bg-[#C8FF47] text-[#0A0A0A] text-sm font-bold hover:bg-[#F0EEE6] transition-colors active:scale-[0.97]"
+          className="inline-flex items-center gap-2 px-3 sm:px-4 py-2.5 rounded-lg bg-[#C8FF47] text-[#0A0A0A] text-sm font-bold hover:bg-[#F0EEE6] transition-colors active:scale-[0.97] flex-shrink-0"
         >
-          <span className="text-base leading-none">+</span> {t('dash.recordPayment')}
+          <span className="text-base leading-none">+</span>
+          <span className="hidden sm:inline">{t('dash.recordPayment')}</span>
         </Link>
       </div>
 

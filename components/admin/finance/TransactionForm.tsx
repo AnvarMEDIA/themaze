@@ -18,7 +18,7 @@ const base = () => ({
 })
 
 export function TransactionForm({
-  open, initial, projects, clients, onClose, onSaved,
+  open, initial, projects, clients, onClose, onSaved, onDelete,
 }: {
   open: boolean
   initial: FinanceTransaction | null
@@ -26,6 +26,7 @@ export function TransactionForm({
   clients: FinanceClient[]
   onClose: () => void
   onSaved: () => void
+  onDelete?: () => void
 }) {
   const { t, tMethod } = useFinanceLang()
   const [f, setF] = useState(base())
@@ -145,7 +146,12 @@ export function TransactionForm({
         </div>
 
         <Field label={t('tf.note')}><Area value={f.note} onChange={set('note')} placeholder={t('common.optional')} rows={2} /></Field>
-        <FormActions busy={busy} onCancel={onClose} submitLabel={initial ? t('tf.saveChanges') : income ? t('tf.recordPayment') : t('tf.recordExpense')} />
+        <FormActions
+          busy={busy}
+          onCancel={onClose}
+          onDelete={initial && onDelete ? onDelete : undefined}
+          submitLabel={initial ? t('tf.saveChanges') : income ? t('tf.recordPayment') : t('tf.recordExpense')}
+        />
       </form>
     </Modal>
   )

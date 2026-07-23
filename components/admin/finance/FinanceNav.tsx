@@ -35,16 +35,16 @@ export function FinanceNav() {
   }
 
   return (
-    <div className="sticky top-0 z-30 bg-[#080808]/85 backdrop-blur border-b border-[#1A1A1A]">
-      <div className="flex items-center gap-1 px-6 h-14 max-w-[1400px] mx-auto">
-        <div className="flex items-center gap-2 mr-4">
+    <div className="sticky top-14 lg:top-0 z-30 bg-[#080808]/85 backdrop-blur border-b border-[#1A1A1A]">
+      <div className="flex items-center gap-1 px-4 lg:px-6 h-14 max-w-[1400px] mx-auto">
+        <div className="flex items-center gap-2 mr-2 sm:mr-4 flex-shrink-0">
           <span className="w-6 h-6 flex items-center justify-center rounded-md bg-[#C8FF47]/12 text-[#C8FF47]">
             <IconVault size={14} />
           </span>
           <span className="text-[13px] font-semibold text-white tracking-tight hidden sm:block">{t('nav.finance')}</span>
         </div>
 
-        <nav className="flex items-center gap-0.5 overflow-x-auto">
+        <nav className="flex items-center gap-0.5 overflow-x-auto scrollbar-none min-w-0 flex-1">
           {TABS.map((tab) => (
             <Link
               key={tab.href}
@@ -60,7 +60,7 @@ export function FinanceNav() {
           ))}
         </nav>
 
-        <div className="ml-auto flex items-center gap-2">
+        <div className="ml-auto flex items-center gap-1.5 sm:gap-2 flex-shrink-0 pl-1.5">
           <LangToggle />
           <button
             onClick={lock}

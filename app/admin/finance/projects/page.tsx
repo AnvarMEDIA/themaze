@@ -78,11 +78,11 @@ export default function ProjectsPage() {
   return (
     <div className="px-6 py-8 max-w-[1400px] mx-auto">
       <div className="flex items-center justify-between gap-4 mb-6">
-        <div>
+        <div className="min-w-0">
           <h1 className="text-xl font-bold text-white tracking-tight">{t('projs.title')}</h1>
           <p className="text-sm text-[#555] mt-0.5">{t('projs.subtitle')}</p>
         </div>
-        <button onClick={openNew} className="inline-flex items-center gap-2 px-4 py-2.5 rounded-lg bg-[#C8FF47] text-[#0A0A0A] text-sm font-bold hover:bg-[#F0EEE6] transition-colors active:scale-[0.97]">
+        <button onClick={openNew} className="inline-flex items-center gap-2 px-3 sm:px-4 py-2.5 rounded-lg bg-[#C8FF47] text-[#0A0A0A] text-sm font-bold hover:bg-[#F0EEE6] transition-colors active:scale-[0.97] whitespace-nowrap flex-shrink-0">
           <span className="text-base leading-none">+</span> {t('projs.add')}
         </button>
       </div>
@@ -147,9 +147,9 @@ export default function ProjectsPage() {
                   </>
                 )}
 
-                <div className="flex items-center gap-3 pt-3 mt-2 border-t border-[#161616] opacity-0 group-hover:opacity-100 transition-opacity">
-                  <button onClick={() => openEdit(p)} className="text-xs text-[#888] hover:text-[#C8FF47]">{t('common.edit')}</button>
-                  <button onClick={() => del(p)} className="text-xs text-[#888] hover:text-red-400">{t('common.delete')}</button>
+                <div className="flex items-center gap-4 pt-3 mt-2 border-t border-[#161616] transition-opacity [@media(hover:hover)_and_(pointer:fine)]:opacity-0 [@media(hover:hover)_and_(pointer:fine)]:group-hover:opacity-100">
+                  <button onClick={() => openEdit(p)} className="text-xs text-[#888] hover:text-[#C8FF47] py-0.5">{t('common.edit')}</button>
+                  <button onClick={() => del(p)} className="text-xs text-[#888] hover:text-red-400 py-0.5">{t('common.delete')}</button>
                 </div>
               </div>
             )

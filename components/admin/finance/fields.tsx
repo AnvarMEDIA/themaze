@@ -97,19 +97,30 @@ export function NumberField({
 }
 
 export function FormActions({
-  busy, onCancel, submitLabel,
+  busy, onCancel, submitLabel, onDelete,
 }: {
   busy?: boolean
   onCancel: () => void
   submitLabel?: string
+  /** When provided, a Delete button appears on the left (used for editing). */
+  onDelete?: () => void
 }) {
   const { t } = useFinanceLang()
   return (
-    <div className="flex items-center justify-end gap-2 pt-2">
+    <div className="flex items-center gap-2 pt-2">
+      {onDelete && (
+        <button
+          type="button"
+          onClick={onDelete}
+          className="mr-auto px-3 py-2.5 rounded-lg text-sm text-red-400 hover:bg-red-500/10 transition-colors active:scale-[0.97]"
+        >
+          {t('common.delete')}
+        </button>
+      )}
       <button
         type="button"
         onClick={onCancel}
-        className="px-4 py-2.5 rounded-lg text-sm text-[#999] hover:text-white hover:bg-[#161616] transition-colors active:scale-[0.97]"
+        className={`${onDelete ? '' : 'ml-auto'} px-4 py-2.5 rounded-lg text-sm text-[#999] hover:text-white hover:bg-[#161616] transition-colors active:scale-[0.97]`}
       >
         {t('common.cancel')}
       </button>

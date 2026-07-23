@@ -38,7 +38,13 @@ const NAV = [
   },
 ]
 
-export function AdminSidebar() {
+export function AdminSidebar({
+  mobileOpen = false,
+  onNavigate,
+}: {
+  mobileOpen?: boolean
+  onNavigate?: () => void
+} = {}) {
   const pathname = usePathname()
   const router   = useRouter()
   const [pending, setPending] = useState(false)
@@ -57,10 +63,14 @@ export function AdminSidebar() {
   }
 
   return (
-    <aside className="fixed top-0 left-0 bottom-0 w-56 bg-[#0D0D0D] border-r border-[#1E1E1E] flex flex-col z-40">
+    <aside
+      className={`fixed top-0 left-0 bottom-0 w-56 bg-[#0D0D0D] border-r border-[#1E1E1E] flex flex-col z-50 transition-transform duration-200 ease-out lg:translate-x-0 ${
+        mobileOpen ? 'translate-x-0' : '-translate-x-full'
+      }`}
+    >
       {/* Logo */}
-      <div className="px-5 py-5 border-b border-[#1E1E1E]">
-        <Link href="/admin" className="flex items-center gap-2.5">
+      <div className="px-5 py-5 border-b border-[#1E1E1E] flex items-center justify-between">
+        <Link href="/admin" onClick={onNavigate} className="flex items-center gap-2.5">
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
             src="https://1jorjbbfajvf5rug.public.blob.vercel-storage.com/maze_logo.svg"
@@ -71,6 +81,15 @@ export function AdminSidebar() {
             Admin
           </span>
         </Link>
+        <button
+          onClick={onNavigate}
+          aria-label="Close menu"
+          className="lg:hidden w-8 h-8 -mr-1 flex items-center justify-center rounded-lg text-[#777] hover:text-white hover:bg-[#1A1A1A] transition-colors active:scale-95"
+        >
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+            <path d="M4 4l8 8M12 4l-8 8" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+          </svg>
+        </button>
       </div>
 
       {/* Nav */}
@@ -85,6 +104,7 @@ export function AdminSidebar() {
                 <li key={href}>
                   <Link
                     href={href}
+                    onClick={onNavigate}
                     className={`flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors duration-150 ${
                       isActive(href)
                         ? 'bg-[#C8FF47]/10 text-[#C8FF47]'
@@ -106,6 +126,7 @@ export function AdminSidebar() {
         <Link
           href="/"
           target="_blank"
+          onClick={onNavigate}
           className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-[#777] hover:text-white hover:bg-[#1A1A1A] transition-colors"
         >
           <IconExternal size={16} />

@@ -43,12 +43,19 @@ export default function TransactionsPage() {
   const openNew = () => { setEditing(null); setFormOpen(true) }
   const openEdit = (tx: FinanceTransaction) => { setEditing(tx); setFormOpen(true) }
 
-  const del = async (tx: FinanceTransaction) => {
-    if (!window.confirm(t('txns.confirmDelete'))) return
+  const del = async (tx: FinanceTransaction): Promise<boolean> => {
+    if (!window.confirm(t('txns.confirmDelete'))) return false
     const res = await fetch(`/api/finance/transactions/${tx.id}`, { method: 'DELETE' })
-    if (res.status === 401) { router.push('/admin/finance/unlock'); return }
-    if (res.ok) { toast.success(t('toast.deleted')); setTxns((x) => x.filter((r) => r.id !== tx.id)) }
-    else toast.error(t('toast.deleteFail'))
+    if (res.status === 401) { router.push('/admin/finance/unlock'); return false }
+    if (res.ok) { toast.success(t('toast.deleted')); setTxns((x) => x.filter((r) => r.id !== tx.id)); return true }
+    toast.error(t('toast.deleteFail'))
+    return false
+  }
+
+  // Delete from within the edit modal (used on mobile, where the row has no
+  // inline action buttons).
+  const delFromForm = async () => {
+    if (editing && (await del(editing))) setFormOpen(false)
   }
 
   const rows = filter === 'all' ? txns : txns.filter((tx) => tx.type === filter)
@@ -59,11 +66,11 @@ export default function TransactionsPage() {
   return (
     <div className="px-6 py-8 max-w-[1400px] mx-auto">
       <div className="flex items-center justify-between gap-4 mb-6">
-        <div>
+        <div className="min-w-0">
           <h1 className="text-xl font-bold text-white tracking-tight">{t('txns.title')}</h1>
           <p className="text-sm text-[#555] mt-0.5">{t('txns.subtitle')}</p>
         </div>
-        <button onClick={openNew} className="inline-flex items-center gap-2 px-4 py-2.5 rounded-lg bg-[#C8FF47] text-[#0A0A0A] text-sm font-bold hover:bg-[#F0EEE6] transition-colors active:scale-[0.97]">
+        <button onClick={openNew} className="inline-flex items-center gap-2 px-3 sm:px-4 py-2.5 rounded-lg bg-[#C8FF47] text-[#0A0A0A] text-sm font-bold hover:bg-[#F0EEE6] transition-colors active:scale-[0.97] whitespace-nowrap flex-shrink-0">
           <span className="text-base leading-none">+</span> {t('txns.record')}
         </button>
       </div>
@@ -92,29 +99,34 @@ export default function TransactionsPage() {
             <button onClick={openNew} className="text-sm text-[#C8FF47] hover:underline">{t('txns.recordFirst')}</button>
           </div>
         ) : (
+          <div className="overflow-x-auto">
           <table className="w-full text-sm">
             <thead>
               <tr className="text-left text-[11px] uppercase tracking-wide text-[#555] border-b border-[#1A1A1A]">
-                <th className="font-medium px-5 py-3">{t('txns.colDate')}</th>
+                <th className="font-medium px-3 sm:px-5 py-3 hidden sm:table-cell">{t('txns.colDate')}</th>
                 <th className="font-medium px-3 py-3">{t('txns.colCategory')}</th>
                 <th className="font-medium px-3 py-3 hidden md:table-cell">{t('txns.colProject')}</th>
                 <th className="font-medium px-3 py-3 hidden lg:table-cell">{t('txns.colClient')}</th>
                 <th className="font-medium px-3 py-3 hidden sm:table-cell">{t('txns.colMethod')}</th>
                 <th className="font-medium px-3 py-3 text-right">{t('txns.colAmount')}</th>
-                <th className="px-5 py-3" />
+                <th className="px-3 sm:px-5 py-3 hidden sm:table-cell" />
               </tr>
             </thead>
             <tbody>
               {rows.map((tx) => (
-                <tr key={tx.id} className="border-b border-[#151515] last:border-b-0 hover:bg-[#111] transition-colors group">
-                  <td className="px-5 py-3 text-[#999] tabular-nums whitespace-nowrap">{tx.date}</td>
+                <tr key={tx.id} onClick={() => openEdit(tx)} className="border-b border-[#151515] last:border-b-0 hover:bg-[#111] transition-colors group cursor-pointer">
+                  <td className="px-3 sm:px-5 py-3 text-[#999] tabular-nums whitespace-nowrap hidden sm:table-cell">{tx.date}</td>
                   <td className="px-3 py-3">
-                    <span className="flex items-center gap-2">
-                      <span className="text-xs" style={{ color: tx.type === 'income' ? '#8FC748' : '#E27A5C' }} aria-hidden="true">
+                    <div className="flex items-center gap-2">
+                      <span className="text-xs flex-shrink-0" style={{ color: tx.type === 'income' ? '#8FC748' : '#E27A5C' }} aria-hidden="true">
                         {tx.type === 'income' ? '↓' : '↑'}
                       </span>
-                      <span className="text-white truncate max-w-[160px]">{tx.category || (tx.type === 'income' ? t('txn.payment') : t('txn.expense'))}</span>
-                    </span>
+                      <div className="min-w-0">
+                        <p className="text-white truncate sm:max-w-[220px]">{tx.category || (tx.type === 'income' ? t('txn.payment') : t('txn.expense'))}</p>
+                        {/* Date moves under the category on mobile (its own column is hidden). */}
+                        <p className="text-[11px] text-[#666] tabular-nums sm:hidden">{tx.date}</p>
+                      </div>
+                    </div>
                   </td>
                   <td className="px-3 py-3 text-[#888] hidden md:table-cell truncate max-w-[160px]">{tx.projectId ? projName.get(tx.projectId) ?? '—' : '—'}</td>
                   <td className="px-3 py-3 text-[#888] hidden lg:table-cell truncate max-w-[140px]">{tx.clientId ? cliName.get(tx.clientId) ?? '—' : '—'}</td>
@@ -122,16 +134,17 @@ export default function TransactionsPage() {
                   <td className="px-3 py-3 text-right tabular-nums font-medium whitespace-nowrap" style={{ color: tx.type === 'income' ? '#8FC748' : '#E27A5C' }}>
                     {tx.type === 'income' ? '+' : '−'}{formatMoney(tx.amount, tx.currency, { locale })}
                   </td>
-                  <td className="px-5 py-3 text-right whitespace-nowrap">
-                    <span className="opacity-0 group-hover:opacity-100 transition-opacity">
-                      <button onClick={() => openEdit(tx)} className="text-xs text-[#666] hover:text-[#C8FF47] mr-3">{t('common.edit')}</button>
-                      <button onClick={() => del(tx)} className="text-xs text-[#666] hover:text-red-400">{t('common.delete')}</button>
+                  <td className="px-3 sm:px-5 py-3 text-right whitespace-nowrap hidden sm:table-cell">
+                    <span className="transition-opacity [@media(hover:hover)_and_(pointer:fine)]:opacity-0 [@media(hover:hover)_and_(pointer:fine)]:group-hover:opacity-100">
+                      <button onClick={(e) => { e.stopPropagation(); openEdit(tx) }} className="text-xs text-[#888] hover:text-[#C8FF47] mr-3">{t('common.edit')}</button>
+                      <button onClick={(e) => { e.stopPropagation(); del(tx) }} className="text-xs text-[#888] hover:text-red-400">{t('common.delete')}</button>
                     </span>
                   </td>
                 </tr>
               ))}
             </tbody>
           </table>
+          </div>
         )}
       </div>
 
@@ -142,6 +155,7 @@ export default function TransactionsPage() {
         clients={clients}
         onClose={() => setFormOpen(false)}
         onSaved={load}
+        onDelete={delFromForm}
       />
     </div>
   )
