@@ -5,9 +5,10 @@ import { AdminSidebar } from './AdminSidebar'
 
 export function AdminShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname()
-  const isLogin  = pathname === '/admin/login'
+  // Full-bleed (no sidebar) on standalone gate screens.
+  const isFullBleed = pathname === '/admin/login' || pathname === '/admin/finance/unlock'
 
-  if (isLogin) return <>{children}</>
+  if (isFullBleed) return <>{children}</>
 
   return (
     <div className="flex min-h-screen">

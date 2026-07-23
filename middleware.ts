@@ -51,12 +51,41 @@ export async function middleware(req: NextRequest) {
           issuer:     'maze.uz/admin',
           audience:   'maze.uz/admin-ui',
         })
-        return addSecurityHeaders(NextResponse.next())
       } catch {
         const res = NextResponse.redirect(new URL('/admin/login', req.url))
         res.cookies.delete('maze_admin_token')
         return res
       }
+
+      // ── Finance second gate ──────────────────────────────────────
+      // The finance area requires a SEPARATE finance token on top of a
+      // valid admin session. The unlock screen itself is exempt so the
+      // user can get in. Distinct audience means an admin token can't
+      // stand in for a finance token.
+      if (
+        pathname.startsWith('/admin/finance') &&
+        !pathname.startsWith('/admin/finance/unlock')
+      ) {
+        const financeToken = req.cookies.get('maze_finance_token')?.value
+        let financeOk = false
+        if (financeToken) {
+          try {
+            await jwtVerify(financeToken, getSecret(), {
+              algorithms: ['HS256'],
+              issuer:     'maze.uz/admin',
+              audience:   'maze.uz/finance',
+            })
+            financeOk = true
+          } catch {
+            financeOk = false
+          }
+        }
+        if (!financeOk) {
+          return NextResponse.redirect(new URL('/admin/finance/unlock', req.url))
+        }
+      }
+
+      return addSecurityHeaders(NextResponse.next())
     }
     return addSecurityHeaders(NextResponse.next())
   }

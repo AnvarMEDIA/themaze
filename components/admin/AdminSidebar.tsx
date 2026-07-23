@@ -25,6 +25,12 @@ const NAV = [
     ],
   },
   {
+    group: 'Business',
+    items: [
+      { href: '/admin/finance',   label: 'Finance',    icon: IconFinance },
+    ],
+  },
+  {
     group: 'Site',
     items: [
       { href: '/admin/settings',  label: 'Settings',   icon: IconSettings },
@@ -192,6 +198,16 @@ function IconSettings({ size = 16 }: { size?: number }) {
     <svg width={size} height={size} viewBox="0 0 16 16" fill="none">
       <circle cx="8" cy="8" r="2.5" stroke="currentColor" strokeWidth="1.5"/>
       <path d="M8 1v2M8 13v2M1 8h2M13 8h2M3.05 3.05l1.41 1.41M11.54 11.54l1.41 1.41M3.05 12.95l1.41-1.41M11.54 4.46l1.41-1.41" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
+    </svg>
+  )
+}
+
+function IconFinance({ size = 16 }: { size?: number }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 16 16" fill="none">
+      <ellipse cx="8" cy="4" rx="5.2" ry="2.2" stroke="currentColor" strokeWidth="1.4" opacity=".85" />
+      <path d="M2.8 4v4c0 1.2 2.33 2.2 5.2 2.2s5.2-1 5.2-2.2V4" stroke="currentColor" strokeWidth="1.4" opacity=".55" />
+      <path d="M2.8 8v4c0 1.2 2.33 2.2 5.2 2.2s5.2-1 5.2-2.2V8" stroke="currentColor" strokeWidth="1.4" opacity=".4" />
     </svg>
   )
 }
