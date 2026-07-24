@@ -76,6 +76,26 @@ function localPath(name: string) {
   return path.join(process.cwd(), 'data', `${name}.json`)
 }
 
+/* ── Blob object naming ──────────────────────────────────────────────────
+ * Vercel Blob only supports public objects, so the URL itself is the access
+ * control: we write with `addRandomSuffix: true` to make it unguessable
+ * rather than at a predictable `maze-data/<key>.json` anyone could fetch.
+ * This store holds credentials (MFA secret, finance password hash), contact
+ * PII and the finance ledger, so a guessable path would publish all of it.
+ * (`app/api/backup/route.ts` already uses this same mitigation.)
+ *
+ * Reads don't need the exact name — `list()` is server-side and authorised
+ * by the token — so we match the key by prefix and take the newest object.
+ */
+const BLOB_DIR = 'maze-data'
+
+const escapeRe = (s: string) => s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+
+/** Matches `maze-data/<name>.json` (legacy) and `maze-data/<name>-<suffix>.json`. */
+export function isBlobForKey(pathname: string, name: string): boolean {
+  return new RegExp(`^${escapeRe(BLOB_DIR)}/${escapeRe(name)}(-[A-Za-z0-9_-]+)?\\.json$`).test(pathname)
+}
+
 export async function readStore<T>(name: string, fallback: T): Promise<T> {
   // Read-your-writes: serve the value this instance just wrote, bypassing
   // any Blob/CDN propagation lag.
@@ -105,13 +125,23 @@ export async function readStore<T>(name: string, fallback: T): Promise<T> {
   if (USE_BLOB) {
     try {
       const { list } = await import('@vercel/blob')
-      const { blobs } = await list({ prefix: `maze-data/${name}.json` })
-      if (blobs.length === 0) {
+      const { blobs } = await list({ prefix: `${BLOB_DIR}/${name}` })
+      // Prefix-match can catch neighbouring keys, so filter exactly; a write
+      // leaves exactly one object, but take the newest if a cleanup lagged.
+      const mine = blobs.filter((b) => isBlobForKey(b.pathname, name))
+      if (mine.length === 0) {
         return readLocal(name, fallback)
       }
-      const res = await fetch(blobs[0].downloadUrl, { cache: 'no-store' })
-      return res.json() as T
-    } catch {
+      const newest = mine.reduce((a, b) =>
+        new Date(b.uploadedAt).getTime() > new Date(a.uploadedAt).getTime() ? b : a,
+      )
+      const res = await fetch(newest.downloadUrl, { cache: 'no-store' })
+      // A CDN 404/500 returns an HTML body — without this check the JSON parse
+      // error is what surfaces, and callers can't tell "absent" from "broken".
+      if (!res.ok) throw new Error(`blob read failed: ${res.status}`)
+      return await res.json() as T
+    } catch (err) {
+      console.warn(`[store] Blob read failed for "${name}"`, err)
       return readLocal(name, fallback)
     }
   }
@@ -142,13 +172,22 @@ export async function writeStore<T>(name: string, data: T): Promise<void> {
   }
 
   if (USE_BLOB) {
-    const { put } = await import('@vercel/blob')
-    await put(`maze-data/${name}.json`, JSON.stringify(data, null, 2), {
+    const { put, list, del } = await import('@vercel/blob')
+    const { url } = await put(`${BLOB_DIR}/${name}.json`, JSON.stringify(data, null, 2), {
       access:          'public',
-      addRandomSuffix: false,
-      allowOverwrite:  true,
+      addRandomSuffix: true,  // unguessable URL — this store holds secrets/PII
+      allowOverwrite:  false,
       contentType:     'application/json',
     })
+    // Drop superseded copies, including any legacy predictable-path object
+    // from before the random suffix — that one is publicly enumerable.
+    try {
+      const { blobs } = await list({ prefix: `${BLOB_DIR}/${name}` })
+      const stale = blobs.filter((b) => isBlobForKey(b.pathname, name) && b.url !== url)
+      if (stale.length) await del(stale.map((b) => b.url))
+    } catch (err) {
+      console.warn(`[store] Blob cleanup failed for "${name}"`, err)
+    }
     return
   }
 

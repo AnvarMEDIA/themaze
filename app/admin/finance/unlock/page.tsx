@@ -10,6 +10,7 @@ export default function FinanceUnlockPage() {
   const { t } = useFinanceLang()
   const [mode, setMode] = useState<Mode>('loading')
   const [pw, setPw] = useState('')
+  const [adminPw, setAdminPw] = useState('')
   const [confirm, setConfirm] = useState('')
   const [busy, setBusy] = useState(false)
 
@@ -33,7 +34,7 @@ export default function FinanceUnlockPage() {
           ? await fetch('/api/finance/password', {
               method: 'POST',
               headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({ password: pw }),
+              body: JSON.stringify({ password: pw, adminPassword: adminPw }),
             })
           : await fetch('/api/finance/unlock', {
               method: 'POST',
@@ -45,9 +46,16 @@ export default function FinanceUnlockPage() {
 
       const data = await res.json().catch(() => ({})) as { error?: string }
       if (res.status === 429) toast.error(t('unlock.tooMany'))
-      else if (mode === 'set') toast.error(data.error === 'Invalid data' ? t('unlock.min6') : t('unlock.setFail'))
+      else if (mode === 'set') {
+        toast.error(
+          data.error === 'admin_password_required' ? t('unlock.adminPwWrong')
+          : data.error === 'Invalid data'          ? t('unlock.min6')
+          : t('unlock.setFail'),
+        )
+      }
       else toast.error(t('unlock.incorrect'))
       setPw('')
+      setAdminPw('')
       setConfirm('')
       setBusy(false)
     } catch {
@@ -92,7 +100,7 @@ export default function FinanceUnlockPage() {
               type="password"
               required
               autoFocus
-              minLength={setting ? 6 : undefined}
+              minLength={setting ? 8 : undefined}
               autoComplete={setting ? 'new-password' : 'current-password'}
               placeholder={setting ? t('unlock.newPlaceholder') : t('unlock.enterPlaceholder')}
               value={pw}
@@ -113,6 +121,22 @@ export default function FinanceUnlockPage() {
                 onChange={(e) => setConfirm(e.target.value)}
                 className="w-full bg-[#111] border border-[#252525] rounded-lg px-4 py-3.5 text-[#EDEBE3] placeholder:text-[#5A5A5A] focus:outline-none focus:border-[#C8FF47] transition-colors"
               />
+            </div>
+          )}
+
+          {setting && (
+            <div className="pt-1">
+              <label className="text-[11px] font-semibold tracking-[0.12em] uppercase text-[#5A5A5A] block mb-2">{t('unlock.adminPw')}</label>
+              <input
+                type="password"
+                required
+                autoComplete="current-password"
+                placeholder={t('unlock.adminPwPlaceholder')}
+                value={adminPw}
+                onChange={(e) => setAdminPw(e.target.value)}
+                className="w-full bg-[#111] border border-[#252525] rounded-lg px-4 py-3.5 text-[#EDEBE3] placeholder:text-[#5A5A5A] focus:outline-none focus:border-[#C8FF47] transition-colors"
+              />
+              <p className="text-[11px] text-[#5A5A5A] mt-1.5">{t('unlock.adminPwHint')}</p>
             </div>
           )}
 

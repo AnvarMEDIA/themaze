@@ -35,7 +35,7 @@ export default function NotFoundGlobal() {
             Lost in the maze.
           </h1>
           <p style={{ color: '#8A8A8A', fontSize: 18, lineHeight: 1.6, marginBottom: '2rem' }}>
-            The page you were looking for can't be found.
+            The page you were looking for can’t be found.
           </p>
           <Link
             href="/"

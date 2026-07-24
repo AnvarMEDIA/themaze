@@ -28,12 +28,22 @@ async function readDoc(slug: LegalSlug, locale: string): Promise<string | null> 
   ]
   for (const file of candidates) {
     try {
-      return await fs.readFile(file, 'utf-8')
+      return stripLeadingH1(await fs.readFile(file, 'utf-8'))
     } catch {
       /* try next */
     }
   }
   return null
+}
+
+/**
+ * Each document opens with a `# Title` that repeats the page heading rendered
+ * below, which produced two identical <h1>s per page — bad for SEO and for
+ * screen-reader document outline. The page owns the <h1>, so drop the one in
+ * the body.
+ */
+function stripLeadingH1(md: string): string {
+  return md.replace(/^﻿?\s*#\s+.*(\r?\n)+/, '')
 }
 
 export function generateStaticParams() {

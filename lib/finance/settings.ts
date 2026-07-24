@@ -8,10 +8,16 @@ const STORE_KEY = 'finance_settings'
 export async function getFinanceSettings(): Promise<FinanceSettings> {
   const stored = await readStore<FinanceSettings | null>(STORE_KEY, null)
   if (!stored) return DEFAULT_FINANCE_SETTINGS
-  // Merge so a newly-added default currency rate still appears if unset.
+  const baseCurrency = stored.baseCurrency ?? DEFAULT_FINANCE_SETTINGS.baseCurrency
+  // The seed rates are expressed in UZS, so they are only meaningful when UZS
+  // is the base. Merging them under, say, a USD base would claim "1 RUB = 140
+  // USD" and inflate every total by orders of magnitude.
+  const seed = baseCurrency === DEFAULT_FINANCE_SETTINGS.baseCurrency
+    ? DEFAULT_FINANCE_SETTINGS.rates
+    : {}
   return {
-    baseCurrency: stored.baseCurrency ?? DEFAULT_FINANCE_SETTINGS.baseCurrency,
-    rates: { ...DEFAULT_FINANCE_SETTINGS.rates, ...stored.rates },
+    baseCurrency,
+    rates: { ...seed, ...stored.rates },
     autoRates: stored.autoRates ?? DEFAULT_FINANCE_SETTINGS.autoRates,
     updatedAt: stored.updatedAt ?? DEFAULT_FINANCE_SETTINGS.updatedAt,
   }

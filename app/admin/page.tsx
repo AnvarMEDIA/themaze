@@ -48,7 +48,7 @@ export default function AdminDashboard() {
       {/* Page header */}
       <div className="mb-8">
         <h1 className="text-2xl font-bold text-white tracking-tight">Dashboard</h1>
-        <p className="text-sm text-[#555] mt-1">Welcome back — here's what's happening.</p>
+        <p className="text-sm text-[#555] mt-1">Welcome back — here’s what’s happening.</p>
       </div>
 
       {/* Stat cards */}

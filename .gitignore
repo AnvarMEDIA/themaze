@@ -31,6 +31,12 @@ yarn-error.log*
 .env*.local
 .env
 
+# local runtime data written by the dev/file-system store — never commit
+# real client, revenue or credential data (production uses Postgres/Blob)
+/data/finance_*.json
+/data/auth_config.json
+/data/inquiries.json
+
 # vercel
 .vercel
 

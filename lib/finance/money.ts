@@ -32,9 +32,12 @@ export function formatMoney(
 ): string {
   const { locale = 'en-US', compact = false } = opts
   const { decimals } = CURRENCY_META[currency]
+  // In compact notation the currency's own precision must not be applied:
+  // UZS has 0 decimals, so pinning maximumFractionDigits to it would render
+  // 1,600,000 as "2M" (and 1,499,999 as "1M"). Allow one decimal instead.
   const nf = new Intl.NumberFormat(locale, {
-    minimumFractionDigits: decimals,
-    maximumFractionDigits: decimals,
+    minimumFractionDigits: compact ? 0 : decimals,
+    maximumFractionDigits: compact ? 1 : decimals,
     notation: compact ? 'compact' : 'standard',
   })
   const num = nf.format(amount)

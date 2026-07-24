@@ -93,10 +93,11 @@ export const FinanceUnlockSchema = z.object({
 })
 
 export const FinancePasswordSchema = z.object({
-  // First-time set OR change. `current` is required only when one already exists
-  // (enforced in the route, not here).
+  // First-time set OR change. `current` is required only when one already exists;
+  // `adminPassword` is required only on first-time set (enforced in the route).
   current: z.string().max(200).optional(),
-  password: z.string().min(6, 'Use at least 6 characters').max(200),
+  adminPassword: z.string().max(200).optional(),
+  password: z.string().min(8, 'Use at least 8 characters').max(200),
 })
 
 export type ClientInputZ = z.infer<typeof ClientSchema>

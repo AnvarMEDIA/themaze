@@ -22,8 +22,31 @@ export function ContactForm() {
 
   const phoneInvalid = form.phone.length > 0 && !isValidPhoneNumber(form.phone)
 
+  /**
+   * The form sets `noValidate` (the browser's default bubbles clash with the
+   * design), so the required-field feedback has to be done here. Without this
+   * an empty submit only produced a generic "something went wrong" toast from
+   * the server's 400, with no hint about which field was at fault.
+   * Returns true when the form is good to send.
+   */
+  const validate = (): boolean => {
+    const focus = (id: string) => {
+      const el = document.getElementById(id) as HTMLInputElement | HTMLTextAreaElement | null
+      el?.focus()
+      el?.scrollIntoView({ block: 'center', behavior: 'smooth' })
+    }
+    if (!form.name.trim())    { toast.error(t('nameRequired'));    focus('cf-name');    return false }
+    if (!form.email.trim())   { toast.error(t('emailRequired'));   focus('cf-email');   return false }
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email.trim())) {
+      toast.error(t('emailInvalid')); focus('cf-email'); return false
+    }
+    if (!form.message.trim()) { toast.error(t('messageRequired')); focus('cf-message'); return false }
+    return true
+  }
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
+    if (!validate()) return
     if (phoneInvalid) {
       toast.error(t('phoneInvalid'))
       return

@@ -11,7 +11,12 @@
   "hero": {
     "line1": "WE BUILD",
     "line2": "BOLD",
-    "words": ["BRANDS", "IDEAS", "FUTURES", "STORIES"],
+    "words": [
+      "BRANDS",
+      "IDEAS",
+      "FUTURES",
+      "STORIES"
+    ],
     "subtitle": "We shape values into forms that resonate in the hearts of millions.",
     "viewWork": "View Work",
     "startProject": "Start a Project",
@@ -58,32 +63,62 @@
       {
         "title": "Branding",
         "description": "Strategic brand creation from concept to launch. We define what your brand stands for and bring it to life with purpose.",
-        "tags": ["Brand Platform", "Positioning", "Brand Book", "Launch Strategy"]
+        "tags": [
+          "Brand Platform",
+          "Positioning",
+          "Brand Book",
+          "Launch Strategy"
+        ]
       },
       {
         "title": "Identity",
         "description": "Complete visual language — logo, colour, typography, and imagery. A system designed to work everywhere, at every scale.",
-        "tags": ["Logo Design", "Colour System", "Typography", "Visual Guidelines"]
+        "tags": [
+          "Logo Design",
+          "Colour System",
+          "Typography",
+          "Visual Guidelines"
+        ]
       },
       {
         "title": "Naming",
         "description": "Brand names that resonate across languages and markets — from creative ideation to linguistic validation and trademark check.",
-        "tags": ["Brand Naming", "Linguistic Analysis", "Trademark Check", "Domain Check"]
+        "tags": [
+          "Brand Naming",
+          "Linguistic Analysis",
+          "Trademark Check",
+          "Domain Check"
+        ]
       },
       {
         "title": "Packaging",
         "description": "Packaging design that stands out on the shelf and tells your brand story at the most critical touchpoint.",
-        "tags": ["Structural Design", "Label Design", "Dielines", "Production"]
+        "tags": [
+          "Structural Design",
+          "Label Design",
+          "Dielines",
+          "Production"
+        ]
       },
       {
         "title": "Print & Packaging",
         "description": "From business cards to billboard campaigns — tangible brand communication crafted with precision.",
-        "tags": ["Stationery", "Editorial", "Environmental", "Signage"]
+        "tags": [
+          "Stationery",
+          "Editorial",
+          "Environmental",
+          "Signage"
+        ]
       },
       {
         "title": "Art Direction",
         "description": "Creative oversight for photography, campaigns, and content — keeping your brand coherent and compelling across every channel.",
-        "tags": ["Photography Direction", "Campaign", "Content Strategy", "Production"]
+        "tags": [
+          "Photography Direction",
+          "Campaign",
+          "Content Strategy",
+          "Production"
+        ]
       }
     ]
   },
@@ -168,15 +203,15 @@
       "strategy": "Strategy"
     },
     "categoryIntro": {
-      "branding":   "Branding work from MAZE Studio in Tashkent — from naming and visual identity to brand strategy and rollout. Every case below started with research, a positioning workshop and a clear set of business goals, then moved through identity, guidelines and the launch assets the client needed to ship the brand into the world. Most engagements take 6 to 10 weeks; a few stretch into multi-quarter rollouts. Browse the case studies for context on the brief, the process and the result, or jump to the contact form to scope your own project.",
+      "branding": "Branding work from MAZE Studio in Tashkent — from naming and visual identity to brand strategy and rollout. Every case below started with research, a positioning workshop and a clear set of business goals, then moved through identity, guidelines and the launch assets the client needed to ship the brand into the world. Most engagements take 6 to 10 weeks; a few stretch into multi-quarter rollouts. Browse the case studies for context on the brief, the process and the result, or jump to the contact form to scope your own project.",
       "rebranding": "Rebranding case studies — full repositioning, identity refreshes and rollouts for established companies in Uzbekistan and Central Asia. Each project starts with a brand audit and a sharp diagnosis of why the current brand is leaving value on the table, then moves into a new strategic platform, refreshed identity system, guidelines, and the launch kit needed to take the new brand live across product, packaging, retail and digital. We work both on focused refreshes and full reinvention.",
-      "identity":   "Visual identity systems — logos, marks, typography, color and the rules that hold them together. Identity is more than a logo: it's a system that scales from a 32-pixel favicon to a stadium banner without losing the brand's voice. Each project below shows the wordmark and supporting elements, applied in real contexts so you can judge how the system holds up under pressure. Identity engagements typically run 6 to 9 weeks.",
-      "naming":     "Brand naming projects — strong, defensible names with trademark pre-screening, rationale and example tone-of-voice copy. Naming is the highest-leverage decision a young company makes: the wrong name costs years of marketing. We run naming as a focused 3–5 week sprint, exploring 50+ candidates per round, narrowing to a shortlist that has passed trademark and domain checks, and finishing with a clear recommendation backed by strategy and example copy.",
-      "packaging":  "Packaging design — structure, dieline, typography and finish for food, FMCG, beauty and premium goods. Packaging is where a brand meets the customer at the highest-intent moment. Every project below considered shelf context, photography on the print, regulatory copy, language localisation for Uzbek / Russian / English markets, and the finish — foil, emboss, varnish — that matches the price point. We deliver print-ready files and supervise the first production run.",
-      "ui-ux":      "Digital product design — UI, UX, design systems and front-end-ready specs for web and mobile. Every digital case below starts with user research and a problem definition, then moves through information architecture, wireframes, hi-fi design and a component library handed off to engineering in Figma. We work with founders on 0→1 launches and with established teams on scaling design systems across product lines.",
-      "print":      "Print design — books, reports, posters, signage and large-format. Print is unforgiving: there's no undo. Every project below was prepared with the printer in mind — paper choice, ink coverage, bleed, color profile and finish — and proofed on press where the budget allowed. We design for permanence, not screens.",
-      "motion":     "Motion and animation — brand idents, explainer films, social cuts and product animations. Motion turns a static brand into a memorable one. Every motion project starts in After Effects or Cinema 4D from the same identity system we built, so the moving brand feels consistent with the static one. Output ranges from 5-second logo idents to 90-second explainer films.",
-      "strategy":   "Brand strategy — positioning, brand architecture, naming systems and rollout plans. Strategy is the part of the work no one sees but everyone feels. Every strategic engagement below started with stakeholder interviews and category research, produced a positioning document and a measurable success framework, and led the visual identity that followed. Strategy alone runs 4 to 8 weeks; bundled with identity it adds 2 weeks at the front of the project."
+      "identity": "Visual identity systems — logos, marks, typography, color and the rules that hold them together. Identity is more than a logo: it's a system that scales from a 32-pixel favicon to a stadium banner without losing the brand's voice. Each project below shows the wordmark and supporting elements, applied in real contexts so you can judge how the system holds up under pressure. Identity engagements typically run 6 to 9 weeks.",
+      "naming": "Brand naming projects — strong, defensible names with trademark pre-screening, rationale and example tone-of-voice copy. Naming is the highest-leverage decision a young company makes: the wrong name costs years of marketing. We run naming as a focused 3–5 week sprint, exploring 50+ candidates per round, narrowing to a shortlist that has passed trademark and domain checks, and finishing with a clear recommendation backed by strategy and example copy.",
+      "packaging": "Packaging design — structure, dieline, typography and finish for food, FMCG, beauty and premium goods. Packaging is where a brand meets the customer at the highest-intent moment. Every project below considered shelf context, photography on the print, regulatory copy, language localisation for Uzbek / Russian / English markets, and the finish — foil, emboss, varnish — that matches the price point. We deliver print-ready files and supervise the first production run.",
+      "ui-ux": "Digital product design — UI, UX, design systems and front-end-ready specs for web and mobile. Every digital case below starts with user research and a problem definition, then moves through information architecture, wireframes, hi-fi design and a component library handed off to engineering in Figma. We work with founders on 0→1 launches and with established teams on scaling design systems across product lines.",
+      "print": "Print design — books, reports, posters, signage and large-format. Print is unforgiving: there's no undo. Every project below was prepared with the printer in mind — paper choice, ink coverage, bleed, color profile and finish — and proofed on press where the budget allowed. We design for permanence, not screens.",
+      "motion": "Motion and animation — brand idents, explainer films, social cuts and product animations. Motion turns a static brand into a memorable one. Every motion project starts in After Effects or Cinema 4D from the same identity system we built, so the moving brand feels consistent with the static one. Output ranges from 5-second logo idents to 90-second explainer films.",
+      "strategy": "Brand strategy — positioning, brand architecture, naming systems and rollout plans. Strategy is the part of the work no one sees but everyone feels. Every strategic engagement below started with stakeholder interviews and category research, produced a positioning document and a measurable success framework, and led the visual identity that followed. Strategy alone runs 4 to 8 weeks; bundled with identity it adds 2 weeks at the front of the project."
     },
     "backToWork": "← All Work",
     "aboutProject": "About the project",
@@ -266,14 +301,38 @@
     "faqLabel": "FAQ",
     "faqHeading": "Quick answers.",
     "faqItems": [
-      { "q": "How much does a rebrand cost?", "a": "Most rebranding engagements at MAZE start at $8,000 for a focused refresh and scale to $40,000+ for full strategy, identity and rollout for established companies. We always send a tailored estimate after a discovery call — every project is scoped to the brief." },
-      { "q": "How long does a branding project take?", "a": "A typical brand identity runs 6 to 10 weeks from kickoff to delivery. Naming projects take 3 to 5 weeks. Packaging and large-scale rebrands can run 3 to 4 months. We share a precise timeline in the proposal." },
-      { "q": "Do you work with clients outside Uzbekistan?", "a": "Yes. We work remotely with clients across Central Asia, the CIS and Europe. Most of our process is async — Figma, Notion, Loom and a weekly call — so timezone is not an issue." },
-      { "q": "What's included in a brand identity package?", "a": "Brand strategy, naming if needed, logo and mark system, typography and color, brand guidelines, plus an initial rollout kit (business cards, social templates, signage mockups). We can extend with packaging, web design or motion." },
-      { "q": "Do you offer naming alone, without the visual identity?", "a": "Yes — we run naming as a standalone engagement. Output is a shortlist of strong, trademark-pre-screened names with rationale and example tone-of-voice copy." },
-      { "q": "Will you sign an NDA?", "a": "Absolutely. We send a mutual NDA at the start of any engagement that touches unreleased products, M&A or other sensitive context." },
-      { "q": "Can we keep ownership of the work?", "a": "Full IP transfers to you on final payment. We retain the right to display the work in our portfolio after launch unless the contract says otherwise." },
-      { "q": "What if I don't like the first round?", "a": "Each engagement includes two structured rounds of revision per stage. We start broad with directions, then narrow — so by the time we're refining, we've already aligned on the direction together." }
+      {
+        "q": "How much does a rebrand cost?",
+        "a": "Most rebranding engagements at MAZE start at $8,000 for a focused refresh and scale to $40,000+ for full strategy, identity and rollout for established companies. We always send a tailored estimate after a discovery call — every project is scoped to the brief."
+      },
+      {
+        "q": "How long does a branding project take?",
+        "a": "A typical brand identity runs 6 to 10 weeks from kickoff to delivery. Naming projects take 3 to 5 weeks. Packaging and large-scale rebrands can run 3 to 4 months. We share a precise timeline in the proposal."
+      },
+      {
+        "q": "Do you work with clients outside Uzbekistan?",
+        "a": "Yes. We work remotely with clients across Central Asia, the CIS and Europe. Most of our process is async — Figma, Notion, Loom and a weekly call — so timezone is not an issue."
+      },
+      {
+        "q": "What's included in a brand identity package?",
+        "a": "Brand strategy, naming if needed, logo and mark system, typography and color, brand guidelines, plus an initial rollout kit (business cards, social templates, signage mockups). We can extend with packaging, web design or motion."
+      },
+      {
+        "q": "Do you offer naming alone, without the visual identity?",
+        "a": "Yes — we run naming as a standalone engagement. Output is a shortlist of strong, trademark-pre-screened names with rationale and example tone-of-voice copy."
+      },
+      {
+        "q": "Will you sign an NDA?",
+        "a": "Absolutely. We send a mutual NDA at the start of any engagement that touches unreleased products, M&A or other sensitive context."
+      },
+      {
+        "q": "Can we keep ownership of the work?",
+        "a": "Full IP transfers to you on final payment. We retain the right to display the work in our portfolio after launch unless the contract says otherwise."
+      },
+      {
+        "q": "What if I don't like the first round?",
+        "a": "Each engagement includes two structured rounds of revision per stage. We start broad with directions, then narrow — so by the time we're refining, we've already aligned on the direction together."
+      }
     ],
     "cluster": {
       "_labels": {
@@ -296,10 +355,22 @@
         "tagline": "Strategy, identity and launch — built end to end.",
         "intro": "Branding at MAZE means building the whole system: positioning, story, name (when needed), visual identity, voice, and the rollout kit your team needs to ship the brand across product, packaging, retail and digital. We work with founders launching a category-defining company and with established businesses entering a new market. Every engagement starts with a discovery workshop and a written strategy document — without that anchor, design becomes decoration. By the end of the project you have a brand your team can defend in a boardroom and your customers can recognise on a shelf.",
         "approach": [
-          { "title": "Discovery", "body": "A 1–2 day workshop with founders and key stakeholders to map the business, audience, competition and the change you want to drive. We end with a written brief everyone signs off on." },
-          { "title": "Strategy", "body": "Positioning, brand story, audience segments and a measurable success framework. We produce a 20–30 page strategy document — your single source of truth for every decision after." },
-          { "title": "Identity", "body": "Naming if needed, then the visual system: logo, type, color, motion principles, photography direction and the rules that hold them together. Two structured rounds of feedback." },
-          { "title": "Rollout", "body": "Brand guidelines (PDF + Figma library) plus the launch kit you actually need — packaging, web, social templates, signage, presentation deck — whatever ships on day one." }
+          {
+            "title": "Discovery",
+            "body": "A 1–2 day workshop with founders and key stakeholders to map the business, audience, competition and the change you want to drive. We end with a written brief everyone signs off on."
+          },
+          {
+            "title": "Strategy",
+            "body": "Positioning, brand story, audience segments and a measurable success framework. We produce a 20–30 page strategy document — your single source of truth for every decision after."
+          },
+          {
+            "title": "Identity",
+            "body": "Naming if needed, then the visual system: logo, type, color, motion principles, photography direction and the rules that hold them together. Two structured rounds of feedback."
+          },
+          {
+            "title": "Rollout",
+            "body": "Brand guidelines (PDF + Figma library) plus the launch kit you actually need — packaging, web, social templates, signage, presentation deck — whatever ships on day one."
+          }
         ],
         "deliverables": [
           "Brand strategy document (positioning, story, audience, success metrics)",
@@ -314,10 +385,22 @@
         "timeline": "Most full branding engagements run 8 to 12 weeks from discovery to handover. Pure naming + identity without strategy is 5 to 7 weeks. We share an exact week-by-week schedule in the proposal.",
         "pricing": "Branding engagements start at $12,000 for a focused identity refresh and scale to $60,000+ for a category-defining launch with strategy, naming, packaging and digital. Every estimate is fixed-scope after the discovery workshop.",
         "faq": [
-          { "q": "Do I need branding or rebranding?", "a": "If your business is new — or your audience, product or category has changed since the brand was made — branding from a clean slate gives the strongest result. If the brand is working but feels dated, a refresh under rebranding is enough." },
-          { "q": "Will you work with our existing logo?", "a": "Yes, if it's working. Discovery includes a brand audit — sometimes the logo stays and we rebuild everything around it; sometimes the system is what's holding the brand back." },
-          { "q": "Do you handle production and launch assets?", "a": "Yes. The rollout kit is part of every full branding engagement. We deliver press-ready packaging files, Figma libraries for your engineering team, social templates and a launch deck." },
-          { "q": "Who owns the work?", "a": "Full intellectual property transfers to you on final payment. We retain the right to display the work in our portfolio after launch unless the contract says otherwise." }
+          {
+            "q": "Do I need branding or rebranding?",
+            "a": "If your business is new — or your audience, product or category has changed since the brand was made — branding from a clean slate gives the strongest result. If the brand is working but feels dated, a refresh under rebranding is enough."
+          },
+          {
+            "q": "Will you work with our existing logo?",
+            "a": "Yes, if it's working. Discovery includes a brand audit — sometimes the logo stays and we rebuild everything around it; sometimes the system is what's holding the brand back."
+          },
+          {
+            "q": "Do you handle production and launch assets?",
+            "a": "Yes. The rollout kit is part of every full branding engagement. We deliver press-ready packaging files, Figma libraries for your engineering team, social templates and a launch deck."
+          },
+          {
+            "q": "Who owns the work?",
+            "a": "Full intellectual property transfers to you on final payment. We retain the right to display the work in our portfolio after launch unless the contract says otherwise."
+          }
         ]
       },
       "rebranding": {
@@ -327,10 +410,22 @@
         "tagline": "From a focused refresh to a complete reinvention.",
         "intro": "Rebranding is the right call when your business has outgrown the brand it launched with — new audience, new product, new geography, a merger, a category move. We start with an audit that diagnoses why the current brand is leaving value on the table, then move into repositioning, an identity refresh or full rebuild, and a rollout plan that keeps your team aligned through the transition. The goal is not novelty; it's a brand that earns its keep in the next decade.",
         "approach": [
-          { "title": "Brand audit", "body": "A diagnostic of the current brand against your business goals, customers and competition. We surface what's working, what's costing you and where the highest-leverage moves are." },
-          { "title": "Repositioning", "body": "New positioning, refreshed story and a clear articulation of who you serve now and what you stand for. Aligned with leadership in a working session, documented for the team." },
-          { "title": "Refresh or rebuild", "body": "Refresh keeps the equity that's working (often the logo, the name) and rebuilds the system around it. Rebuild is a full reset — new visual system, sometimes a new name." },
-          { "title": "Transition plan", "body": "A rollout calendar covering internal launch, customer communications, product, packaging, retail and digital. We work with your team to sequence what changes and when." }
+          {
+            "title": "Brand audit",
+            "body": "A diagnostic of the current brand against your business goals, customers and competition. We surface what's working, what's costing you and where the highest-leverage moves are."
+          },
+          {
+            "title": "Repositioning",
+            "body": "New positioning, refreshed story and a clear articulation of who you serve now and what you stand for. Aligned with leadership in a working session, documented for the team."
+          },
+          {
+            "title": "Refresh or rebuild",
+            "body": "Refresh keeps the equity that's working (often the logo, the name) and rebuilds the system around it. Rebuild is a full reset — new visual system, sometimes a new name."
+          },
+          {
+            "title": "Transition plan",
+            "body": "A rollout calendar covering internal launch, customer communications, product, packaging, retail and digital. We work with your team to sequence what changes and when."
+          }
         ],
         "deliverables": [
           "Brand audit report with prioritised recommendations",
@@ -345,10 +440,22 @@
         "timeline": "Refreshes typically take 6 to 9 weeks. Full rebuilds with new positioning and identity run 10 to 16 weeks. Multi-quarter rollouts for large companies extend further and we sequence them with your operations team.",
         "pricing": "Refreshes start at $10,000. Full rebrands with strategy, identity and rollout typically range $30,000–$80,000 depending on scope and number of touchpoints. Fixed-scope estimate after the audit.",
         "faq": [
-          { "q": "Will we lose brand equity?", "a": "Not if we get the audit right. Discovery identifies which equity is worth keeping (often the name, the symbol, a specific color) and which is dragging the brand. We retain what works and rebuild around it." },
-          { "q": "Can we rebrand without renaming?", "a": "Yes — most rebrands keep the name. Renaming is a separate decision driven by clear strategic reasons (legal conflicts, expansion to new geographies, distancing from a past episode)." },
-          { "q": "How do we communicate the change to customers?", "a": "The transition plan covers exactly that — a sequenced communication calendar, internal launch first, then customer-facing rollout with email, social, in-product, retail and PR coordinated." },
-          { "q": "What about our existing collateral?", "a": "We inventory it during discovery and prioritise replacement: high-visibility touchpoints first (web, packaging, retail), then long-tail materials replaced as natural reprint cycles happen. Minimises waste." }
+          {
+            "q": "Will we lose brand equity?",
+            "a": "Not if we get the audit right. Discovery identifies which equity is worth keeping (often the name, the symbol, a specific color) and which is dragging the brand. We retain what works and rebuild around it."
+          },
+          {
+            "q": "Can we rebrand without renaming?",
+            "a": "Yes — most rebrands keep the name. Renaming is a separate decision driven by clear strategic reasons (legal conflicts, expansion to new geographies, distancing from a past episode)."
+          },
+          {
+            "q": "How do we communicate the change to customers?",
+            "a": "The transition plan covers exactly that — a sequenced communication calendar, internal launch first, then customer-facing rollout with email, social, in-product, retail and PR coordinated."
+          },
+          {
+            "q": "What about our existing collateral?",
+            "a": "We inventory it during discovery and prioritise replacement: high-visibility touchpoints first (web, packaging, retail), then long-tail materials replaced as natural reprint cycles happen. Minimises waste."
+          }
         ]
       },
       "identity": {
@@ -358,10 +465,22 @@
         "tagline": "A system, not a logo.",
         "intro": "An identity is more than a mark. It's a system — typography, color, photography direction, motion principles and rules — that lets a brand stay coherent across every touchpoint, from a 32-pixel favicon to a stadium banner. We design identity systems that can survive a marketing team's worst day: the rules are clear, the assets are organised, the Figma library is alive and the guidelines explain why each decision was made. This is the work that pays back for years.",
         "approach": [
-          { "title": "Audit", "body": "If you have an existing brand, we audit the assets, identify what's working and surface the gaps. If you don't, we skip to direction exploration." },
-          { "title": "Direction", "body": "Three distinct visual directions, each anchored in the strategy. We present in context — applied to real touchpoints, not floating logos on a moodboard — so the choice is informed." },
-          { "title": "Refinement", "body": "Two rounds of revision narrowing to the final system. We design the logo, type, color, motion and photography direction together so the system feels intentional everywhere." },
-          { "title": "Documentation", "body": "Brand guidelines as a single PDF plus a live Figma library your team can pull from. Every rule has a 'why', so the system stays consistent when your team grows." }
+          {
+            "title": "Audit",
+            "body": "If you have an existing brand, we audit the assets, identify what's working and surface the gaps. If you don't, we skip to direction exploration."
+          },
+          {
+            "title": "Direction",
+            "body": "Three distinct visual directions, each anchored in the strategy. We present in context — applied to real touchpoints, not floating logos on a moodboard — so the choice is informed."
+          },
+          {
+            "title": "Refinement",
+            "body": "Two rounds of revision narrowing to the final system. We design the logo, type, color, motion and photography direction together so the system feels intentional everywhere."
+          },
+          {
+            "title": "Documentation",
+            "body": "Brand guidelines as a single PDF plus a live Figma library your team can pull from. Every rule has a 'why', so the system stays consistent when your team grows."
+          }
         ],
         "deliverables": [
           "Logo system — primary, secondary, monogram, lockups, dos and don'ts",
@@ -376,10 +495,22 @@
         "timeline": "Identity engagements run 6 to 9 weeks from kickoff to delivery, depending on scope. Add 2–3 weeks if naming is needed or if the rollout kit (packaging, web templates) is part of the same engagement.",
         "pricing": "Identity projects start at $10,000 for focused systems and reach $30,000+ for category-defining brands with a wide application kit. The proposal locks scope and price after the brief.",
         "faq": [
-          { "q": "Can we license a typeface or do you design one?", "a": "Most projects use a licensed typeface — there's an excellent global library and licensing is straightforward. Custom typefaces add 6–12 weeks and a meaningful budget; we recommend them only when the brand strategy clearly requires it." },
-          { "q": "Do you do logos only?", "a": "We do, but we recommend at minimum a logo + type + color package — a logo alone gives you a mark, not a system, and the system is what builds equity over time." },
-          { "q": "Will the system work in motion / digital / packaging?", "a": "Yes — we test the system in those contexts during refinement, not after. If a logo doesn't survive at 32 pixels or on foil packaging, we know before we finalise." },
-          { "q": "Do you provide source files?", "a": "Always. You receive editable Figma, Illustrator and vector source files plus exports in every format your team needs. Full IP transfers on final payment." }
+          {
+            "q": "Can we license a typeface or do you design one?",
+            "a": "Most projects use a licensed typeface — there's an excellent global library and licensing is straightforward. Custom typefaces add 6–12 weeks and a meaningful budget; we recommend them only when the brand strategy clearly requires it."
+          },
+          {
+            "q": "Do you do logos only?",
+            "a": "We do, but we recommend at minimum a logo + type + color package — a logo alone gives you a mark, not a system, and the system is what builds equity over time."
+          },
+          {
+            "q": "Will the system work in motion / digital / packaging?",
+            "a": "Yes — we test the system in those contexts during refinement, not after. If a logo doesn't survive at 32 pixels or on foil packaging, we know before we finalise."
+          },
+          {
+            "q": "Do you provide source files?",
+            "a": "Always. You receive editable Figma, Illustrator and vector source files plus exports in every format your team needs. Full IP transfers on final payment."
+          }
         ]
       },
       "naming": {
@@ -389,10 +520,22 @@
         "tagline": "Names that win arguments, pass legal and survive growth.",
         "intro": "Naming is the highest-leverage decision a young company makes — the wrong name costs years of marketing budget and brand equity. We run naming as a focused sprint: deep discovery, 200+ candidates per round, narrowing to a shortlist that has passed trademark and domain checks, finishing with a clear recommendation backed by strategy and tone-of-voice samples. Output is one name we can confidently launch, plus two viable alternates and a written rationale your team can use to defend the choice.",
         "approach": [
-          { "title": "Brief", "body": "We start with a positioning brief — audience, category, sound, length, languages it needs to work in. Without strategy, naming is a vibe; with it, naming is a decision." },
-          { "title": "Exploration", "body": "Generate 200+ candidates per round across multiple naming directions (descriptive, evocative, invented, founder, abstract). We present the strongest 15–25 in context." },
-          { "title": "Validation", "body": "Trademark pre-screening, domain availability check, linguistic checks across markets you operate in. Candidates that fail at this stage exit; the shortlist passes." },
-          { "title": "Recommendation", "body": "One recommended name, two viable alternates, full rationale and example tone-of-voice copy showing how each name reads in headlines, ads and product copy." }
+          {
+            "title": "Brief",
+            "body": "We start with a positioning brief — audience, category, sound, length, languages it needs to work in. Without strategy, naming is a vibe; with it, naming is a decision."
+          },
+          {
+            "title": "Exploration",
+            "body": "Generate 200+ candidates per round across multiple naming directions (descriptive, evocative, invented, founder, abstract). We present the strongest 15–25 in context."
+          },
+          {
+            "title": "Validation",
+            "body": "Trademark pre-screening, domain availability check, linguistic checks across markets you operate in. Candidates that fail at this stage exit; the shortlist passes."
+          },
+          {
+            "title": "Recommendation",
+            "body": "One recommended name, two viable alternates, full rationale and example tone-of-voice copy showing how each name reads in headlines, ads and product copy."
+          }
         ],
         "deliverables": [
           "Naming brief and shortlist criteria",
@@ -407,10 +550,22 @@
         "timeline": "Naming sprints run 3 to 5 weeks from brief to recommendation. Trademark filing (with a lawyer, not us) typically adds 8–12 weeks after we deliver — we hand off the brief but don't represent in trademark proceedings.",
         "pricing": "Naming engagements start at $6,000 and reach $20,000 for high-stakes consumer or technology launches where additional rounds and broader linguistic checks are required.",
         "faq": [
-          { "q": "Do you handle trademark filing?", "a": "We pre-screen names against existing trademarks in your target markets. Actual filing is handled by your IP lawyer — we provide them with the brief and the rationale to support the application." },
-          { "q": "What if the recommended name fails trademark?", "a": "It rarely happens — pre-screening catches the obvious conflicts. If a filing fails for an unexpected reason, we re-engage at a reduced rate to find the next strongest candidate from the shortlist." },
-          { "q": "Can the name work in Uzbek / Russian / English?", "a": "Yes — we screen for pronunciation, meaning and tone in every language you operate in. For Central Asian launches that's typically UZ, RU and EN; we can add others." },
-          { "q": "Do you design the logo too?", "a": "Naming is often a standalone engagement. If you want naming + identity from the same team, we bundle them — saves 2 weeks of context transfer." }
+          {
+            "q": "Do you handle trademark filing?",
+            "a": "We pre-screen names against existing trademarks in your target markets. Actual filing is handled by your IP lawyer — we provide them with the brief and the rationale to support the application."
+          },
+          {
+            "q": "What if the recommended name fails trademark?",
+            "a": "It rarely happens — pre-screening catches the obvious conflicts. If a filing fails for an unexpected reason, we re-engage at a reduced rate to find the next strongest candidate from the shortlist."
+          },
+          {
+            "q": "Can the name work in Uzbek / Russian / English?",
+            "a": "Yes — we screen for pronunciation, meaning and tone in every language you operate in. For Central Asian launches that's typically UZ, RU and EN; we can add others."
+          },
+          {
+            "q": "Do you design the logo too?",
+            "a": "Naming is often a standalone engagement. If you want naming + identity from the same team, we bundle them — saves 2 weeks of context transfer."
+          }
         ]
       },
       "packaging": {
@@ -420,10 +575,22 @@
         "tagline": "Where the brand meets the customer.",
         "intro": "Packaging is the highest-intent moment in a customer's journey with a brand — the moment they decide whether to pick the product up. We design packaging that wins on the shelf and respects the production constraints: structure, dieline, typography, photography direction, regulatory copy, language localisation and the finish — foil, emboss, varnish — that matches the price point. We deliver print-ready files and supervise the first production run with your printer to make sure what shipped to manufacturing is what reaches the customer.",
         "approach": [
-          { "title": "Strategy", "body": "Shelf audit — competitors, premium tier, price point, photography conventions in the category. Define what the packaging must say and what it must not." },
-          { "title": "Structure", "body": "Dieline design, material choice, opening mechanism. Sometimes the shape is the strongest brand asset — we work with the structural engineer or your factory's templates." },
-          { "title": "Visual", "body": "Typography, illustration or photography, regulatory copy, language versions. Two structured rounds of revision applied to the full SKU range, not just the hero." },
-          { "title": "Production", "body": "Print-ready files in the format your printer asks for (PDF/X-1a, X-4, separations as needed). We supervise the first proofs and the production run for color and finish." }
+          {
+            "title": "Strategy",
+            "body": "Shelf audit — competitors, premium tier, price point, photography conventions in the category. Define what the packaging must say and what it must not."
+          },
+          {
+            "title": "Structure",
+            "body": "Dieline design, material choice, opening mechanism. Sometimes the shape is the strongest brand asset — we work with the structural engineer or your factory's templates."
+          },
+          {
+            "title": "Visual",
+            "body": "Typography, illustration or photography, regulatory copy, language versions. Two structured rounds of revision applied to the full SKU range, not just the hero."
+          },
+          {
+            "title": "Production",
+            "body": "Print-ready files in the format your printer asks for (PDF/X-1a, X-4, separations as needed). We supervise the first proofs and the production run for color and finish."
+          }
         ],
         "deliverables": [
           "Shelf audit and category positioning",
@@ -438,10 +605,22 @@
         "timeline": "A focused 1–3 SKU packaging project runs 6 to 10 weeks. Larger SKU ranges (10+) or projects with custom structure extend further. Production supervision adds 2–4 weeks at the end depending on the printer.",
         "pricing": "Packaging starts at $7,000 for a single hero SKU and scales with range size and complexity. Premium consumer goods with custom structure and multi-language localisation typically range $20,000–$50,000.",
         "faq": [
-          { "q": "Do you handle photography for the packaging?", "a": "We art-direct photography — choose the photographer, brief them, supervise the shoot — but the photography itself is a separate budget. We can work with photographers in Tashkent or remotely with international shooters." },
-          { "q": "Can you work with our existing printer?", "a": "Yes — we adapt to whatever production stack you have. Some printers want PDF/X-1a, others X-4, some want separated files; we deliver what your factory needs." },
-          { "q": "What about regulatory copy?", "a": "We design the layout to accommodate it and provide the slot. The actual regulatory wording (ingredients, certifications, country of origin) comes from you or your legal team — we typeset it correctly." },
-          { "q": "Do you supervise production?", "a": "First production run, yes — color matching, finish proofing, any last adjustments. After the first run we hand off and you can re-print without us for any future restock." }
+          {
+            "q": "Do you handle photography for the packaging?",
+            "a": "We art-direct photography — choose the photographer, brief them, supervise the shoot — but the photography itself is a separate budget. We can work with photographers in Tashkent or remotely with international shooters."
+          },
+          {
+            "q": "Can you work with our existing printer?",
+            "a": "Yes — we adapt to whatever production stack you have. Some printers want PDF/X-1a, others X-4, some want separated files; we deliver what your factory needs."
+          },
+          {
+            "q": "What about regulatory copy?",
+            "a": "We design the layout to accommodate it and provide the slot. The actual regulatory wording (ingredients, certifications, country of origin) comes from you or your legal team — we typeset it correctly."
+          },
+          {
+            "q": "Do you supervise production?",
+            "a": "First production run, yes — color matching, finish proofing, any last adjustments. After the first run we hand off and you can re-print without us for any future restock."
+          }
         ]
       },
       "ui-ux": {
@@ -451,10 +630,22 @@
         "tagline": "Product design that ships.",
         "intro": "Digital product design is where strategy meets engineering reality. We design web and mobile products that ship — not just dribbble-ready mockups. Every engagement starts with the problem (user research, business goals, technical constraints), moves through information architecture and wireframes, then hi-fi design and a Figma component library handed off to your engineering team. We work with founders on 0→1 launches and with established product teams on scaling design systems across multiple product lines.",
         "approach": [
-          { "title": "Discovery", "body": "User research, business goals, technical constraints, competitor product analysis. We end with a problem definition the design will solve and the user journey it will support." },
-          { "title": "Architecture", "body": "Information architecture, navigation, wireframes. We design the structure before the visuals — getting the architecture wrong is the costliest mistake in product design." },
-          { "title": "Design", "body": "Hi-fi design with a component library from the start. Each component is built once and reused — no duplicates, no inconsistency. Engineering pulls from the same source." },
-          { "title": "Handoff", "body": "Figma file structured for engineering, with components, variants, auto-layout and explicit specs. We pair with your team during build for design-engineering sync." }
+          {
+            "title": "Discovery",
+            "body": "User research, business goals, technical constraints, competitor product analysis. We end with a problem definition the design will solve and the user journey it will support."
+          },
+          {
+            "title": "Architecture",
+            "body": "Information architecture, navigation, wireframes. We design the structure before the visuals — getting the architecture wrong is the costliest mistake in product design."
+          },
+          {
+            "title": "Design",
+            "body": "Hi-fi design with a component library from the start. Each component is built once and reused — no duplicates, no inconsistency. Engineering pulls from the same source."
+          },
+          {
+            "title": "Handoff",
+            "body": "Figma file structured for engineering, with components, variants, auto-layout and explicit specs. We pair with your team during build for design-engineering sync."
+          }
         ],
         "deliverables": [
           "User research summary and personas",
@@ -469,10 +660,22 @@
         "timeline": "MVP scope launches in 8 to 14 weeks. Full product engagements typically run 3 to 6 months and overlap with engineering. Design systems for established products are a multi-quarter engagement with monthly milestones.",
         "pricing": "UI/UX engagements start at $15,000 for a focused MVP and scale to $80,000+ for full product design with research, design system and engineering pairing. Estimates are scoped after discovery.",
         "faq": [
-          { "q": "Do you build the product or just design it?", "a": "We're a design studio — we design, your engineering team builds. We pair closely with engineering during build (Figma handoff, daily questions, design QA) but we don't write production code." },
-          { "q": "Can you work with our existing design system?", "a": "Yes — extending an existing system is often the right move. We audit it, identify the gaps, and design new flows that integrate without forking. The system gets stronger, not duplicated." },
-          { "q": "Do you do user research or is that on us?", "a": "Both. We can run discovery research (5–10 interviews, usability testing, surveys) or we can work from research you've already done. The research budget is separate from design — we'll quote both." },
-          { "q": "What about accessibility?", "a": "WCAG AA is the floor on every project — color contrast, focus states, keyboard navigation, screen reader semantics. AAA on request, with the trade-offs explained." }
+          {
+            "q": "Do you build the product or just design it?",
+            "a": "We're a design studio — we design, your engineering team builds. We pair closely with engineering during build (Figma handoff, daily questions, design QA) but we don't write production code."
+          },
+          {
+            "q": "Can you work with our existing design system?",
+            "a": "Yes — extending an existing system is often the right move. We audit it, identify the gaps, and design new flows that integrate without forking. The system gets stronger, not duplicated."
+          },
+          {
+            "q": "Do you do user research or is that on us?",
+            "a": "Both. We can run discovery research (5–10 interviews, usability testing, surveys) or we can work from research you've already done. The research budget is separate from design — we'll quote both."
+          },
+          {
+            "q": "What about accessibility?",
+            "a": "WCAG AA is the floor on every project — color contrast, focus states, keyboard navigation, screen reader semantics. AAA on request, with the trade-offs explained."
+          }
         ]
       },
       "print": {
@@ -482,10 +685,22 @@
         "tagline": "Designed for permanence.",
         "intro": "Print is unforgiving — there's no undo, no patch release. We design print products with the printer in mind from day one: paper choice, ink coverage, bleed, color profile, finish. Books, annual reports, magazines, posters, signage, large-format — we deliver press-ready files, supervise proofs on press where the budget allows, and prefer materials that age well over those that look slick on the press release. Print is permanence; we design for it.",
         "approach": [
-          { "title": "Brief", "body": "Format, audience, distribution, paper budget, production timeline. We define what the printed object must do — inform, persuade, archive — before we design how it looks." },
-          { "title": "Content", "body": "Editorial design starts with the text. We work with copy editors and proofreaders, define the typographic system and lay out content with the rhythm a reader can stay with." },
-          { "title": "Layout", "body": "Master grids, typography, image direction, paper choice. Two rounds of revision on representative spreads before scaling across the full document." },
-          { "title": "Production", "body": "Press-ready files in the format your printer asks for. Where budget allows, we attend press checks for color and finish — particularly for high-stakes pieces like annual reports." }
+          {
+            "title": "Brief",
+            "body": "Format, audience, distribution, paper budget, production timeline. We define what the printed object must do — inform, persuade, archive — before we design how it looks."
+          },
+          {
+            "title": "Content",
+            "body": "Editorial design starts with the text. We work with copy editors and proofreaders, define the typographic system and lay out content with the rhythm a reader can stay with."
+          },
+          {
+            "title": "Layout",
+            "body": "Master grids, typography, image direction, paper choice. Two rounds of revision on representative spreads before scaling across the full document."
+          },
+          {
+            "title": "Production",
+            "body": "Press-ready files in the format your printer asks for. Where budget allows, we attend press checks for color and finish — particularly for high-stakes pieces like annual reports."
+          }
         ],
         "deliverables": [
           "Editorial design system — typography, grid, hierarchy",
@@ -500,10 +715,22 @@
         "timeline": "Reports and books typically run 6 to 12 weeks depending on length. Posters and single-piece collateral run 2 to 4 weeks. Annual reports often have a fixed publication date — we work backwards from it.",
         "pricing": "Print engagements start at $5,000 for posters and short collateral. Books, reports and magazines range $15,000–$60,000 depending on length, photography needs and editorial scope.",
         "faq": [
-          { "q": "Do you work with our printer or recommend one?", "a": "Either. We have trusted printers in Tashkent and internationally — happy to recommend or pitch to your existing one. The technical handoff adapts to whoever prints." },
-          { "q": "Can you handle the copywriting?", "a": "We can. Editorial design without good copy doesn't work — if your text isn't ready, we can write or commission a copy editor. That's a separate scope from design." },
-          { "q": "What about photography?", "a": "We art-direct, brief and commission. Photography itself is a separate budget. For documentary photography (annual reports, brand books) we often work with local photographers in Tashkent." },
-          { "q": "Do you do large-format / signage?", "a": "Yes — wayfinding systems, exhibition graphics, billboards. Same approach: design with the production method in mind, supervise the first install." }
+          {
+            "q": "Do you work with our printer or recommend one?",
+            "a": "Either. We have trusted printers in Tashkent and internationally — happy to recommend or pitch to your existing one. The technical handoff adapts to whoever prints."
+          },
+          {
+            "q": "Can you handle the copywriting?",
+            "a": "We can. Editorial design without good copy doesn't work — if your text isn't ready, we can write or commission a copy editor. That's a separate scope from design."
+          },
+          {
+            "q": "What about photography?",
+            "a": "We art-direct, brief and commission. Photography itself is a separate budget. For documentary photography (annual reports, brand books) we often work with local photographers in Tashkent."
+          },
+          {
+            "q": "Do you do large-format / signage?",
+            "a": "Yes — wayfinding systems, exhibition graphics, billboards. Same approach: design with the production method in mind, supervise the first install."
+          }
         ]
       },
       "motion": {
@@ -513,10 +740,22 @@
         "tagline": "Brand in motion, on purpose.",
         "intro": "Motion turns a static brand into a memorable one — but only when the motion is part of the identity system, not bolted on. We design motion as an extension of the brand: same typography rhythms, same color logic, same restraint. Output ranges from 5-second logo idents to 90-second explainer films, social cuts for paid and organic channels, and product animations for digital touchpoints. We work in After Effects and Cinema 4D and hand off lottie or video formats your team can deploy.",
         "approach": [
-          { "title": "Brief", "body": "Where does the motion live (TV ad, ident, social, product)? What's the runtime? What's the brand voice in motion — confident, playful, technical? Different answers, different design." },
-          { "title": "Storyboard", "body": "Frame-by-frame storyboard for narrative pieces, motion principles for system-level work. Approval at this stage, before any animation work — cheap to change a storyboard, expensive to redo a render." },
-          { "title": "Animation", "body": "Animation in After Effects or Cinema 4D depending on the piece. We design with brand typography, color and easing curves consistent with the static brand so motion feels native, not bolted on." },
-          { "title": "Delivery", "body": "Final video files in the formats your channels need (16:9, 1:1, 9:16 for social), plus Lottie for in-product animations where it makes sense. Source AE / C4D files included." }
+          {
+            "title": "Brief",
+            "body": "Where does the motion live (TV ad, ident, social, product)? What's the runtime? What's the brand voice in motion — confident, playful, technical? Different answers, different design."
+          },
+          {
+            "title": "Storyboard",
+            "body": "Frame-by-frame storyboard for narrative pieces, motion principles for system-level work. Approval at this stage, before any animation work — cheap to change a storyboard, expensive to redo a render."
+          },
+          {
+            "title": "Animation",
+            "body": "Animation in After Effects or Cinema 4D depending on the piece. We design with brand typography, color and easing curves consistent with the static brand so motion feels native, not bolted on."
+          },
+          {
+            "title": "Delivery",
+            "body": "Final video files in the formats your channels need (16:9, 1:1, 9:16 for social), plus Lottie for in-product animations where it makes sense. Source AE / C4D files included."
+          }
         ],
         "deliverables": [
           "Storyboard with stakeholder approval before animation",
@@ -531,10 +770,22 @@
         "timeline": "Logo idents and short pieces run 2 to 4 weeks. Explainer films of 60–90 seconds typically run 5 to 8 weeks. Multi-format social campaigns scope per asset.",
         "pricing": "Motion engagements start at $4,000 for logo idents and short loops. Explainer films range $12,000–$40,000 depending on style (2D, 3D, mixed) and runtime. Social campaign packages quoted per scope.",
         "faq": [
-          { "q": "Do you do 3D / Cinema 4D work?", "a": "Yes. We choose 2D or 3D based on what the piece needs, not what we feel like. 3D adds production time and budget — we recommend it only when the result benefits, like product reveals or abstract brand worlds." },
-          { "q": "Can you work with our existing video team?", "a": "Sure — we design and animate; if you have live-action footage we work with the editor to integrate motion graphics. Our motion principles document keeps everything consistent." },
-          { "q": "What about sound design?", "a": "We art-direct and coordinate with sound designers — happy to recommend ones we trust. The sound design budget is separate and runs in parallel." },
-          { "q": "Lottie or video?", "a": "Lottie for product animations and small UI moments (lightweight, scalable, dev-friendly). Video for narrative content and social. Often a single project ships in both formats." }
+          {
+            "q": "Do you do 3D / Cinema 4D work?",
+            "a": "Yes. We choose 2D or 3D based on what the piece needs, not what we feel like. 3D adds production time and budget — we recommend it only when the result benefits, like product reveals or abstract brand worlds."
+          },
+          {
+            "q": "Can you work with our existing video team?",
+            "a": "Sure — we design and animate; if you have live-action footage we work with the editor to integrate motion graphics. Our motion principles document keeps everything consistent."
+          },
+          {
+            "q": "What about sound design?",
+            "a": "We art-direct and coordinate with sound designers — happy to recommend ones we trust. The sound design budget is separate and runs in parallel."
+          },
+          {
+            "q": "Lottie or video?",
+            "a": "Lottie for product animations and small UI moments (lightweight, scalable, dev-friendly). Video for narrative content and social. Often a single project ships in both formats."
+          }
         ]
       },
       "strategy": {
@@ -544,10 +795,22 @@
         "tagline": "The part nobody sees but everyone feels.",
         "intro": "Strategy is the part of brand work that doesn't end up on Behance — but it's the part that decides whether the brand earns its keep in ten years. We run strategy as an engagement of its own or as the front-end of a full branding project. Output is a positioning document, a brand architecture if the business has multiple lines, a measurable success framework and the brief that every subsequent design decision answers to. Done right, strategy makes design decisions almost obvious.",
         "approach": [
-          { "title": "Discovery", "body": "Stakeholder interviews (founders, key team, sometimes customers), category research, competitor analysis, audience segmentation. We surface what's known, what's assumed and what's missing." },
-          { "title": "Positioning", "body": "Working session with leadership: who you serve, what you stand for, what you don't, the change you want to drive in the world. We end the session with a draft positioning statement everyone has signed off on." },
-          { "title": "Architecture", "body": "For multi-product or multi-brand companies — the architecture map (master-brand, sub-brands, product names, endorsed brands) and the principles for adding to it as the business grows." },
-          { "title": "Framework", "body": "Measurable success framework — what does this brand need to do in 1 / 3 / 5 years to be successful, and how do we know we're winning. This becomes the brief every subsequent design and marketing decision answers to." }
+          {
+            "title": "Discovery",
+            "body": "Stakeholder interviews (founders, key team, sometimes customers), category research, competitor analysis, audience segmentation. We surface what's known, what's assumed and what's missing."
+          },
+          {
+            "title": "Positioning",
+            "body": "Working session with leadership: who you serve, what you stand for, what you don't, the change you want to drive in the world. We end the session with a draft positioning statement everyone has signed off on."
+          },
+          {
+            "title": "Architecture",
+            "body": "For multi-product or multi-brand companies — the architecture map (master-brand, sub-brands, product names, endorsed brands) and the principles for adding to it as the business grows."
+          },
+          {
+            "title": "Framework",
+            "body": "Measurable success framework — what does this brand need to do in 1 / 3 / 5 years to be successful, and how do we know we're winning. This becomes the brief every subsequent design and marketing decision answers to."
+          }
         ],
         "deliverables": [
           "Stakeholder interview summary",
@@ -562,10 +825,22 @@
         "timeline": "Standalone strategy engagements run 4 to 8 weeks. When bundled with branding or rebranding, strategy sits at the front of the project and adds about 2 weeks before identity work starts.",
         "pricing": "Strategy engagements start at $8,000 for focused positioning work and reach $30,000+ for multi-brand architecture and category-defining launches. Bundled with full branding it sits inside the larger scope.",
         "faq": [
-          { "q": "Can we do strategy without buying design from you?", "a": "Yes — strategy is often a standalone engagement. The output is a document any design team can execute against." },
-          { "q": "How is this different from a marketing strategy?", "a": "Brand strategy is upstream — who we are and what we stand for. Marketing strategy is downstream — how we tell people, on which channels, with what budget. Brand strategy lasts; marketing tactics rotate." },
-          { "q": "Do you do customer research?", "a": "We can — qualitative (interviews, ethnography) or coordinated quantitative (surveys with partners). Customer research is a separate budget line and adds 2–4 weeks." },
-          { "q": "What if our positioning needs to change later?", "a": "The strategy document is a living artefact — we recommend a review every 18–24 months as the business and category move. We're happy to run those reviews; many of our clients re-engage us for them." }
+          {
+            "q": "Can we do strategy without buying design from you?",
+            "a": "Yes — strategy is often a standalone engagement. The output is a document any design team can execute against."
+          },
+          {
+            "q": "How is this different from a marketing strategy?",
+            "a": "Brand strategy is upstream — who we are and what we stand for. Marketing strategy is downstream — how we tell people, on which channels, with what budget. Brand strategy lasts; marketing tactics rotate."
+          },
+          {
+            "q": "Do you do customer research?",
+            "a": "We can — qualitative (interviews, ethnography) or coordinated quantitative (surveys with partners). Customer research is a separate budget line and adds 2–4 weeks."
+          },
+          {
+            "q": "What if our positioning needs to change later?",
+            "a": "The strategy document is a living artefact — we recommend a review every 18–24 months as the business and category move. We're happy to run those reviews; many of our clients re-engage us for them."
+          }
         ]
       }
     },
@@ -686,14 +961,24 @@
       "service": "Service",
       "servicePlaceholder": "What can we help with?",
       "budget": "Budget",
-      "budgets": ["Under $2,000", "$2,000 – $5,000", "$5,000 – $15,000", "$15,000 – $50,000", "$50,000+"],
+      "budgets": [
+        "Under $2,000",
+        "$2,000 – $5,000",
+        "$5,000 – $15,000",
+        "$15,000 – $50,000",
+        "$50,000+"
+      ],
       "message": "Message",
       "messagePlaceholder": "Tell us about your project...",
       "send": "Send message",
       "sending": "Sending...",
       "success": "Message sent! We'll be in touch within 24 hours.",
       "error": "Something went wrong. Please try again.",
-      "tooMany": "Too many attempts. Please try again in a few minutes."
+      "tooMany": "Too many attempts. Please try again in a few minutes.",
+      "nameRequired": "Please enter your name",
+      "emailRequired": "Please enter your email",
+      "emailInvalid": "Please enter a valid email address",
+      "messageRequired": "Please tell us about your project"
     }
   },
   "testimonialsSection": {
@@ -710,9 +995,18 @@
     "back": "Back to insights"
   },
   "legal": {
-    "privacy":  { "title": "Privacy Policy",     "description": "How MAZE Studio collects and protects your data." },
-    "terms":    { "title": "Terms of Service",   "description": "Terms that govern the use of the MAZE Studio website." },
-    "cookies":  { "title": "Cookie Policy",      "description": "Which cookies we use and how to manage your choice." },
+    "privacy": {
+      "title": "Privacy Policy",
+      "description": "How MAZE Studio collects and protects your data."
+    },
+    "terms": {
+      "title": "Terms of Service",
+      "description": "Terms that govern the use of the MAZE Studio website."
+    },
+    "cookies": {
+      "title": "Cookie Policy",
+      "description": "Which cookies we use and how to manage your choice."
+    },
     "cookieSettings": "Cookie settings"
   },
   "cookieBanner": {
