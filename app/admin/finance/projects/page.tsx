@@ -3,11 +3,17 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import toast from 'react-hot-toast'
-import { formatMoney } from '@/lib/finance/money'
-import type { Currency, FinanceClient, FinanceProject, FinanceTransaction } from '@/lib/finance/types'
+import { formatMoney, DEFAULT_FINANCE_SETTINGS } from '@/lib/finance/money'
+import { projectRollup, type ProjectRollup } from '@/lib/finance/rollup'
+import type { Currency, FinanceClient, FinanceProject, FinanceSettings, FinanceTransaction } from '@/lib/finance/types'
 import { ProjectForm } from '@/components/admin/finance/ProjectForm'
 import { FIN_COLORS } from '@/components/admin/finance/tokens'
 import { useFinanceLang } from '@/components/admin/finance/lang'
+
+interface SettingsResponse {
+  baseCurrency: Currency
+  effectiveRates: Partial<Record<Currency, number>>
+}
 
 export default function ProjectsPage() {
   const router = useRouter()
@@ -15,20 +21,30 @@ export default function ProjectsPage() {
   const [projects, setProjects] = useState<FinanceProject[]>([])
   const [clients, setClients] = useState<FinanceClient[]>([])
   const [txns, setTxns] = useState<FinanceTransaction[]>([])
+  const [settings, setSettings] = useState<FinanceSettings>(DEFAULT_FINANCE_SETTINGS)
   const [loading, setLoading] = useState(true)
   const [formOpen, setFormOpen] = useState(false)
   const [editing, setEditing] = useState<FinanceProject | null>(null)
 
   const load = useCallback(async () => {
-    const [pRes, cRes, tRes] = await Promise.all([
+    const [pRes, cRes, tRes, sRes] = await Promise.all([
       fetch('/api/finance/projects', { cache: 'no-store' }),
       fetch('/api/finance/clients', { cache: 'no-store' }),
       fetch('/api/finance/transactions', { cache: 'no-store' }),
+      fetch('/api/finance/settings', { cache: 'no-store' }),
     ])
-    if ([pRes, cRes, tRes].some((r) => r.status === 401)) { router.push('/admin/finance/unlock'); return }
+    if ([pRes, cRes, tRes, sRes].some((r) => r.status === 401)) { router.push('/admin/finance/unlock'); return }
     setProjects(await pRes.json())
     setClients(await cRes.json())
     setTxns(await tRes.json())
+    // Use the EFFECTIVE rates (Central Bank when auto-rates is on) — the same
+    // ones the dashboard converts with, so both screens agree.
+    const s = (await sRes.json()) as SettingsResponse
+    setSettings({
+      ...DEFAULT_FINANCE_SETTINGS,
+      baseCurrency: s.baseCurrency,
+      rates: s.effectiveRates ?? {},
+    })
     setLoading(false)
   }, [router])
 
@@ -36,33 +52,14 @@ export default function ProjectsPage() {
   useEffect(() => { if (new URLSearchParams(window.location.search).get('new')) openNew() }, [])
 
   const cliName = useMemo(() => new Map(clients.map((c) => [c.id, c.company || c.name])), [clients])
-  const paidByProject = useMemo(() => {
-    const m = new Map<string, number>()
-    for (const tx of txns) {
-      if (tx.type !== 'income' || !tx.projectId) continue
-      const proj = projects.find((p) => p.id === tx.projectId)
-      if (!proj || proj.currency !== tx.currency) continue
-      m.set(tx.projectId, (m.get(tx.projectId) ?? 0) + tx.amount)
-    }
-    return m
-  }, [txns, projects])
 
-  const prepayByProject = useMemo(() => {
-    const byProj = new Map<string, FinanceTransaction[]>()
-    for (const tx of txns) {
-      if (tx.type !== 'income' || !tx.projectId) continue
-      if (!byProj.has(tx.projectId)) byProj.set(tx.projectId, [])
-      byProj.get(tx.projectId)!.push(tx)
-    }
-    const m = new Map<string, { amount: number; date: string; currency: Currency }>()
-    for (const [pid, list] of byProj) {
-      const pre =
-        list.find((tx) => tx.category.trim().toLowerCase() === 'prepayment') ??
-        [...list].sort((a, b) => (a.date < b.date ? -1 : 1))[0]
-      if (pre) m.set(pid, { amount: pre.amount, date: pre.date, currency: pre.currency })
-    }
+  // One rollup per project — payments in other currencies are converted,
+  // not skipped, so "Received" here matches the dashboard's receivables.
+  const rollups = useMemo(() => {
+    const m = new Map<string, ProjectRollup>()
+    for (const p of projects) m.set(p.id, projectRollup(p, txns, settings))
     return m
-  }, [txns])
+  }, [projects, txns, settings])
 
   const openNew = () => { setEditing(null); setFormOpen(true) }
   const openEdit = (p: FinanceProject) => { setEditing(p); setFormOpen(true) }
@@ -98,10 +95,12 @@ export default function ProjectsPage() {
       ) : (
         <div className="space-y-3">
           {projects.map((p) => {
-            const paid = paidByProject.get(p.id) ?? 0
-            const prepay = prepayByProject.get(p.id)
+            const roll = rollups.get(p.id)
+            const paid = roll?.received ?? 0
+            const prepay = roll?.prepayment ?? null
+            const unconverted = roll?.unconverted ?? []
             const pct = p.amount > 0 ? Math.min(100, (paid / p.amount) * 100) : 0
-            const outstanding = Math.max(0, p.amount - paid)
+            const outstanding = roll?.outstanding ?? p.amount
             const color = FIN_COLORS.status[p.status]
             return (
               <div key={p.id} className="group rounded-xl bg-[#0D0D0D] border border-[#1E1E1E] p-5 hover:border-[#2A2A2A] transition-colors">
@@ -144,6 +143,11 @@ export default function ProjectsPage() {
                         </p>
                       </div>
                     </div>
+                    {unconverted.length > 0 && (
+                      <p className="mt-2 text-[11px] text-[#FFD447]">
+                        {t('projs.unconverted', { list: unconverted.join(', ') })}
+                      </p>
+                    )}
                   </>
                 )}
 

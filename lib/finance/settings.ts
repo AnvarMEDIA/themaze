@@ -9,15 +9,15 @@ export async function getFinanceSettings(): Promise<FinanceSettings> {
   const stored = await readStore<FinanceSettings | null>(STORE_KEY, null)
   if (!stored) return DEFAULT_FINANCE_SETTINGS
   const baseCurrency = stored.baseCurrency ?? DEFAULT_FINANCE_SETTINGS.baseCurrency
-  // The seed rates are expressed in UZS, so they are only meaningful when UZS
-  // is the base. Merging them under, say, a USD base would claim "1 RUB = 140
-  // USD" and inflate every total by orders of magnitude.
-  const seed = baseCurrency === DEFAULT_FINANCE_SETTINGS.baseCurrency
-    ? DEFAULT_FINANCE_SETTINGS.rates
-    : {}
+  // Once settings exist, the stored rates are the whole truth. The seed rates
+  // are NOT merged back in: doing so made a rate impossible to clear and, more
+  // importantly, presented a hard-coded guess as if it were a real rate — so a
+  // currency the admin never priced was converted with a stale number instead
+  // of being reported as unrated. (They are also UZS-denominated, so merging
+  // them under another base would be wrong outright.)
   return {
     baseCurrency,
-    rates: { ...seed, ...stored.rates },
+    rates: stored.rates ?? {},
     autoRates: stored.autoRates ?? DEFAULT_FINANCE_SETTINGS.autoRates,
     updatedAt: stored.updatedAt ?? DEFAULT_FINANCE_SETTINGS.updatedAt,
   }

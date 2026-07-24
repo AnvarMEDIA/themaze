@@ -69,6 +69,15 @@ export default function FinanceDashboard() {
         </Link>
       </div>
 
+      {sum.unratedCurrencies?.length > 0 && (
+        <div className="mb-6 rounded-xl border border-[#FFD447]/30 bg-[#FFD447]/[0.06] px-5 py-4 flex items-start gap-3">
+          <span className="text-[#FFD447] text-sm leading-5" aria-hidden="true">⚠</span>
+          <p className="text-[13px] text-[#E8D9A0]">
+            {t('dash.unrated', { list: sum.unratedCurrencies.join(', ') })}
+          </p>
+        </div>
+      )}
+
       {!hasData && (
         <div className="mb-6 rounded-xl border border-[#1E1E1E] bg-[#0D0D0D] px-6 py-10 text-center">
           <p className="text-white font-semibold mb-1">{t('dash.emptyTitle')}</p>
@@ -92,7 +101,7 @@ export default function FinanceDashboard() {
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
         <MiniStat label={t('dash.activeProjects')} value={kpis.activeProjects} href="/admin/finance/projects" />
         <MiniStat label={t('dash.clients')} value={kpis.totalClients} href="/admin/finance/clients" />
-        <MiniStat label={t('dash.transactions')} value={sum.recentTransactions.length >= 8 ? '8+' : sum.recentTransactions.length} href="/admin/finance/transactions" />
+        <MiniStat label={t('dash.transactions')} value={sum.totalTransactions ?? sum.recentTransactions.length} href="/admin/finance/transactions" />
         <div className="rounded-xl bg-[#0D0D0D] border border-[#1A1A1A] px-4 py-3.5 flex flex-col justify-center">
           <p className="text-[11px] text-[#555] mb-1">{t('dash.revByCurrency')}</p>
           <p className="text-[13px] text-[#bbb] truncate">

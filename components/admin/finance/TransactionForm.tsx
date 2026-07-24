@@ -9,8 +9,9 @@ import {
   type FinanceClient, type FinanceProject, type FinanceTransaction,
 } from '@/lib/finance/types'
 import { useFinanceLang } from './lang'
+import { todayLocal } from '@/lib/finance/date'
 
-const today = () => new Date().toISOString().slice(0, 10)
+const today = todayLocal
 
 const base = () => ({
   type: 'income', amount: '', currency: 'UZS', date: today(),
@@ -45,14 +46,17 @@ export function TransactionForm({
 
   const set = (k: keyof ReturnType<typeof base>) => (v: string) => setF((p) => ({ ...p, [k]: v }))
 
-  // Selecting a project pulls its currency + client for convenience.
+  // Selecting a project pulls its client, and its currency only as a
+  // convenience for a NEW, still-empty entry. Never on an existing record:
+  // silently swapping the currency there would turn $1,000 into 1,000 so'm.
   const onProject = (id: string) => {
     setF((p) => {
       const proj = projects.find((x) => x.id === id)
+      const mayAdoptCurrency = !initial && !p.amount.trim()
       return {
         ...p,
         projectId: id,
-        currency: proj ? proj.currency : p.currency,
+        currency: proj && mayAdoptCurrency ? proj.currency : p.currency,
         clientId: proj && proj.clientId ? proj.clientId : p.clientId,
       }
     })

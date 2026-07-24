@@ -96,6 +96,7 @@ const en: Dict = {
   'dash.clients': 'Clients',
   'dash.transactions': 'Transactions',
   'dash.revByCurrency': 'Revenue by currency',
+  'dash.unrated': 'No exchange rate for {list} — amounts in {list} are counted as zero. Set a rate in Settings.',
   'dash.revLast12': 'Revenue — last 12 months',
   'dash.hoverHint': 'Hover a bar for detail',
   'dash.topClients': 'Top clients by revenue',
@@ -141,6 +142,7 @@ const en: Dict = {
   'projs.received': 'Received',
   'projs.outstanding': 'Outstanding',
   'projs.paidInFull': 'Paid in full',
+  'projs.unconverted': 'Payments in {list} are not counted — set an exchange rate in Settings.',
   'projs.confirmDelete': 'Delete “{name}”? Linked payments stay but lose the link.',
 
   // Clients page
@@ -339,6 +341,7 @@ const ru: Dict = {
   'dash.clients': 'Клиенты',
   'dash.transactions': 'Операции',
   'dash.revByCurrency': 'Выручка по валютам',
+  'dash.unrated': 'Нет курса для {list} — суммы в {list} считаются нулём. Задайте курс в настройках.',
   'dash.revLast12': 'Выручка — последние 12 месяцев',
   'dash.hoverHint': 'Наведите на столбец',
   'dash.topClients': 'Топ клиентов по выручке',
@@ -384,6 +387,7 @@ const ru: Dict = {
   'projs.received': 'Получено',
   'projs.outstanding': 'Остаток',
   'projs.paidInFull': 'Оплачено полностью',
+  'projs.unconverted': 'Платежи в {list} не учтены — задайте курс в настройках.',
   'projs.confirmDelete': 'Удалить «{name}»? Связанные платежи останутся, но потеряют привязку.',
 
   // Clients page
@@ -513,7 +517,9 @@ export function monthShort(lang: FinLang, monthIndex0: number): string {
 export function translate(lang: FinLang, key: string, vars?: Record<string, string | number>): string {
   let s = DICTS[lang][key] ?? DICTS.en[key] ?? key
   if (vars) {
-    for (const [k, v] of Object.entries(vars)) s = s.replace(`{${k}}`, String(v))
+    // replaceAll, not replace — a placeholder may legitimately appear more
+    // than once in a sentence, and a stray "{list}" would render to the user.
+    for (const [k, v] of Object.entries(vars)) s = s.replaceAll(`{${k}}`, String(v))
   }
   return s
 }

@@ -67,6 +67,7 @@ export const ProjectUpdateSchema = ProjectSchema.partial()
 
 export const TransactionSchema = z.object({
   type:      z.enum([...TRANSACTION_TYPES] as [TransactionType, ...TransactionType[]]).default('income'),
+  kind:      z.literal('prepayment').optional(),
   projectId: nullableId,
   clientId:  nullableId,
   amount,
@@ -82,7 +83,11 @@ export const TransactionUpdateSchema = TransactionSchema.partial()
 
 export const FinanceSettingsSchema = z.object({
   baseCurrency: currencyEnum,
-  rates: z.record(currencyEnum, z.number().positive().max(1e9)).optional(),
+  // `partialRecord`, not `record`: in Zod v4 a record keyed by an enum is
+  // EXHAUSTIVE, so a rates object missing any currency (which is always — the
+  // base currency and any blank rate are omitted) failed validation and the
+  // whole settings save was rejected with a 400.
+  rates: z.partialRecord(currencyEnum, z.number().positive().max(1e9)).optional(),
   autoRates: z.boolean().optional().default(true),
 })
 

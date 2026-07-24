@@ -7,8 +7,9 @@ import { Field, Text, Area, Select, NumberField, FormActions } from './fields'
 import { CURRENCIES, PROJECT_STATUSES, type Currency, type FinanceClient, type FinanceProject } from '@/lib/finance/types'
 import { formatMoney } from '@/lib/finance/money'
 import { useFinanceLang } from './lang'
+import { todayLocal } from '@/lib/finance/date'
 
-const today = () => new Date().toISOString().slice(0, 10)
+const today = todayLocal
 
 export function ProjectForm({
   open, initial, clients, onClose, onSaved,
@@ -74,13 +75,16 @@ export function ProjectForm({
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             type: 'income',
+            // Structural marker — the UI identifies the prepayment by this,
+            // not by the free-text category the user may rename or translate.
+            kind: 'prepayment',
             amount: prepay,
             currency: f.currency,
             date: f.prepaymentDate || today(),
             projectId: saved.id,
             clientId: f.clientId || null,
             method: 'bank',
-            category: 'Prepayment',
+            category: t('pf.prepayment'),
             note: '',
           }),
         })

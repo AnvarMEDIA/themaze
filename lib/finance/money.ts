@@ -59,11 +59,37 @@ export function toBase(amount: number, currency: Currency, settings: FinanceSett
   return amount * rate
 }
 
+/**
+ * Value of 1 unit of `currency` in the base currency, or null when unknown.
+ * Null (rather than 0) so callers must decide what to do about a missing rate
+ * instead of silently counting the money as nothing.
+ */
+export function rateOf(currency: Currency, settings: FinanceSettings): number | null {
+  if (currency === settings.baseCurrency) return 1
+  const rate = settings.rates[currency]
+  return rate && rate > 0 ? rate : null
+}
+
+/**
+ * Convert between any two currencies via the base currency.
+ * Returns null when either side has no usable rate.
+ */
+export function convert(
+  amount: number,
+  from: Currency,
+  to: Currency,
+  settings: FinanceSettings,
+): number | null {
+  if (from === to) return amount
+  const f = rateOf(from, settings)
+  const t = rateOf(to, settings)
+  if (f === null || t === null) return null
+  return (amount * f) / t
+}
+
 /** Whether every non-base currency present has a usable rate. */
 export function missingRates(currencies: Currency[], settings: FinanceSettings): Currency[] {
-  return currencies.filter(
-    (c) => c !== settings.baseCurrency && !(settings.rates[c] && settings.rates[c]! > 0),
-  )
+  return Array.from(new Set(currencies)).filter((c) => rateOf(c, settings) === null)
 }
 
 export const DEFAULT_FINANCE_SETTINGS: FinanceSettings = {

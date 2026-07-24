@@ -53,6 +53,12 @@ export interface FinanceProject {
 export interface FinanceTransaction {
   id: string
   type: TransactionType
+  /**
+   * Marks a payment's role when it matters structurally. Set on the payment
+   * auto-created from a project's prepayment field so the UI never has to
+   * guess from the free-text, user-translatable `category`.
+   */
+  kind?: 'prepayment'
   projectId: string | null
   clientId: string | null
   amount: number
@@ -96,6 +102,10 @@ export interface ClientRevenue {
 export interface FinanceSummary {
   baseCurrency: Currency
   generatedAt: string
+  /** Currencies in use that have no usable rate — their amounts count as 0. */
+  unratedCurrencies: Currency[]
+  /** True total, unlike `recentTransactions` which is capped for display. */
+  totalTransactions: number
   kpis: {
     revenueAllTime: number
     revenueThisYear: number

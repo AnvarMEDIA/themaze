@@ -5,7 +5,8 @@
  */
 import { listClients, listProjects, listTransactions } from './data'
 import { getEffectiveFinanceSettings } from './settings'
-import { toBase } from './money'
+import { toBase, missingRates } from './money'
+import { projectRollup } from './rollup'
 import type {
   FinanceSummary,
   MonthlyPoint,
@@ -43,19 +44,12 @@ export async function buildSummary(): Promise<FinanceSummary> {
   const profitThisYear = revenueThisYear - expenseThisYear
 
   // Receivables: unpaid balance on signed projects (active + completed).
-  const paidByProject = new Map<string, number>()
-  for (const t of income) {
-    if (!t.projectId) continue
-    paidByProject.set(
-      t.projectId,
-      (paidByProject.get(t.projectId) ?? 0) + toBase(t.amount, t.currency, settings),
-    )
-  }
+  // Uses the same rollup as the Projects page so the two can't disagree.
   let outstanding = 0
   for (const p of projects) {
     if (p.status !== 'active' && p.status !== 'completed') continue
-    const contract = toBase(p.amount, p.currency, settings)
-    outstanding += Math.max(0, contract - (paidByProject.get(p.id) ?? 0))
+    const { outstanding: due } = projectRollup(p, txns, settings)
+    outstanding += toBase(due, p.currency, settings)
   }
 
   const activeProjects = projects.filter((p) => p.status === 'active').length
@@ -104,9 +98,20 @@ export async function buildSummary(): Promise<FinanceSummary> {
   for (const t of income) byCurrency.set(t.currency, (byCurrency.get(t.currency) ?? 0) + t.amount)
   const revenueByCurrency = [...byCurrency.entries()].map(([currency, amount]) => ({ currency, amount }))
 
+  // Any currency in use without a usable rate contributes 0 to the totals
+  // above. Report it so the dashboard can warn instead of quietly under-
+  // counting revenue.
+  const currenciesInUse = [
+    ...txns.map((t) => t.currency),
+    ...projects.map((p) => p.currency),
+  ]
+  const unratedCurrencies = missingRates(currenciesInUse, settings)
+
   return {
     baseCurrency: settings.baseCurrency,
     generatedAt: nowDate.toISOString(),
+    unratedCurrencies,
+    totalTransactions: txns.length,
     kpis: {
       revenueAllTime,
       revenueThisYear,
