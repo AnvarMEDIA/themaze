@@ -104,6 +104,14 @@ export interface FinanceSummary {
   generatedAt: string
   /** Currencies in use that have no usable rate — their amounts count as 0. */
   unratedCurrencies: Currency[]
+  /**
+   * Effective rates (value of 1 unit in `baseCurrency`) used for the figures
+   * above, so the UI can re-express the same totals in other currencies
+   * without a second request or a second source of truth.
+   */
+  rates: Partial<Record<Currency, number>>
+  /** Where those rates came from, for labelling. */
+  ratesSource: 'cbu' | 'manual'
   /** True total, unlike `recentTransactions` which is capped for display. */
   totalTransactions: number
   kpis: {

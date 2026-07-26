@@ -111,6 +111,8 @@ export async function buildSummary(): Promise<FinanceSummary> {
     baseCurrency: settings.baseCurrency,
     generatedAt: nowDate.toISOString(),
     unratedCurrencies,
+    rates: settings.rates,
+    ratesSource: settings.ratesSource,
     totalTransactions: txns.length,
     kpis: {
       revenueAllTime,

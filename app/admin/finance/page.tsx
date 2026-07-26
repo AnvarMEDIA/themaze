@@ -3,8 +3,8 @@
 import { useCallback, useEffect, useState } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
-import { formatMoney } from '@/lib/finance/money'
-import type { FinanceSummary } from '@/lib/finance/types'
+import { formatMoney, convert } from '@/lib/finance/money'
+import { CURRENCIES, type Currency, type FinanceSummary } from '@/lib/finance/types'
 import { MonthlyBars, HBars } from '@/components/admin/finance/Charts'
 import { FIN_COLORS } from '@/components/admin/finance/tokens'
 import { useFinanceLang } from '@/components/admin/finance/lang'
@@ -14,6 +14,9 @@ export default function FinanceDashboard() {
   const { t, locale, tStatus } = useFinanceLang()
   const [sum, setSum] = useState<FinanceSummary | null>(null)
   const [loading, setLoading] = useState(true)
+  // "Show in other currencies" — remembered like the language choice, so the
+  // preference survives a reload.
+  const [multiCurrency, setMultiCurrency] = useState(false)
 
   const load = useCallback(async () => {
     const res = await fetch('/api/finance/summary', { cache: 'no-store' })
@@ -23,6 +26,18 @@ export default function FinanceDashboard() {
   }, [router])
 
   useEffect(() => { load() }, [load])
+
+  useEffect(() => {
+    setMultiCurrency(window.localStorage.getItem('maze_finance_multicurrency') === '1')
+  }, [])
+
+  const toggleMultiCurrency = () => {
+    setMultiCurrency((v) => {
+      const next = !v
+      try { window.localStorage.setItem('maze_finance_multicurrency', next ? '1' : '0') } catch { /* ignore */ }
+      return next
+    })
+  }
 
   if (loading || !sum) {
     return (
@@ -39,6 +54,23 @@ export default function FinanceDashboard() {
   const { kpis, baseCurrency } = sum
   const fmt = (v: number) => formatMoney(v, baseCurrency, { compact: true, locale })
   const hasData = kpis.revenueAllTime > 0 || sum.statusBreakdown.some((s) => s.count > 0)
+
+  // Re-express a base-currency figure in every other currency we have a rate
+  // for. Uses the rates the summary was computed with, so the conversions can
+  // never drift from the headline number.
+  const rateSettings = { baseCurrency, rates: sum.rates ?? {}, autoRates: true, updatedAt: '' }
+  const otherCurrencies = CURRENCIES.filter(
+    (c) => c !== baseCurrency && convert(1, baseCurrency, c, rateSettings) !== null,
+  )
+  const inOtherCurrencies = (value: number): string[] =>
+    otherCurrencies
+      .map((c) => {
+        const v = convert(value, baseCurrency, c, rateSettings)
+        return v === null ? null : formatMoney(v, c as Currency, { compact: true, locale })
+      })
+      .filter((s): s is string => s !== null)
+
+  const showMulti = multiCurrency && otherCurrencies.length > 0
 
   const topClientItems = sum.topClients.map((c) => ({ label: c.name, value: c.total }))
   const statusItems = sum.statusBreakdown
@@ -57,16 +89,39 @@ export default function FinanceDashboard() {
         <div className="min-w-0">
           <h1 className="text-xl sm:text-2xl font-bold text-white tracking-tight">{t('dash.title')}</h1>
           <p className="text-sm text-[#555] mt-1">
-            {t('dash.figuresIn')} <span className="text-[#888] font-medium">{baseCurrency}</span> · {t('dash.convertedAt')}
+            {t('dash.figuresIn')} <span className="text-[#888] font-medium">{baseCurrency}</span>
+            {' · '}
+            {sum.ratesSource === 'cbu' ? t('dash.convertedCbu') : t('dash.convertedManual')}
           </p>
         </div>
-        <Link
-          href="/admin/finance/transactions?new=1"
-          className="inline-flex items-center gap-2 px-3 sm:px-4 py-2.5 rounded-lg bg-[#C8FF47] text-[#0A0A0A] text-sm font-bold hover:bg-[#F0EEE6] transition-colors active:scale-[0.97] flex-shrink-0"
-        >
-          <span className="text-base leading-none">+</span>
-          <span className="hidden sm:inline">{t('dash.recordPayment')}</span>
-        </Link>
+        <div className="flex items-center gap-2 flex-shrink-0">
+          {otherCurrencies.length > 0 && (
+            <button
+              type="button"
+              onClick={toggleMultiCurrency}
+              aria-pressed={showMulti}
+              title={showMulti ? t('dash.hideCurrencies') : t('dash.showCurrencies')}
+              className={`inline-flex items-center gap-2 px-3 sm:px-4 py-2.5 rounded-lg border text-sm font-semibold transition-colors active:scale-[0.97] ${
+                showMulti
+                  ? 'border-[#C8FF47]/40 bg-[#C8FF47]/10 text-[#C8FF47]'
+                  : 'border-[#2A2A2A] bg-[#161616] text-[#bbb] hover:text-white hover:border-[#333]'
+              }`}
+            >
+              <IconCurrency size={15} />
+              <span className="hidden md:inline">
+                {showMulti ? t('dash.hideCurrencies') : t('dash.showCurrencies')}
+              </span>
+              <span className="md:hidden tabular-nums">{otherCurrencies.join(' · ')}</span>
+            </button>
+          )}
+          <Link
+            href="/admin/finance/transactions?new=1"
+            className="inline-flex items-center gap-2 px-3 sm:px-4 py-2.5 rounded-lg bg-[#C8FF47] text-[#0A0A0A] text-sm font-bold hover:bg-[#F0EEE6] transition-colors active:scale-[0.97]"
+          >
+            <span className="text-base leading-none">+</span>
+            <span className="hidden sm:inline">{t('dash.recordPayment')}</span>
+          </Link>
+        </div>
       </div>
 
       {sum.unratedCurrencies?.length > 0 && (
@@ -91,11 +146,12 @@ export default function FinanceDashboard() {
 
       {/* KPI row */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-4">
-        <Stat label={t('dash.kpiRevenueYear')} value={fmt(kpis.revenueThisYear)} accent="#C8FF47" hint={t('dash.hintThisMonth', { v: fmt(kpis.revenueThisMonth) })} />
-        <Stat label={t('dash.kpiOutstanding')} value={fmt(kpis.outstanding)} accent="#FFD447" hint={t('dash.hintOutstanding')} />
-        <Stat label={t('dash.kpiProfitYear')} value={fmt(kpis.profitThisYear)} accent={kpis.profitThisYear >= 0 ? '#6FA02E' : '#D9563A'} hint={t('dash.hintExpenses', { v: fmt(kpis.expenseThisYear) })} />
-        <Stat label={t('dash.kpiAllTime')} value={fmt(kpis.revenueAllTime)} accent="#47C8FF" hint={t('dash.hintSince')} />
+        <Stat label={t('dash.kpiRevenueYear')} value={fmt(kpis.revenueThisYear)} accent="#C8FF47" hint={t('dash.hintThisMonth', { v: fmt(kpis.revenueThisMonth) })} alt={showMulti ? inOtherCurrencies(kpis.revenueThisYear) : undefined} />
+        <Stat label={t('dash.kpiOutstanding')} value={fmt(kpis.outstanding)} accent="#FFD447" hint={t('dash.hintOutstanding')} alt={showMulti ? inOtherCurrencies(kpis.outstanding) : undefined} />
+        <Stat label={t('dash.kpiProfitYear')} value={fmt(kpis.profitThisYear)} accent={kpis.profitThisYear >= 0 ? '#6FA02E' : '#D9563A'} hint={t('dash.hintExpenses', { v: fmt(kpis.expenseThisYear) })} alt={showMulti ? inOtherCurrencies(kpis.profitThisYear) : undefined} />
+        <Stat label={t('dash.kpiAllTime')} value={fmt(kpis.revenueAllTime)} accent="#47C8FF" hint={t('dash.hintSince')} alt={showMulti ? inOtherCurrencies(kpis.revenueAllTime) : undefined} />
       </div>
+
 
       {/* Secondary counts */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
@@ -168,7 +224,16 @@ export default function FinanceDashboard() {
   )
 }
 
-function Stat({ label, value, accent, hint }: { label: string; value: string; accent: string; hint: string }) {
+function Stat({
+  label, value, accent, hint, alt,
+}: {
+  label: string
+  value: string
+  accent: string
+  hint: string
+  /** Same figure expressed in other currencies; shown when the toggle is on. */
+  alt?: string[]
+}) {
   return (
     <div className="rounded-xl bg-[#0D0D0D] border border-[#1E1E1E] p-5">
       <div className="flex items-center gap-2 mb-3">
@@ -176,8 +241,24 @@ function Stat({ label, value, accent, hint }: { label: string; value: string; ac
         <p className="text-[11px] text-[#666]">{label}</p>
       </div>
       <p className="text-[22px] font-bold text-white tabular-nums leading-none">{value}</p>
+      {alt && alt.length > 0 && (
+        <div className="mt-2.5 pt-2.5 border-t border-[#1A1A1A] space-y-1 fin-fade">
+          {alt.map((v) => (
+            <p key={v} className="text-[12px] text-[#9a9a9a] tabular-nums leading-none">{v}</p>
+          ))}
+        </div>
+      )}
       <p className="text-[11px] text-[#555] mt-2 truncate">{hint}</p>
     </div>
+  )
+}
+
+function IconCurrency({ size = 16 }: { size?: number }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 16 16" fill="none" aria-hidden="true">
+      <circle cx="6.2" cy="6.2" r="4.4" stroke="currentColor" strokeWidth="1.4" />
+      <path d="M9.4 3.1a4.4 4.4 0 11-3.1 8.1" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" transform="translate(2.6 1.5)" />
+    </svg>
   )
 }
 
