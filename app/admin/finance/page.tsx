@@ -72,7 +72,12 @@ export default function FinanceDashboard() {
 
   const showMulti = multiCurrency && otherCurrencies.length > 0
 
-  const topClientItems = sum.topClients.map((c) => ({ label: c.name, value: c.total }))
+  const topClientItems = sum.topClients.map((c) => ({
+    // Server sends the company (or the contact name when there is no company);
+    // an empty label means the payment isn't tied to a client on record.
+    label: c.name || t('dash.unassignedClient'),
+    value: c.total,
+  }))
   const statusItems = sum.statusBreakdown
     .filter((s) => s.count > 0)
     .map((s) => ({

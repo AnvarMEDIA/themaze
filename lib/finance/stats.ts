@@ -76,8 +76,16 @@ export async function buildSummary(): Promise<FinanceSummary> {
   for (const t of income) {
     byClient.set(t.clientId, (byClient.get(t.clientId) ?? 0) + toBase(t.amount, t.currency, settings))
   }
-  const clientName = (id: string | null) =>
-    id ? clients.find((c) => c.id === id)?.name ?? 'Unknown' : 'Unassigned'
+  // Label a client by COMPANY, falling back to the contact name only when no
+  // company is set — the same rule the Clients/Projects/Transactions screens
+  // use, so one client reads identically everywhere. An empty string means
+  // "no company on record"; the UI supplies a localised placeholder, because
+  // a hard-coded English word here would leak into the Russian dashboard.
+  const clientName = (id: string | null) => {
+    if (!id) return ''
+    const c = clients.find((x) => x.id === id)
+    return c ? (c.company.trim() || c.name.trim()) : ''
+  }
   const topClients: ClientRevenue[] = [...byClient.entries()]
     .map(([clientId, total]) => ({ clientId, name: clientName(clientId), total }))
     .filter((c) => c.total > 0)
