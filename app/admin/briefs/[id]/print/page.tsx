@@ -1,6 +1,8 @@
 import { notFound } from 'next/navigation'
-import { getBriefs, type Brief } from '@/lib/briefs'
+import { getBriefs } from '@/lib/briefs'
 import { BriefPrintActions } from '@/components/admin/BriefPrintActions'
+import enMessages from '@/messages/en.json'
+import ruMessages from '@/messages/ru.json'
 
 /**
  * Print sheet for a single brief — A4, light, made to be saved as PDF from the
@@ -50,41 +52,22 @@ const T: Record<Lang, Record<string, string>> = {
   },
 }
 
-const SERVICE_LABELS: Record<Lang, Record<string, string>> = {
-  en: {
-    branding: 'Branding', rebranding: 'Rebranding', identity: 'Visual Identity', naming: 'Naming',
-    packaging: 'Packaging', 'ui-ux': 'UI / UX Design', print: 'Print & Packaging',
-    motion: 'Motion Design', strategy: 'Brand Strategy', unsure: 'Not sure yet',
-  },
-  ru: {
-    branding: 'Брендинг', rebranding: 'Ребрендинг', identity: 'Айдентика', naming: 'Нейминг',
-    packaging: 'Упаковка', 'ui-ux': 'UI / UX дизайн', print: 'Печать и упаковка',
-    motion: 'Моушн-дизайн', strategy: 'Бренд-стратегия', unsure: 'Пока не решили',
-  },
+/* Options come from the same message files the client's form renders from,
+ * so the printed labels — and the colour swatches — are exactly what they saw
+ * and picked. Hardcoding copies here is what made the swatches go missing. */
+
+interface OptionCard { id: string; label: string; swatches?: string[] }
+
+const MESSAGES = { en: enMessages, ru: ruMessages } as const
+
+function options(lang: Lang, key: 'services' | 'styleCards' | 'colorCards'): OptionCard[] {
+  const brief = (MESSAGES[lang] as Record<string, unknown>).brief as Record<string, unknown> | undefined
+  return (brief?.[key] as OptionCard[] | undefined) ?? []
 }
 
-const STYLE_LABELS: Record<Lang, Record<string, string>> = {
-  en: {
-    bold: 'Bold & Powerful', minimal: 'Minimal & Clean', playful: 'Playful & Friendly',
-    classic: 'Classic & Timeless', tech: 'Technical & Modern', luxury: 'Luxurious & Premium',
-    organic: 'Organic & Natural', abstract: 'Abstract & Expressive',
-  },
-  ru: {
-    bold: 'Смелый и мощный', minimal: 'Минимализм', playful: 'Игривый и дружелюбный',
-    classic: 'Классический', tech: 'Технологичный', luxury: 'Премиальный',
-    organic: 'Органичный', abstract: 'Абстрактный',
-  },
-}
-
-const COLOR_LABELS: Record<Lang, Record<string, string>> = {
-  en: {
-    dark: 'Dark & Moody', light: 'Light & Clean', vibrant: 'Vibrant & Electric',
-    earthy: 'Earthy & Warm', natural: 'Natural & Green', mono: 'Monochrome',
-  },
-  ru: {
-    dark: 'Тёмное и глубокое', light: 'Светлое и чистое', vibrant: 'Яркое и сочное',
-    earthy: 'Тёплое, земляное', natural: 'Природное, зелёное', mono: 'Монохром',
-  },
+/** Resolve stored option ids to the cards the client picked, order preserved. */
+function pick(ids: string[] | undefined, cards: OptionCard[]): OptionCard[] {
+  return (ids ?? []).map((id) => cards.find((c) => c.id === id) ?? { id, label: id })
 }
 
 function fmtDate(iso: string, lang: Lang): string {
@@ -103,12 +86,9 @@ export default async function BriefPrintPage({ params, searchParams }: Props) {
   const brief = briefs.find((b) => b.id === params.id)
   if (!brief) notFound()
 
-  const chips = (ids: string[] | undefined, map: Record<string, string>) =>
-    (ids ?? []).map((id) => map[id] ?? id).filter(Boolean)
-
-  const services = chips(brief.services, SERVICE_LABELS[lang])
-  const styles   = chips(brief.styles,   STYLE_LABELS[lang])
-  const colors   = chips(brief.colors,   COLOR_LABELS[lang])
+  const services = pick(brief.services, options(lang, 'services'))
+  const styles   = pick(brief.styles,   options(lang, 'styleCards'))
+  const colors   = pick(brief.colors,   options(lang, 'colorCards'))
 
   const hasVisual = styles.length > 0 || colors.length > 0 || !!brief.refLinks?.trim()
   const hasPlan = !!(brief.timeline?.trim() || brief.budget?.trim() || brief.source?.trim() || brief.notes?.trim())
@@ -152,7 +132,7 @@ export default async function BriefPrintPage({ params, searchParams }: Props) {
           {services.length > 0 && (
             <div className="block">
               <p className="lbl">{t.services}</p>
-              <div className="chips">{services.map((s) => <span key={s} className="chip">{s}</span>)}</div>
+              <div className="chips">{services.map((c) => <span key={c.id} className="chip">{c.label}</span>)}</div>
             </div>
           )}
           <Long label={t.description} value={brief.description} />
@@ -166,13 +146,24 @@ export default async function BriefPrintPage({ params, searchParams }: Props) {
             {styles.length > 0 && (
               <div className="block">
                 <p className="lbl">{t.styles}</p>
-                <div className="chips">{styles.map((s) => <span key={s} className="chip">{s}</span>)}</div>
+                <div className="chips">{styles.map((c) => <span key={c.id} className="chip chip--accent">{c.label}</span>)}</div>
               </div>
             )}
             {colors.length > 0 && (
               <div className="block">
                 <p className="lbl">{t.colors}</p>
-                <div className="chips">{colors.map((c) => <span key={c} className="chip">{c}</span>)}</div>
+                <div className="palettes">
+                  {colors.map((c) => (
+                    <div key={c.id} className="palette">
+                      <span className="sw-row">
+                        {(c.swatches ?? []).map((hex, i) => (
+                          <span key={i} className="sw" style={{ background: hex }} />
+                        ))}
+                      </span>
+                      <span className="sw-label">{c.label}</span>
+                    </div>
+                  ))}
+                </div>
               </div>
             )}
             <Long label={t.refLinks} value={brief.refLinks} />
@@ -292,7 +283,22 @@ const PRINT_CSS = `
   .chip {
     display: inline-block; padding: 1.2mm 3mm; border: 1px solid #DEE0D6; border-radius: 999px;
     background: #F6F7F1; font-size: 9pt; line-height: 1.35;
+    -webkit-print-color-adjust: exact; print-color-adjust: exact;
   }
+  /* The client picked these on lime-accented cards — carry that cue onto
+     paper, keeping the ink dark so it stays readable when printed. */
+  .chip--accent { border-color: #B5E52F; background: #F4FCDF; }
+
+  .palettes { display: flex; flex-direction: column; gap: 2.5mm; }
+  .palette { display: flex; align-items: center; gap: 3mm; break-inside: avoid; }
+  .sw-row { display: inline-flex; gap: 1mm; }
+  /* A border keeps white/near-white swatches visible on white paper. */
+  .sw {
+    width: 6mm; height: 6mm; border-radius: 1.2mm;
+    border: 1px solid rgba(0,0,0,.18);
+    -webkit-print-color-adjust: exact; print-color-adjust: exact;
+  }
+  .sw-label { font-size: 10pt; }
 
   .foot {
     display: flex; gap: 8mm; justify-content: center;
