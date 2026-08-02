@@ -249,7 +249,19 @@ export default function InquiriesPage() {
                       )}
                     </div>
                     <p className="text-xs text-[#555] truncate">{item.service || item.message}</p>
-                    <p className="text-[10px] text-[#333] mt-1">{fmt(item.createdAt)}</p>
+                    <div className="flex items-center gap-2 mt-1">
+                      <p className="text-[10px] text-[#333]">{fmt(item.createdAt)}</p>
+                      {/* Make a failed alert visible — this inquiry reached us
+                          but nobody was told about it. */}
+                      {item.notifyError && (
+                        <span
+                          className="text-[10px] text-[#E0A03A] flex-shrink-0"
+                          title={`Telegram alert failed: ${item.notifyError}`}
+                        >
+                          ⚠ not notified
+                        </span>
+                      )}
+                    </div>
                   </button>
                 </div>
               )

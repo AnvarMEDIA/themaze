@@ -1,8 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { getInquiries, addInquiry, markInquiryRead, deleteInquiry, deleteInquiries } from '@/lib/inquiries'
+import { getInquiries, addInquiry, markInquiryRead, deleteInquiry, deleteInquiries, setInquiryNotified } from '@/lib/inquiries'
 import { getAdminSession } from '@/lib/auth'
 import { InquirySchema } from '@/lib/validation'
 import { rateLimitAsync, clientIp } from '@/lib/rateLimit'
+import { notifyNewInquiry } from '@/lib/notify'
+import { SITE_URL } from '@/lib/seo'
 
 export const dynamic = 'force-dynamic'
 
@@ -48,7 +50,20 @@ export async function POST(req: NextRequest) {
 
     const { website: _hp, ...data } = parsed.data
     const inquiry = await addInquiry(data)
-    return NextResponse.json(inquiry, { status: 201 })
+
+    // Alert the studio. Awaited (work started after a serverless response may
+    // never run) but strictly non-fatal: the lead is already saved, so a
+    // Telegram outage must not turn into an error for the visitor. The outcome
+    // is recorded on the inquiry so a broken bot shows up in the admin panel.
+    const notified = await notifyNewInquiry(inquiry, SITE_URL)
+    if (!notified.ok) {
+      console.error(
+        `[inquiries] saved ${inquiry.id} but the alert failed: ${notified.error ?? 'unknown'}`,
+      )
+    }
+    await setInquiryNotified(inquiry.id, notified).catch(() => {})
+
+    return NextResponse.json({ ok: true, id: inquiry.id }, { status: 201 })
   } catch {
     return NextResponse.json({ error: 'Server error' }, { status: 500 })
   }

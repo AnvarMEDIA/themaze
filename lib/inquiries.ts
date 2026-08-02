@@ -11,6 +11,10 @@ export interface Inquiry {
   message:   string
   createdAt: string
   read:      boolean
+  /** When the Telegram alert went out. Absent = never delivered. */
+  notifiedAt?: string
+  /** Why the alert failed, so a broken bot is visible instead of silent. */
+  notifyError?: string
 }
 
 // Cap retained submissions so the anonymous public endpoint can't grow
@@ -36,6 +40,22 @@ export async function addInquiry(
     [inquiry, ...all].slice(0, MAX_INQUIRIES),
   )
   return inquiry
+}
+
+/** Record the outcome of the notification attempt for an inquiry. */
+export async function setInquiryNotified(
+  id: string,
+  result: { ok: boolean; error?: string },
+): Promise<void> {
+  await updateStore<Inquiry[]>('inquiries', [], (all) =>
+    all.map((i) =>
+      i.id === id
+        ? result.ok
+          ? { ...i, notifiedAt: new Date().toISOString(), notifyError: undefined }
+          : { ...i, notifyError: result.error ?? 'failed' }
+        : i,
+    ),
+  )
 }
 
 export async function markInquiryRead(id: string): Promise<void> {
