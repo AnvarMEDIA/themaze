@@ -114,6 +114,103 @@ export function formatInquiry(i: InquiryLike, siteUrl: string): string {
   ].join('\n')
 }
 
+/* ── Brief ───────────────────────────────────────────────────────────────
+ * The brief form stores option IDs, not labels, and the server has no access
+ * to the next-intl messages — so the IDs are resolved here for a readable
+ * message.
+ */
+
+const STYLE_LABELS: Record<string, string> = {
+  bold: 'Bold & Powerful', minimal: 'Minimal & Clean', playful: 'Playful & Friendly',
+  classic: 'Classic & Timeless', tech: 'Technical & Modern', luxury: 'Luxurious & Premium',
+  organic: 'Organic & Natural', abstract: 'Abstract & Expressive',
+}
+const COLOR_LABELS: Record<string, string> = {
+  dark: 'Dark & Moody', light: 'Light & Clean', vibrant: 'Vibrant & Electric',
+  earthy: 'Earthy & Warm', natural: 'Natural & Green', mono: 'Monochrome',
+}
+const SERVICE_LABELS: Record<string, string> = {
+  branding: 'Branding', rebranding: 'Rebranding', identity: 'Visual Identity',
+  naming: 'Naming', packaging: 'Packaging', 'ui-ux': 'UI / UX Design',
+  print: 'Print & Packaging', motion: 'Motion Design', strategy: 'Brand Strategy',
+  unsure: 'Not sure yet',
+}
+
+const truncate = (s: string, max: number) =>
+  s.length <= max ? s : `${s.slice(0, max - 1).trimEnd()}…`
+
+const resolveList = (ids: string[] | undefined, labels: Record<string, string>) =>
+  (ids ?? []).map((id) => labels[id] ?? id).filter(Boolean).join(', ')
+
+export interface BriefLike {
+  name: string
+  email?: string
+  phone?: string
+  company?: string
+  website?: string
+  services?: string[]
+  description: string
+  goals?: string
+  audience?: string
+  competitors?: string
+  styles?: string[]
+  colors?: string[]
+  refLinks?: string
+  timeline?: string
+  budget?: string
+  source?: string
+  notes?: string
+}
+
+export function formatBrief(b: BriefLike, siteUrl: string): string {
+  const e = escapeHtml
+  const out: string[] = ['📋 <b>Новый бриф с сайта</b>', '']
+
+  out.push(`👤 <b>${e(b.name)}</b>${b.company?.trim() ? ` — ${e(b.company)}` : ''}`)
+  if (b.phone?.trim())   out.push(`📞 ${e(b.phone)}`)
+  if (b.email?.trim())   out.push(`✉️ ${e(b.email)}`)
+  if (b.website?.trim()) out.push(`🌐 ${e(b.website)}`)
+
+  out.push('', '📦 <b>Проект</b>')
+  const services = resolveList(b.services, SERVICE_LABELS)
+  if (services) out.push(`Услуги: ${e(services)}`)
+  out.push(e(truncate(b.description, 1500)))
+  if (b.goals?.trim())       out.push('', `<b>Цели:</b> ${e(truncate(b.goals, 500))}`)
+  if (b.audience?.trim())    out.push(`<b>Аудитория:</b> ${e(truncate(b.audience, 400))}`)
+  if (b.competitors?.trim()) out.push(`<b>Конкуренты:</b> ${e(truncate(b.competitors, 400))}`)
+
+  const styles = resolveList(b.styles, STYLE_LABELS)
+  const colors = resolveList(b.colors, COLOR_LABELS)
+  if (styles || colors || b.refLinks?.trim()) {
+    out.push('', '🎨 <b>Визуальное направление</b>')
+    if (styles) out.push(`Стилистика: ${e(styles)}`)
+    if (colors) out.push(`Цвета: ${e(colors)}`)
+    if (b.refLinks?.trim()) out.push(`Референсы: ${e(truncate(b.refLinks, 500))}`)
+  }
+
+  if (b.timeline?.trim() || b.budget?.trim() || b.source?.trim() || b.notes?.trim()) {
+    out.push('', '⏱ <b>Сроки и бюджет</b>')
+    if (b.timeline?.trim()) out.push(`Сроки: ${e(b.timeline)}`)
+    if (b.budget?.trim())   out.push(`Бюджет: ${e(b.budget)}`)
+    if (b.source?.trim())   out.push(`Откуда узнали: ${e(b.source)}`)
+    if (b.notes?.trim())    out.push(`Заметки: ${e(truncate(b.notes, 500))}`)
+  }
+
+  out.push('', `<a href="${e(siteUrl)}/admin/briefs">Открыть в админке</a>`)
+  // Telegram caps a message at 4096 characters.
+  return truncate(out.join('\n'), 3900)
+}
+
+/** Notify about a new brief. Never throws. */
+export async function notifyNewBrief(b: BriefLike, siteUrl: string): Promise<NotifyResult> {
+  try {
+    return await sendTelegram(formatBrief(b, siteUrl))
+  } catch (err) {
+    console.error('[notify] unexpected failure', err)
+    return { ok: false, configured: telegramConfigured(), error: 'unexpected' }
+  }
+}
+
 /** Notify about a new inquiry. Never throws. */
 export async function notifyNewInquiry(i: InquiryLike, siteUrl: string): Promise<NotifyResult> {
   try {

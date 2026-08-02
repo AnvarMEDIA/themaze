@@ -157,13 +157,13 @@ export function Hero() {
             {/* Lime CTA button */}
             <MagneticButton>
               <Link
-                href="/contact"
+                href="/brief"
                 className="flex items-center gap-2 px-6 py-3.5 bg-maze-lime text-maze-ink rounded-full label-sm font-bold active:scale-[0.97]"
                 style={{ transition: 'background-color 200ms ease-out, transform 150ms ease-out' }}
                 onMouseEnter={e => { e.currentTarget.style.backgroundColor = '#F0EEE6' }}
                 onMouseLeave={e => { e.currentTarget.style.backgroundColor = '' }}
               >
-                {t('startProject')}
+                {t('fillBrief')}
                 <Arrow direction="up-right" className="text-sm" />
               </Link>
             </MagneticButton>

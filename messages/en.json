@@ -21,7 +21,8 @@
     "viewWork": "View Work",
     "startProject": "Start a Project",
     "scroll": "Scroll",
-    "est": "EST. 2019 — TASHKENT"
+    "est": "EST. 2019 — TASHKENT",
+    "fillBrief": "Fill out brief"
   },
   "marquee": {
     "items": [
@@ -1016,5 +1017,248 @@
     "learnMore": "Read more",
     "accept": "Accept all",
     "reject": "Reject"
+  },
+  "brief": {
+    "metaTitle": "Client Brief — Start Your Project | MAZE Studio",
+    "metaDesc": "Fill out the project brief and we'll prepare a tailored proposal within 24 hours.",
+    "label": "Start a project",
+    "heading": "Tell us about your project.",
+    "sub": "Fill in the brief — it takes 3–5 minutes. We use it to prepare a tailored proposal within 24 hours.",
+    "steps": [
+      "Contact",
+      "Project",
+      "Style",
+      "Timeline"
+    ],
+    "step1": {
+      "heading": "Who are you?",
+      "sub": "We'll reply to this address within 24 hours."
+    },
+    "step2": {
+      "heading": "About the project",
+      "sub": "The more context you share, the stronger our proposal."
+    },
+    "step3": {
+      "heading": "Visual direction",
+      "sub": "Pick the aesthetics closest to your vision. Skip if you're unsure."
+    },
+    "step4": {
+      "heading": "Timeline & budget",
+      "sub": "Helps us scope the project correctly."
+    },
+    "fields": {
+      "name": "Your name",
+      "namePlaceholder": "Full name",
+      "email": "Email address",
+      "emailPlaceholder": "go@themaze.uz",
+      "phone": "Phone number",
+      "company": "Company / Brand name",
+      "companyPlaceholder": "Your company name",
+      "website": "Current website",
+      "websitePlaceholder": "https://yoursite.com (if any)",
+      "services": "What do you need?",
+      "servicesHint": "Select all that apply",
+      "description": "Describe your project",
+      "descriptionPlaceholder": "What do you need? The more detail, the better we can scope the project.",
+      "goals": "Goals & challenges",
+      "goalsPlaceholder": "What should this project achieve? What's not working right now?",
+      "audience": "Target audience",
+      "audiencePlaceholder": "Who are your customers? Age, values, lifestyle…",
+      "competitors": "Competitors & references",
+      "competitorsPlaceholder": "Brands you compete with or brands you admire.",
+      "styles": "Aesthetic direction",
+      "stylesHint": "Pick one or more that resonate",
+      "colors": "Colour mood",
+      "colorsHint": "What palette feels right for your brand?",
+      "refLinks": "Reference links (optional)",
+      "refLinksPlaceholder": "Paste links to websites, Behance boards, or images you like…",
+      "timeline": "Desired timeline",
+      "budget": "Budget",
+      "source": "How did you find us?",
+      "sourcePlaceholder": "Instagram, Google, word of mouth…",
+      "notes": "Anything else?",
+      "notesPlaceholder": "Questions, constraints, or anything we should know before we reply."
+    },
+    "timelines": [
+      "Rush (1–5 business days)",
+      "Fast (within 10 business days)",
+      "Standard (within 2 weeks)",
+      "Relaxed (within a month)",
+      "Flexible"
+    ],
+    "budgets": [
+      "Under $1,000",
+      "$1,000 – $2,000",
+      "$2,000 – $5,000",
+      "$5,000 – $15,000",
+      "$15,000 – $50,000"
+    ],
+    "services": [
+      {
+        "id": "branding",
+        "label": "Branding"
+      },
+      {
+        "id": "rebranding",
+        "label": "Rebranding"
+      },
+      {
+        "id": "identity",
+        "label": "Visual Identity"
+      },
+      {
+        "id": "naming",
+        "label": "Naming"
+      },
+      {
+        "id": "packaging",
+        "label": "Packaging"
+      },
+      {
+        "id": "ui-ux",
+        "label": "UI / UX Design"
+      },
+      {
+        "id": "print",
+        "label": "Print & Packaging"
+      },
+      {
+        "id": "motion",
+        "label": "Motion Design"
+      },
+      {
+        "id": "strategy",
+        "label": "Brand Strategy"
+      },
+      {
+        "id": "unsure",
+        "label": "Not sure yet"
+      }
+    ],
+    "styleCards": [
+      {
+        "id": "bold",
+        "label": "Bold & Powerful",
+        "desc": "Heavy type, strong contrast, unapologetic weight"
+      },
+      {
+        "id": "minimal",
+        "label": "Minimal & Clean",
+        "desc": "White space, restraint, quiet confidence"
+      },
+      {
+        "id": "playful",
+        "label": "Playful & Friendly",
+        "desc": "Rounded shapes, warmth, approachable energy"
+      },
+      {
+        "id": "classic",
+        "label": "Classic & Timeless",
+        "desc": "Refined proportions, enduring elegance"
+      },
+      {
+        "id": "tech",
+        "label": "Technical & Modern",
+        "desc": "Sharp geometry, precision, forward-looking"
+      },
+      {
+        "id": "luxury",
+        "label": "Luxurious & Premium",
+        "desc": "Crafted details, elevated restraint, prestige"
+      },
+      {
+        "id": "organic",
+        "label": "Organic & Natural",
+        "desc": "Flowing forms, earthy, human-made feeling"
+      },
+      {
+        "id": "abstract",
+        "label": "Abstract & Expressive",
+        "desc": "Conceptual thinking, artistic, non-literal"
+      }
+    ],
+    "colorCards": [
+      {
+        "id": "dark",
+        "label": "Dark & Moody",
+        "desc": "Black, charcoal, deep tones",
+        "swatches": [
+          "#0a0a0a",
+          "#2a2a2a",
+          "#4a4a4a"
+        ]
+      },
+      {
+        "id": "light",
+        "label": "Light & Clean",
+        "desc": "White, cream, soft neutrals",
+        "swatches": [
+          "#ffffff",
+          "#f5f0e8",
+          "#e8e4dc"
+        ]
+      },
+      {
+        "id": "vibrant",
+        "label": "Vibrant & Electric",
+        "desc": "High saturation, bold colour",
+        "swatches": [
+          "#ff3b5c",
+          "#ff8c00",
+          "#ffdc00"
+        ]
+      },
+      {
+        "id": "earthy",
+        "label": "Earthy & Warm",
+        "desc": "Terracotta, rust, sand",
+        "swatches": [
+          "#c0522b",
+          "#8b4513",
+          "#d4a96a"
+        ]
+      },
+      {
+        "id": "natural",
+        "label": "Natural & Green",
+        "desc": "Sage, forest, botanical",
+        "swatches": [
+          "#2d5a27",
+          "#7daa6e",
+          "#c5d9b0"
+        ]
+      },
+      {
+        "id": "mono",
+        "label": "Monochrome",
+        "desc": "Black and white only",
+        "swatches": [
+          "#000000",
+          "#888888",
+          "#ffffff"
+        ]
+      }
+    ],
+    "nav": {
+      "back": "Back",
+      "next": "Continue",
+      "submit": "Send brief ↗",
+      "submitting": "Sending…"
+    },
+    "validation": {
+      "nameRequired": "Please enter your name",
+      "phoneRequired": "Please enter your phone number",
+      "phoneInvalid": "Enter a valid phone number",
+      "emailInvalid": "Please enter a valid email address",
+      "descRequired": "Please describe your project"
+    },
+    "success": {
+      "label": "Brief received!",
+      "heading": "Brief received.",
+      "body": "We'll review your project and get back to you within 24 hours with a tailored proposal.",
+      "cta": "Back to home"
+    },
+    "tooMany": "Too many submissions. Please try again later.",
+    "error": "Something went wrong. Please try again."
   }
 }
