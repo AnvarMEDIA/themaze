@@ -225,12 +225,24 @@ export default function BriefsPage() {
                 )}
                 <p className="text-xs text-[#555] mt-1">{fmt(selected.createdAt)}</p>
               </div>
-              <button
-                onClick={() => remove(selected.id)}
-                className="px-3 py-1.5 rounded-lg border border-[#2A2A2A] text-xs text-[#555] hover:border-red-500/50 hover:text-red-400 transition-colors"
-              >
-                Delete
-              </button>
+              <div className="flex items-center gap-2 flex-shrink-0">
+                <a
+                  href={`/admin/briefs/${selected.id}/print`}
+                  target="_blank"
+                  rel="noopener"
+                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#C8FF47] text-[#0A0A0A] text-xs font-bold hover:bg-[#F0EEE6] transition-colors active:scale-[0.97]"
+                  title="Open a printable A4 sheet and save it as PDF"
+                >
+                  <IconPdf />
+                  PDF
+                </a>
+                <button
+                  onClick={() => remove(selected.id)}
+                  className="px-3 py-1.5 rounded-lg border border-[#2A2A2A] text-xs text-[#555] hover:border-red-500/50 hover:text-red-400 transition-colors"
+                >
+                  Delete
+                </button>
+              </div>
             </div>
 
             {/* Contact */}
@@ -390,5 +402,14 @@ function LongField({ label, value, mono = false }: { label: string; value?: stri
         {value}
       </p>
     </div>
+  )
+}
+
+function IconPdf() {
+  return (
+    <svg width="12" height="12" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+      <path d="M8 1.5v7m0 0L5.2 5.7M8 8.5l2.8-2.8" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" />
+      <path d="M2.5 11v1.5A1.5 1.5 0 004 14h8a1.5 1.5 0 001.5-1.5V11" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" />
+    </svg>
   )
 }
