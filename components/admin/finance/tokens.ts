@@ -11,6 +11,7 @@ export const FIN_COLORS = {
   // Brand lime — single-series hero fills (revenue, top clients). One series,
   // so no categorical separation concern; the title names it.
   income: '#C8FF47',
+  // Also used for the expense-mix bars; validated against the dark surface.
   expense: '#D9563A',
   // Validated categorical quartet for project status (each bar also labeled).
   status: {

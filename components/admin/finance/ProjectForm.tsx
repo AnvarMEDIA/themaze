@@ -88,7 +88,14 @@ export function ProjectForm({
             note: '',
           }),
         })
-        if (!txnRes.ok) toast.error(t('pf.prepayFail'))
+        if (!txnRes.ok) {
+          // The project exists but its prepayment doesn't. Say only that —
+          // following it with "Project added" would contradict the warning.
+          toast.error(t('pf.prepayFail'))
+          onSaved()
+          onClose()
+          return
+        }
       }
 
       toast.success(initial ? t('pf.updated') : t('pf.added'))

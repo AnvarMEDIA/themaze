@@ -8,28 +8,48 @@ import { CURRENCIES, type Currency, type FinanceSummary } from '@/lib/finance/ty
 import { MonthlyBars, HBars } from '@/components/admin/finance/Charts'
 import { FIN_COLORS } from '@/components/admin/finance/tokens'
 import { useFinanceLang } from '@/components/admin/finance/lang'
+import { PeriodPicker, periodQuery, type PeriodValue } from '@/components/admin/finance/PeriodPicker'
+
+const PERIOD_KEY = 'maze_finance_period'
+const DEFAULT_PERIOD: PeriodValue = { preset: 'year', from: '', to: '' }
 
 export default function FinanceDashboard() {
   const router = useRouter()
   const { t, locale, tStatus } = useFinanceLang()
   const [sum, setSum] = useState<FinanceSummary | null>(null)
   const [loading, setLoading] = useState(true)
-  // "Show in other currencies" — remembered like the language choice, so the
-  // preference survives a reload.
+  const [period, setPeriod] = useState<PeriodValue>(DEFAULT_PERIOD)
+  const [ready, setReady] = useState(false)
+  // "Show in other currencies" — remembered like the language choice.
   const [multiCurrency, setMultiCurrency] = useState(false)
 
+  // Restore the remembered period/currency preference before the first fetch,
+  // so the dashboard doesn't flash the default window and refetch.
+  useEffect(() => {
+    try {
+      const raw = window.localStorage.getItem(PERIOD_KEY)
+      if (raw) {
+        const p = JSON.parse(raw) as PeriodValue
+        if (p?.preset) setPeriod({ preset: p.preset, from: p.from ?? '', to: p.to ?? '' })
+      }
+      setMultiCurrency(window.localStorage.getItem('maze_finance_multicurrency') === '1')
+    } catch { /* ignore */ }
+    setReady(true)
+  }, [])
+
   const load = useCallback(async () => {
-    const res = await fetch('/api/finance/summary', { cache: 'no-store' })
+    const res = await fetch(`/api/finance/summary?${periodQuery(period)}`, { cache: 'no-store' })
     if (res.status === 401) { router.push('/admin/finance/unlock'); return }
     setSum(await res.json())
     setLoading(false)
-  }, [router])
+  }, [router, period])
 
-  useEffect(() => { load() }, [load])
+  useEffect(() => { if (ready) load() }, [ready, load])
 
-  useEffect(() => {
-    setMultiCurrency(window.localStorage.getItem('maze_finance_multicurrency') === '1')
-  }, [])
+  const changePeriod = (p: PeriodValue) => {
+    setPeriod(p)
+    try { window.localStorage.setItem(PERIOD_KEY, JSON.stringify(p)) } catch { /* ignore */ }
+  }
 
   const toggleMultiCurrency = () => {
     setMultiCurrency((v) => {
@@ -56,8 +76,7 @@ export default function FinanceDashboard() {
   const hasData = kpis.revenueAllTime > 0 || sum.statusBreakdown.some((s) => s.count > 0)
 
   // Re-express a base-currency figure in every other currency we have a rate
-  // for. Uses the rates the summary was computed with, so the conversions can
-  // never drift from the headline number.
+  // for, using the rates the summary itself was computed with.
   const rateSettings = { baseCurrency, rates: sum.rates ?? {}, autoRates: true, updatedAt: '' }
   const otherCurrencies = CURRENCIES.filter(
     (c) => c !== baseCurrency && convert(1, baseCurrency, c, rateSettings) !== null,
@@ -69,12 +88,12 @@ export default function FinanceDashboard() {
         return v === null ? null : formatMoney(v, c as Currency, { compact: true, locale })
       })
       .filter((s): s is string => s !== null)
-
   const showMulti = multiCurrency && otherCurrencies.length > 0
 
+  const pct = (part: number, whole: number) =>
+    whole > 0 ? Math.round((part / whole) * 100) : 0
+
   const topClientItems = sum.topClients.map((c) => ({
-    // Server sends the company (or the contact name when there is no company);
-    // an empty label means the payment isn't tied to a client on record.
     label: c.name || t('dash.unassignedClient'),
     value: c.total,
   }))
@@ -86,11 +105,18 @@ export default function FinanceDashboard() {
       color: FIN_COLORS.status[s.status],
       sub: `${s.count}`,
     }))
+  const expenseItems = (sum.expenseCategories ?? []).map((c) => ({
+    label: c.category || t('dash.uncategorised'),
+    value: c.total,
+    color: FIN_COLORS.expense,
+  }))
+
+  const exportHref = `/api/finance/export?${periodQuery(period)}`
 
   return (
     <div className="px-6 py-8 max-w-[1400px] mx-auto">
       {/* Header */}
-      <div className="flex items-start sm:items-end justify-between gap-4 mb-8">
+      <div className="flex items-start sm:items-end justify-between gap-4 mb-5">
         <div className="min-w-0">
           <h1 className="text-xl sm:text-2xl font-bold text-white tracking-tight">{t('dash.title')}</h1>
           <p className="text-sm text-[#555] mt-1">
@@ -129,6 +155,18 @@ export default function FinanceDashboard() {
         </div>
       </div>
 
+      {/* Reporting period */}
+      <div className="flex flex-wrap items-center justify-between gap-3 mb-6">
+        <PeriodPicker value={period} onChange={changePeriod} />
+        <a
+          href={exportHref}
+          className="inline-flex items-center gap-2 px-3 py-2 rounded-lg border border-[#2A2A2A] bg-[#161616] text-[13px] font-medium text-[#bbb] hover:text-white hover:border-[#333] transition-colors active:scale-[0.97]"
+        >
+          <IconDownload size={14} />
+          {t('dash.export')}
+        </a>
+      </div>
+
       {sum.unratedCurrencies?.length > 0 && (
         <div className="mb-6 rounded-xl border border-[#FFD447]/30 bg-[#FFD447]/[0.06] px-5 py-4 flex items-start gap-3">
           <span className="text-[#FFD447] text-sm leading-5" aria-hidden="true">⚠</span>
@@ -149,14 +187,31 @@ export default function FinanceDashboard() {
         </div>
       )}
 
-      {/* KPI row */}
+      {/* KPI row — period figures, then receivables (point-in-time) */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-4">
-        <Stat label={t('dash.kpiRevenueYear')} value={fmt(kpis.revenueThisYear)} accent="#C8FF47" hint={t('dash.hintThisMonth', { v: fmt(kpis.revenueThisMonth) })} alt={showMulti ? inOtherCurrencies(kpis.revenueThisYear) : undefined} />
-        <Stat label={t('dash.kpiOutstanding')} value={fmt(kpis.outstanding)} accent="#FFD447" hint={t('dash.hintOutstanding')} alt={showMulti ? inOtherCurrencies(kpis.outstanding) : undefined} />
-        <Stat label={t('dash.kpiProfitYear')} value={fmt(kpis.profitThisYear)} accent={kpis.profitThisYear >= 0 ? '#6FA02E' : '#D9563A'} hint={t('dash.hintExpenses', { v: fmt(kpis.expenseThisYear) })} alt={showMulti ? inOtherCurrencies(kpis.profitThisYear) : undefined} />
-        <Stat label={t('dash.kpiAllTime')} value={fmt(kpis.revenueAllTime)} accent="#47C8FF" hint={t('dash.hintSince')} alt={showMulti ? inOtherCurrencies(kpis.revenueAllTime) : undefined} />
+        <Stat
+          label={t('dash.kpiRevenue')} value={fmt(kpis.revenue)} accent="#C8FF47"
+          hint={t('dash.forPeriod')}
+          alt={showMulti ? inOtherCurrencies(kpis.revenue) : undefined}
+        />
+        <Stat
+          label={t('dash.kpiExpenses')} value={fmt(kpis.expense)} accent={FIN_COLORS.expense}
+          hint={kpis.revenue > 0 ? t('dash.ofRevenue', { p: pct(kpis.expense, kpis.revenue) }) : t('dash.forPeriod')}
+          alt={showMulti ? inOtherCurrencies(kpis.expense) : undefined}
+        />
+        <Stat
+          label={t('dash.kpiProfit')} value={fmt(kpis.profit)}
+          accent={kpis.profit >= 0 ? '#6FA02E' : '#D9563A'}
+          hint={kpis.revenue > 0 ? t('dash.marginOf', { p: pct(kpis.profit, kpis.revenue) }) : t('dash.forPeriod')}
+          alt={showMulti ? inOtherCurrencies(kpis.profit) : undefined}
+        />
+        <Stat
+          label={t('dash.kpiOutstanding')} value={fmt(kpis.outstanding)} accent="#FFD447"
+          hint={kpis.overdue > 0 ? t('dash.overdueHint', { v: fmt(kpis.overdue) }) : t('dash.hintOutstanding')}
+          hintAlert={kpis.overdue > 0}
+          alt={showMulti ? inOtherCurrencies(kpis.outstanding) : undefined}
+        />
       </div>
-
 
       {/* Secondary counts */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
@@ -164,14 +219,37 @@ export default function FinanceDashboard() {
         <MiniStat label={t('dash.clients')} value={kpis.totalClients} href="/admin/finance/clients" />
         <MiniStat label={t('dash.transactions')} value={sum.totalTransactions ?? sum.recentTransactions.length} href="/admin/finance/transactions" />
         <div className="rounded-xl bg-[#0D0D0D] border border-[#1A1A1A] px-4 py-3.5 flex flex-col justify-center">
-          <p className="text-[11px] text-[#555] mb-1">{t('dash.revByCurrency')}</p>
-          <p className="text-[13px] text-[#bbb] truncate">
-            {sum.revenueByCurrency.length
-              ? sum.revenueByCurrency.map((c) => formatMoney(c.amount, c.currency, { compact: true, locale })).join(' · ')
-              : '—'}
-          </p>
+          <p className="text-[11px] text-[#555] mb-1">{t('dash.revenueAllTime')}</p>
+          <p className="text-xl font-bold text-white tabular-nums">{fmt(kpis.revenueAllTime)}</p>
         </div>
       </div>
+
+      {/* Overdue receivables — only when there is something to chase */}
+      {sum.overdueProjects?.length > 0 && (
+        <div className="rounded-xl bg-[#0D0D0D] border border-[#D9563A]/30 mb-6">
+          <div className="flex items-center justify-between px-6 py-4 border-b border-[#1E1E1E]">
+            <h2 className="text-sm font-semibold text-white flex items-center gap-2">
+              <span className="w-1.5 h-1.5 rounded-full bg-[#D9563A]" />
+              {t('dash.overdueTitle')}
+            </h2>
+            <span className="text-sm font-bold text-[#E27A5C] tabular-nums">{fmt(kpis.overdue)}</span>
+          </div>
+          <div>
+            {sum.overdueProjects.map((p) => (
+              <div key={p.id} className="flex items-center gap-4 px-6 py-3 border-b border-[#161616] last:border-b-0">
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm text-white truncate">{p.title}</p>
+                  <p className="text-[11px] text-[#666] truncate">
+                    {p.client || t('dash.unassignedClient')} · {t('dash.due', { d: p.dueDate })}
+                  </p>
+                </div>
+                <span className="text-[11px] text-[#E27A5C] whitespace-nowrap">{t('dash.daysLate', { n: p.daysLate })}</span>
+                <span className="text-sm text-white tabular-nums whitespace-nowrap">{fmt(p.outstanding)}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
 
       {/* Monthly revenue */}
       <div className="rounded-xl bg-[#0D0D0D] border border-[#1E1E1E] p-6 mb-6">
@@ -182,11 +260,15 @@ export default function FinanceDashboard() {
         <MonthlyBars data={sum.monthly} currency={baseCurrency} />
       </div>
 
-      {/* Two-up */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+      {/* Three-up: clients, expenses, project statuses */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
         <div className="rounded-xl bg-[#0D0D0D] border border-[#1E1E1E] p-6">
           <h2 className="text-sm font-semibold text-white mb-5">{t('dash.topClients')}</h2>
           <HBars items={topClientItems} currency={baseCurrency} emptyText={t('dash.noIncome')} />
+        </div>
+        <div className="rounded-xl bg-[#0D0D0D] border border-[#1E1E1E] p-6">
+          <h2 className="text-sm font-semibold text-white mb-5">{t('dash.expenseMix')}</h2>
+          <HBars items={expenseItems} currency={baseCurrency} emptyText={t('dash.noExpenses')} />
         </div>
         <div className="rounded-xl bg-[#0D0D0D] border border-[#1E1E1E] p-6">
           <h2 className="text-sm font-semibold text-white mb-5">{t('dash.projByStatus')}</h2>
@@ -211,7 +293,10 @@ export default function FinanceDashboard() {
                   style={{ background: tx.type === 'income' ? '#6FA02E20' : '#D9563A20', color: tx.type === 'income' ? '#8Fc748' : '#E27A5C' }}
                   aria-hidden="true"
                 >
-                  {tx.type === 'income' ? '↓' : '↑'}
+                  {/* Up for money in, down for money out — the arrow has to
+                      agree with the +/− sign and the colour beside it, or the
+                      row reads as a contradiction at a glance. */}
+                  {tx.type === 'income' ? '↑' : '↓'}
                 </span>
                 <div className="flex-1 min-w-0">
                   <p className="text-sm text-white truncate">{tx.category || (tx.type === 'income' ? t('txn.payment') : t('txn.expense'))}</p>
@@ -230,14 +315,14 @@ export default function FinanceDashboard() {
 }
 
 function Stat({
-  label, value, accent, hint, alt,
+  label, value, accent, hint, alt, hintAlert = false,
 }: {
   label: string
   value: string
   accent: string
   hint: string
-  /** Same figure expressed in other currencies; shown when the toggle is on. */
   alt?: string[]
+  hintAlert?: boolean
 }) {
   return (
     <div className="rounded-xl bg-[#0D0D0D] border border-[#1E1E1E] p-5">
@@ -253,8 +338,17 @@ function Stat({
           ))}
         </div>
       )}
-      <p className="text-[11px] text-[#555] mt-2 truncate">{hint}</p>
+      <p className={`text-[11px] mt-2 truncate ${hintAlert ? 'text-[#E27A5C]' : 'text-[#555]'}`}>{hint}</p>
     </div>
+  )
+}
+
+function MiniStat({ label, value, href }: { label: string; value: number | string; href: string }) {
+  return (
+    <Link href={href} className="rounded-xl bg-[#0D0D0D] border border-[#1A1A1A] px-4 py-3.5 hover:border-[#2A2A2A] transition-colors group">
+      <p className="text-[11px] text-[#555] mb-1">{label}</p>
+      <p className="text-xl font-bold text-white tabular-nums group-hover:text-[#C8FF47] transition-colors">{value}</p>
+    </Link>
   )
 }
 
@@ -267,11 +361,11 @@ function IconCurrency({ size = 16 }: { size?: number }) {
   )
 }
 
-function MiniStat({ label, value, href }: { label: string; value: number | string; href: string }) {
+function IconDownload({ size = 16 }: { size?: number }) {
   return (
-    <Link href={href} className="rounded-xl bg-[#0D0D0D] border border-[#1A1A1A] px-4 py-3.5 hover:border-[#2A2A2A] transition-colors group">
-      <p className="text-[11px] text-[#555] mb-1">{label}</p>
-      <p className="text-xl font-bold text-white tabular-nums group-hover:text-[#C8FF47] transition-colors">{value}</p>
-    </Link>
+    <svg width={size} height={size} viewBox="0 0 16 16" fill="none" aria-hidden="true">
+      <path d="M8 2v7m0 0L5.4 6.4M8 9l2.6-2.6" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+      <path d="M2.8 11v1.4A1.6 1.6 0 004.4 14h7.2a1.6 1.6 0 001.6-1.6V11" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+    </svg>
   )
 }

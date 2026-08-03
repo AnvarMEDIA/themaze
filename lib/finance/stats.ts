@@ -1,26 +1,37 @@
 /**
- * Server-side dashboard aggregation. All headline figures are converted to
- * the base currency via the editable rates in settings; `revenueByCurrency`
- * keeps native amounts so the user can sanity-check the conversion.
+ * Server-side dashboard aggregation.
+ *
+ * Two kinds of figure live here and they must not be confused:
+ *  - PERIOD figures (revenue, expense, profit, top clients, expense mix) cover
+ *    the selected reporting window.
+ *  - POINT-IN-TIME figures (outstanding, overdue, project/client counts)
+ *    describe the business right now; scoping them to a period would be
+ *    meaningless — a receivable doesn't stop existing because you're looking
+ *    at last quarter.
+ *
+ * All money is converted to the base currency via the editable/CBU rates;
+ * `revenueByCurrency` keeps native amounts so the conversion can be checked.
  */
 import { listClients, listProjects, listTransactions } from './data'
 import { getEffectiveFinanceSettings } from './settings'
 import { toBase, missingRates } from './money'
 import { projectRollup } from './rollup'
+import { inPeriod, isoDate, monthOf, resolvePeriod, type Period } from './period'
 import type {
   FinanceSummary,
   MonthlyPoint,
   ClientRevenue,
   Currency,
+  ExpenseCategory,
   FinanceTransaction,
+  OverdueProject,
   ProjectStatus,
 } from './types'
 
-function monthKey(d: Date): string {
-  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`
-}
+/** Month key for a calendar date string, timezone-proof. */
+const monthKeyOf = (date: string) => monthOf(date)
 
-export async function buildSummary(): Promise<FinanceSummary> {
+export async function buildSummary(period?: Period): Promise<FinanceSummary> {
   const [clients, projects, txns, settings] = await Promise.all([
     listClients(),
     listProjects(),
@@ -29,68 +40,102 @@ export async function buildSummary(): Promise<FinanceSummary> {
   ])
 
   const nowDate = new Date()
-  const thisYear = nowDate.getFullYear()
-  const thisMonth = monthKey(nowDate)
+  const today = isoDate(nowDate)
+  const range = period ?? resolvePeriod('year', nowDate)
+
+  const base = (t: FinanceTransaction) => toBase(t.amount, t.currency, settings)
+  const sumBase = (list: FinanceTransaction[]) => list.reduce((s, t) => s + base(t), 0)
 
   const income = txns.filter((t) => t.type === 'income')
   const expense = txns.filter((t) => t.type === 'expense')
-  const sumBase = (list: FinanceTransaction[]) =>
-    list.reduce((s, t) => s + toBase(t.amount, t.currency, settings), 0)
 
+  const inRange = (t: FinanceTransaction) => inPeriod(t.date, range)
+  const periodIncome = income.filter(inRange)
+  const periodExpense = expense.filter(inRange)
+
+  const revenue = sumBase(periodIncome)
+  const expenseTotal = sumBase(periodExpense)
+  const profit = revenue - expenseTotal
   const revenueAllTime = sumBase(income)
-  const revenueThisYear = sumBase(income.filter((t) => new Date(t.date).getFullYear() === thisYear))
-  const revenueThisMonth = sumBase(income.filter((t) => monthKey(new Date(t.date)) === thisMonth))
-  const expenseThisYear = sumBase(expense.filter((t) => new Date(t.date).getFullYear() === thisYear))
-  const profitThisYear = revenueThisYear - expenseThisYear
 
-  // Receivables: unpaid balance on signed projects (active + completed).
-  // Uses the same rollup as the Projects page so the two can't disagree.
-  let outstanding = 0
-  for (const p of projects) {
-    if (p.status !== 'active' && p.status !== 'completed') continue
-    const { outstanding: due } = projectRollup(p, txns, settings)
-    outstanding += toBase(due, p.currency, settings)
-  }
+  /* ── Receivables (point-in-time) ─────────────────────────────────────── */
 
-  const activeProjects = projects.filter((p) => p.status === 'active').length
-
-  // Last 12 months (inclusive of current).
-  const monthly: MonthlyPoint[] = []
-  const monthIndex = new Map<string, MonthlyPoint>()
-  for (let i = 11; i >= 0; i--) {
-    const d = new Date(thisYear, nowDate.getMonth() - i, 1)
-    const pt: MonthlyPoint = { month: monthKey(d), income: 0, expense: 0 }
-    monthly.push(pt)
-    monthIndex.set(pt.month, pt)
-  }
-  for (const t of txns) {
-    const pt = monthIndex.get(monthKey(new Date(t.date)))
-    if (!pt) continue
-    const v = toBase(t.amount, t.currency, settings)
-    if (t.type === 'income') pt.income += v
-    else pt.expense += v
-  }
-
-  // Top clients by received income.
-  const byClient = new Map<string | null, number>()
-  for (const t of income) {
-    byClient.set(t.clientId, (byClient.get(t.clientId) ?? 0) + toBase(t.amount, t.currency, settings))
-  }
-  // Label a client by COMPANY, falling back to the contact name only when no
-  // company is set — the same rule the Clients/Projects/Transactions screens
-  // use, so one client reads identically everywhere. An empty string means
-  // "no company on record"; the UI supplies a localised placeholder, because
-  // a hard-coded English word here would leak into the Russian dashboard.
-  const clientName = (id: string | null) => {
+  const clientLabel = (id: string | null) => {
     if (!id) return ''
     const c = clients.find((x) => x.id === id)
     return c ? (c.company.trim() || c.name.trim()) : ''
   }
+
+  let outstanding = 0
+  let overdue = 0
+  const overdueProjects: OverdueProject[] = []
+
+  for (const p of projects) {
+    if (p.status !== 'active' && p.status !== 'completed') continue
+    // Same rollup the Projects page uses, so the two can't disagree.
+    const { outstanding: due } = projectRollup(p, txns, settings)
+    if (due <= 0) continue
+    const dueBase = toBase(due, p.currency, settings)
+    outstanding += dueBase
+
+    // Past its agreed end date and still unpaid.
+    if (p.endDate && p.endDate < today) {
+      overdue += dueBase
+      overdueProjects.push({
+        id: p.id,
+        title: p.title,
+        client: clientLabel(p.clientId),
+        outstanding: dueBase,
+        dueDate: p.endDate,
+        daysLate: Math.max(
+          0,
+          Math.round((Date.parse(`${today}T00:00:00Z`) - Date.parse(`${p.endDate}T00:00:00Z`)) / 86_400_000),
+        ),
+      })
+    }
+  }
+  overdueProjects.sort((a, b) => b.daysLate - a.daysLate)
+
+  const activeProjects = projects.filter((p) => p.status === 'active').length
+
+  /* ── 12-month trend (independent of the selected period) ─────────────── */
+
+  const monthly: MonthlyPoint[] = []
+  const monthIndex = new Map<string, MonthlyPoint>()
+  for (let i = 11; i >= 0; i--) {
+    const d = new Date(nowDate.getFullYear(), nowDate.getMonth() - i, 1)
+    const pt: MonthlyPoint = { month: monthOf(isoDate(d)), income: 0, expense: 0 }
+    monthly.push(pt)
+    monthIndex.set(pt.month, pt)
+  }
+  for (const t of txns) {
+    const pt = monthIndex.get(monthKeyOf(t.date))
+    if (!pt) continue
+    if (t.type === 'income') pt.income += base(t)
+    else pt.expense += base(t)
+  }
+
+  /* ── Period breakdowns ───────────────────────────────────────────────── */
+
+  const byClient = new Map<string | null, number>()
+  for (const t of periodIncome) byClient.set(t.clientId, (byClient.get(t.clientId) ?? 0) + base(t))
   const topClients: ClientRevenue[] = [...byClient.entries()]
-    .map(([clientId, total]) => ({ clientId, name: clientName(clientId), total }))
+    .map(([clientId, total]) => ({ clientId, name: clientLabel(clientId), total }))
     .filter((c) => c.total > 0)
     .sort((a, b) => b.total - a.total)
     .slice(0, 5)
+
+  // Where the money went — an unlabelled expense is grouped rather than dropped.
+  const byCategory = new Map<string, number>()
+  for (const t of periodExpense) {
+    const key = t.category.trim() || ''
+    byCategory.set(key, (byCategory.get(key) ?? 0) + base(t))
+  }
+  const expenseCategories: ExpenseCategory[] = [...byCategory.entries()]
+    .map(([category, total]) => ({ category, total }))
+    .filter((c) => c.total > 0)
+    .sort((a, b) => b.total - a.total)
+    .slice(0, 6)
 
   const statuses: ProjectStatus[] = ['lead', 'active', 'completed', 'cancelled']
   const statusBreakdown = statuses.map((status) => {
@@ -103,38 +148,40 @@ export async function buildSummary(): Promise<FinanceSummary> {
   })
 
   const byCurrency = new Map<Currency, number>()
-  for (const t of income) byCurrency.set(t.currency, (byCurrency.get(t.currency) ?? 0) + t.amount)
+  for (const t of periodIncome) byCurrency.set(t.currency, (byCurrency.get(t.currency) ?? 0) + t.amount)
   const revenueByCurrency = [...byCurrency.entries()].map(([currency, amount]) => ({ currency, amount }))
 
   // Any currency in use without a usable rate contributes 0 to the totals
   // above. Report it so the dashboard can warn instead of quietly under-
   // counting revenue.
-  const currenciesInUse = [
-    ...txns.map((t) => t.currency),
-    ...projects.map((p) => p.currency),
-  ]
-  const unratedCurrencies = missingRates(currenciesInUse, settings)
+  const unratedCurrencies = missingRates(
+    [...txns.map((t) => t.currency), ...projects.map((p) => p.currency)],
+    settings,
+  )
 
   return {
     baseCurrency: settings.baseCurrency,
     generatedAt: nowDate.toISOString(),
+    period: { from: range.from, to: range.to, preset: range.preset },
     unratedCurrencies,
     rates: settings.rates,
     ratesSource: settings.ratesSource,
     totalTransactions: txns.length,
     kpis: {
+      revenue,
+      expense: expenseTotal,
+      profit,
       revenueAllTime,
-      revenueThisYear,
-      revenueThisMonth,
-      expenseThisYear,
-      profitThisYear,
       outstanding,
+      overdue,
       activeProjects,
       totalClients: clients.length,
     },
     monthly,
     topClients,
     statusBreakdown,
+    expenseCategories,
+    overdueProjects: overdueProjects.slice(0, 6),
     recentTransactions: txns.slice(0, 8),
     revenueByCurrency,
   }

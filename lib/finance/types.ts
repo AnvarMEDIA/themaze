@@ -99,9 +99,27 @@ export interface ClientRevenue {
   total: number              // base currency
 }
 
+export interface ExpenseCategory {
+  category: string
+  total: number
+}
+
+/** A signed project past its end date with money still owed. */
+export interface OverdueProject {
+  id: string
+  title: string
+  client: string
+  /** Unpaid balance, in the base currency. */
+  outstanding: number
+  dueDate: string
+  daysLate: number
+}
+
 export interface FinanceSummary {
   baseCurrency: Currency
   generatedAt: string
+  /** The reporting window the period figures were computed for. */
+  period: { from: string; to: string; preset: string }
   /** Currencies in use that have no usable rate — their amounts count as 0. */
   unratedCurrencies: Currency[]
   /**
@@ -115,18 +133,26 @@ export interface FinanceSummary {
   /** True total, unlike `recentTransactions` which is capped for display. */
   totalTransactions: number
   kpis: {
+    /** Income received inside the selected period. */
+    revenue: number
+    /** Spending inside the selected period. */
+    expense: number
+    /** revenue − expense for the period. */
+    profit: number
+    /** Income ever received, regardless of period. */
     revenueAllTime: number
-    revenueThisYear: number
-    revenueThisMonth: number
-    expenseThisYear: number
-    profitThisYear: number
-    outstanding: number      // receivables across active/completed projects
+    /** Receivables right now — a point-in-time figure, not period-scoped. */
+    outstanding: number
+    /** The part of `outstanding` that is already past its due date. */
+    overdue: number
     activeProjects: number
     totalClients: number
   }
-  monthly: MonthlyPoint[]    // last 12 months, base currency
+  monthly: MonthlyPoint[]    // last 12 months, base currency (trend, not period)
   topClients: ClientRevenue[]
   statusBreakdown: { status: ProjectStatus; count: number; value: number }[]
+  expenseCategories: ExpenseCategory[]
+  overdueProjects: OverdueProject[]
   recentTransactions: FinanceTransaction[]
   /** Raw revenue grouped by native currency (no conversion) for transparency. */
   revenueByCurrency: CurrencyTotal[]

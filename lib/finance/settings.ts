@@ -67,11 +67,17 @@ export async function getEffectiveFinanceSettings(): Promise<EffectiveSettings> 
     }
   }
 
-  const hasCbu = Object.keys(derived).length > 0
+  // "Source: Central Bank" is only honest when the CBU actually covers every
+  // non-base currency. A partial feed still supplies what it has, but the
+  // label stays "manual" rather than vouching for rates it didn't provide.
+  const needed = CURRENCIES.filter((c) => c !== settings.baseCurrency)
+  const covered = needed.every((c) => derived[c] !== undefined)
+  const hasAny = Object.keys(derived).length > 0
+
   return {
     ...settings,
-    rates: hasCbu ? { ...settings.rates, ...derived } : settings.rates,
-    ratesSource: hasCbu ? 'cbu' : 'manual',
-    ratesUpdatedAt: hasCbu ? cbu.fetchedAt : null,
+    rates: hasAny ? { ...settings.rates, ...derived } : settings.rates,
+    ratesSource: covered ? 'cbu' : 'manual',
+    ratesUpdatedAt: covered ? cbu.fetchedAt : null,
   }
 }

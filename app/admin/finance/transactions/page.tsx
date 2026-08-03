@@ -3,10 +3,12 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import toast from 'react-hot-toast'
-import { formatMoney } from '@/lib/finance/money'
-import type { FinanceClient, FinanceProject, FinanceTransaction, TransactionType } from '@/lib/finance/types'
+import { formatMoney, convert, DEFAULT_FINANCE_SETTINGS } from '@/lib/finance/money'
+import type { Currency, FinanceClient, FinanceProject, FinanceSettings, FinanceTransaction, TransactionType } from '@/lib/finance/types'
+import { inPeriod, resolvePeriod } from '@/lib/finance/period'
 import { TransactionForm } from '@/components/admin/finance/TransactionForm'
 import { useFinanceLang } from '@/components/admin/finance/lang'
+import { PeriodPicker, periodQuery, type PeriodValue } from '@/components/admin/finance/PeriodPicker'
 
 type Filter = 'all' | TransactionType
 
@@ -18,19 +20,28 @@ export default function TransactionsPage() {
   const [clients, setClients] = useState<FinanceClient[]>([])
   const [loading, setLoading] = useState(true)
   const [filter, setFilter] = useState<Filter>('all')
+  const [period, setPeriod] = useState<PeriodValue>({ preset: 'all', from: '', to: '' })
+  const [clientId, setClientId] = useState('')
+  const [projectId, setProjectId] = useState('')
+  const [query, setQuery] = useState('')
+  const [settings, setSettings] = useState<FinanceSettings>(DEFAULT_FINANCE_SETTINGS)
   const [formOpen, setFormOpen] = useState(false)
   const [editing, setEditing] = useState<FinanceTransaction | null>(null)
 
   const load = useCallback(async () => {
-    const [tRes, pRes, cRes] = await Promise.all([
+    const [tRes, pRes, cRes, sRes] = await Promise.all([
       fetch('/api/finance/transactions', { cache: 'no-store' }),
       fetch('/api/finance/projects', { cache: 'no-store' }),
       fetch('/api/finance/clients', { cache: 'no-store' }),
+      fetch('/api/finance/settings', { cache: 'no-store' }),
     ])
-    if ([tRes, pRes, cRes].some((r) => r.status === 401)) { router.push('/admin/finance/unlock'); return }
+    if ([tRes, pRes, cRes, sRes].some((r) => r.status === 401)) { router.push('/admin/finance/unlock'); return }
     setTxns(await tRes.json())
     setProjects(await pRes.json())
     setClients(await cRes.json())
+    // Effective rates, so the totals row matches the dashboard's conversion.
+    const sj = (await sRes.json()) as { baseCurrency: Currency; effectiveRates?: Partial<Record<Currency, number>> }
+    setSettings({ ...DEFAULT_FINANCE_SETTINGS, baseCurrency: sj.baseCurrency, rates: sj.effectiveRates ?? {} })
     setLoading(false)
   }, [router])
 
@@ -58,9 +69,60 @@ export default function TransactionsPage() {
     if (editing && (await del(editing))) setFormOpen(false)
   }
 
-  const rows = filter === 'all' ? txns : txns.filter((tx) => tx.type === filter)
   const filterLabel: Record<Filter, string> = {
     all: t('txns.filterAll'), income: t('txns.filterIncome'), expense: t('txns.filterExpense'),
+  }
+
+  const range = useMemo(
+    () => (period.preset === 'custom'
+      ? { from: period.from, to: period.to }
+      : resolvePeriod(period.preset)),
+    [period.preset, period.from, period.to],
+  )
+
+  const q = query.trim().toLowerCase()
+  const rows = useMemo(() => txns.filter((tx) => {
+    if (filter !== 'all' && tx.type !== filter) return false
+    if ((range.from || range.to) && !inPeriod(tx.date, range)) return false
+    if (clientId && tx.clientId !== clientId) return false
+    if (projectId && tx.projectId !== projectId) return false
+    if (q) {
+      const hay = [
+        tx.category, tx.note,
+        tx.projectId ? projName.get(tx.projectId) ?? '' : '',
+        tx.clientId ? cliName.get(tx.clientId) ?? '' : '',
+      ].join(' ').toLowerCase()
+      if (!hay.includes(q)) return false
+    }
+    return true
+  }), [txns, filter, range, clientId, projectId, q, projName, cliName])
+
+  // Totals for exactly what is on screen — an unconvertible amount is left out
+  // rather than counted as zero, and flagged below.
+  const totals = useMemo(() => {
+    let inc = 0, out = 0
+    const unconverted = new Set<Currency>()
+    for (const tx of rows) {
+      const v = convert(tx.amount, tx.currency, settings.baseCurrency, settings)
+      if (v === null) { unconverted.add(tx.currency); continue }
+      if (tx.type === 'income') inc += v; else out += v
+    }
+    return { inc, out, net: inc - out, unconverted: [...unconverted] }
+  }, [rows, settings])
+
+  const filtersActive = filter !== 'all' || period.preset !== 'all' || !!clientId || !!projectId || !!q
+  const clearFilters = () => {
+    setFilter('all'); setPeriod({ preset: 'all', from: '', to: '' })
+    setClientId(''); setProjectId(''); setQuery('')
+  }
+
+  const exportQuery = () => {
+    const qs = new URLSearchParams(periodQuery(period))
+    if (filter !== 'all') qs.set('type', filter)
+    if (clientId) qs.set('clientId', clientId)
+    if (projectId) qs.set('projectId', projectId)
+    if (q) qs.set('q', query.trim())
+    return qs.toString()
   }
 
   return (
@@ -75,19 +137,86 @@ export default function TransactionsPage() {
         </button>
       </div>
 
-      {/* Filter */}
-      <div className="flex items-center gap-1 mb-4">
-        {(['all', 'income', 'expense'] as Filter[]).map((k) => (
-          <button
-            key={k}
-            onClick={() => setFilter(k)}
-            className={`px-3 py-1.5 rounded-lg text-[13px] font-medium capitalize transition-colors ${
-              filter === k ? 'bg-[#161616] text-white border border-[#2A2A2A]' : 'text-[#777] hover:text-white border border-transparent'
-            }`}
+      {/* Filters */}
+      <div className="space-y-3 mb-4">
+        <div className="flex flex-wrap items-center gap-2">
+          <div className="flex items-center gap-1">
+            {(['all', 'income', 'expense'] as Filter[]).map((k) => (
+              <button
+                key={k}
+                onClick={() => setFilter(k)}
+                className={`px-3 py-1.5 rounded-lg text-[13px] font-medium capitalize transition-colors ${
+                  filter === k ? 'bg-[#161616] text-white border border-[#2A2A2A]' : 'text-[#777] hover:text-white border border-transparent'
+                }`}
+              >
+                {filterLabel[k]}
+              </button>
+            ))}
+          </div>
+          <PeriodPicker value={period} onChange={setPeriod} />
+        </div>
+
+        <div className="flex flex-wrap items-center gap-2">
+          <input
+            type="search"
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+            placeholder={t('txns.search')}
+            className="flex-1 min-w-[200px] bg-[#111] border border-[#252525] rounded-lg px-3 py-2 text-[13px] text-[#EDEBE3] placeholder:text-[#4A4A4A] focus:outline-none focus:border-[#C8FF47] transition-colors"
+          />
+          <select
+            value={clientId}
+            onChange={(e) => setClientId(e.target.value)}
+            className="bg-[#111] border border-[#252525] rounded-lg px-3 py-2 text-[13px] text-[#EDEBE3] focus:outline-none focus:border-[#C8FF47] transition-colors cursor-pointer"
           >
-            {filterLabel[k]}
-          </button>
-        ))}
+            <option value="">{t('txns.filterClient')}</option>
+            {clients.map((c) => <option key={c.id} value={c.id}>{c.company || c.name}</option>)}
+          </select>
+          <select
+            value={projectId}
+            onChange={(e) => setProjectId(e.target.value)}
+            className="bg-[#111] border border-[#252525] rounded-lg px-3 py-2 text-[13px] text-[#EDEBE3] focus:outline-none focus:border-[#C8FF47] transition-colors cursor-pointer max-w-[220px]"
+          >
+            <option value="">{t('txns.filterProject')}</option>
+            {projects.map((p) => <option key={p.id} value={p.id}>{p.title}</option>)}
+          </select>
+          {filtersActive && (
+            <button
+              onClick={clearFilters}
+              className="px-3 py-2 rounded-lg text-[13px] text-[#888] hover:text-white border border-[#252525] hover:border-[#333] transition-colors active:scale-[0.97]"
+            >
+              {t('txns.clearFilters')}
+            </button>
+          )}
+          <a
+            href={`/api/finance/export?${exportQuery()}`}
+            className="ml-auto inline-flex items-center gap-2 px-3 py-2 rounded-lg border border-[#2A2A2A] bg-[#161616] text-[13px] font-medium text-[#bbb] hover:text-white hover:border-[#333] transition-colors active:scale-[0.97]"
+          >
+            {t('txns.export')}
+          </a>
+        </div>
+
+        {/* Totals for the current view — the number that actually answers
+            "how much did this client pay us in Q2". */}
+        {!loading && rows.length > 0 && (
+          <div className="flex flex-wrap items-center gap-x-6 gap-y-1 px-4 py-3 rounded-lg bg-[#0D0D0D] border border-[#1E1E1E]">
+            <span className="text-[11px] text-[#555]">{t('txns.showing', { n: rows.length, total: txns.length })}</span>
+            <span className="text-[13px] tabular-nums text-[#8FC748]">
+              {t('txns.sumIn')}: {formatMoney(totals.inc, settings.baseCurrency, { locale })}
+            </span>
+            <span className="text-[13px] tabular-nums text-[#E27A5C]">
+              {t('txns.sumOut')}: {formatMoney(totals.out, settings.baseCurrency, { locale })}
+            </span>
+            <span className={`text-[13px] tabular-nums font-semibold ${totals.net >= 0 ? 'text-white' : 'text-[#E27A5C]'}`}>
+              {t('txns.sumNet')}: {formatMoney(totals.net, settings.baseCurrency, { locale })}
+            </span>
+            {totals.unconverted.length > 0 && (
+              <span className="text-[11px] text-[#FFD447]">
+                {t('projs.unconverted', { list: totals.unconverted.join(', ') })}
+              </span>
+            )}
+          </div>
+        )}
       </div>
 
       <div className="rounded-xl bg-[#0D0D0D] border border-[#1E1E1E] overflow-hidden">
@@ -95,7 +224,7 @@ export default function TransactionsPage() {
           <div className="p-4 space-y-2">{[...Array(6)].map((_, i) => <div key={i} className="h-12 rounded bg-[#141414] animate-pulse" />)}</div>
         ) : rows.length === 0 ? (
           <div className="py-16 text-center">
-            <p className="text-sm text-[#666] mb-3">{filter !== 'all' ? t('txns.emptyFiltered', { f: filterLabel[filter] }) : t('txns.emptyAll')}</p>
+            <p className="text-sm text-[#666] mb-3">{filtersActive ? t('txns.emptyFiltered', { f: filterLabel[filter] }) : t('txns.emptyAll')}</p>
             <button onClick={openNew} className="text-sm text-[#C8FF47] hover:underline">{t('txns.recordFirst')}</button>
           </div>
         ) : (
@@ -119,7 +248,9 @@ export default function TransactionsPage() {
                   <td className="px-3 py-3">
                     <div className="flex items-center gap-2">
                       <span className="text-xs flex-shrink-0" style={{ color: tx.type === 'income' ? '#8FC748' : '#E27A5C' }} aria-hidden="true">
-                        {tx.type === 'income' ? '↓' : '↑'}
+                        {/* Up for money in, down for money out — matches the
+                            sign and colour on the amount, and the dashboard. */}
+                        {tx.type === 'income' ? '↑' : '↓'}
                       </span>
                       <div className="min-w-0">
                         <p className="text-white truncate sm:max-w-[220px]">{tx.category || (tx.type === 'income' ? t('txn.payment') : t('txn.expense'))}</p>
