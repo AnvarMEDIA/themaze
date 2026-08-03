@@ -12,12 +12,14 @@ import { roundMoney } from './money'
 import type {
   FinanceClient,
   FinanceProject,
+  FinanceRecurring,
   FinanceTransaction,
 } from './types'
 
 const K_CLIENTS = 'finance_clients'
 const K_PROJECTS = 'finance_projects'
 const K_TXNS = 'finance_transactions'
+const K_RECUR = 'finance_recurring'
 
 const now = () => new Date().toISOString()
 
@@ -70,6 +72,9 @@ export async function deleteClient(id: string): Promise<boolean> {
     )
     await updateStore<FinanceTransaction[]>(K_TXNS, [], (cur) =>
       cur.map((t) => (t.clientId === id ? { ...t, clientId: null, updatedAt: now() } : t)),
+    )
+    await updateStore<FinanceRecurring[]>(K_RECUR, [], (cur) =>
+      cur.map((r) => (r.clientId === id ? { ...r, clientId: null, updatedAt: now() } : r)),
     )
   }
   return existed
@@ -131,6 +136,9 @@ export async function deleteProject(id: string): Promise<boolean> {
     await updateStore<FinanceTransaction[]>(K_TXNS, [], (cur) =>
       cur.map((t) => (t.projectId === id ? { ...t, projectId: null, updatedAt: now() } : t)),
     )
+    await updateStore<FinanceRecurring[]>(K_RECUR, [], (cur) =>
+      cur.map((r) => (r.projectId === id ? { ...r, projectId: null, updatedAt: now() } : r)),
+    )
   }
   return existed
 }
@@ -188,4 +196,88 @@ export async function deleteTransaction(id: string): Promise<boolean> {
     return cur.filter((t) => t.id !== id)
   })
   return existed
+}
+
+/* ── Recurring payments ──────────────────────────────────────────────────── */
+
+export async function listRecurring(): Promise<FinanceRecurring[]> {
+  const rows = await readStore<FinanceRecurring[]>(K_RECUR, [])
+  // Soonest due first; ended series (no nextDate) sink to the bottom.
+  return [...rows].sort((a, b) => (a.nextDate || '9999').localeCompare(b.nextDate || '9999'))
+}
+
+export async function getRecurring(id: string): Promise<FinanceRecurring | null> {
+  const rows = await readStore<FinanceRecurring[]>(K_RECUR, [])
+  return rows.find((r) => r.id === id) ?? null
+}
+
+export type RecurringInput = Omit<FinanceRecurring, 'id' | 'nextDate' | 'createdAt' | 'updatedAt'>
+
+export async function createRecurring(input: RecurringInput): Promise<FinanceRecurring> {
+  const ts = now()
+  const row: FinanceRecurring = {
+    ...input,
+    amount: roundMoney(input.amount, input.currency),
+    // A new series is first due on its start date.
+    nextDate: input.startDate,
+    id: uuid(),
+    createdAt: ts,
+    updatedAt: ts,
+  }
+  await updateStore<FinanceRecurring[]>(K_RECUR, [], (cur) => [...cur, row])
+  return row
+}
+
+export async function updateRecurring(
+  id: string,
+  patch: Partial<RecurringInput & { nextDate: string }>,
+): Promise<FinanceRecurring | null> {
+  let updated: FinanceRecurring | null = null
+  await updateStore<FinanceRecurring[]>(K_RECUR, [], (cur) =>
+    cur.map((r) => {
+      if (r.id !== id) return r
+      const merged = { ...r, ...patch, updatedAt: now() }
+      merged.amount = roundMoney(merged.amount, merged.currency)
+      // Moving the start of a series that has never been posted should move
+      // its next due date too, otherwise the correction appears to do nothing.
+      if (patch.startDate && patch.nextDate === undefined && r.nextDate === r.startDate) {
+        merged.nextDate = patch.startDate
+      }
+      updated = merged
+      return merged
+    }),
+  )
+  return updated
+}
+
+export async function deleteRecurring(id: string): Promise<boolean> {
+  let existed = false
+  await updateStore<FinanceRecurring[]>(K_RECUR, [], (cur) => {
+    existed = cur.some((r) => r.id === id)
+    return cur.filter((r) => r.id !== id)
+  })
+  return existed
+}
+
+/** Set a series' next due date directly (used when posting occurrences). */
+export async function setRecurringNextDate(id: string, nextDate: string): Promise<void> {
+  await updateStore<FinanceRecurring[]>(K_RECUR, [], (cur) =>
+    cur.map((r) => (r.id === id ? { ...r, nextDate, updatedAt: now() } : r)),
+  )
+}
+
+/** Append several ledger rows in ONE store write, so a batch can't half-apply. */
+export async function createTransactions(
+  inputs: TransactionInput[],
+): Promise<FinanceTransaction[]> {
+  const ts = now()
+  const rows: FinanceTransaction[] = inputs.map((input) => ({
+    ...input,
+    amount: roundMoney(input.amount, input.currency),
+    id: uuid(),
+    createdAt: ts,
+    updatedAt: ts,
+  }))
+  await updateStore<FinanceTransaction[]>(K_TXNS, [], (cur) => [...cur, ...rows])
+  return rows
 }

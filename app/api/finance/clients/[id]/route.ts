@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { requireFinance } from '@/lib/finance/guard'
 import { getClient, updateClient, deleteClient } from '@/lib/finance/data'
-import { ClientUpdateSchema } from '@/lib/finance/validation'
+import { ClientUpdateSchema, parsePatch } from '@/lib/finance/validation'
 
 export const dynamic = 'force-dynamic'
 
@@ -18,7 +18,8 @@ export async function GET(_req: NextRequest, { params }: Ctx) {
 export async function PATCH(req: NextRequest, { params }: Ctx) {
   const blocked = await requireFinance()
   if (blocked) return blocked
-  const parsed = ClientUpdateSchema.safeParse(await req.json().catch(() => null))
+  // parsePatch, not safeParse: a PATCH must touch only the fields it sent.
+  const parsed = parsePatch(ClientUpdateSchema, await req.json().catch(() => null))
   if (!parsed.success) {
     return NextResponse.json({ error: 'Invalid data', details: parsed.error.flatten() }, { status: 400 })
   }

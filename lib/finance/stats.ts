@@ -12,11 +12,12 @@
  * All money is converted to the base currency via the editable/CBU rates;
  * `revenueByCurrency` keeps native amounts so the conversion can be checked.
  */
-import { listClients, listProjects, listTransactions } from './data'
+import { listClients, listProjects, listRecurring, listTransactions } from './data'
 import { getEffectiveFinanceSettings } from './settings'
 import { toBase, missingRates } from './money'
 import { projectRollup } from './rollup'
-import { inPeriod, isoDate, monthOf, resolvePeriod, type Period } from './period'
+import { collectDue } from './recurring'
+import { inPeriod, isoDate, monthOf, previousPeriod, resolvePeriod, type Period } from './period'
 import type {
   FinanceSummary,
   MonthlyPoint,
@@ -32,10 +33,11 @@ import type {
 const monthKeyOf = (date: string) => monthOf(date)
 
 export async function buildSummary(period?: Period): Promise<FinanceSummary> {
-  const [clients, projects, txns, settings] = await Promise.all([
+  const [clients, projects, txns, recurring, settings] = await Promise.all([
     listClients(),
     listProjects(),
     listTransactions(),
+    listRecurring(),
     getEffectiveFinanceSettings(),
   ])
 
@@ -57,6 +59,23 @@ export async function buildSummary(period?: Period): Promise<FinanceSummary> {
   const expenseTotal = sumBase(periodExpense)
   const profit = revenue - expenseTotal
   const revenueAllTime = sumBase(income)
+
+  /* ── The comparable window before this one ───────────────────────────── */
+
+  const prevRange = previousPeriod(range)
+  let previous: FinanceSummary['previous'] = null
+  if (prevRange) {
+    const prevIn = (t: FinanceTransaction) => inPeriod(t.date, prevRange)
+    const prevRevenue = sumBase(income.filter(prevIn))
+    const prevExpense = sumBase(expense.filter(prevIn))
+    previous = {
+      from: prevRange.from,
+      to: prevRange.to,
+      revenue: prevRevenue,
+      expense: prevExpense,
+      profit: prevRevenue - prevExpense,
+    }
+  }
 
   /* ── Receivables (point-in-time) ─────────────────────────────────────── */
 
@@ -177,6 +196,8 @@ export async function buildSummary(period?: Period): Promise<FinanceSummary> {
       activeProjects,
       totalClients: clients.length,
     },
+    previous,
+    dueRecurring: collectDue(recurring, today),
     monthly,
     topClients,
     statusBreakdown,

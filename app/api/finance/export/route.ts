@@ -4,6 +4,7 @@ import { listClients, listProjects, listTransactions } from '@/lib/finance/data'
 import { getEffectiveFinanceSettings } from '@/lib/finance/settings'
 import { rateOf } from '@/lib/finance/money'
 import { periodFromParams, inPeriod } from '@/lib/finance/period'
+import { csvBody, csvHeaders, periodStamp } from '@/lib/finance/csv'
 
 export const dynamic = 'force-dynamic'
 
@@ -15,14 +16,6 @@ export const dynamic = 'force-dynamic'
  * entered, plus the base-currency equivalent used by the dashboard, so the
  * conversion is auditable rather than hidden.
  */
-
-/** RFC 4180 quoting. A field starting with =, +, - or @ is prefixed with a
- *  quote so spreadsheets treat it as text instead of a formula. */
-function csvCell(value: string | number | undefined | null): string {
-  const s = value === undefined || value === null ? '' : String(value)
-  const safe = /^[=+\-@]/.test(s) ? `'${s}` : s
-  return /[",\n;]/.test(safe) ? `"${safe.replace(/"/g, '""')}"` : safe
-}
 
 export async function GET(req: NextRequest) {
   const blocked = await requireFinance()
@@ -70,7 +63,7 @@ export async function GET(req: NextRequest) {
     `Amount (${settings.baseCurrency})`, 'Client', 'Project', 'Category', 'Method', 'Note',
   ]
 
-  const lines = [header.map(csvCell).join(',')]
+  const lines: (string | number)[][] = [header]
   for (const t of rows) {
     // Test the rate, not the result: a genuine zero-amount row in a foreign
     // currency is perfectly convertible and must not be reported as unknown.
@@ -87,20 +80,10 @@ export async function GET(req: NextRequest) {
       t.category,
       t.method,
       t.note,
-    ].map(csvCell).join(','))
+    ])
   }
 
-  const stamp = period.from || period.to
-    ? `${period.from || 'start'}_${period.to || 'today'}`
-    : 'all'
-  // The BOM makes Excel read UTF-8 (and therefore Cyrillic) correctly.
-  const body = `﻿${lines.join('\r\n')}\r\n`
-
-  return new NextResponse(body, {
-    headers: {
-      'Content-Type': 'text/csv; charset=utf-8',
-      'Content-Disposition': `attachment; filename="maze-finance-${stamp}.csv"`,
-      'Cache-Control': 'no-store',
-    },
+  return new NextResponse(csvBody(lines), {
+    headers: csvHeaders(`maze-finance-${periodStamp(period)}.csv`),
   })
 }

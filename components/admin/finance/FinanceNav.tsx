@@ -11,6 +11,8 @@ const TABS = [
   { href: '/admin/finance/transactions', key: 'nav.transactions' },
   { href: '/admin/finance/projects',     key: 'nav.projects' },
   { href: '/admin/finance/clients',      key: 'nav.clients' },
+  { href: '/admin/finance/recurring',    key: 'nav.recurring' },
+  { href: '/admin/finance/reports',      key: 'nav.reports' },
   { href: '/admin/finance/settings',     key: 'nav.settings' },
 ]
 

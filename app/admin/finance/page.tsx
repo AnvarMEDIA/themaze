@@ -9,6 +9,7 @@ import { MonthlyBars, HBars } from '@/components/admin/finance/Charts'
 import { FIN_COLORS } from '@/components/admin/finance/tokens'
 import { useFinanceLang } from '@/components/admin/finance/lang'
 import { PeriodPicker, periodQuery, type PeriodValue } from '@/components/admin/finance/PeriodPicker'
+import { Delta } from '@/components/admin/finance/Delta'
 
 const PERIOD_KEY = 'maze_finance_period'
 const DEFAULT_PERIOD: PeriodValue = { preset: 'year', from: '', to: '' }
@@ -93,6 +94,19 @@ export default function FinanceDashboard() {
   const pct = (part: number, whole: number) =>
     whole > 0 ? Math.round((part / whole) * 100) : 0
 
+  // Comparison against the window before this one. Absent for "all time" and
+  // for an open-ended custom range, where there is nothing to compare with.
+  const prev = sum.previous
+  const COMPARE_LABEL: Record<string, string> = {
+    month: t('dash.vsPrevMonth'),
+    quarter: t('dash.vsPrevQuarter'),
+    year: t('dash.vsPrevYear'),
+  }
+  // Short label on the tile; the exact window it compares against goes in the
+  // tooltip, where it informs without crowding the number.
+  const prevLabel = prev ? COMPARE_LABEL[period.preset] ?? t('dash.vsPrev') : ''
+  const prevHint = prev ? `${prevLabel} · ${prev.from} – ${prev.to}` : ''
+
   const topClientItems = sum.topClients.map((c) => ({
     label: c.name || t('dash.unassignedClient'),
     value: c.total,
@@ -176,6 +190,25 @@ export default function FinanceDashboard() {
         </div>
       )}
 
+      {/* Scheduled payments that have come due. Deliberately a prompt, not an
+          action: nothing reaches the ledger until the studio confirms it. */}
+      {sum.dueRecurring?.length > 0 && (
+        <div className="mb-6 rounded-xl border border-[#C8FF47]/25 bg-[#C8FF47]/[0.05] px-5 py-4 flex flex-wrap items-center gap-x-4 gap-y-2">
+          <div className="min-w-0 flex-1">
+            <p className="text-[13px] font-semibold text-[#C8FF47]">
+              {t('rec.dueBanner', { n: sum.dueRecurring.length })}
+            </p>
+            <p className="text-[12px] text-[#8a8a7a] mt-0.5">{t('rec.dueBannerHint')}</p>
+          </div>
+          <Link
+            href="/admin/finance/recurring"
+            className="px-3 py-2 rounded-lg bg-[#C8FF47] text-[#0A0A0A] text-[13px] font-bold hover:bg-[#F0EEE6] transition-colors active:scale-[0.97] whitespace-nowrap"
+          >
+            {t('rec.viewAll')}
+          </Link>
+        </div>
+      )}
+
       {!hasData && (
         <div className="mb-6 rounded-xl border border-[#1E1E1E] bg-[#0D0D0D] px-6 py-10 text-center">
           <p className="text-white font-semibold mb-1">{t('dash.emptyTitle')}</p>
@@ -191,19 +224,23 @@ export default function FinanceDashboard() {
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-4">
         <Stat
           label={t('dash.kpiRevenue')} value={fmt(kpis.revenue)} accent="#C8FF47"
-          hint={t('dash.forPeriod')}
+          hint={prev ? prevLabel : t('dash.forPeriod')}
           alt={showMulti ? inOtherCurrencies(kpis.revenue) : undefined}
+          delta={prev && <Delta current={kpis.revenue} previous={prev.revenue} label={prevHint} />}
         />
         <Stat
           label={t('dash.kpiExpenses')} value={fmt(kpis.expense)} accent={FIN_COLORS.expense}
           hint={kpis.revenue > 0 ? t('dash.ofRevenue', { p: pct(kpis.expense, kpis.revenue) }) : t('dash.forPeriod')}
           alt={showMulti ? inOtherCurrencies(kpis.expense) : undefined}
+          // Spending more is not an improvement, so the arrow colours invert.
+          delta={prev && <Delta current={kpis.expense} previous={prev.expense} goodWhen="down" label={prevHint} />}
         />
         <Stat
           label={t('dash.kpiProfit')} value={fmt(kpis.profit)}
           accent={kpis.profit >= 0 ? '#6FA02E' : '#D9563A'}
           hint={kpis.revenue > 0 ? t('dash.marginOf', { p: pct(kpis.profit, kpis.revenue) }) : t('dash.forPeriod')}
           alt={showMulti ? inOtherCurrencies(kpis.profit) : undefined}
+          delta={prev && <Delta current={kpis.profit} previous={prev.profit} label={prevHint} />}
         />
         <Stat
           label={t('dash.kpiOutstanding')} value={fmt(kpis.outstanding)} accent="#FFD447"
@@ -315,7 +352,7 @@ export default function FinanceDashboard() {
 }
 
 function Stat({
-  label, value, accent, hint, alt, hintAlert = false,
+  label, value, accent, hint, alt, hintAlert = false, delta,
 }: {
   label: string
   value: string
@@ -323,6 +360,7 @@ function Stat({
   hint: string
   alt?: string[]
   hintAlert?: boolean
+  delta?: React.ReactNode
 }) {
   return (
     <div className="rounded-xl bg-[#0D0D0D] border border-[#1E1E1E] p-5">
@@ -330,7 +368,10 @@ function Stat({
         <span className="w-1.5 h-1.5 rounded-full" style={{ background: accent }} />
         <p className="text-[11px] text-[#666]">{label}</p>
       </div>
-      <p className="text-[22px] font-bold text-white tabular-nums leading-none">{value}</p>
+      <div className="flex items-baseline gap-2 flex-wrap">
+        <p className="text-[22px] font-bold text-white tabular-nums leading-none">{value}</p>
+        {delta}
+      </div>
       {alt && alt.length > 0 && (
         <div className="mt-2.5 pt-2.5 border-t border-[#1A1A1A] space-y-1 fin-fade">
           {alt.map((v) => (

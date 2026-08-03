@@ -71,6 +71,98 @@ export interface FinanceTransaction {
   updatedAt: string
 }
 
+export const RECUR_INTERVALS = ['monthly', 'quarterly', 'yearly'] as const
+export type RecurInterval = (typeof RECUR_INTERVALS)[number]
+
+/**
+ * A payment that repeats on a schedule — a retainer, a rent, a subscription.
+ *
+ * This is a TEMPLATE, not a ledger entry. Nothing reaches the books until the
+ * studio posts a due occurrence: money records should never appear behind
+ * someone's back, and an invoice that didn't actually get paid would quietly
+ * corrupt every figure downstream.
+ */
+export interface FinanceRecurring {
+  id: string
+  title: string
+  type: TransactionType
+  amount: number
+  currency: Currency
+  clientId: string | null
+  projectId: string | null
+  method: PaymentMethod
+  category: string
+  note: string
+  interval: RecurInterval
+  /** First occurrence, and the day-of-month the series is anchored to. */
+  startDate: string
+  /** Next occurrence not yet posted. Advances as occurrences are posted. */
+  nextDate: string
+  /** Last date the series may run to. '' = open-ended. */
+  endDate: string
+  active: boolean
+  createdAt: string
+  updatedAt: string
+}
+
+/** A scheduled occurrence that has come due and is not yet in the ledger. */
+export interface DueOccurrence {
+  recurringId: string
+  title: string
+  type: TransactionType
+  amount: number
+  currency: Currency
+  date: string
+  daysLate: number
+}
+
+/* ── Project profitability ──────────────────────────────────────────────── */
+
+/**
+ * One project's contribution, in the BASE currency. `directCost` counts only
+ * expenses explicitly linked to the project — studio overhead is deliberately
+ * excluded and reported separately, because splitting rent across projects is
+ * an accounting policy decision, not something to invent silently.
+ */
+export interface ProjectProfit {
+  id: string
+  title: string
+  client: string
+  status: ProjectStatus
+  /** Agreed project value. */
+  contracted: number
+  /** Income received in the selected period. */
+  received: number
+  /** Still owed, right now (not period-scoped). */
+  outstanding: number
+  /** Expenses linked to this project in the selected period. */
+  directCost: number
+  /** received − directCost. */
+  profit: number
+  /** profit ÷ received, or null when nothing was received. */
+  margin: number | null
+  /** Currencies on linked rows that had no usable rate. */
+  unconverted: Currency[]
+}
+
+export interface ProfitabilityReport {
+  baseCurrency: Currency
+  period: { from: string; to: string; preset: string }
+  generatedAt: string
+  projects: ProjectProfit[]
+  totals: {
+    received: number
+    directCost: number
+    /** Expenses with no project attached — studio overhead. */
+    overhead: number
+    /** Σ received − Σ directCost, before overhead. */
+    grossProfit: number
+    /** grossProfit − overhead. Reconciles with the dashboard's net profit. */
+    netProfit: number
+  }
+  unratedCurrencies: Currency[]
+}
+
 export interface FinanceSettings {
   baseCurrency: Currency
   /** Value of 1 unit of the keyed currency expressed in `baseCurrency`. */
@@ -148,6 +240,20 @@ export interface FinanceSummary {
     activeProjects: number
     totalClients: number
   }
+  /**
+   * The same period figures for the window immediately before this one, so the
+   * dashboard can show direction of travel. Null when there is nothing to
+   * compare against ("all time", or an open-ended custom range).
+   */
+  previous: {
+    from: string
+    to: string
+    revenue: number
+    expense: number
+    profit: number
+  } | null
+  /** Scheduled payments that have come due and are not yet in the ledger. */
+  dueRecurring: DueOccurrence[]
   monthly: MonthlyPoint[]    // last 12 months, base currency (trend, not period)
   topClients: ClientRevenue[]
   statusBreakdown: { status: ProjectStatus; count: number; value: number }[]
