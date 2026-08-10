@@ -53,6 +53,8 @@ export interface CalendarSchedule {
   type: 'income' | 'expense'
   amount: number
   currency: Currency
+  projectId: string | null
+  clientId: string | null
 }
 
 export interface MonthLedger {
@@ -67,6 +69,16 @@ export interface MonthLedger {
   transactions: FinanceTransaction[]
   deadlines: CalendarDeadline[]
   schedule: CalendarSchedule[]
+  /**
+   * Names for the ids referenced by this month's rows. Ledger rows carry ids
+   * only, and two payments on one day are routinely both called "Prepayment" —
+   * without the project a day's detail cannot be told apart. Keyed lookups
+   * rather than names inlined on every row: one entry per id, not per payment.
+   */
+  names: {
+    projects: Record<string, string>
+    clients: Record<string, string>
+  }
   /** Currencies present with no usable rate — their amounts count as zero. */
   unratedCurrencies: Currency[]
 }
@@ -211,10 +223,26 @@ export function buildMonthLedger(
         type: rec.type,
         amount: rec.amount,
         currency: rec.currency,
+        projectId: rec.projectId,
+        clientId: rec.clientId,
       })
     }
   }
   schedule.sort((a, b) => a.date.localeCompare(b.date))
+
+  // Only the ids this month actually references — a studio with 500 projects
+  // shouldn't ship all 500 names to look at one week.
+  const names = { projects: {} as Record<string, string>, clients: {} as Record<string, string> }
+  for (const { projectId, clientId } of [...rows, ...schedule]) {
+    if (projectId && !names.projects[projectId]) {
+      const p = projects.find((x) => x.id === projectId)
+      if (p) names.projects[projectId] = p.title
+    }
+    if (clientId && !names.clients[clientId]) {
+      const label = clientLabel(clientId)
+      if (label) names.clients[clientId] = label
+    }
+  }
 
   return {
     month,
@@ -226,6 +254,7 @@ export function buildMonthLedger(
     transactions: rows.sort((a, b) => a.date.localeCompare(b.date)),
     deadlines,
     schedule,
+    names,
     unratedCurrencies: missingRates(rows.map((t) => t.currency), settings),
   }
 }

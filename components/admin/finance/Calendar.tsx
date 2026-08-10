@@ -58,7 +58,6 @@ export function Calendar({
   )
 
   const cur = ledger?.baseCurrency ?? 'UZS'
-  const money = (v: number) => formatMoney(v, cur, { locale })
   const compact = (v: number) => formatMoney(v, cur, { compact: true, locale })
 
   const title = `${monthName(Number(month.slice(5, 7)) - 1)} ${month.slice(0, 4)}`
@@ -184,8 +183,8 @@ export function Calendar({
             transactions={dayTxns}
             deadlines={deadlinesByDay.get(selected) ?? []}
             scheduled={scheduleByDay.get(selected) ?? []}
+            names={ledger?.names ?? EMPTY_NAMES}
             onClose={() => setSelected(null)}
-            money={money}
           />
         )}
       </div>
@@ -193,15 +192,17 @@ export function Calendar({
   )
 }
 
+const EMPTY_NAMES: MonthLedger['names'] = { projects: {}, clients: {} }
+
 function DayPanel({
-  date, transactions, deadlines, scheduled, onClose, money,
+  date, transactions, deadlines, scheduled, names, onClose,
 }: {
   date: string
   transactions: MonthLedger['transactions']
   deadlines: MonthLedger['deadlines']
   scheduled: MonthLedger['schedule']
+  names: MonthLedger['names']
   onClose: () => void
-  money: (v: number) => string
 }) {
   const { t, locale } = useFinanceLang()
   const empty = transactions.length === 0 && deadlines.length === 0 && scheduled.length === 0
@@ -243,12 +244,17 @@ function DayPanel({
         <div className="mb-3">
           <p className="text-[10px] uppercase tracking-wide text-[#666] mb-1.5">{t('cal.scheduled')}</p>
           {scheduled.map((s, i) => (
-            <div key={`${s.recurringId}-${i}`} className="flex items-center gap-2 py-1">
-              <span className="w-1.5 h-1.5 rounded-full bg-[#3E92C8] flex-shrink-0" />
-              <span className="text-[12px] text-white truncate">{s.title}</span>
-              {/* These are plans, not entries — say so, or the day looks paid. */}
-              <span className="text-[11px] text-[#666] whitespace-nowrap">{t('cal.notRecorded')}</span>
-              <span className={`text-[12px] tabular-nums ml-auto whitespace-nowrap ${s.type === 'income' ? 'text-[#8FC748]' : 'text-[#E27A5C]'}`}>
+            <div key={`${s.recurringId}-${i}`} className="flex items-start gap-2 py-1">
+              <span className="w-1.5 h-1.5 rounded-full bg-[#3E92C8] flex-shrink-0 mt-2" />
+              <span className="min-w-0">
+                <span className="block text-[12px] text-white truncate">
+                  {s.title}
+                  {/* These are plans, not entries — say so, or the day looks paid. */}
+                  <span className="text-[11px] text-[#666] ml-1.5">{t('cal.notRecorded')}</span>
+                </span>
+                <Attribution projectId={s.projectId} clientId={s.clientId} names={names} />
+              </span>
+              <span className={`text-[12px] tabular-nums ml-auto whitespace-nowrap leading-5 ${s.type === 'income' ? 'text-[#8FC748]' : 'text-[#E27A5C]'}`}>
                 {s.type === 'income' ? '+' : '−'}{formatMoney(s.amount, s.currency, { locale })}
               </span>
             </div>
@@ -260,18 +266,24 @@ function DayPanel({
         <div>
           <p className="text-[10px] uppercase tracking-wide text-[#666] mb-1.5">{t('cal.transactions')}</p>
           {transactions.map((tx) => (
-            <div key={tx.id} className="flex items-center gap-2 py-1">
+            <div key={tx.id} className="flex items-start gap-2 py-1">
               <span
-                className="text-[11px] flex-shrink-0"
+                className="text-[11px] flex-shrink-0 leading-5"
                 style={{ color: tx.type === 'income' ? '#8FC748' : '#E27A5C' }}
                 aria-hidden="true"
               >
                 {tx.type === 'income' ? '↑' : '↓'}
               </span>
-              <span className="text-[12px] text-white truncate">
-                {tx.category || (tx.type === 'income' ? t('txn.payment') : t('txn.expense'))}
+              <span className="min-w-0">
+                <span className="block text-[12px] text-white truncate">
+                  {tx.category || (tx.type === 'income' ? t('txn.payment') : t('txn.expense'))}
+                </span>
+                {/* Which project the money was for. Two payments on one day are
+                    routinely both "Prepayment"; without this they are the same
+                    row twice. */}
+                <Attribution projectId={tx.projectId} clientId={tx.clientId} names={names} />
               </span>
-              <span className={`text-[12px] tabular-nums ml-auto whitespace-nowrap ${tx.type === 'income' ? 'text-[#8FC748]' : 'text-[#E27A5C]'}`}>
+              <span className={`text-[12px] tabular-nums ml-auto whitespace-nowrap leading-5 ${tx.type === 'income' ? 'text-[#8FC748]' : 'text-[#E27A5C]'}`}>
                 {tx.type === 'income' ? '+' : '−'}{formatMoney(tx.amount, tx.currency, { locale })}
               </span>
             </div>
@@ -286,6 +298,27 @@ function DayPanel({
       )}
     </div>
   )
+}
+
+/**
+ * What a payment was for: its project, and the client behind it.
+ *
+ * The client is dropped when a project is named — the project already implies
+ * it, and repeating both crowds the row without adding anything. It is shown
+ * on its own when a payment has no project (a retainer, a refund).
+ */
+function Attribution({
+  projectId, clientId, names,
+}: {
+  projectId: string | null
+  clientId: string | null
+  names: MonthLedger['names']
+}) {
+  const project = projectId ? names.projects[projectId] : ''
+  const client = clientId ? names.clients[clientId] : ''
+  const label = project || client
+  if (!label) return null
+  return <span className="block text-[11px] text-[#777] truncate">{label}</span>
 }
 
 function NavButton({ onClick, label, children }: { onClick: () => void; label: string; children: React.ReactNode }) {
