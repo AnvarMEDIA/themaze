@@ -48,6 +48,10 @@ export async function POST(req: NextRequest, { params }: Ctx) {
   const created = await createTransactions(
     dates.map((date) => ({
       type: rec.type,
+      // Stamped with its schedule so the forecast can tell a committed cost
+      // from an ad-hoc one, and the duplicate check doesn't flag a retainer
+      // for repeating — which is what a retainer is for.
+      recurringId: rec.id,
       projectId: rec.projectId,
       clientId: rec.clientId,
       amount: rec.amount,

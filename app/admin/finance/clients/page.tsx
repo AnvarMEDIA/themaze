@@ -1,6 +1,7 @@
 'use client'
 
 import { useCallback, useEffect, useState } from 'react'
+import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import toast from 'react-hot-toast'
 import type { FinanceClient } from '@/lib/finance/types'
@@ -64,7 +65,14 @@ export default function ClientsPage() {
             <div key={c.id} className="group rounded-xl bg-[#0D0D0D] border border-[#1E1E1E] p-5 hover:border-[#2A2A2A] transition-colors">
               <div className="flex items-start justify-between gap-3 mb-3">
                 <div className="min-w-0">
-                  <p className="text-[15px] font-semibold text-white truncate">{c.company || c.name}</p>
+                  {/* The name is the way in: a client's money lives on their
+                      own page, not in this contact card. */}
+                  <Link
+                    href={`/admin/finance/clients/${c.id}`}
+                    className="text-[15px] font-semibold text-white truncate block hover:text-[#C8FF47] transition-colors"
+                  >
+                    {c.company || c.name}
+                  </Link>
                   {c.company && c.name && <p className="text-[12px] text-[#777] truncate">{c.name}</p>}
                 </div>
                 {c.status === 'archived' && (
@@ -76,9 +84,14 @@ export default function ClientsPage() {
                 {c.phone && <p className="text-[13px] text-[#999]">☏ {c.phone}</p>}
                 {c.notes && <p className="text-[12px] text-[#666] line-clamp-2 pt-1">{c.notes}</p>}
               </div>
-              <div className="flex items-center gap-4 pt-3 border-t border-[#161616] transition-opacity [@media(hover:hover)_and_(pointer:fine)]:opacity-0 [@media(hover:hover)_and_(pointer:fine)]:group-hover:opacity-100">
-                <button onClick={() => openEdit(c)} className="text-xs text-[#888] hover:text-[#C8FF47] py-0.5">{t('common.edit')}</button>
-                <button onClick={() => del(c)} className="text-xs text-[#888] hover:text-red-400 py-0.5">{t('common.delete')}</button>
+              <div className="flex items-center gap-4 pt-3 border-t border-[#161616]">
+                {/* "Open" stays visible: on a touch screen there is no hover to
+                    reveal it, and it is the card's primary action. */}
+                <Link href={`/admin/finance/clients/${c.id}`} className="text-xs text-[#C8FF47] hover:text-white py-0.5">{t('cd.open')}</Link>
+                <span className="ml-auto flex items-center gap-4 transition-opacity [@media(hover:hover)_and_(pointer:fine)]:opacity-0 [@media(hover:hover)_and_(pointer:fine)]:group-hover:opacity-100">
+                  <button onClick={() => openEdit(c)} className="text-xs text-[#888] hover:text-[#C8FF47] py-0.5">{t('common.edit')}</button>
+                  <button onClick={() => del(c)} className="text-xs text-[#888] hover:text-red-400 py-0.5">{t('common.delete')}</button>
+                </span>
               </div>
             </div>
           ))}

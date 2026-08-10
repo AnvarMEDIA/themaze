@@ -7,6 +7,7 @@ import type { ProfitabilityReport } from '@/lib/finance/types'
 import { useFinanceLang } from '@/components/admin/finance/lang'
 import { PeriodPicker, periodQuery, type PeriodValue } from '@/components/admin/finance/PeriodPicker'
 import { FIN_COLORS } from '@/components/admin/finance/tokens'
+import { Forecast } from '@/components/admin/finance/Forecast'
 
 const PERIOD_KEY = 'maze_finance_period'
 const DEFAULT_PERIOD: PeriodValue = { preset: 'year', from: '', to: '' }
@@ -168,6 +169,12 @@ export default function ReportsPage() {
       {/* How the numbers are arrived at — an accountant will ask, and guessing
           at an overhead allocation would look authoritative and be wrong. */}
       <p className="text-[11px] text-[#555] leading-relaxed mt-4 max-w-[760px]">{t('rep.basis')}</p>
+
+      {/* Looking forward. Independent of the period above: a forecast always
+          starts from today, whatever window you were reviewing. */}
+      <div className="mt-8">
+        <Forecast />
+      </div>
     </div>
   )
 }

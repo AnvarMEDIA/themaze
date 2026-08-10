@@ -245,6 +245,18 @@ export default function FinanceSettingsPage() {
           </button>
         </div>
       </form>
+
+      {/* Backup — so the books are never hostage to this deployment. */}
+      <div className="rounded-xl bg-[#0D0D0D] border border-[#1E1E1E] p-6">
+        <h2 className="text-sm font-semibold text-white">{t('set.backup')}</h2>
+        <p className="text-[12px] text-[#555] mt-1 leading-relaxed">{t('set.backupBody')}</p>
+        <a
+          href="/api/finance/backup"
+          className="inline-flex items-center gap-2 mt-4 px-5 py-2.5 rounded-lg bg-[#161616] border border-[#2A2A2A] text-white text-sm font-semibold hover:border-[#333] transition-colors active:scale-[0.97]"
+        >
+          {t('set.backupBtn')}
+        </a>
+      </div>
     </div>
   )
 }

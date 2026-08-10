@@ -100,7 +100,8 @@ export default function ProjectsPage() {
             const prepay = roll?.prepayment ?? null
             const unconverted = roll?.unconverted ?? []
             const pct = p.amount > 0 ? Math.min(100, (paid / p.amount) * 100) : 0
-            const outstanding = roll?.outstanding ?? p.amount
+            // `owed`, not `outstanding`: a cancelled project is not a debt.
+            const outstanding = roll?.owed ?? (p.status === 'active' || p.status === 'completed' ? p.amount : 0)
             const color = FIN_COLORS.status[p.status]
             return (
               <div key={p.id} className="group rounded-xl bg-[#0D0D0D] border border-[#1E1E1E] p-5 hover:border-[#2A2A2A] transition-colors">

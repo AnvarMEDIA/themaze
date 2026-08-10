@@ -97,6 +97,7 @@ export const ProjectUpdateSchema = ProjectSchema.partial()
 export const TransactionSchema = z.object({
   type:      z.enum([...TRANSACTION_TYPES] as [TransactionType, ...TransactionType[]]).default('income'),
   kind:      z.literal('prepayment').optional(),
+  recurringId: z.string().trim().max(64).optional(),
   projectId: nullableId,
   clientId:  nullableId,
   amount,

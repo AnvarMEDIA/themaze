@@ -6,6 +6,7 @@ import toast from 'react-hot-toast'
 import { formatMoney, convert, DEFAULT_FINANCE_SETTINGS } from '@/lib/finance/money'
 import type { Currency, FinanceClient, FinanceProject, FinanceSettings, FinanceTransaction, TransactionType } from '@/lib/finance/types'
 import { inPeriod, resolvePeriod } from '@/lib/finance/period'
+import { duplicateIds } from '@/lib/finance/duplicates'
 import { TransactionForm } from '@/components/admin/finance/TransactionForm'
 import { useFinanceLang } from '@/components/admin/finance/lang'
 import { PeriodPicker, periodQuery, type PeriodValue } from '@/components/admin/finance/PeriodPicker'
@@ -24,6 +25,7 @@ export default function TransactionsPage() {
   const [clientId, setClientId] = useState('')
   const [projectId, setProjectId] = useState('')
   const [query, setQuery] = useState('')
+  const [onlyDupes, setOnlyDupes] = useState(false)
   const [settings, setSettings] = useState<FinanceSettings>(DEFAULT_FINANCE_SETTINGS)
   const [formOpen, setFormOpen] = useState(false)
   const [editing, setEditing] = useState<FinanceTransaction | null>(null)
@@ -80,8 +82,14 @@ export default function TransactionsPage() {
     [period.preset, period.from, period.to],
   )
 
+  // Computed over the WHOLE ledger, not the filtered view: a duplicate's twin
+  // may well sit outside the current filter, and a pair that only shows up on
+  // some filters would be worse than no flag at all.
+  const dupes = useMemo(() => duplicateIds(txns), [txns])
+
   const q = query.trim().toLowerCase()
   const rows = useMemo(() => txns.filter((tx) => {
+    if (onlyDupes && !dupes.has(tx.id)) return false
     if (filter !== 'all' && tx.type !== filter) return false
     if ((range.from || range.to) && !inPeriod(tx.date, range)) return false
     if (clientId && tx.clientId !== clientId) return false
@@ -95,7 +103,7 @@ export default function TransactionsPage() {
       if (!hay.includes(q)) return false
     }
     return true
-  }), [txns, filter, range, clientId, projectId, q, projName, cliName])
+  }), [txns, filter, range, clientId, projectId, q, projName, cliName, onlyDupes, dupes])
 
   // Totals for exactly what is on screen — an unconvertible amount is left out
   // rather than counted as zero, and flagged below.
@@ -110,10 +118,10 @@ export default function TransactionsPage() {
     return { inc, out, net: inc - out, unconverted: [...unconverted] }
   }, [rows, settings])
 
-  const filtersActive = filter !== 'all' || period.preset !== 'all' || !!clientId || !!projectId || !!q
+  const filtersActive = filter !== 'all' || period.preset !== 'all' || !!clientId || !!projectId || !!q || onlyDupes
   const clearFilters = () => {
     setFilter('all'); setPeriod({ preset: 'all', from: '', to: '' })
-    setClientId(''); setProjectId(''); setQuery('')
+    setClientId(''); setProjectId(''); setQuery(''); setOnlyDupes(false)
   }
 
   const exportQuery = () => {
@@ -180,6 +188,22 @@ export default function TransactionsPage() {
             <option value="">{t('txns.filterProject')}</option>
             {projects.map((p) => <option key={p.id} value={p.id}>{p.title}</option>)}
           </select>
+          {/* Only offered when there is something to find — a chip that always
+              says zero is noise. */}
+          {dupes.size > 0 && (
+            <button
+              onClick={() => setOnlyDupes((v) => !v)}
+              aria-pressed={onlyDupes}
+              title={t('dup.hint')}
+              className={`px-3 py-2 rounded-lg text-[13px] font-medium transition-colors active:scale-[0.97] border ${
+                onlyDupes
+                  ? 'border-[#FFD447]/50 bg-[#FFD447]/10 text-[#FFD447]'
+                  : 'border-[#252525] text-[#888] hover:text-white hover:border-[#333]'
+              }`}
+            >
+              {t('dup.found', { n: dupes.size })}
+            </button>
+          )}
           {filtersActive && (
             <button
               onClick={clearFilters}
@@ -253,9 +277,18 @@ export default function TransactionsPage() {
                         {tx.type === 'income' ? '↑' : '↓'}
                       </span>
                       <div className="min-w-0">
-                        <p className="text-white truncate sm:max-w-[220px]">{tx.category || (tx.type === 'income' ? t('txn.payment') : t('txn.expense'))}</p>
+                        <p className="text-white truncate sm:max-w-[220px]">
+                          {tx.category || (tx.type === 'income' ? t('txn.payment') : t('txn.expense'))}
+                        </p>
                         {/* Date moves under the category on mobile (its own column is hidden). */}
                         <p className="text-[11px] text-[#666] tabular-nums sm:hidden">{tx.date}</p>
+                        {/* A flag, never a verdict: an identical payment days
+                            apart can be perfectly real. */}
+                        {dupes.has(tx.id) && (
+                          <span className="inline-block mt-0.5 text-[10px] font-medium text-[#FFD447] bg-[#FFD447]/10 border border-[#FFD447]/25 rounded px-1.5 py-0.5">
+                            {t('dup.badge')}
+                          </span>
+                        )}
                       </div>
                     </div>
                   </td>

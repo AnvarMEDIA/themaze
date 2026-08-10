@@ -59,6 +59,12 @@ export interface FinanceTransaction {
    * guess from the free-text, user-translatable `category`.
    */
   kind?: 'prepayment'
+  /**
+   * The schedule this row was posted from, when it came from one. Lets the
+   * forecast tell committed spending apart from ad-hoc spending, and stops the
+   * duplicate check flagging two occurrences of the same retainer.
+   */
+  recurringId?: string
   projectId: string | null
   clientId: string | null
   amount: number

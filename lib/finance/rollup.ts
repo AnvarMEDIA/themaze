@@ -18,8 +18,20 @@ import type {
 export interface ProjectRollup {
   /** Total received, in the project's currency. */
   received: number
-  /** Remaining balance, in the project's currency (never negative). */
+  /**
+   * Arithmetic remainder: agreed amount − received, in the project's currency,
+   * never negative. Says nothing about whether anyone will pay it.
+   */
   outstanding: number
+  /**
+   * What is actually collectable — `outstanding`, but zero once a project is
+   * cancelled or still only a lead. Nobody is going to pay for a job that was
+   * called off, and a lead has not agreed to anything yet.
+   *
+   * This is the figure every total should use. `outstanding` exists for the
+   * one place that genuinely wants the raw arithmetic.
+   */
+  owed: number
   /** The prepayment, if one is identifiable. */
   prepayment: { amount: number; currency: Currency; date: string } | null
   /** Currencies of linked payments that could not be converted (no rate). */
@@ -68,9 +80,13 @@ export function projectRollup(
   const marked = payments.find((t) => t.kind === 'prepayment')
   const pre = marked ?? payments.find(isPrepayment) ?? null
 
+  const outstanding = Math.max(0, project.amount - received)
+  const collectable = project.status === 'active' || project.status === 'completed'
+
   return {
     received,
-    outstanding: Math.max(0, project.amount - received),
+    outstanding,
+    owed: collectable ? outstanding : 0,
     prepayment: pre ? { amount: pre.amount, currency: pre.currency, date: pre.date } : null,
     unconverted: Array.from(new Set(unconverted)),
   }

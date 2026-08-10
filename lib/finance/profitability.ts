@@ -82,8 +82,11 @@ export function buildProfitability(
     const directCost = cost.get(p.id) ?? 0
     const profit = received - directCost
     // Outstanding is point-in-time (all payments ever), not period-scoped —
-    // a debt doesn't shrink because you narrowed the report window.
+    // a debt doesn't shrink because you narrowed the report window. Cancelled
+    // and lead work owes nothing: nobody is going to pay for a job that was
+    // called off, and counting it here contradicted the dashboard's figure.
     const roll = projectRollup(p, txns, settings)
+    const outstanding = toBase(roll.owed, p.currency, settings)
     return {
       id: p.id,
       title: p.title,
@@ -91,7 +94,7 @@ export function buildProfitability(
       status: p.status,
       contracted: toBase(p.amount, p.currency, settings),
       received,
-      outstanding: toBase(roll.outstanding, p.currency, settings),
+      outstanding,
       directCost,
       profit,
       margin: received > 0 ? profit / received : null,

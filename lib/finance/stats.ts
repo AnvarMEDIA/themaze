@@ -92,7 +92,7 @@ export async function buildSummary(period?: Period): Promise<FinanceSummary> {
   for (const p of projects) {
     if (p.status !== 'active' && p.status !== 'completed') continue
     // Same rollup the Projects page uses, so the two can't disagree.
-    const { outstanding: due } = projectRollup(p, txns, settings)
+    const { owed: due } = projectRollup(p, txns, settings)
     if (due <= 0) continue
     const dueBase = toBase(due, p.currency, settings)
     outstanding += dueBase
