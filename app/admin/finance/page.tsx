@@ -10,11 +10,9 @@ import { FIN_COLORS } from '@/components/admin/finance/tokens'
 import { useFinanceLang } from '@/components/admin/finance/lang'
 import { PeriodPicker, periodQuery, type PeriodValue } from '@/components/admin/finance/PeriodPicker'
 import { Delta } from '@/components/admin/finance/Delta'
-import { Calendar } from '@/components/admin/finance/Calendar'
-import { monthOfDate, type MonthLedger } from '@/lib/finance/calendar'
+import { calendarHref, readCalMonth, writeCalMonth } from '@/components/admin/finance/calendarMonth'
 
 const PERIOD_KEY = 'maze_finance_period'
-const CAL_MONTH_KEY = 'maze_finance_cal_month'
 const DEFAULT_PERIOD: PeriodValue = { preset: 'year', from: '', to: '' }
 
 export default function FinanceDashboard() {
@@ -26,11 +24,9 @@ export default function FinanceDashboard() {
   const [ready, setReady] = useState(false)
   // "Show in other currencies" — remembered like the language choice.
   const [multiCurrency, setMultiCurrency] = useState(false)
-  // The calendar's month, independent of the reporting period: you look at a
-  // month's days while the KPIs above stay on the year you were reviewing.
-  const [calMonth, setCalMonth] = useState(monthOfDate)
-  const [ledger, setLedger] = useState<MonthLedger | null>(null)
-  const [ledgerLoading, setLedgerLoading] = useState(true)
+  // Which month the chart marks as current — the same one the Calendar tab
+  // will open, so the two screens never disagree about where you left off.
+  const [calMonth, setCalMonth] = useState('')
 
   // Restore the remembered period/currency preference before the first fetch,
   // so the dashboard doesn't flash the default window and refetch.
@@ -42,9 +38,8 @@ export default function FinanceDashboard() {
         if (p?.preset) setPeriod({ preset: p.preset, from: p.from ?? '', to: p.to ?? '' })
       }
       setMultiCurrency(window.localStorage.getItem('maze_finance_multicurrency') === '1')
-      const m = window.localStorage.getItem(CAL_MONTH_KEY)
-      if (m && /^\d{4}-(0[1-9]|1[0-2])$/.test(m)) setCalMonth(m)
     } catch { /* ignore */ }
+    setCalMonth(readCalMonth())
     setReady(true)
   }, [])
 
@@ -55,20 +50,14 @@ export default function FinanceDashboard() {
     setLoading(false)
   }, [router, period])
 
-  const loadLedger = useCallback(async () => {
-    setLedgerLoading(true)
-    const res = await fetch(`/api/finance/calendar?month=${calMonth}`, { cache: 'no-store' })
-    if (res.status === 401) { router.push('/admin/finance/unlock'); return }
-    setLedger(await res.json())
-    setLedgerLoading(false)
-  }, [router, calMonth])
-
   useEffect(() => { if (ready) load() }, [ready, load])
-  useEffect(() => { if (ready) loadLedger() }, [ready, loadLedger])
 
-  const changeCalMonth = (m: string) => {
+  // Picking a month on the chart opens it in the Calendar tab. Remembering it
+  // first means the tab lands on that month even if the link is followed later.
+  const openMonth = (m: string) => {
     setCalMonth(m)
-    try { window.localStorage.setItem(CAL_MONTH_KEY, m) } catch { /* ignore */ }
+    writeCalMonth(m)
+    router.push(calendarHref(m))
   }
 
   const changePeriod = (p: PeriodValue) => {
@@ -312,28 +301,23 @@ export default function FinanceDashboard() {
         </div>
       )}
 
-      {/* Income vs expense by month — clicking a column opens it in the
-          calendar below, so the trend and the detail stay in step. */}
+      {/* Income vs expense by month. A column is a way into that month's days,
+          so clicking one opens it on the Calendar tab. */}
       <div className="rounded-xl bg-[#0D0D0D] border border-[#1E1E1E] p-5 sm:p-6 mb-6">
         <div className="flex flex-wrap items-center justify-between gap-2 mb-5">
           <h2 className="text-sm font-semibold text-white">{t('dash.byMonth')}</h2>
-          <span className="text-[11px] text-[#555]">{t('dash.byMonthHint')}</span>
+          <Link
+            href={calMonth ? calendarHref(calMonth) : '/admin/finance/calendar'}
+            className="text-[11px] text-[#555] hover:text-[#C8FF47] transition-colors"
+          >
+            {t('dash.byMonthHint')}
+          </Link>
         </div>
         <MonthlyBars
           data={sum.monthly}
           currency={baseCurrency}
           selected={calMonth}
-          onSelect={changeCalMonth}
-        />
-      </div>
-
-      {/* Interactive month calendar */}
-      <div className="mb-6">
-        <Calendar
-          ledger={ledger}
-          month={calMonth}
-          onMonthChange={changeCalMonth}
-          loading={ledgerLoading}
+          onSelect={openMonth}
         />
       </div>
 

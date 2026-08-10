@@ -8,6 +8,7 @@ import { useFinanceLang, LangToggle } from './lang'
 
 const TABS = [
   { href: '/admin/finance',              key: 'nav.dashboard' },
+  { href: '/admin/finance/calendar',     key: 'nav.calendar' },
   { href: '/admin/finance/transactions', key: 'nav.transactions' },
   { href: '/admin/finance/projects',     key: 'nav.projects' },
   { href: '/admin/finance/clients',      key: 'nav.clients' },

@@ -379,7 +379,9 @@ const en: Dict = {
   'rep.noMargin': '—',
 
   // Calendar
-  'cal.title': 'Month calendar',
+  'nav.calendar': 'Calendar',
+  'cal.title': 'Calendar',
+  'cal.subtitle': 'A month at a time — what moved, what is due, what is planned',
   'cal.prev': 'Previous month',
   'cal.next': 'Next month',
   'cal.today': 'Today',
@@ -413,7 +415,7 @@ const en: Dict = {
 
   // Month-by-month view
   'dash.byMonth': 'Income and expenses by month',
-  'dash.byMonthHint': 'Click a month to open it below',
+  'dash.byMonthHint': 'Open in the calendar →',
   'dash.monthPick': 'Month',
   'dash.viewingMonth': 'Viewing {month}',
 }
@@ -785,7 +787,9 @@ const ru: Dict = {
   'rep.noMargin': '—',
 
   // Calendar
-  'cal.title': 'Календарь месяца',
+  'nav.calendar': 'Календарь',
+  'cal.title': 'Календарь',
+  'cal.subtitle': 'Месяц целиком — что прошло, что просрочено, что запланировано',
   'cal.prev': 'Предыдущий месяц',
   'cal.next': 'Следующий месяц',
   'cal.today': 'Сегодня',
@@ -819,7 +823,7 @@ const ru: Dict = {
 
   // Month-by-month view
   'dash.byMonth': 'Приход и расход по месяцам',
-  'dash.byMonthHint': 'Нажмите на месяц, чтобы открыть его ниже',
+  'dash.byMonthHint': 'Открыть в календаре →',
   'dash.monthPick': 'Месяц',
   'dash.viewingMonth': 'Показан {month}',
 }
