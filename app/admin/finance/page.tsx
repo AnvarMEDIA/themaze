@@ -10,8 +10,11 @@ import { FIN_COLORS } from '@/components/admin/finance/tokens'
 import { useFinanceLang } from '@/components/admin/finance/lang'
 import { PeriodPicker, periodQuery, type PeriodValue } from '@/components/admin/finance/PeriodPicker'
 import { Delta } from '@/components/admin/finance/Delta'
+import { Calendar } from '@/components/admin/finance/Calendar'
+import { monthOfDate, type MonthLedger } from '@/lib/finance/calendar'
 
 const PERIOD_KEY = 'maze_finance_period'
+const CAL_MONTH_KEY = 'maze_finance_cal_month'
 const DEFAULT_PERIOD: PeriodValue = { preset: 'year', from: '', to: '' }
 
 export default function FinanceDashboard() {
@@ -23,6 +26,11 @@ export default function FinanceDashboard() {
   const [ready, setReady] = useState(false)
   // "Show in other currencies" — remembered like the language choice.
   const [multiCurrency, setMultiCurrency] = useState(false)
+  // The calendar's month, independent of the reporting period: you look at a
+  // month's days while the KPIs above stay on the year you were reviewing.
+  const [calMonth, setCalMonth] = useState(monthOfDate)
+  const [ledger, setLedger] = useState<MonthLedger | null>(null)
+  const [ledgerLoading, setLedgerLoading] = useState(true)
 
   // Restore the remembered period/currency preference before the first fetch,
   // so the dashboard doesn't flash the default window and refetch.
@@ -34,6 +42,8 @@ export default function FinanceDashboard() {
         if (p?.preset) setPeriod({ preset: p.preset, from: p.from ?? '', to: p.to ?? '' })
       }
       setMultiCurrency(window.localStorage.getItem('maze_finance_multicurrency') === '1')
+      const m = window.localStorage.getItem(CAL_MONTH_KEY)
+      if (m && /^\d{4}-(0[1-9]|1[0-2])$/.test(m)) setCalMonth(m)
     } catch { /* ignore */ }
     setReady(true)
   }, [])
@@ -45,7 +55,21 @@ export default function FinanceDashboard() {
     setLoading(false)
   }, [router, period])
 
+  const loadLedger = useCallback(async () => {
+    setLedgerLoading(true)
+    const res = await fetch(`/api/finance/calendar?month=${calMonth}`, { cache: 'no-store' })
+    if (res.status === 401) { router.push('/admin/finance/unlock'); return }
+    setLedger(await res.json())
+    setLedgerLoading(false)
+  }, [router, calMonth])
+
   useEffect(() => { if (ready) load() }, [ready, load])
+  useEffect(() => { if (ready) loadLedger() }, [ready, loadLedger])
+
+  const changeCalMonth = (m: string) => {
+    setCalMonth(m)
+    try { window.localStorage.setItem(CAL_MONTH_KEY, m) } catch { /* ignore */ }
+  }
 
   const changePeriod = (p: PeriodValue) => {
     setPeriod(p)
@@ -288,13 +312,29 @@ export default function FinanceDashboard() {
         </div>
       )}
 
-      {/* Monthly revenue */}
-      <div className="rounded-xl bg-[#0D0D0D] border border-[#1E1E1E] p-6 mb-6">
-        <div className="flex items-center justify-between mb-5">
-          <h2 className="text-sm font-semibold text-white">{t('dash.revLast12')}</h2>
-          <span className="text-[11px] text-[#555]">{t('dash.hoverHint')}</span>
+      {/* Income vs expense by month — clicking a column opens it in the
+          calendar below, so the trend and the detail stay in step. */}
+      <div className="rounded-xl bg-[#0D0D0D] border border-[#1E1E1E] p-5 sm:p-6 mb-6">
+        <div className="flex flex-wrap items-center justify-between gap-2 mb-5">
+          <h2 className="text-sm font-semibold text-white">{t('dash.byMonth')}</h2>
+          <span className="text-[11px] text-[#555]">{t('dash.byMonthHint')}</span>
         </div>
-        <MonthlyBars data={sum.monthly} currency={baseCurrency} />
+        <MonthlyBars
+          data={sum.monthly}
+          currency={baseCurrency}
+          selected={calMonth}
+          onSelect={changeCalMonth}
+        />
+      </div>
+
+      {/* Interactive month calendar */}
+      <div className="mb-6">
+        <Calendar
+          ledger={ledger}
+          month={calMonth}
+          onMonthChange={changeCalMonth}
+          loading={ledgerLoading}
+        />
       </div>
 
       {/* Three-up: clients, expenses, project statuses */}

@@ -5,59 +5,114 @@ import type { Currency, MonthlyPoint } from '@/lib/finance/types'
 import { FIN_COLORS } from './tokens'
 import { useFinanceLang } from './lang'
 
-/* ── Monthly revenue bars (single series → no legend, title names it) ─────── */
+/* ── Income vs expense, by month ──────────────────────────────────────────── */
 
-export function MonthlyBars({ data, currency }: { data: MonthlyPoint[]; currency: Currency }) {
+/**
+ * Two series, so the pair needs a legend — and income/expense are never told
+ * apart by colour alone: income is always the left bar, expense always the
+ * right, and the tooltip names both. Clicking a column selects that month.
+ */
+export function MonthlyBars({
+  data, currency, selected, onSelect,
+}: {
+  data: MonthlyPoint[]
+  currency: Currency
+  /** "YYYY-MM" of the highlighted column, if any. */
+  selected?: string
+  onSelect?: (month: string) => void
+}) {
   const { t, locale, month } = useFinanceLang()
-  const max = Math.max(1, ...data.map((d) => d.income))
-  const peakIdx = data.reduce((best, d, i) => (d.income > data[best].income ? i : best), 0)
+  // One scale for both series, or the columns can't be compared to each other.
+  const max = Math.max(1, ...data.flatMap((d) => [d.income, d.expense]))
 
-  const label = (m: string) => {
-    const [, mm] = m.split('-')
-    return month(Number(mm) - 1)
-  }
+  const label = (m: string) => month(Number(m.split('-')[1]) - 1)
+  const height = (v: number) => `${Math.max((v / max) * 100, v > 0 ? 2 : 0)}%`
 
   return (
     <div>
+      <div className="flex items-center gap-4 mb-4">
+        <Key color={FIN_COLORS.income} label={t('cal.legendIn')} />
+        <Key color={FIN_COLORS.expense} label={t('cal.legendOut')} />
+      </div>
+
       <div className="flex items-end gap-1 h-52">
-        {data.map((d, i) => {
-          const pct = (d.income / max) * 100
+        {data.map((d) => {
+          const isSelected = selected === d.month
           const net = d.income - d.expense
+          const Cell = onSelect ? 'button' : 'div'
           return (
-            <div key={d.month} className="group relative flex-1 h-full flex flex-col justify-end items-center">
-              {/* Hover tooltip */}
-              <div className="pointer-events-none absolute bottom-full mb-2 z-10 hidden group-hover:block whitespace-nowrap rounded-lg border border-[#252525] bg-[#141414] px-3 py-2 text-left shadow-xl">
+            <Cell
+              key={d.month}
+              {...(onSelect
+                ? {
+                    type: 'button' as const,
+                    onClick: () => onSelect(d.month),
+                    'aria-pressed': isSelected,
+                    title: `${label(d.month)} ${d.month.split('-')[0]}`,
+                  }
+                : {})}
+              // Selection is an underline, not a fill: a tinted block spanning
+              // the column's full height reads as a third bar of data.
+              className={`group relative flex-1 h-full flex flex-col justify-end border-b-2 transition-colors ${
+                onSelect ? 'cursor-pointer active:scale-[0.97]' : ''
+              } ${
+                isSelected
+                  ? 'border-[#C8FF47]'
+                  : onSelect ? 'border-transparent hover:border-[#333]' : 'border-transparent'
+              }`}
+            >
+              <div className="pointer-events-none absolute bottom-full mb-2 left-1/2 -translate-x-1/2 z-10 hidden group-hover:block whitespace-nowrap rounded-lg border border-[#252525] bg-[#141414] px-3 py-2 text-left shadow-xl">
                 <p className="text-[10px] uppercase tracking-wide text-[#666] mb-1">{label(d.month)} {d.month.split('-')[0]}</p>
-                <p className="text-[12px] text-white tabular-nums">{formatMoney(d.income, currency, { compact: true, locale })} <span className="text-[#6FA02E]">{t('dash.in')}</span></p>
-                {d.expense > 0 && (
-                  <>
-                    <p className="text-[12px] text-white tabular-nums">{formatMoney(d.expense, currency, { compact: true, locale })} <span className="text-[#D9563A]">{t('dash.out')}</span></p>
-                    <p className="text-[11px] text-[#888] tabular-nums mt-0.5">{t('dash.net')} {formatMoney(net, currency, { compact: true, locale })}</p>
-                  </>
-                )}
+                <p className="text-[12px] text-white tabular-nums">
+                  <span className="text-[#8FC748]">↑</span> {formatMoney(d.income, currency, { compact: true, locale })} <span className="text-[#8FC748]">{t('cal.in')}</span>
+                </p>
+                <p className="text-[12px] text-white tabular-nums">
+                  <span className="text-[#E27A5C]">↓</span> {formatMoney(d.expense, currency, { compact: true, locale })} <span className="text-[#E27A5C]">{t('cal.out')}</span>
+                </p>
+                <p className="text-[11px] text-[#888] tabular-nums mt-0.5">
+                  {t('cal.net')} {formatMoney(net, currency, { compact: true, locale })}
+                </p>
               </div>
-              {/* Peak direct-label */}
-              {i === peakIdx && d.income > 0 && (
-                <span className="absolute -top-0.5 text-[9px] font-semibold text-[#C8FF47] tabular-nums">
-                  {formatMoney(d.income, currency, { compact: true, locale })}
-                </span>
-              )}
-              <div
-                className="w-full rounded-t-[4px] bg-[#C8FF47]/80 group-hover:bg-[#C8FF47] transition-[background,height] duration-200 ease-out"
-                style={{ height: `${Math.max(pct, d.income > 0 ? 2 : 0)}%` }}
-              />
-            </div>
+
+              {/* Income left, expense right — the order never changes, so the
+                  pair reads without relying on hue. */}
+              <div className="flex items-end justify-center gap-[2px] h-full px-[10%]">
+                <div
+                  className="flex-1 rounded-t-[3px] transition-[height] duration-200 ease-out"
+                  style={{ height: height(d.income), background: FIN_COLORS.income, opacity: isSelected ? 1 : 0.8 }}
+                />
+                <div
+                  className="flex-1 rounded-t-[3px] transition-[height] duration-200 ease-out"
+                  style={{ height: height(d.expense), background: FIN_COLORS.expense, opacity: isSelected ? 1 : 0.8 }}
+                />
+              </div>
+            </Cell>
           )
         })}
       </div>
+
       <div className="flex gap-1 mt-2">
-        {data.map((d, i) => (
-          <span key={d.month} className="flex-1 text-center text-[9px] text-[#555] tabular-nums">
-            {i % 2 === 0 ? label(d.month) : ''}
+        {data.map((d) => (
+          <span
+            key={d.month}
+            className={`flex-1 text-center text-[9px] tabular-nums transition-colors ${
+              selected === d.month ? 'text-[#C8FF47] font-semibold' : 'text-[#555]'
+            }`}
+          >
+            {label(d.month)}
           </span>
         ))}
       </div>
     </div>
+  )
+}
+
+function Key({ color, label }: { color: string; label: string }) {
+  return (
+    <span className="inline-flex items-center gap-1.5 text-[11px] text-[#888]">
+      <span className="w-2.5 h-2.5 rounded-[3px]" style={{ background: color }} />
+      {label}
+    </span>
   )
 }
 
