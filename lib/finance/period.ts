@@ -10,7 +10,7 @@
  * Client-safe.
  */
 
-export const PERIOD_PRESETS = ['month', 'quarter', 'year', 'last12', 'all', 'custom'] as const
+export const PERIOD_PRESETS = ['month', 'lastMonth', 'quarter', 'year', 'last12', 'all', 'custom'] as const
 export type PeriodPreset = (typeof PERIOD_PRESETS)[number]
 
 export interface Period {
@@ -55,6 +55,10 @@ export function resolvePeriod(preset: PeriodPreset, today: Date = new Date()): P
   switch (preset) {
     case 'month':
       return { from: isoDate(new Date(y, m, 1)), to: isoDate(new Date(y, m + 1, 0)), preset }
+    case 'lastMonth':
+      // The whole previous calendar month — day 0 of a month is the last day of
+      // the one before, so this is correct across year boundaries too.
+      return { from: isoDate(new Date(y, m - 1, 1)), to: isoDate(new Date(y, m, 0)), preset }
     case 'quarter': {
       const qStart = Math.floor(m / 3) * 3
       return {
@@ -116,7 +120,10 @@ export function addDays(date: string, days: number): string {
 export function previousPeriod(period: Period): Period | null {
   const { from, to, preset } = period
   switch (preset) {
+    // Both step back one calendar month from their own start — for "last
+    // month" that is the month before it, not the current one.
     case 'month':
+    case 'lastMonth':
       return { from: addMonths(from, -1, 1), to: addDays(from, -1), preset }
     case 'quarter':
       return { from: addMonths(from, -3, 1), to: addDays(from, -1), preset }

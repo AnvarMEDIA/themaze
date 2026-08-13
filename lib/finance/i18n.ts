@@ -84,6 +84,7 @@ const en: Dict = {
   'dash.addClient': 'Add a client',
   'dash.recordAPayment': 'Record a payment',
   'dash.periodMonth': 'This month',
+  'dash.periodLastMonth': 'Last month',
   'dash.periodQuarter': 'This quarter',
   'dash.periodYear': 'This year',
   'dash.period12': 'Last 12 months',
@@ -298,6 +299,7 @@ const en: Dict = {
   // Period comparison
   'dash.vsPrev': 'vs previous period',
   'dash.vsPrevMonth': 'vs last month',
+  'dash.vsMonthBefore': 'vs the month before',
   'dash.vsPrevQuarter': 'vs last quarter',
   'dash.vsPrevYear': 'vs last year',
   'dash.vsFromNothing': 'no revenue in the previous period',
@@ -552,6 +554,7 @@ const ru: Dict = {
   'dash.addClient': 'Добавить клиента',
   'dash.recordAPayment': 'Внести платёж',
   'dash.periodMonth': 'Этот месяц',
+  'dash.periodLastMonth': 'Прошлый месяц',
   'dash.periodQuarter': 'Этот квартал',
   'dash.periodYear': 'Этот год',
   'dash.period12': '12 месяцев',
@@ -766,6 +769,7 @@ const ru: Dict = {
   // Period comparison
   'dash.vsPrev': 'к прошлому периоду',
   'dash.vsPrevMonth': 'к прошлому месяцу',
+  'dash.vsMonthBefore': 'к предыдущему месяцу',
   'dash.vsPrevQuarter': 'к прошлому кварталу',
   'dash.vsPrevYear': 'к прошлому году',
   'dash.vsFromNothing': 'в прошлом периоде выручки не было',

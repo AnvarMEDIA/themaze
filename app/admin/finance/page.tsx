@@ -112,6 +112,9 @@ export default function FinanceDashboard() {
   const prev = sum.previous
   const COMPARE_LABEL: Record<string, string> = {
     month: t('dash.vsPrevMonth'),
+    // Viewing July and comparing with June: "vs last month" would be ambiguous,
+    // since last month relative to today is July itself.
+    lastMonth: t('dash.vsMonthBefore'),
     quarter: t('dash.vsPrevQuarter'),
     year: t('dash.vsPrevYear'),
   }

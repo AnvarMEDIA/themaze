@@ -12,6 +12,7 @@ export interface PeriodValue {
 
 const LABEL_KEY: Record<PeriodPreset, string> = {
   month: 'dash.periodMonth',
+  lastMonth: 'dash.periodLastMonth',
   quarter: 'dash.periodQuarter',
   year: 'dash.periodYear',
   last12: 'dash.period12',
