@@ -14,7 +14,7 @@
  */
 import { listClients, listProjects, listRecurring, listTransactions } from './data'
 import { getEffectiveFinanceSettings } from './settings'
-import { toBase, missingRates } from './money'
+import { toBase, txBaseValue, unlockedRows, missingRates } from './money'
 import { projectRollup } from './rollup'
 import { collectDue } from './recurring'
 import { inPeriod, isoDate, monthOf, previousPeriod, resolvePeriod, type Period } from './period'
@@ -46,7 +46,8 @@ export async function buildSummary(period?: Period): Promise<FinanceSummary> {
   const today = isoDate(nowDate)
   const range = period ?? resolvePeriod('year', nowDate)
 
-  const base = (t: FinanceTransaction) => toBase(t.amount, t.currency, settings)
+  // Locked rate first: a past payment keeps the value it had on its own day.
+  const base = (t: FinanceTransaction) => txBaseValue(t, settings)
   const sumBase = (list: FinanceTransaction[]) => list.reduce((s, t) => s + base(t), 0)
 
   const income = txns.filter((t) => t.type === 'income')
@@ -200,6 +201,7 @@ export async function buildSummary(period?: Period): Promise<FinanceSummary> {
     generatedAt: nowDate.toISOString(),
     period: { from: range.from, to: range.to, preset: range.preset },
     unratedCurrencies,
+    unlockedFxCount: unlockedRows(txns, settings).length,
     rates: settings.rates,
     ratesSource: settings.ratesSource,
     totalTransactions: txns.length,

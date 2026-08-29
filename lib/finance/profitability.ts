@@ -14,7 +14,7 @@
  * `netProfit` = gross − overhead, which reconciles exactly with the
  * dashboard's profit KPI for the same period.
  */
-import { toBase, rateOf, missingRates } from './money'
+import { toBase, txBase, missingRates } from './money'
 import { projectRollup } from './rollup'
 import { inPeriod, type Period } from './period'
 import type {
@@ -59,22 +59,23 @@ export function buildProfitability(
   for (const t of periodTxns) {
     // Test the rate, not the converted result: a genuine zero-amount row is
     // perfectly convertible and must not be flagged as unknown.
-    const rate = rateOf(t.currency, settings)
-    const value = rate === null ? 0 : t.amount * rate
+    const { value: converted, locked } = txBase(t, settings)
+    const value = converted ?? 0
 
     if (!t.projectId) {
       // Unattached income is real revenue but belongs to no project, so it is
       // out of scope here; unattached expense is the studio's overhead.
       if (t.type === 'expense') {
         overhead += value
-        if (rate === null) noteUnrated('__overhead__', t.currency)
+        if (converted === null) noteUnrated('__overhead__', t.currency)
       }
       continue
     }
 
     const bucket = t.type === 'income' ? income : cost
     bucket.set(t.projectId, (bucket.get(t.projectId) ?? 0) + value)
-    if (rate === null) noteUnrated(t.projectId, t.currency)
+    if (converted === null) noteUnrated(t.projectId, t.currency)
+    void locked
   }
 
   const rows: ProjectProfit[] = projects.map((p) => {

@@ -7,7 +7,7 @@
  * A payment whose currency has no usable rate is not silently counted as
  * zero: it is reported in `unconverted` so the UI can say so out loud.
  */
-import { convert } from './money'
+import { rateOf, txBase } from './money'
 import type {
   Currency,
   FinanceProject,
@@ -69,9 +69,14 @@ export function projectRollup(
   let received = 0
   const unconverted: Currency[] = []
   for (const t of payments) {
-    const value = convert(t.amount, t.currency, project.currency, settings)
-    if (value === null) unconverted.push(t.currency)
-    else received += value
+    // Same currency as the project: exact, no rate involved at all.
+    // Otherwise the payment's LOCKED base value, then into the project's
+    // currency at today's rate — the claim itself is priced today.
+    if (t.currency === project.currency) { received += t.amount; continue }
+    const inBase = txBase(t, settings).value
+    const projRate = rateOf(project.currency, settings)
+    if (inBase === null || projRate === null) unconverted.push(t.currency)
+    else received += inBase / projRate
   }
 
   // Explicitly marked prepayment wins; otherwise the first payment received,

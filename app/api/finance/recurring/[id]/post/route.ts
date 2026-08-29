@@ -3,6 +3,7 @@ import { requireFinance } from '@/lib/finance/guard'
 import { getRecurring, createTransactions, setRecurringNextDate } from '@/lib/finance/data'
 import { RecurringPostSchema } from '@/lib/finance/validation'
 import { dueDates, advanceAfter } from '@/lib/finance/recurring'
+import { lockFor } from '@/lib/finance/fxLock'
 
 export const dynamic = 'force-dynamic'
 
@@ -45,8 +46,13 @@ export async function POST(req: NextRequest, { params }: Ctx) {
     return NextResponse.json({ error: 'already_posted', posted: 0 }, { status: 409 })
   }
 
+  // Each occurrence is locked to ITS OWN date: a retainer posted for three
+  // catch-up months must use each month's rate, not today's for all three.
+  const locks = await Promise.all(dates.map((date) => lockFor({ currency: rec.currency, date })))
+
   const created = await createTransactions(
-    dates.map((date) => ({
+    dates.map((date, i) => ({
+      ...(locks[i] ?? {}),
       type: rec.type,
       // Stamped with its schedule so the forecast can tell a committed cost
       // from an ad-hoc one, and the duplicate check doesn't flag a retainer

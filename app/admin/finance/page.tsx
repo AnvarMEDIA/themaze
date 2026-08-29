@@ -237,6 +237,22 @@ export default function FinanceDashboard() {
         </div>
       )}
 
+      {/* Until every foreign-currency row carries its own day's rate, the
+          figures above can still move. Better said out loud than discovered. */}
+      {(sum.unlockedFxCount ?? 0) > 0 && (
+        <div className="mb-6 rounded-xl border border-[#FFD447]/30 bg-[#FFD447]/[0.06] px-5 py-4 flex flex-wrap items-center gap-x-4 gap-y-2">
+          <p className="text-[13px] text-[#E8D9A0] min-w-0 flex-1">
+            {t('dash.fxUnlocked', { n: sum.unlockedFxCount })}
+          </p>
+          <Link
+            href="/admin/finance/settings"
+            className="px-3 py-2 rounded-lg bg-[#FFD447] text-[#0A0A0A] text-[13px] font-bold hover:bg-[#F0EEE6] transition-colors active:scale-[0.97] whitespace-nowrap"
+          >
+            {t('fx.run')}
+          </Link>
+        </div>
+      )}
+
       {!hasData && (
         <div className="mb-6 rounded-xl border border-[#1E1E1E] bg-[#0D0D0D] px-6 py-10 text-center">
           <p className="text-white font-semibold mb-1">{t('dash.emptyTitle')}</p>

@@ -12,7 +12,7 @@
  *
  * Pure and client-safe.
  */
-import { rateOf, missingRates } from './money'
+import { txBaseValue, missingRates } from './money'
 import { inPeriod, type Period } from './period'
 import { payeeKey } from './expenseKind'
 import type { Currency, FinanceSettings, FinanceTransaction, ExpenseKind } from './types'
@@ -91,8 +91,7 @@ export function buildExpenseBreakdown(
   for (const t of rows) {
     // Test the rate, not the converted result: a genuine zero-amount row is
     // convertible and must not be mistaken for an unknown one.
-    const rate = rateOf(t.currency, settings)
-    const value = rate === null ? 0 : t.amount * rate
+    const value = txBaseValue(t, settings)
 
     const kind = t.expenseKind ?? 'unclassified'
     if (!t.expenseKind) unclassifiedCount += 1

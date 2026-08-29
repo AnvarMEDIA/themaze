@@ -77,6 +77,26 @@ export interface FinanceTransaction {
    * "Islom", "islom" and " Islom " are one person (see expenseKind.ts).
    */
   payee?: string
+  /**
+   * The exchange rate LOCKED when this row was recorded — the value of one
+   * unit of `currency` in `fxBase`, on `fxDate`.
+   *
+   * A foreign-currency payment is worth what it was worth on the day it
+   * happened. Without this, converting at today's rate makes last year's
+   * revenue move every time the som does: $1,000 received at 11,900 would be
+   * reported as 14,900,000 a year later, and no report would ever reproduce.
+   * Once set, the base-currency value of this row never changes again.
+   *
+   * Absent on rows recorded before locking existed, and on rows already in the
+   * base currency (nothing to convert). See `txBase` in money.ts.
+   */
+  fxRate?: number
+  /** The base currency the rate was locked against. */
+  fxBase?: Currency
+  /** The rate's own date — the CBU's last publication on or before `date`. */
+  fxDate?: string
+  /** Where the locked rate came from, so a manual entry is never mistaken for the CBU's. */
+  fxSource?: 'cbu' | 'manual'
   projectId: string | null
   clientId: string | null
   amount: number
@@ -262,6 +282,12 @@ export interface FinanceSummary {
   period: { from: string; to: string; preset: string }
   /** Currencies in use that have no usable rate — their amounts count as 0. */
   unratedCurrencies: Currency[]
+  /**
+   * Foreign-currency rows with no rate locked to their own date: their base
+   * value still moves with the market. Counted so the studio can see that the
+   * history is not yet fixed, and settle it from Settings.
+   */
+  unlockedFxCount: number
   /**
    * Effective rates (value of 1 unit in `baseCurrency`) used for the figures
    * above, so the UI can re-express the same totals in other currencies

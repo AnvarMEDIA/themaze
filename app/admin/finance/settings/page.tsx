@@ -7,6 +7,7 @@ import { CURRENCIES, type Currency } from '@/lib/finance/types'
 import { formatMoney } from '@/lib/finance/money'
 import { Field, Text, Select, NumberField } from '@/components/admin/finance/fields'
 import { useFinanceLang, LangToggle } from '@/components/admin/finance/lang'
+import { FxBackfill } from '@/components/admin/finance/FxBackfill'
 
 interface SettingsResponse {
   baseCurrency: Currency
@@ -245,6 +246,9 @@ export default function FinanceSettingsPage() {
           </button>
         </div>
       </form>
+
+      {/* Historical rates — the fix for figures that used to move. */}
+      <FxBackfill />
 
       {/* Backup — so the books are never hostage to this deployment. */}
       <div className="rounded-xl bg-[#0D0D0D] border border-[#1E1E1E] p-6">

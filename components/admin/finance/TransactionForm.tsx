@@ -33,7 +33,7 @@ export function TransactionForm({
   onSaved: () => void
   onDelete?: () => void
 }) {
-  const { t, tMethod, tKind } = useFinanceLang()
+  const { t, locale, tMethod, tKind } = useFinanceLang()
   const [f, setF] = useState(base())
   const [busy, setBusy] = useState(false)
 
@@ -199,6 +199,16 @@ export function TransactionForm({
             </Field>
           </div>
         )}
+
+        {/* What this row is pegged at. Shown only when it is in another
+            currency, where the question actually arises. */}
+        {initial && initial.currency !== initial.fxBase && initial.fxRate ? (
+          <p className="text-[11px] text-[#8FC748]">
+            {t('tf.fxLocked', { rate: initial.fxRate.toLocaleString(locale), date: initial.fxDate ?? initial.date })}
+          </p>
+        ) : initial && !initial.fxRate && initial.currency !== 'UZS' ? (
+          <p className="text-[11px] text-[#FFD447]">{t('tf.fxFloating')}</p>
+        ) : null}
 
         <Field label={t('tf.note')}><Area value={f.note} onChange={set('note')} placeholder={t('common.optional')} rows={2} /></Field>
         <FormActions

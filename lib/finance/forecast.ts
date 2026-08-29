@@ -15,7 +15,7 @@
  *
  * Pure and client-safe.
  */
-import { rateOf, toBase, missingRates } from './money'
+import { rateOf, toBase, txBaseValue, missingRates } from './money'
 import { projectRollup } from './rollup'
 import { dueDates } from './recurring'
 import { addMonths, isoDate, monthOf } from './period'
@@ -157,8 +157,7 @@ export function buildForecast(
     // Recurring commitments are counted explicitly above; including them here
     // as well would bill the studio twice for its own rent.
     if (t.recurringId) continue
-    const rate = rateOf(t.currency, settings)
-    if (rate !== null) historicalOther += t.amount * rate
+    historicalOther += txBaseValue(t, settings)
   }
 
   const earliest = txns.reduce((min, t) => (t.date && t.date < min ? t.date : min), today)

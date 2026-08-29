@@ -9,7 +9,7 @@
  *
  * Pure and client-safe.
  */
-import { rateOf, toBase, missingRates } from './money'
+import { txBaseValue, toBase, missingRates } from './money'
 import { projectRollup } from './rollup'
 import { isoDate, monthOf } from './period'
 import type {
@@ -123,10 +123,7 @@ export function buildClientSummary(
     || (b.startDate || '').localeCompare(a.startDate || ''),
   )
 
-  const received = income.reduce((s, t) => {
-    const rate = rateOf(t.currency, settings)
-    return rate === null ? s : s + t.amount * rate
-  }, 0)
+  const received = income.reduce((s, t) => s + txBaseValue(t, settings), 0)
 
   const dates = income.map((t) => t.date).filter(Boolean).sort()
 
@@ -142,10 +139,9 @@ export function buildClientSummary(
   for (const t of related) {
     const pt = index.get(monthOf(t.date))
     if (!pt) continue
-    const rate = rateOf(t.currency, settings)
-    if (rate === null) continue
-    if (t.type === 'income') pt.income += t.amount * rate
-    else pt.expense += t.amount * rate
+    const v = txBaseValue(t, settings)
+    if (t.type === 'income') pt.income += v
+    else pt.expense += v
   }
 
   return {

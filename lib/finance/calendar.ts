@@ -8,7 +8,7 @@
  * Pure and client-safe, so the grid can be laid out without a round trip and
  * the maths can be unit-tested on its own.
  */
-import { rateOf, missingRates } from './money'
+import { rateOf, txBase, txBaseValue, missingRates } from './money'
 import { monthOf } from './period'
 import type {
   Currency,
@@ -168,8 +168,7 @@ export function buildMonthLedger(
     const date = t.date.slice(0, 10)
     // Test the rate, not the converted result: a genuine zero-amount row is
     // convertible and must not be treated as unknown.
-    const rate = rateOf(t.currency, settings)
-    const value = rate === null ? 0 : t.amount * rate
+    const value = txBaseValue(t, settings)
 
     const day = byDay.get(date) ?? { date, income: 0, expense: 0, count: 0 }
     if (t.type === 'income') { day.income += value; income += value }
@@ -193,9 +192,12 @@ export function buildMonthLedger(
       const paid = txns
         .filter((t) => t.type === 'income' && t.projectId === p.id)
         .reduce((s, t) => {
-          const r = rateOf(t.currency, settings)
+          // Payment → base at ITS locked rate, then base → the project's
+          // currency at today's, which is the only rate that can price an
+          // outstanding claim.
+          const inBase = txBase(t, settings).value
           const pr = rateOf(p.currency, settings)
-          return r === null || pr === null ? s : s + (t.amount * r) / pr
+          return inBase === null || pr === null ? s : s + inBase / pr
         }, 0)
       return {
         date: p.endDate,

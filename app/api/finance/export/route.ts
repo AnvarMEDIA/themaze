@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { requireFinance } from '@/lib/finance/guard'
 import { listClients, listProjects, listTransactions } from '@/lib/finance/data'
 import { getEffectiveFinanceSettings } from '@/lib/finance/settings'
-import { rateOf } from '@/lib/finance/money'
+import { txBase } from '@/lib/finance/money'
 import { periodFromParams, inPeriod } from '@/lib/finance/period'
 import { csvBody, csvHeaders, periodStamp } from '@/lib/finance/csv'
 import { payeeKey } from '@/lib/finance/expenseKind'
@@ -70,21 +70,25 @@ export async function GET(req: NextRequest) {
 
   const header = [
     'Date', 'Type', 'Amount', 'Currency',
-    `Amount (${settings.baseCurrency})`, 'Client', 'Project', 'Kind', 'Paid to', 'Category', 'Method', 'Note',
+    `Amount (${settings.baseCurrency})`, 'Locked rate', 'Rate date',
+    'Client', 'Project', 'Kind', 'Paid to', 'Category', 'Method', 'Note',
   ]
 
   const lines: (string | number)[][] = [header]
   for (const t of rows) {
     // Test the rate, not the result: a genuine zero-amount row in a foreign
     // currency is perfectly convertible and must not be reported as unknown.
-    const rate = rateOf(t.currency, settings)
+    const { value: converted, locked } = txBase(t, settings)
     lines.push([
       t.date,
       t.type,
       t.amount,
       t.currency,
       // An unconvertible amount exports blank rather than a misleading 0.
-      rate === null ? '' : t.amount * rate,
+      converted ?? '',
+      // So a spreadsheet shows which rows are still floating.
+      locked ? (t.fxRate ?? '') : '',
+      locked ? (t.fxDate ?? '') : '',
       t.clientId ? cliName.get(t.clientId) ?? '' : '',
       t.projectId ? projName.get(t.projectId) ?? '' : '',
       t.expenseKind ?? '',

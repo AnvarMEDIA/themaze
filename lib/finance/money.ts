@@ -1,7 +1,7 @@
 /**
  * Pure money helpers — client-safe (imported by both API and React).
  */
-import { CURRENCIES, type Currency, type FinanceSettings } from './types'
+import { CURRENCIES, type Currency, type FinanceSettings, type FinanceTransaction } from './types'
 
 export const CURRENCY_META: Record<Currency, { symbol: string; label: string; decimals: number }> = {
   UZS: { symbol: 'so’m', label: 'Uzbek so’m', decimals: 0 },
@@ -85,6 +85,47 @@ export function convert(
   const t = rateOf(to, settings)
   if (f === null || t === null) return null
   return (amount * f) / t
+}
+
+/**
+ * The base-currency value of one ledger row — the ONE place a transaction is
+ * converted, so every screen agrees and none of them drift with the market.
+ *
+ * Order of authority:
+ *   1. same currency as the base → the amount itself, exactly.
+ *   2. a rate LOCKED on the row for this base → amount × that rate. Fixed
+ *      forever: this is what the money was worth on the day it moved.
+ *   3. otherwise → today's rate, and `locked: false` so the caller can say so.
+ *
+ * A rate locked against a DIFFERENT base (the studio switched from som to
+ * dollars) is deliberately ignored: it answers a question nobody asked.
+ */
+export function txBase(
+  t: Pick<FinanceTransaction, 'amount' | 'currency' | 'fxRate' | 'fxBase'>,
+  settings: FinanceSettings,
+): { value: number | null; locked: boolean } {
+  if (t.currency === settings.baseCurrency) return { value: t.amount, locked: true }
+  if (t.fxRate && t.fxRate > 0 && t.fxBase === settings.baseCurrency) {
+    return { value: t.amount * t.fxRate, locked: true }
+  }
+  const live = rateOf(t.currency, settings)
+  return { value: live === null ? null : t.amount * live, locked: false }
+}
+
+/** `txBase` for callers that only need the number; unconvertible reads as 0. */
+export function txBaseValue(
+  t: Pick<FinanceTransaction, 'amount' | 'currency' | 'fxRate' | 'fxBase'>,
+  settings: FinanceSettings,
+): number {
+  return txBase(t, settings).value ?? 0
+}
+
+/** Rows whose base value still floats with the market — nothing locked yet. */
+export function unlockedRows<T extends Pick<FinanceTransaction, 'amount' | 'currency' | 'fxRate' | 'fxBase'>>(
+  txns: T[],
+  settings: FinanceSettings,
+): T[] {
+  return txns.filter((t) => !txBase(t, settings).locked)
 }
 
 /** Whether every non-base currency present has a usable rate. */

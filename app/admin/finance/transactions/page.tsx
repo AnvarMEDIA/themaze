@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import toast from 'react-hot-toast'
-import { formatMoney, convert, DEFAULT_FINANCE_SETTINGS } from '@/lib/finance/money'
+import { formatMoney, txBase, DEFAULT_FINANCE_SETTINGS } from '@/lib/finance/money'
 import type { Currency, FinanceClient, FinanceProject, FinanceSettings, FinanceTransaction, TransactionType } from '@/lib/finance/types'
 import { inPeriod, resolvePeriod } from '@/lib/finance/period'
 import { duplicateIds } from '@/lib/finance/duplicates'
@@ -147,7 +147,7 @@ export default function TransactionsPage() {
     let inc = 0, out = 0
     const unconverted = new Set<Currency>()
     for (const tx of rows) {
-      const v = convert(tx.amount, tx.currency, settings.baseCurrency, settings)
+      const v = txBase(tx, settings).value
       if (v === null) { unconverted.add(tx.currency); continue }
       if (tx.type === 'income') inc += v; else out += v
     }

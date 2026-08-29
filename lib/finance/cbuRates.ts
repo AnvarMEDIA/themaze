@@ -68,6 +68,86 @@ async function fetchCbuLive(timeoutMs = 8000): Promise<Partial<Record<Currency, 
   }
 }
 
+/* ── Historical rates ─────────────────────────────────────────────────────
+ * CBU serves an archive at .../json/all/YYYY-MM-DD/. Rates published for a
+ * given day are FIXED — so once fetched they are cached forever under their
+ * own key and never re-requested.
+ */
+
+const DAY_KEY = 'finance_cbu_days'
+const MAX_LOOKBACK_DAYS = 7
+
+type DayCache = Record<string, Partial<Record<Currency, number>>>
+
+async function fetchCbuOnDate(date: string, timeoutMs = 8000): Promise<Partial<Record<Currency, number>>> {
+  const ctrl = new AbortController()
+  const timer = setTimeout(() => ctrl.abort(), timeoutMs)
+  try {
+    const res = await fetch(`https://cbu.uz/ru/arkhiv-kursov-valyut/json/all/${date}/`, {
+      headers: { Accept: 'application/json' },
+      cache: 'no-store',
+      signal: ctrl.signal,
+    })
+    if (!res.ok) throw new Error(`CBU responded ${res.status}`)
+    return parseCbuRows(await res.json())
+  } finally {
+    clearTimeout(timer)
+  }
+}
+
+const shiftDay = (date: string, by: number): string => {
+  const d = new Date(`${date}T00:00:00Z`)
+  d.setUTCDate(d.getUTCDate() + by)
+  return d.toISOString().slice(0, 10)
+}
+
+export interface DatedRates {
+  /** Value of 1 unit in UZS, as published. */
+  rates: Partial<Record<Currency, number>>
+  /** The day the rates were actually published — see the walk-back below. */
+  date: string
+}
+
+/**
+ * CBU rates as at a date.
+ *
+ * The bank does not publish at weekends or on holidays, so a payment dated a
+ * Sunday has no rate of its own. Accounting practice is to use the last rate
+ * published on or before the date, so we walk back up to a week and report
+ * which day the figure actually came from — never silently attributing a
+ * Monday rate to the Saturday before it.
+ *
+ * Returns null when CBU cannot be reached: a rate we could not obtain must
+ * stay unknown rather than become a guess written into the books.
+ */
+export async function getCbuRatesOn(date: string): Promise<DatedRates | null> {
+  const cache = await readStore<DayCache>(DAY_KEY, {})
+  for (let i = 0; i <= MAX_LOOKBACK_DAYS; i++) {
+    const day = shiftDay(date, -i)
+    const hit = cache[day]
+    if (hit && Object.keys(hit).length > 0) return { rates: hit, date: day }
+  }
+
+  const fetched: DayCache = {}
+  try {
+    for (let i = 0; i <= MAX_LOOKBACK_DAYS; i++) {
+      const day = shiftDay(date, -i)
+      if (cache[day]) continue
+      const rates = await fetchCbuOnDate(day)
+      fetched[day] = rates
+      if (Object.keys(rates).length > 0) {
+        await writeStore(DAY_KEY, { ...cache, ...fetched })
+        return { rates, date: day }
+      }
+    }
+  } catch (err) {
+    console.warn('[cbu] historical fetch failed:', err instanceof Error ? err.message : err)
+  }
+  // Remember the empty days too, so a holiday isn't re-fetched every time.
+  if (Object.keys(fetched).length > 0) await writeStore(DAY_KEY, { ...cache, ...fetched })
+  return null
+}
+
 /** Cached CBU rates, refreshing from the live feed when older than maxAgeMs. */
 export async function getCbuRates(maxAgeMs = DEFAULT_MAX_AGE): Promise<CbuCache> {
   const cached = await readStore<CbuCache | null>(CACHE_KEY, null)
