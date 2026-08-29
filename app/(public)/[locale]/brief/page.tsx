@@ -4,7 +4,7 @@ import { routing } from '@/i18n/routing'
 import { BriefForm } from '@/components/brief/BriefForm'
 import { JsonLd } from '@/components/JsonLd'
 import { breadcrumbJsonLd, homeCrumb } from '@/lib/jsonLd'
-import { localizedAlternates, SITE_URL } from '@/lib/seo'
+import { pageMeta, SITE_URL } from '@/lib/seo'
 
 interface Props {
   params: { locale: string }
@@ -16,12 +16,13 @@ export function generateStaticParams() {
 
 export async function generateMetadata({ params: { locale } }: Props): Promise<Metadata> {
   const t = await getTranslations({ locale, namespace: 'brief' })
-  return {
-    title:       t('metaTitle'),
+  return pageMeta({
+    locale,
+    path: 'brief',
+    title: t('metaTitle'),
     description: t('metaDesc'),
-    alternates:  localizedAlternates(locale, 'brief'),
-    robots:      { index: true, follow: true },
-  }
+    robots: { index: true, follow: true },
+  })
 }
 
 export default async function BriefPage({ params: { locale } }: Props) {

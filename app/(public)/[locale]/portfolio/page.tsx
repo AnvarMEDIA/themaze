@@ -5,7 +5,7 @@ import { PortfolioGrid } from '@/components/portfolio/PortfolioGrid'
 import { getPublishedProjects } from '@/lib/portfolio'
 import { JsonLd } from '@/components/JsonLd'
 import { breadcrumbJsonLd, portfolioListJsonLd, homeCrumb, portfolioCrumb } from '@/lib/jsonLd'
-import { localizedAlternates } from '@/lib/seo'
+import { pageMeta } from '@/lib/seo'
 import { TextReveal } from '@/components/ui/TextReveal'
 
 interface Props {
@@ -20,12 +20,12 @@ export function generateStaticParams() {
 
 export async function generateMetadata({ params: { locale } }: Props): Promise<Metadata> {
   const t = await getTranslations({ locale, namespace: 'portfolio' })
-  return {
-    title: t('heading'),
-    description:
-      "Explore MAZE Studio's portfolio of brand identity, UI/UX design, print, and motion design projects across Uzbekistan and Central Asia.",
-    alternates: localizedAlternates(locale, 'portfolio'),
-  }
+  return pageMeta({
+    locale,
+    path: 'portfolio',
+    title: t('metaTitle'),
+    description: t('metaDesc'),
+  })
 }
 
 export default async function PortfolioPage({ params: { locale } }: Props) {

@@ -184,11 +184,10 @@ export function websiteJsonLd() {
     description: 'Branding & Design Studio — Tashkent, Uzbekistan',
     publisher: { '@id': ORG_ID },
     inLanguage: ['en', 'ru'],
-    potentialAction: {
-      '@type': 'SearchAction',
-      target: { '@type': 'EntryPoint', urlTemplate: `${SITE_URL}/portfolio?q={search_term_string}` },
-      'query-input': 'required name=search_term_string',
-    },
+    // NOTE: no `potentialAction`/SearchAction. It declared
+    // /portfolio?q={search_term_string}, but the portfolio page never read a
+    // `q` param — the claim was structured data describing a feature the site
+    // does not have. Restore it if and when site search ships.
   }
 }
 

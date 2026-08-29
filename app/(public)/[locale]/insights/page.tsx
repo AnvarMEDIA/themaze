@@ -6,7 +6,7 @@ import Image from 'next/image'
 import { getPublishedPosts, estimateReadTime } from '@/lib/posts'
 import { JsonLd } from '@/components/JsonLd'
 import { blogJsonLd, breadcrumbJsonLd, homeCrumb, postListJsonLd } from '@/lib/jsonLd'
-import { localizedAlternates } from '@/lib/seo'
+import { pageMeta } from '@/lib/seo'
 
 interface Props {
   params: { locale: string }
@@ -20,11 +20,18 @@ export function generateStaticParams() {
 
 export async function generateMetadata({ params: { locale } }: Props): Promise<Metadata> {
   const t = await getTranslations({ locale, namespace: 'insights' })
-  return {
+  // An empty journal is a thin page: while nothing is published it stays out
+  // of the index (and out of the sitemap) rather than competing for the
+  // studio's own name with a heading and no content. It re-enters on its own
+  // the moment a first post goes live.
+  const posts = await getPublishedPosts()
+  return pageMeta({
+    locale,
+    path: 'insights',
     title: t('metaTitle'),
     description: t('metaDesc'),
-    alternates: localizedAlternates(locale, 'insights'),
-  }
+    ...(posts.length === 0 ? { robots: { index: false, follow: true } } : {}),
+  })
 }
 
 function fmt(iso: string, locale: string) {

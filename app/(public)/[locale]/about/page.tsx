@@ -6,7 +6,7 @@ import { getTeam } from '@/lib/team'
 import Image from 'next/image'
 import { JsonLd } from '@/components/JsonLd'
 import { aboutPageJsonLd, breadcrumbJsonLd, homeCrumb } from '@/lib/jsonLd'
-import { localizedAlternates } from '@/lib/seo'
+import { pageMeta } from '@/lib/seo'
 import { Reveal } from '@/components/ui/Reveal'
 import { TextReveal } from '@/components/ui/TextReveal'
 import { Arrow } from '@/components/ui/Arrow'
@@ -17,11 +17,12 @@ interface Props {
 
 export async function generateMetadata({ params: { locale } }: Props): Promise<Metadata> {
   const t = await getTranslations({ locale, namespace: 'aboutPage' })
-  return {
+  return pageMeta({
+    locale,
+    path: 'about',
     title: t('metaTitle'),
     description: t('metaDesc'),
-    alternates: localizedAlternates(locale, 'about'),
-  }
+  })
 }
 
 const clients = [

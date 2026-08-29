@@ -5,7 +5,7 @@ import { getSettings } from '@/lib/settings'
 import { telegramHref, telegramDisplay } from '@/lib/utils'
 import { JsonLd } from '@/components/JsonLd'
 import { breadcrumbJsonLd, contactPageJsonLd, homeCrumb } from '@/lib/jsonLd'
-import { localizedAlternates } from '@/lib/seo'
+import { pageMeta } from '@/lib/seo'
 import { Reveal } from '@/components/ui/Reveal'
 import { TextReveal } from '@/components/ui/TextReveal'
 import { Arrow } from '@/components/ui/Arrow'
@@ -18,11 +18,12 @@ interface Props {
 
 export async function generateMetadata({ params: { locale } }: Props): Promise<Metadata> {
   const t = await getTranslations({ locale, namespace: 'contactPage' })
-  return {
+  return pageMeta({
+    locale,
+    path: 'contact',
     title: t('metaTitle'),
     description: t('metaDesc'),
-    alternates: localizedAlternates(locale, 'contact'),
-  }
+  })
 }
 
 

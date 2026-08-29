@@ -6,7 +6,7 @@ import { PortfolioGrid } from '@/components/portfolio/PortfolioGrid'
 import { getClientSlugs, getProjectsByClientSlug } from '@/lib/portfolio'
 import { JsonLd } from '@/components/JsonLd'
 import { breadcrumbJsonLd, portfolioListJsonLd, homeCrumb, portfolioCrumb, clientWorkJsonLd } from '@/lib/jsonLd'
-import { localizedAlternates, ogLocale, SITE_URL, notFoundMetadata } from '@/lib/seo'
+import { pageMeta, notFoundMetadata, SITE_URL } from '@/lib/seo'
 
 interface Props {
   params: { locale: string; slug: string }
@@ -26,18 +26,17 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   if (!data) return notFoundMetadata
   const isRu = params.locale === 'ru'
   const title = isRu
-    ? `Работы для ${data.clientName} | MAZE Studio`
-    : `Work for ${data.clientName} | MAZE Studio`
+    ? `Работы для ${data.clientName}`
+    : `Work for ${data.clientName}`
   const description = isRu
-    ? `Все проекты MAZE Studio для бренда ${data.clientName}: брендинг, айдентика, упаковка и больше.`
-    : `Every MAZE Studio project for ${data.clientName} — branding, identity, packaging and more.`
-  return {
+    ? `Все проекты MAZE Studio для бренда ${data.clientName}: брендинг, айдентика, упаковка и цифровой дизайн из Ташкента.`
+    : `Every MAZE Studio project for ${data.clientName} — branding, identity, packaging and digital design, made in Tashkent.`
+  return pageMeta({
+    locale: params.locale,
+    path: `portfolio/client/${params.slug}`,
     title,
     description,
-    alternates: localizedAlternates(params.locale, `portfolio/client/${params.slug}`),
-    openGraph: { title, description, ...ogLocale(params.locale) },
-    twitter:   { card: 'summary_large_image', title, description },
-  }
+  })
 }
 
 export default async function PortfolioClientPage({ params }: Props) {

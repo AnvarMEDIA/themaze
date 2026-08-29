@@ -11,7 +11,7 @@ import { rankRelatedPosts, relatedProjectsForPost } from '@/lib/recommend'
 import { getAdminSession } from '@/lib/auth'
 import { JsonLd } from '@/components/JsonLd'
 import { breadcrumbJsonLd, homeCrumb, insightsCrumb, postJsonLd } from '@/lib/jsonLd'
-import { localizedAlternates, ogLocale, SITE_URL, notFoundMetadata } from '@/lib/seo'
+import { pageMeta, notFoundMetadata, SITE_URL } from '@/lib/seo'
 
 interface Props {
   params: { locale: string; slug: string }
@@ -38,28 +38,22 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const isRu  = params.locale === 'ru'
   const title = isRu ? (post.titleRu   || post.title)   : post.title
   const desc  = isRu ? (post.excerptRu || post.excerpt) : post.excerpt
-  return {
+  return pageMeta({
+    locale: params.locale,
+    path: `insights/${post.slug}`,
     title,
     description: desc,
-    alternates: localizedAlternates(params.locale, `insights/${post.slug}`),
-    openGraph: {
-      type: 'article',
-      ...ogLocale(params.locale),
-      title,
-      description: desc,
-      images: post.coverImage ? [{ url: post.coverImage }] : undefined,
+    type: 'article',
+    // Real cover art beats the generated card; with no cover, omitting the
+    // key lets the route's opengraph-image.tsx supply one.
+    ...(post.coverImage ? { images: [post.coverImage] } : {}),
+    article: {
       publishedTime: post.publishedAt,
-      modifiedTime: post.updatedAt,
+      modifiedTime:  post.updatedAt,
       authors: [post.author],
       tags: post.tags,
     },
-    twitter: {
-      card: 'summary_large_image',
-      title,
-      description: desc,
-      images: post.coverImage ? [post.coverImage] : undefined,
-    },
-  }
+  })
 }
 
 function fmt(iso: string, locale: string) {

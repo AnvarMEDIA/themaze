@@ -4,7 +4,7 @@ import { routing } from '@/i18n/routing'
 import { Link } from '@/i18n/navigation'
 import { JsonLd } from '@/components/JsonLd'
 import { breadcrumbJsonLd, servicesJsonLd, faqJsonLd, homeCrumb } from '@/lib/jsonLd'
-import { localizedAlternates } from '@/lib/seo'
+import { pageMeta } from '@/lib/seo'
 import { TextReveal } from '@/components/ui/TextReveal'
 
 interface Props {
@@ -17,11 +17,12 @@ export function generateStaticParams() {
 
 export async function generateMetadata({ params: { locale } }: Props): Promise<Metadata> {
   const t = await getTranslations({ locale, namespace: 'servicesPage' })
-  return {
+  return pageMeta({
+    locale,
+    path: 'services',
     title: t('metaTitle'),
     description: t('metaDesc'),
-    alternates: localizedAlternates(locale, 'services'),
-  }
+  })
 }
 
 const accentColors = ['#C8FF47', '#4B6EF5', '#D4A017', '#06D6A0', '#FF4D1C', '#FF9E00', '#B47AEA']

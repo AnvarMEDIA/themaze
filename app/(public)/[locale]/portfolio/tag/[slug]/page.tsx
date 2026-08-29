@@ -6,7 +6,7 @@ import { PortfolioGrid } from '@/components/portfolio/PortfolioGrid'
 import { getTagSlugs, getProjectsByTagSlug } from '@/lib/portfolio'
 import { JsonLd } from '@/components/JsonLd'
 import { breadcrumbJsonLd, portfolioListJsonLd, homeCrumb, portfolioCrumb } from '@/lib/jsonLd'
-import { localizedAlternates, SITE_URL, notFoundMetadata } from '@/lib/seo'
+import { pageMeta, notFoundMetadata, SITE_URL } from '@/lib/seo'
 
 interface Props {
   params: { locale: string; slug: string }
@@ -26,18 +26,20 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   if (!data) return notFoundMetadata
   const isRu = params.locale === 'ru'
   const title = isRu
-    ? `${data.tag} — портфолио | MAZE Studio`
-    : `${data.tag} — Portfolio | MAZE Studio`
+    ? `${data.tag} — проекты студии`
+    : `${data.tag} — Selected Projects`
+  // A one-line "projects tagged X" description was under 50 characters, which
+  // Google routinely discards in favour of scraped page text. Say what the
+  // work actually is and where it was made.
   const description = isRu
-    ? `Подборка проектов MAZE Studio с тегом «${data.tag}».`
-    : `MAZE Studio projects tagged "${data.tag}".`
-  return {
+    ? `Проекты MAZE Studio с тегом «${data.tag}» — айдентика, упаковка, полиграфия и цифровой дизайн из Ташкента, Узбекистан.`
+    : `MAZE Studio projects tagged “${data.tag}” — brand identity, packaging, print and digital work from a design studio in Tashkent, Uzbekistan.`
+  return pageMeta({
+    locale: params.locale,
+    path: `portfolio/tag/${params.slug}`,
     title,
     description,
-    alternates: localizedAlternates(params.locale, `portfolio/tag/${params.slug}`),
-    openGraph: { title, description },
-    twitter:   { card: 'summary_large_image', title, description },
-  }
+  })
 }
 
 export default async function PortfolioTagPage({ params }: Props) {

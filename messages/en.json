@@ -185,6 +185,8 @@
   "portfolio": {
     "label": "Our Work",
     "heading": "Portfolio",
+    "metaTitle": "Portfolio — Brand Identity & Design Work",
+    "metaDesc": "Case studies from MAZE Studio in Tashkent — brand identity, naming, packaging, print, UI/UX and motion for clients across Central Asia.",
     "subtitle": "Brand identities, logo systems, naming, packaging, and print — crafted in Tashkent for clients across Central Asia and beyond.",
     "allWork": "All Work",
     "projectSingular": "project",
@@ -227,8 +229,8 @@
     "tags": "Tags"
   },
   "aboutPage": {
-    "metaTitle": "About MAZE — Branding & Design Studio Tashkent, Uzbekistan",
-    "metaDesc": "MAZE Studio — branding and design studio in Tashkent, Uzbekistan. We craft bold visual identities, logo systems, and brand strategies for ambitious companies across Central Asia since 2019.",
+    "metaTitle": "About — Branding & Design Studio in Tashkent",
+    "metaDesc": "MAZE Studio is a branding and design studio in Tashkent, Uzbekistan. Since 2019 we build visual identities, logo systems and brand strategy across Central Asia.",
     "heroLabel": "About us",
     "heroHeading": "We navigate brands through complexity to clarity.",
     "heroSub": "MAZE is a branding and design studio based in Tashkent, Uzbekistan. Since 2019, we've built bold visual identities for startups, enterprises, and cultural institutions across Central Asia and beyond.",
@@ -287,8 +289,8 @@
     "readyCta": "Start a project"
   },
   "servicesPage": {
-    "metaTitle": "Branding & Design Services — MAZE Studio Tashkent",
-    "metaDesc": "Branding, visual identity, naming, packaging design, print, UI/UX, and motion — MAZE Studio delivers full-service brand creation for ambitious companies in Tashkent and across Central Asia.",
+    "metaTitle": "Branding & Design Services in Tashkent",
+    "metaDesc": "Branding, visual identity, naming, packaging, print, UI/UX and motion — full-service brand creation from Tashkent for Uzbekistan and Central Asia.",
     "heroLabel": "What we offer",
     "heroHeading": "Services built for ambitious brands.",
     "heroSub": "From brand strategy to art direction — we offer the full creative suite that growing brands need to compete and win.",
@@ -350,7 +352,7 @@
         "ctaBody": "Tell us about your goals — we'll come back within one business day with scope, timing and a fixed estimate for your {service} project."
       },
       "branding": {
-        "metaTitle": "Branding Services — MAZE Studio Tashkent",
+        "metaTitle": "Branding Services in Tashkent",
         "metaDescription": "End-to-end branding services in Tashkent: strategy, naming, visual identity, guidelines, rollout. For ambitious companies in Uzbekistan and Central Asia.",
         "title": "Branding",
         "tagline": "Strategy, identity and launch — built end to end.",
@@ -405,8 +407,8 @@
         ]
       },
       "rebranding": {
-        "metaTitle": "Rebranding Services — MAZE Studio Tashkent",
-        "metaDescription": "Rebranding for established companies in Uzbekistan and Central Asia — brand audit, repositioning, identity refresh and launch. From focused refreshes to full reinvention.",
+        "metaTitle": "Rebranding Services in Tashkent",
+        "metaDescription": "Rebranding for established companies in Uzbekistan and Central Asia — brand audit, repositioning, identity refresh and launch.",
         "title": "Rebranding",
         "tagline": "From a focused refresh to a complete reinvention.",
         "intro": "Rebranding is the right call when your business has outgrown the brand it launched with — new audience, new product, new geography, a merger, a category move. We start with an audit that diagnoses why the current brand is leaving value on the table, then move into repositioning, an identity refresh or full rebuild, and a rollout plan that keeps your team aligned through the transition. The goal is not novelty; it's a brand that earns its keep in the next decade.",
@@ -460,8 +462,8 @@
         ]
       },
       "identity": {
-        "metaTitle": "Visual Identity Design — MAZE Studio Tashkent",
-        "metaDescription": "Visual identity systems — logos, marks, typography and color — designed in Tashkent for brands across Uzbekistan and Central Asia. Built to scale from 32-pixel favicons to stadium banners.",
+        "metaTitle": "Visual Identity Design in Tashkent",
+        "metaDescription": "Visual identity systems — logos, marks, typography and colour — designed in Tashkent for brands across Uzbekistan and Central Asia.",
         "title": "Visual Identity",
         "tagline": "A system, not a logo.",
         "intro": "An identity is more than a mark. It's a system — typography, color, photography direction, motion principles and rules — that lets a brand stay coherent across every touchpoint, from a 32-pixel favicon to a stadium banner. We design identity systems that can survive a marketing team's worst day: the rules are clear, the assets are organised, the Figma library is alive and the guidelines explain why each decision was made. This is the work that pays back for years.",
@@ -515,8 +517,8 @@
         ]
       },
       "naming": {
-        "metaTitle": "Brand Naming Services — MAZE Studio Tashkent",
-        "metaDescription": "Brand naming for companies in Uzbekistan and Central Asia. Strong, defensible names with trademark pre-screening, rationale and tone-of-voice samples. 3–5 week sprint.",
+        "metaTitle": "Brand Naming Services in Tashkent",
+        "metaDescription": "Brand naming for Uzbekistan and Central Asia. Defensible names with trademark pre-screening, rationale and tone-of-voice samples.",
         "title": "Naming",
         "tagline": "Names that win arguments, pass legal and survive growth.",
         "intro": "Naming is the highest-leverage decision a young company makes — the wrong name costs years of marketing budget and brand equity. We run naming as a focused sprint: deep discovery, 200+ candidates per round, narrowing to a shortlist that has passed trademark and domain checks, finishing with a clear recommendation backed by strategy and tone-of-voice samples. Output is one name we can confidently launch, plus two viable alternates and a written rationale your team can use to defend the choice.",
@@ -570,8 +572,8 @@
         ]
       },
       "packaging": {
-        "metaTitle": "Packaging Design Services — MAZE Studio Tashkent",
-        "metaDescription": "Packaging design for food, FMCG, beauty and premium goods in Uzbekistan and Central Asia. From structure and dieline to print-ready files and production supervision.",
+        "metaTitle": "Packaging Design Services in Tashkent",
+        "metaDescription": "Packaging design for food, FMCG, beauty and premium goods. From structure and dieline to print-ready files and production supervision.",
         "title": "Packaging",
         "tagline": "Where the brand meets the customer.",
         "intro": "Packaging is the highest-intent moment in a customer's journey with a brand — the moment they decide whether to pick the product up. We design packaging that wins on the shelf and respects the production constraints: structure, dieline, typography, photography direction, regulatory copy, language localisation and the finish — foil, emboss, varnish — that matches the price point. We deliver print-ready files and supervise the first production run with your printer to make sure what shipped to manufacturing is what reaches the customer.",
@@ -625,8 +627,8 @@
         ]
       },
       "ui-ux": {
-        "metaTitle": "UI / UX Design Services — MAZE Studio Tashkent",
-        "metaDescription": "Digital product design — UI, UX, design systems and engineering-ready specs for web and mobile. Working with founders and product teams in Uzbekistan and Central Asia.",
+        "metaTitle": "UI / UX Design Services in Tashkent",
+        "metaDescription": "Digital product design — UI, UX, design systems and engineering-ready specs for web and mobile, with founders and product teams.",
         "title": "UI / UX Design",
         "tagline": "Product design that ships.",
         "intro": "Digital product design is where strategy meets engineering reality. We design web and mobile products that ship — not just dribbble-ready mockups. Every engagement starts with the problem (user research, business goals, technical constraints), moves through information architecture and wireframes, then hi-fi design and a Figma component library handed off to your engineering team. We work with founders on 0→1 launches and with established product teams on scaling design systems across multiple product lines.",
@@ -680,8 +682,8 @@
         ]
       },
       "print": {
-        "metaTitle": "Print Design Services — MAZE Studio Tashkent",
-        "metaDescription": "Print design — annual reports, books, magazines, posters, signage and large-format — designed in Tashkent for clients across Uzbekistan and the CIS. Printer-ready, color-accurate, no surprises.",
+        "metaTitle": "Print Design Services in Tashkent",
+        "metaDescription": "Print design — annual reports, books, magazines, posters, signage and large-format. Printer-ready and colour-accurate, from Tashkent.",
         "title": "Print Design",
         "tagline": "Designed for permanence.",
         "intro": "Print is unforgiving — there's no undo, no patch release. We design print products with the printer in mind from day one: paper choice, ink coverage, bleed, color profile, finish. Books, annual reports, magazines, posters, signage, large-format — we deliver press-ready files, supervise proofs on press where the budget allows, and prefer materials that age well over those that look slick on the press release. Print is permanence; we design for it.",
@@ -735,8 +737,8 @@
         ]
       },
       "motion": {
-        "metaTitle": "Motion Design Services — MAZE Studio Tashkent",
-        "metaDescription": "Motion design and brand animation — idents, explainers, social cuts and product animations. Built on the same identity system as the static brand so everything stays consistent.",
+        "metaTitle": "Motion Design Services in Tashkent",
+        "metaDescription": "Motion design and brand animation — idents, explainers, social cuts and product animations, built on your existing identity system.",
         "title": "Motion Design",
         "tagline": "Brand in motion, on purpose.",
         "intro": "Motion turns a static brand into a memorable one — but only when the motion is part of the identity system, not bolted on. We design motion as an extension of the brand: same typography rhythms, same color logic, same restraint. Output ranges from 5-second logo idents to 90-second explainer films, social cuts for paid and organic channels, and product animations for digital touchpoints. We work in After Effects and Cinema 4D and hand off lottie or video formats your team can deploy.",
@@ -790,8 +792,8 @@
         ]
       },
       "strategy": {
-        "metaTitle": "Brand Strategy Services — MAZE Studio Tashkent",
-        "metaDescription": "Brand strategy — positioning, architecture, naming systems and rollout plans. The part of the work no one sees but everyone feels. For ambitious companies in Central Asia.",
+        "metaTitle": "Brand Strategy Services in Tashkent",
+        "metaDescription": "Brand strategy — positioning, architecture, naming systems and rollout plans. For ambitious companies across Central Asia.",
         "title": "Brand Strategy",
         "tagline": "The part nobody sees but everyone feels.",
         "intro": "Strategy is the part of brand work that doesn't end up on Behance — but it's the part that decides whether the brand earns its keep in ten years. We run strategy as an engagement of its own or as the front-end of a full branding project. Output is a positioning document, a brand architecture if the business has multiple lines, a measurable success framework and the brief that every subsequent design decision answers to. Done right, strategy makes design decisions almost obvious.",
@@ -939,8 +941,8 @@
     ]
   },
   "contactPage": {
-    "metaTitle": "Contact MAZE Studio — Branding Agency Tashkent",
-    "metaDesc": "Get in touch with MAZE Studio in Tashkent, Uzbekistan. Start a branding project, request logo design or naming, or book a discovery call. We respond within 24 hours.",
+    "metaTitle": "Contact — Branding Agency in Tashkent",
+    "metaDesc": "Talk to MAZE Studio in Tashkent about branding, logo design or naming. Tell us about the project and we reply within 24 hours.",
     "label": "Get in touch",
     "heading": "Let's build something great together.",
     "sub": "Whether you have a clear brief or just an idea, we'd love to hear from you. Fill in the form and we'll respond within 24 hours.",
@@ -987,7 +989,7 @@
     "heading": "Kind words from people we've worked with."
   },
   "insights": {
-    "metaTitle": "Insights — MAZE Studio",
+    "metaTitle": "Insights — Notes on Brand & Design",
     "metaDesc": "Essays and case studies on branding, design systems, and creative strategy from MAZE Studio.",
     "label": "Insights",
     "heading": "Notes from the studio.",
@@ -998,15 +1000,15 @@
   "legal": {
     "privacy": {
       "title": "Privacy Policy",
-      "description": "How MAZE Studio collects and protects your data."
+      "description": "How MAZE Studio collects, uses and protects your personal data, and the choices you have over it."
     },
     "terms": {
       "title": "Terms of Service",
-      "description": "Terms that govern the use of the MAZE Studio website."
+      "description": "The terms that govern use of the MAZE Studio website, its content and the services offered through it."
     },
     "cookies": {
       "title": "Cookie Policy",
-      "description": "Which cookies we use and how to manage your choice."
+      "description": "Which cookies the MAZE Studio site uses, what each one does, and how to change or withdraw your consent."
     },
     "cookieSettings": "Cookie settings"
   },
@@ -1019,7 +1021,7 @@
     "reject": "Reject"
   },
   "brief": {
-    "metaTitle": "Client Brief — Start Your Project | MAZE Studio",
+    "metaTitle": "Client Brief — Start Your Project",
     "metaDesc": "Fill out the project brief and we'll prepare a tailored proposal within 24 hours.",
     "label": "Start a project",
     "heading": "Tell us about your project.",

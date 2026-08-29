@@ -3,6 +3,8 @@ import type { Metadata } from 'next'
 export const SITE_URL =
   process.env.NEXT_PUBLIC_SITE_URL ?? 'https://www.maze.uz'
 
+export const BRAND = 'MAZE Studio'
+
 const LOCALES = ['en', 'ru'] as const
 type Locale = (typeof LOCALES)[number]
 
@@ -66,4 +68,105 @@ export function ogLocale(locale: string): {
   return locale === 'ru'
     ? { locale: 'ru_RU', alternateLocale: ['en_US'] }
     : { locale: 'en_US', alternateLocale: ['ru_RU'] }
+}
+
+/* ── titles ─────────────────────────────────────────────────────────────── */
+
+/**
+ * Resolve a page title against the root template (`%s | MAZE Studio`).
+ *
+ * The brand is appended only when the title doesn't already name the
+ * studio; a title that does opts out via `absolute`. That single rule is
+ * what makes "Insights — MAZE Studio | MAZE Studio" structurally
+ * impossible, rather than something every page has to remember not to do.
+ *
+ * `full` is the resulting <title> — what Open Graph and Twitter should
+ * carry, since neither has a template of its own.
+ */
+export function resolveTitle(title: string): { meta: Metadata['title']; full: string } {
+  return /\bMAZE\b/i.test(title)
+    ? { meta: { absolute: title }, full: title }
+    : { meta: title, full: `${title} | ${BRAND}` }
+}
+
+/**
+ * Trim a description to `max` characters on a word boundary. Only for
+ * text assembled from stored content (a project's own copy) — authored
+ * meta strings are written to length rather than cut.
+ */
+export function clampDescription(text: string, max = 160): string {
+  const clean = text.replace(/\s+/g, ' ').trim()
+  if (clean.length <= max) return clean
+  const cut = clean.slice(0, max - 1)
+  const stop = Math.max(cut.lastIndexOf(' '), cut.lastIndexOf('—'))
+  return `${(stop > max * 0.6 ? cut.slice(0, stop) : cut).replace(/[\s,;:—-]+$/, '')}…`
+}
+
+/* ── the page metadata builder ──────────────────────────────────────────── */
+
+export interface PageMetaInput {
+  locale: string
+  /** Path without the locale prefix, e.g. `portfolio/uzpay-fintech`. */
+  path?: string
+  title: string
+  description: string
+  keywords?: string[]
+  /**
+   * Explicit social image. Omit to inherit the route's generated
+   * `opengraph-image.tsx`, which Next also mirrors into `twitter:image`.
+   */
+  images?: string[]
+  type?: 'website' | 'article'
+  article?: {
+    publishedTime?: string
+    modifiedTime?: string
+    authors?: string[]
+    tags?: string[]
+  }
+  robots?: Metadata['robots']
+}
+
+/**
+ * The one place a public page's metadata is assembled.
+ *
+ * Next.js merges metadata per top-level field, so a page that declares
+ * its own `openGraph` REPLACES the root's entirely — it does not merge
+ * into it. Every page that set `openGraph: { title, description }` was
+ * therefore silently dropping `og:url`, `og:site_name` and `og:type`,
+ * while every page that set none at all inherited the root's
+ * `og:url` — announcing the homepage as the canonical target of a share
+ * from any of 17 URLs. Building the whole object here makes both
+ * failure modes unreachable.
+ */
+export function pageMeta(input: PageMetaInput): Metadata {
+  const { locale, path = '', description, keywords, images, robots } = input
+  const title = resolveTitle(input.title)
+  const url = localeHref(locale, path)
+
+  const shared = {
+    url,
+    siteName: BRAND,
+    title: title.full,
+    description,
+    ...ogLocale(locale),
+    ...(images?.length ? { images } : {}),
+  }
+
+  return {
+    title: title.meta,
+    description,
+    ...(keywords?.length ? { keywords } : {}),
+    alternates: localizedAlternates(locale, path),
+    openGraph:
+      input.type === 'article'
+        ? { type: 'article', ...shared, ...(input.article ?? {}) }
+        : { type: 'website', ...shared },
+    twitter: {
+      card: 'summary_large_image',
+      title: title.full,
+      description,
+      ...(images?.length ? { images } : {}),
+    },
+    ...(robots ? { robots } : {}),
+  }
 }

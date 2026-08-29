@@ -10,7 +10,7 @@ import { rankRelatedProjects, relatedPostsForProject } from '@/lib/recommend'
 import { ProjectGallery } from '@/components/portfolio/ProjectGallery'
 import { JsonLd } from '@/components/JsonLd'
 import { breadcrumbJsonLd, projectJsonLd, homeCrumb, portfolioCrumb } from '@/lib/jsonLd'
-import { localizedAlternates, notFoundMetadata } from '@/lib/seo'
+import { pageMeta, notFoundMetadata } from '@/lib/seo'
 import { getAdminSession } from '@/lib/auth'
 import { imageAlt, projectMetaTitle, projectMetaDescription } from '@/lib/projectMeta'
 import { slugify } from '@/lib/utils'
@@ -41,20 +41,18 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   // OG / Twitter image is auto-generated via opengraph-image.tsx.
   const title = projectMetaTitle(project, params.locale)
   const desc  = projectMetaDescription(project, params.locale)
-  return {
+  return pageMeta({
+    locale: params.locale,
+    path: `portfolio/${project.slug}`,
     title,
     description: desc,
-    alternates: localizedAlternates(params.locale, `portfolio/${project.slug}`),
-    openGraph: {
-      title: `${title} | MAZE Studio`,
-      description: desc,
+    type: 'article',
+    article: {
+      publishedTime: project.createdAt,
+      modifiedTime:  project.updatedAt,
+      tags: [...(project.categories ?? []), ...(project.tags ?? [])],
     },
-    twitter: {
-      card: 'summary_large_image',
-      title: `${title} | MAZE Studio`,
-      description: desc,
-    },
-  }
+  })
 }
 
 export default async function ProjectPage({ params }: Props) {

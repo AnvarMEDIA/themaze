@@ -2,11 +2,12 @@ import type { Metadata } from 'next'
 import { getTranslations, setRequestLocale } from 'next-intl/server'
 import { notFound } from 'next/navigation'
 import { routing } from '@/i18n/routing'
+import { Link } from '@/i18n/navigation'
 import { PortfolioGrid } from '@/components/portfolio/PortfolioGrid'
 import { getPublishedProjects } from '@/lib/portfolio'
 import { JsonLd } from '@/components/JsonLd'
 import { breadcrumbJsonLd, portfolioListJsonLd, homeCrumb, portfolioCrumb } from '@/lib/jsonLd'
-import { localizedAlternates, SITE_URL, notFoundMetadata } from '@/lib/seo'
+import { pageMeta, notFoundMetadata, SITE_URL } from '@/lib/seo'
 import { VALID_CATEGORIES, categoryLabel } from '@/lib/utils'
 import type { ProjectCategory } from '@/lib/types'
 
@@ -31,18 +32,17 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const isRu  = params.locale === 'ru'
   const label = categoryLabel(params.slug, params.locale)
   const title = isRu
-    ? `${label} — портфолио | MAZE Studio Ташкент`
-    : `${label} — Portfolio | MAZE Studio Tashkent`
+    ? `${label} — портфолио студии в Ташкенте`
+    : `${label} — Portfolio Work in Tashkent`
   const description = isRu
     ? `Кейсы MAZE Studio в категории «${label}». Брендинговая студия в Ташкенте, проекты для компаний Узбекистана и Центральной Азии.`
     : `MAZE Studio ${label.toLowerCase()} case studies. A Tashkent-based branding studio working with brands across Uzbekistan and Central Asia.`
-  return {
+  return pageMeta({
+    locale: params.locale,
+    path: `portfolio/category/${params.slug}`,
     title,
     description,
-    alternates: localizedAlternates(params.locale, `portfolio/category/${params.slug}`),
-    openGraph: { title, description },
-    twitter:   { card: 'summary_large_image', title, description },
-  }
+  })
 }
 
 export default async function PortfolioCategoryPage({ params }: Props) {
@@ -58,6 +58,13 @@ export default async function PortfolioCategoryPage({ params }: Props) {
 
   const isRu  = params.locale === 'ru'
   const label = categoryLabel(params.slug, params.locale)
+
+  // Every category slug has a service page of the same name; if that ever
+  // stops being true the link simply doesn't render.
+  const serviceName = await getTranslations({
+    locale: params.locale,
+    namespace: `servicesPage.cluster.${params.slug}`,
+  }).then((tc) => tc('title')).catch(() => '')
 
   const crumbs = breadcrumbJsonLd([
     homeCrumb(params.locale, isRu ? 'Главная' : 'Home'),
@@ -96,6 +103,19 @@ export default async function PortfolioCategoryPage({ params }: Props) {
               <p className="body-lg text-maze-muted max-w-3xl leading-relaxed">{text}</p>
             ) : null
           })()}
+
+          {/* The category slugs and the service slugs are the same set, and
+              the two clusters compete for the same queries while never
+              linking to each other. Services already surface selected work;
+              this closes the loop in the other direction. */}
+          {serviceName && (
+            <Link
+              href={`/services/${params.slug}`}
+              className="inline-flex items-center gap-2 mt-8 label-sm px-5 py-3 border border-maze-lime/40 rounded-full text-maze-lime transition-colors duration-200 hover:bg-maze-lime hover:text-maze-ink active:scale-[0.97]"
+            >
+              {isRu ? `Услуга: ${serviceName}` : `Service: ${serviceName}`} →
+            </Link>
+          )}
         </div>
       </section>
 

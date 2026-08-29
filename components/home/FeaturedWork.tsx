@@ -1,6 +1,6 @@
 'use client'
 
-import { useRef, useState } from 'react'
+import { useRef } from 'react'
 import { useTranslations } from 'next-intl'
 import { Link } from '@/i18n/navigation'
 import Image from 'next/image'
@@ -10,15 +10,6 @@ import type { Project } from '@/lib/types'
 
 interface Props {
   projects: Project[]
-}
-
-function pickRandom6(arr: Project[]): Project[] {
-  const copy = [...arr]
-  for (let i = copy.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1))
-    ;[copy[i], copy[j]] = [copy[j], copy[i]]
-  }
-  return copy.slice(0, 6)
 }
 
 // Strong ease-out curve (Emil Kowalski)
@@ -144,10 +135,14 @@ export function FeaturedWork({ projects }: Props) {
   const headerRef = useRef<HTMLDivElement>(null)
   const inView    = useInView(headerRef, { once: true, margin: '-8% 0px' })
 
-  // Pick 3 random projects on mount — re-randomises on every page load/refresh
-  const [featured] = useState<Project[]>(() =>
-    projects.length > 0 ? pickRandom6(projects) : []
-  )
+  // The selection arrives already made. It used to be shuffled here, in a
+  // useState initialiser — which runs once on the server and again during
+  // hydration, drawing a different six each time. React saw the mismatch,
+  // threw error #425 and repainted the whole section; the HTML a crawler
+  // indexed listed different projects from the DOM it rendered. Randomising
+  // per request on the server (the page is force-dynamic) keeps the variety
+  // and makes both renders agree. See app/(public)/[locale]/page.tsx.
+  const featured = projects
 
   return (
     <section className="px-6 md:px-10 py-24 md:py-36">

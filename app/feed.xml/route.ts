@@ -24,11 +24,14 @@ export async function GET() {
   const feedUrl  = `${SITE_URL}/feed.xml`
   const indexUrl = localeHref('en', 'insights')
 
+  // An empty journal used to report 1 Jan 1970, which reads to a feed reader
+  // or a crawler as a broken feed rather than an empty one. Omit the element
+  // entirely instead — it is optional in RSS 2.0.
   const lastBuild = posts.length
     ? new Date(
         Math.max(...posts.map((p) => new Date(p.updatedAt || p.publishedAt).getTime())),
       ).toUTCString()
-    : new Date(0).toUTCString()
+    : null
 
   const items = posts
     .map((post) => {
@@ -53,8 +56,7 @@ ${post.author ? `      <dc:creator>${escapeXml(post.author)}</dc:creator>\n` : '
     <link>${indexUrl}</link>
     <description>Branding, design and strategy notes from MAZE Studio — Tashkent, Uzbekistan.</description>
     <language>en</language>
-    <lastBuildDate>${lastBuild}</lastBuildDate>
-    <atom:link href="${feedUrl}" rel="self" type="application/rss+xml" />
+${lastBuild ? `    <lastBuildDate>${lastBuild}</lastBuildDate>\n` : ''}    <atom:link href="${feedUrl}" rel="self" type="application/rss+xml" />
 ${items}
   </channel>
 </rss>`

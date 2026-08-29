@@ -11,7 +11,7 @@ import {
   faqJsonLd,
   homeCrumb,
 } from '@/lib/jsonLd'
-import { localizedAlternates, ogLocale, SITE_URL, notFoundMetadata } from '@/lib/seo'
+import { pageMeta, notFoundMetadata, SITE_URL } from '@/lib/seo'
 import { TextReveal } from '@/components/ui/TextReveal'
 import { Arrow } from '@/components/ui/Arrow'
 import type { ProjectCategory } from '@/lib/types'
@@ -55,13 +55,12 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const t = await getTranslations({ locale: params.locale, namespace: `servicesPage.cluster.${params.slug}` })
   const metaTitle = t('metaTitle')
   const metaDesc  = t('metaDescription')
-  return {
-    title:       metaTitle,
+  return pageMeta({
+    locale: params.locale,
+    path: `services/${params.slug}`,
+    title: metaTitle,
     description: metaDesc,
-    alternates:  localizedAlternates(params.locale, `services/${params.slug}`),
-    openGraph:   { title: metaTitle, description: metaDesc, ...ogLocale(params.locale) },
-    twitter:     { card: 'summary_large_image', title: metaTitle, description: metaDesc },
-  }
+  })
 }
 
 export default async function ServiceClusterPage({ params }: Props) {

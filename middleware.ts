@@ -27,6 +27,17 @@ function addSecurityHeaders(res: NextResponse): NextResponse {
   return res
 }
 
+/**
+ * Next builds social-card URLs from the route's own segments, so with a
+ * `[locale]` segment they always carry the prefix — including `/en/`, which
+ * `localePrefix: 'as-needed'` otherwise redirects away. That made every
+ * English og:image a 307 for the crawler that fetched it, and a crawler that
+ * doesn't follow redirects on images (some still don't) showed no preview.
+ * These are generated assets, not pages: they read the locale straight off
+ * the segment and need no negotiation, so serve them where they're asked for.
+ */
+const METADATA_IMAGE = /\/(opengraph-image|twitter-image|icon|apple-icon)(-[a-z0-9]+)?\/?$/i
+
 export async function middleware(req: NextRequest) {
   const { pathname } = req.nextUrl
 
@@ -34,6 +45,11 @@ export async function middleware(req: NextRequest) {
   if (pathname.startsWith('/api/')) {
     const res = NextResponse.next()
     return addSecurityHeaders(res)
+  }
+
+  // ── Generated metadata images — bypass locale negotiation ─────
+  if (METADATA_IMAGE.test(pathname)) {
+    return addSecurityHeaders(NextResponse.next())
   }
 
   // ── Admin JWT protection ────────────────────────────────────────

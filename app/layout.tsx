@@ -64,7 +64,7 @@ const baseMetadata: Metadata = {
     template: '%s | MAZE Studio',
   },
   description:
-    'MAZE is a premium branding and design studio based in Tashkent, Uzbekistan. We craft bold brand identities, digital experiences, and strategic design systems for ambitious companies across Central Asia and globally.',
+    'MAZE is a premium branding and design studio in Tashkent, Uzbekistan — brand identities, digital experiences and design systems for ambitious companies.',
   keywords: [
     // English — brand & service keywords
     'branding studio Tashkent',
@@ -104,7 +104,10 @@ const baseMetadata: Metadata = {
     type: 'website',
     locale: 'en_US',
     alternateLocale: ['ru_RU'],
-    url: SITE_URL,
+    // NOTE: intentionally NO `url`. Public pages build their own complete
+    // openGraph via `pageMeta`; anything that doesn't (admin, error, 404) is
+    // noindex, and inheriting the homepage URL here made every one of them
+    // announce the homepage as the target of a share.
     siteName: 'MAZE Studio',
     title: 'MAZE — Branding & Design Studio',
     description: 'Premium branding and design studio based in Tashkent, Uzbekistan.',

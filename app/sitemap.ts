@@ -103,7 +103,11 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     ...localized('',              siteFreshness,   'weekly',  1.0),
     ...localized('portfolio',     freshestProject, 'weekly',  0.9),
     ...localized('services',      SITE_LAUNCH,     'monthly', 0.8),
-    ...localized('insights',      freshestPost,    'weekly',  0.8),
+    // The journal is submitted only once it has something in it. An empty
+    // listing offered at priority 0.8 asks a crawler to spend its budget on a
+    // heading and a "nothing yet" line; the page itself carries a matching
+    // noindex while it is empty, and both lift the moment a post publishes.
+    ...(posts.length ? localized('insights', freshestPost, 'weekly', 0.8) : []),
     ...localized('about',         SITE_LAUNCH,     'monthly', 0.7),
     ...localized('contact',       SITE_LAUNCH,     'yearly',  0.5),
     ...localized('legal/privacy', SITE_LAUNCH,     'yearly',  0.3),

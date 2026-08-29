@@ -1,4 +1,5 @@
 import type { Metadata } from 'next'
+import type { Project } from '@/lib/types'
 import { setRequestLocale, getTranslations } from 'next-intl/server'
 import { routing } from '@/i18n/routing'
 import { Hero }            from '@/components/home/Hero'
@@ -17,7 +18,7 @@ import { getPublishedProjects } from '@/lib/portfolio'
 import { getPublishedPosts } from '@/lib/posts'
 import { getPartners } from '@/lib/partners'
 import { getTestimonials } from '@/lib/testimonials'
-import { localizedAlternates } from '@/lib/seo'
+import { pageMeta } from '@/lib/seo'
 
 interface Props {
   params: { locale: string }
@@ -33,10 +34,11 @@ export async function generateMetadata({ params: { locale } }: Props): Promise<M
   const isRu = locale === 'ru'
 
   if (isRu) {
-    return {
-      title: 'MAZE — Брендинговая и Дизайн Студия | Ташкент, Узбекистан',
+    return pageMeta({
+      locale,
+      title: 'MAZE — брендинговая и дизайн-студия в Ташкенте',
       description:
-        'MAZE — премиальная брендинговая студия из Ташкента. Разрабатываем фирменные стили, логотипы, нейминг и стратегию бренда для амбициозных компаний по всей Центральной Азии и за рубежом.',
+        'Премиальная брендинговая студия из Ташкента. Фирменные стили, логотипы, нейминг и стратегия бренда для компаний Узбекистана и Центральной Азии.',
       keywords: [
         'брендинг студия Ташкент',
         'брендинговое агентство Узбекистан',
@@ -51,13 +53,31 @@ export async function generateMetadata({ params: { locale } }: Props): Promise<M
         'дизайн студия Ташкент',
         'MAZE Студия',
       ],
-      alternates: localizedAlternates(locale),
-    }
+    })
   }
 
-  return {
-    alternates: localizedAlternates(locale),
+  return pageMeta({
+    locale,
+    title: 'MAZE — Branding & Design Studio in Tashkent, Uzbekistan',
+    description:
+      'Premium branding and design studio in Tashkent. Bold brand identities, digital experiences and design systems for companies across Central Asia.',
+  })
+}
+
+/**
+ * Six of the published projects, freshly shuffled. The draw happens here, on
+ * the server, once per request (the page is force-dynamic) — the homepage
+ * still shows a different six on every load, but the server HTML and the
+ * hydrated DOM now agree on which six. Doing it inside the client component
+ * meant two different draws and a hydration error on the busiest page.
+ */
+function pickSix(projects: Project[]): Project[] {
+  const copy = [...projects]
+  for (let i = copy.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1))
+    ;[copy[i], copy[j]] = [copy[j], copy[i]]
   }
+  return copy.slice(0, 6)
 }
 
 export default async function HomePage({ params: { locale } }: Props) {
@@ -76,7 +96,7 @@ export default async function HomePage({ params: { locale } }: Props) {
       {testimonials.length > 0 && <JsonLd id="ld-reviews" data={testimonialsJsonLd(testimonials, locale)} />}
       <Hero />
       <Marquee />
-      <FeaturedWork projects={featuredProjects} />
+      <FeaturedWork projects={pickSix(featuredProjects)} />
       <AboutSection />
       <PartnersSection
         partners={partners}
