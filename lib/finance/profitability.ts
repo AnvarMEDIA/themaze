@@ -49,6 +49,7 @@ export function buildProfitability(
   const cost = new Map<string, number>()
   const unrated = new Map<string, Set<Currency>>()
   let overhead = 0
+  let otherIncome = 0
 
   const noteUnrated = (key: string, c: Currency) => {
     const set = unrated.get(key) ?? new Set<Currency>()
@@ -63,11 +64,17 @@ export function buildProfitability(
     const value = converted ?? 0
 
     if (!t.projectId) {
-      // Unattached income is real revenue but belongs to no project, so it is
-      // out of scope here; unattached expense is the studio's overhead.
+      // Two mirror buckets for money that belongs to no single project:
+      // expenses are the studio's overhead, income is everything earned
+      // outside a project — a retainer, a one-off, a payment recorded against
+      // the client only. Both sit outside the per-project table but inside the
+      // net result, or "net profit" would not be net.
       if (t.type === 'expense') {
         overhead += value
         if (converted === null) noteUnrated('__overhead__', t.currency)
+      } else {
+        otherIncome += value
+        if (converted === null) noteUnrated('__otherIncome__', t.currency)
       }
       continue
     }
@@ -120,9 +127,13 @@ export function buildProfitability(
     totals: {
       received: totalReceived,
       directCost: totalCost,
+      otherIncome,
       overhead,
       grossProfit,
-      netProfit: grossProfit - overhead,
+      // Everything the period earned, less everything it spent. Both the
+      // unattached buckets belong here, so this equals the dashboard's profit
+      // for the same window — which the label beside it claims.
+      netProfit: grossProfit + otherIncome - overhead,
     },
     unratedCurrencies: missingRates(
       [...periodTxns.map((t) => t.currency), ...projects.map((p) => p.currency)],

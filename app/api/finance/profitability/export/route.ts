@@ -51,6 +51,7 @@ export async function GET(req: NextRequest) {
   rows.push(['Total received', '', '', '', report.totals.received])
   rows.push(['Total direct costs', '', '', '', '', report.totals.directCost])
   rows.push(['Gross profit', '', '', '', '', '', report.totals.grossProfit])
+  rows.push(['Other income (no project)', '', '', '', report.totals.otherIncome])
   rows.push(['Overhead (unallocated expenses)', '', '', '', '', report.totals.overhead])
   rows.push(['Net profit', '', '', '', '', '', report.totals.netProfit])
 

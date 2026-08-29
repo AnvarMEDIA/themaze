@@ -191,11 +191,20 @@ export interface ProfitabilityReport {
   totals: {
     received: number
     directCost: number
+    /**
+     * Income with no project attached — a retainer, a one-off, a payment
+     * recorded against the client only. The mirror of `overhead`: outside the
+     * per-project table, but inside the net result.
+     */
+    otherIncome: number
     /** Expenses with no project attached — studio overhead. */
     overhead: number
-    /** Σ received − Σ directCost, before overhead. */
+    /** Σ received − Σ directCost. Project-level, before the unattached buckets. */
     grossProfit: number
-    /** grossProfit − overhead. Reconciles with the dashboard's net profit. */
+    /**
+     * grossProfit + otherIncome − overhead. Equals the dashboard's profit for
+     * the same window: every row of the period is on exactly one side of it.
+     */
     netProfit: number
   }
   unratedCurrencies: Currency[]

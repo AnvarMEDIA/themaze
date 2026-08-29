@@ -90,9 +90,17 @@ export default function ReportsPage() {
         </div>
       )}
 
-      {/* Bottom line first — the number an accountant opens this page for. */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+      {/* Bottom line first — the number an accountant opens this page for.
+          The "other income" tile appears only when there is any, so the row
+          stays four across in the common case. */}
+      <div className={`grid grid-cols-2 gap-4 mb-6 ${rep.totals.otherIncome > 0 ? 'lg:grid-cols-5' : 'lg:grid-cols-4'}`}>
         <Tile label={t('rep.totalReceived')} value={compact(rep.totals.received)} accent="#C8FF47" />
+        {rep.totals.otherIncome > 0 && (
+          <Tile
+            label={t('rep.otherIncome')} value={compact(rep.totals.otherIncome)} accent="#6FA02E"
+            hint={t('rep.otherIncomeHint')}
+          />
+        )}
         <Tile label={t('rep.totalCost')} value={compact(rep.totals.directCost)} accent={FIN_COLORS.expense} />
         <Tile
           label={t('rep.overhead')} value={compact(rep.totals.overhead)} accent="#B5852F"
