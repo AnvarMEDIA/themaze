@@ -65,6 +65,18 @@ export interface FinanceTransaction {
    * duplicate check flagging two occurrences of the same retainer.
    */
   recurringId?: string
+  /**
+   * Structured classification for expenses. Absent on income, and absent on
+   * older rows that predate it — reports treat "not set" as its own bucket
+   * rather than guessing, so nothing is silently miscounted.
+   */
+  expenseKind?: ExpenseKind
+  /**
+   * Who received the money: the team member for payroll, the vendor for a
+   * subscription or rent. Stored as typed; grouped on a normalised key so
+   * "Islom", "islom" and " Islom " are one person (see expenseKind.ts).
+   */
+  payee?: string
   projectId: string | null
   clientId: string | null
   amount: number
@@ -191,6 +203,29 @@ export interface MonthlyPoint {
   expense: number
 }
 
+/**
+ * What KIND of spending a row is. A closed set, never typed by hand, so
+ * reports can group by it reliably — unlike `category`, which is free text and
+ * ends up holding a person's name on one row and "Интернет" on the next.
+ *
+ * `payroll` covers pay to the team whether or not it is on a schedule; a
+ * studio that pays when a job lands still needs to see what each person got.
+ */
+export const EXPENSE_KINDS = [
+  'payroll',
+  'contractor',
+  'rent',
+  'utilities',
+  'subscriptions',
+  'equipment',
+  'marketing',
+  'taxes',
+  'office',
+  'travel',
+  'other',
+] as const
+export type ExpenseKind = (typeof EXPENSE_KINDS)[number]
+
 export interface ClientRevenue {
   clientId: string | null
   name: string
@@ -200,6 +235,13 @@ export interface ClientRevenue {
 export interface ExpenseCategory {
   category: string
   total: number
+}
+
+/** Spending grouped by the structured taxonomy, for the selected period. */
+export interface ExpenseKindTotal {
+  kind: ExpenseKind | 'unclassified'
+  total: number
+  count: number
 }
 
 /** A signed project past its end date with money still owed. */
@@ -261,9 +303,16 @@ export interface FinanceSummary {
   /** Scheduled payments that have come due and are not yet in the ledger. */
   dueRecurring: DueOccurrence[]
   monthly: MonthlyPoint[]    // last 12 months, base currency (trend, not period)
-  topClients: ClientRevenue[]
+  /** Every client with income in the period, biggest first. */
+  clients: ClientRevenue[]
   statusBreakdown: { status: ProjectStatus; count: number; value: number }[]
   expenseCategories: ExpenseCategory[]
+  /**
+   * The same spending grouped by `expenseKind`. Empty until rows are
+   * classified, so the dashboard can fall back to the free-text mix rather
+   * than showing an empty panel to a studio that hasn't sorted anything yet.
+   */
+  expenseKinds: ExpenseKindTotal[]
   overdueProjects: OverdueProject[]
   recentTransactions: FinanceTransaction[]
   /** Raw revenue grouped by native currency (no conversion) for transparency. */

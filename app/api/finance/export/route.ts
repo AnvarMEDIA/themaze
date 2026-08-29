@@ -5,6 +5,7 @@ import { getEffectiveFinanceSettings } from '@/lib/finance/settings'
 import { rateOf } from '@/lib/finance/money'
 import { periodFromParams, inPeriod } from '@/lib/finance/period'
 import { csvBody, csvHeaders, periodStamp } from '@/lib/finance/csv'
+import { payeeKey } from '@/lib/finance/expenseKind'
 
 export const dynamic = 'force-dynamic'
 
@@ -31,6 +32,8 @@ export async function GET(req: NextRequest) {
   const clientId = searchParams.get('clientId')
   const projectId = searchParams.get('projectId')
   const q = (searchParams.get('q') ?? '').trim().toLowerCase()
+  const kind = searchParams.get('kind')
+  const payee = searchParams.get('payee')
 
   const [txns, projects, clients, settings] = await Promise.all([
     listTransactions(),
@@ -47,6 +50,13 @@ export async function GET(req: NextRequest) {
     if (type === 'income' || type === 'expense') { if (t.type !== type) return false }
     if (clientId && t.clientId !== clientId) return false
     if (projectId && t.projectId !== projectId) return false
+    // Same rule as the screen: both axes describe spending, so both imply
+    // "expense". 'unclassified' means an expense with no kind.
+    if (kind) {
+      if (t.type !== 'expense') return false
+      if (kind === 'unclassified' ? !!t.expenseKind : t.expenseKind !== kind) return false
+    }
+    if (payee && (t.type !== 'expense' || payeeKey(t.payee) !== payee)) return false
     if (q) {
       const hay = [
         t.category, t.note,
@@ -60,7 +70,7 @@ export async function GET(req: NextRequest) {
 
   const header = [
     'Date', 'Type', 'Amount', 'Currency',
-    `Amount (${settings.baseCurrency})`, 'Client', 'Project', 'Category', 'Method', 'Note',
+    `Amount (${settings.baseCurrency})`, 'Client', 'Project', 'Kind', 'Paid to', 'Category', 'Method', 'Note',
   ]
 
   const lines: (string | number)[][] = [header]
@@ -77,6 +87,8 @@ export async function GET(req: NextRequest) {
       rate === null ? '' : t.amount * rate,
       t.clientId ? cliName.get(t.clientId) ?? '' : '',
       t.projectId ? projName.get(t.projectId) ?? '' : '',
+      t.expenseKind ?? '',
+      t.payee ?? '',
       t.category,
       t.method,
       t.note,

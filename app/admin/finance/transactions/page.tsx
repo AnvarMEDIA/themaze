@@ -7,7 +7,10 @@ import { formatMoney, convert, DEFAULT_FINANCE_SETTINGS } from '@/lib/finance/mo
 import type { Currency, FinanceClient, FinanceProject, FinanceSettings, FinanceTransaction, TransactionType } from '@/lib/finance/types'
 import { inPeriod, resolvePeriod } from '@/lib/finance/period'
 import { duplicateIds } from '@/lib/finance/duplicates'
+import { payeeKey } from '@/lib/finance/expenseKind'
+import { EXPENSE_KINDS } from '@/lib/finance/types'
 import { TransactionForm } from '@/components/admin/finance/TransactionForm'
+import { ClassifyExpenses } from '@/components/admin/finance/ClassifyExpenses'
 import { useFinanceLang } from '@/components/admin/finance/lang'
 import { PeriodPicker, periodQuery, type PeriodValue } from '@/components/admin/finance/PeriodPicker'
 
@@ -15,7 +18,7 @@ type Filter = 'all' | TransactionType
 
 export default function TransactionsPage() {
   const router = useRouter()
-  const { t, locale, tMethod } = useFinanceLang()
+  const { t, locale, tMethod, tKind } = useFinanceLang()
   const [txns, setTxns] = useState<FinanceTransaction[]>([])
   const [projects, setProjects] = useState<FinanceProject[]>([])
   const [clients, setClients] = useState<FinanceClient[]>([])
@@ -26,9 +29,12 @@ export default function TransactionsPage() {
   const [projectId, setProjectId] = useState('')
   const [query, setQuery] = useState('')
   const [onlyDupes, setOnlyDupes] = useState(false)
+  const [kind, setKind] = useState('')
+  const [payee, setPayee] = useState('')
   const [settings, setSettings] = useState<FinanceSettings>(DEFAULT_FINANCE_SETTINGS)
   const [formOpen, setFormOpen] = useState(false)
   const [editing, setEditing] = useState<FinanceTransaction | null>(null)
+  const [classifyOpen, setClassifyOpen] = useState(false)
 
   const load = useCallback(async () => {
     const [tRes, pRes, cRes, sRes] = await Promise.all([
@@ -48,7 +54,14 @@ export default function TransactionsPage() {
   }, [router])
 
   useEffect(() => { load() }, [load])
-  useEffect(() => { if (new URLSearchParams(window.location.search).get('new')) openNew() }, [])
+  useEffect(() => {
+    const qs = new URLSearchParams(window.location.search)
+    if (qs.get('new')) openNew()
+    // Arriving from a total on the Spending report: show exactly those rows.
+    const k = qs.get('kind'); const pe = qs.get('payee')
+    if (k) { setKind(k); setFilter('expense') }
+    if (pe) { setPayee(pe); setFilter('expense') }
+  }, [])
 
   const projName = useMemo(() => new Map(projects.map((p) => [p.id, p.title])), [projects])
   const cliName = useMemo(() => new Map(clients.map((c) => [c.id, c.company || c.name])), [clients])
@@ -87,6 +100,24 @@ export default function TransactionsPage() {
   // some filters would be worse than no flag at all.
   const dupes = useMemo(() => duplicateIds(txns), [txns])
 
+  // Every payee the ledger knows, one entry per person however they were
+  // spelled — the same normalisation the reports group on.
+  const unsortedCount = useMemo(
+    () => txns.filter((tx) => tx.type === 'expense' && !tx.expenseKind).length,
+    [txns],
+  )
+
+  const payeeOptions = useMemo(() => {
+    const seen = new Map<string, string>()
+    for (const tx of txns) {
+      const name = tx.payee?.trim()
+      if (!name) continue
+      const k = payeeKey(name)
+      if (!seen.has(k)) seen.set(k, name)
+    }
+    return [...seen.entries()].sort((a, b) => a[1].localeCompare(b[1]))
+  }, [txns])
+
   const q = query.trim().toLowerCase()
   const rows = useMemo(() => txns.filter((tx) => {
     if (onlyDupes && !dupes.has(tx.id)) return false
@@ -94,6 +125,11 @@ export default function TransactionsPage() {
     if ((range.from || range.to) && !inPeriod(tx.date, range)) return false
     if (clientId && tx.clientId !== clientId) return false
     if (projectId && tx.projectId !== projectId) return false
+    // Kind and payee describe SPENDING, so both filters imply "expense" —
+    // otherwise an income row carrying a stale kind shows up under Payroll.
+    // 'unclassified' is a real choice, not the absence of one.
+    if (kind && (tx.type !== 'expense' || (kind === 'unclassified' ? !!tx.expenseKind : tx.expenseKind !== kind))) return false
+    if (payee && (tx.type !== 'expense' || payeeKey(tx.payee) !== payee)) return false
     if (q) {
       const hay = [
         tx.category, tx.note,
@@ -103,7 +139,7 @@ export default function TransactionsPage() {
       if (!hay.includes(q)) return false
     }
     return true
-  }), [txns, filter, range, clientId, projectId, q, projName, cliName, onlyDupes, dupes])
+  }), [txns, filter, range, clientId, projectId, q, projName, cliName, onlyDupes, dupes, kind, payee])
 
   // Totals for exactly what is on screen — an unconvertible amount is left out
   // rather than counted as zero, and flagged below.
@@ -118,10 +154,11 @@ export default function TransactionsPage() {
     return { inc, out, net: inc - out, unconverted: [...unconverted] }
   }, [rows, settings])
 
-  const filtersActive = filter !== 'all' || period.preset !== 'all' || !!clientId || !!projectId || !!q || onlyDupes
+  const filtersActive = filter !== 'all' || period.preset !== 'all' || !!clientId || !!projectId || !!q || onlyDupes || !!kind || !!payee
   const clearFilters = () => {
     setFilter('all'); setPeriod({ preset: 'all', from: '', to: '' })
     setClientId(''); setProjectId(''); setQuery(''); setOnlyDupes(false)
+    setKind(''); setPayee('')
   }
 
   const exportQuery = () => {
@@ -130,6 +167,8 @@ export default function TransactionsPage() {
     if (clientId) qs.set('clientId', clientId)
     if (projectId) qs.set('projectId', projectId)
     if (q) qs.set('q', query.trim())
+    if (kind) qs.set('kind', kind)
+    if (payee) qs.set('payee', payee)
     return qs.toString()
   }
 
@@ -144,6 +183,23 @@ export default function TransactionsPage() {
           <span className="text-base leading-none">+</span> {t('txns.record')}
         </button>
       </div>
+
+      {/* Expenses that have never been given a kind. Offered, not nagged: it
+          disappears the moment there is nothing left to sort. */}
+      {unsortedCount > 0 && (
+        <div className="mb-4 rounded-xl border border-[#FFD447]/25 bg-[#FFD447]/[0.05] px-5 py-4 flex flex-wrap items-center gap-x-4 gap-y-2">
+          <div className="min-w-0 flex-1">
+            <p className="text-[13px] font-semibold text-[#FFD447]">{t('cls.banner', { n: unsortedCount })}</p>
+            <p className="text-[12px] text-[#8a8272] mt-0.5">{t('cls.bannerHint')}</p>
+          </div>
+          <button
+            onClick={() => setClassifyOpen(true)}
+            className="px-3 py-2 rounded-lg bg-[#FFD447] text-[#0A0A0A] text-[13px] font-bold hover:bg-[#F0EEE6] transition-colors active:scale-[0.97] whitespace-nowrap"
+          >
+            {t('cls.review')}
+          </button>
+        </div>
+      )}
 
       {/* Filters */}
       <div className="space-y-3 mb-4">
@@ -188,6 +244,30 @@ export default function TransactionsPage() {
             <option value="">{t('txns.filterProject')}</option>
             {projects.map((p) => <option key={p.id} value={p.id}>{p.title}</option>)}
           </select>
+          {/* Expense-only axes. Hidden while looking at income, where they
+              would filter everything away and read as a broken screen. */}
+          {filter !== 'income' && (
+            <select
+              value={kind}
+              onChange={(e) => setKind(e.target.value)}
+              className="bg-[#111] border border-[#252525] rounded-lg px-3 py-2 text-[13px] text-[#EDEBE3] focus:outline-none focus:border-[#C8FF47] transition-colors cursor-pointer"
+            >
+              <option value="">{t('exp.filterKind')}</option>
+              {EXPENSE_KINDS.map((k) => <option key={k} value={k}>{tKind(k)}</option>)}
+              <option value="unclassified">{t('exp.unclassified')}</option>
+            </select>
+          )}
+          {filter !== 'income' && payeeOptions.length > 0 && (
+            <select
+              value={payee}
+              onChange={(e) => setPayee(e.target.value)}
+              className="bg-[#111] border border-[#252525] rounded-lg px-3 py-2 text-[13px] text-[#EDEBE3] focus:outline-none focus:border-[#C8FF47] transition-colors cursor-pointer max-w-[200px]"
+            >
+              <option value="">{t('exp.filterPayee')}</option>
+              {payeeOptions.map(([k, name]) => <option key={k} value={k}>{name}</option>)}
+            </select>
+          )}
+
           {/* Only offered when there is something to find — a chip that always
               says zero is noise. */}
           {dupes.size > 0 && (
@@ -312,11 +392,18 @@ export default function TransactionsPage() {
         )}
       </div>
 
+      <ClassifyExpenses
+        open={classifyOpen}
+        onClose={() => setClassifyOpen(false)}
+        onDone={load}
+      />
+
       <TransactionForm
         open={formOpen}
         initial={editing}
         projects={projects}
         clients={clients}
+        payees={payeeOptions.map(([, name]) => name)}
         onClose={() => setFormOpen(false)}
         onSaved={load}
         onDelete={delFromForm}

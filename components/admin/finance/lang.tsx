@@ -16,6 +16,8 @@ interface Ctx {
   tStatus: (s: ProjectStatus | string) => string
   tMethod: (m: PaymentMethod | string) => string
   month: (index0: number) => string
+  /** Label for an expense kind (or the unclassified bucket). */
+  tKind: (k: string) => string
 }
 
 const FinanceLangContext = createContext<Ctx | null>(null)
@@ -42,6 +44,7 @@ export function FinanceLangProvider({ children }: { children: React.ReactNode })
     tStatus: (s) => translate(lang, `status.${s}`),
     tMethod: (m) => translate(lang, `method.${m}`),
     month: (i) => monthShort(lang, i),
+    tKind: (k) => translate(lang, k === 'unclassified' ? 'exp.unclassified' : `kind.${k}`),
   }
 
   return <FinanceLangContext.Provider value={value}>{children}</FinanceLangContext.Provider>

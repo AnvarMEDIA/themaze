@@ -17,7 +17,7 @@ const DEFAULT_PERIOD: PeriodValue = { preset: 'year', from: '', to: '' }
 
 export default function FinanceDashboard() {
   const router = useRouter()
-  const { t, locale, tStatus } = useFinanceLang()
+  const { t, locale, tStatus, tKind } = useFinanceLang()
   const [sum, setSum] = useState<FinanceSummary | null>(null)
   const [loading, setLoading] = useState(true)
   const [period, setPeriod] = useState<PeriodValue>(DEFAULT_PERIOD)
@@ -123,10 +123,11 @@ export default function FinanceDashboard() {
   const prevLabel = prev ? COMPARE_LABEL[period.preset] ?? t('dash.vsPrev') : ''
   const prevHint = prev ? `${prevLabel} · ${prev.from} – ${prev.to}` : ''
 
-  const topClientItems = sum.topClients.map((c) => ({
+  const clientItems = (sum.clients ?? []).map((c) => ({
     label: c.name || t('dash.unassignedClient'),
     value: c.total,
   }))
+  const clientTotal = clientItems.reduce((s, c) => s + c.value, 0)
   const statusItems = sum.statusBreakdown
     .filter((s) => s.count > 0)
     .map((s) => ({
@@ -135,11 +136,22 @@ export default function FinanceDashboard() {
       color: FIN_COLORS.status[s.status],
       sub: `${s.count}`,
     }))
-  const expenseItems = (sum.expenseCategories ?? []).map((c) => ({
-    label: c.category || t('dash.uncategorised'),
-    value: c.total,
-    color: FIN_COLORS.expense,
-  }))
+  // Prefer the structured taxonomy; fall back to the free-text mix while the
+  // studio still has rows to sort, so the panel is never empty.
+  const kindRows = (sum.expenseKinds ?? []).filter((k) => k.total > 0)
+  const anyClassified = kindRows.some((k) => k.kind !== 'unclassified')
+  const expenseItems = anyClassified
+    ? kindRows.map((k) => ({
+        label: k.kind === 'unclassified' ? t('exp.unclassified') : tKind(k.kind),
+        value: k.total,
+        color: k.kind === 'unclassified' ? '#5A5A5A' : FIN_COLORS.expense,
+        sub: `${k.count}`,
+      }))
+    : (sum.expenseCategories ?? []).map((c) => ({
+        label: c.category || t('dash.uncategorised'),
+        value: c.total,
+        color: FIN_COLORS.expense,
+      }))
 
   const exportHref = `/api/finance/export?${periodQuery(period)}`
 
@@ -327,8 +339,19 @@ export default function FinanceDashboard() {
       {/* Three-up: clients, expenses, project statuses */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
         <div className="rounded-xl bg-[#0D0D0D] border border-[#1E1E1E] p-6">
-          <h2 className="text-sm font-semibold text-white mb-5">{t('dash.topClients')}</h2>
-          <HBars items={topClientItems} currency={baseCurrency} emptyText={t('dash.noIncome')} />
+          <div className="flex items-baseline justify-between gap-3 mb-5">
+            <h2 className="text-sm font-semibold text-white">{t('dash.clientsInPeriod')}</h2>
+            {clientItems.length > 0 && (
+              <span className="text-[11px] text-[#666] tabular-nums whitespace-nowrap">
+                {t('dash.clientsCount', { n: clientItems.length })} · {fmt(clientTotal)}
+              </span>
+            )}
+          </div>
+          {/* Every client, not a top five — but scrolling inside the card, so a
+              good month can't stretch the page past the panels beside it. */}
+          <div className="max-h-[264px] overflow-y-auto pr-1 -mr-1">
+            <HBars items={clientItems} currency={baseCurrency} emptyText={t('dash.noIncome')} />
+          </div>
         </div>
         <div className="rounded-xl bg-[#0D0D0D] border border-[#1E1E1E] p-6">
           <h2 className="text-sm font-semibold text-white mb-5">{t('dash.expenseMix')}</h2>

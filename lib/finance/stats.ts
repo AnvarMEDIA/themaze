@@ -24,6 +24,7 @@ import type {
   ClientRevenue,
   Currency,
   ExpenseCategory,
+  ExpenseKindTotal,
   FinanceTransaction,
   OverdueProject,
   ProjectStatus,
@@ -138,11 +139,13 @@ export async function buildSummary(period?: Period): Promise<FinanceSummary> {
 
   const byClient = new Map<string | null, number>()
   for (const t of periodIncome) byClient.set(t.clientId, (byClient.get(t.clientId) ?? 0) + base(t))
-  const topClients: ClientRevenue[] = [...byClient.entries()]
+  // Every client that paid in the period, not a top five: the studio asked
+  // who paid this month, and a cut-off list cannot answer that. Ties break on
+  // name so the order is stable between loads.
+  const clients_: ClientRevenue[] = [...byClient.entries()]
     .map(([clientId, total]) => ({ clientId, name: clientLabel(clientId), total }))
     .filter((c) => c.total > 0)
-    .sort((a, b) => b.total - a.total)
-    .slice(0, 5)
+    .sort((a, b) => b.total - a.total || a.name.localeCompare(b.name))
 
   // Where the money went — an unlabelled expense is grouped rather than dropped.
   const byCategory = new Map<string, number>()
@@ -155,6 +158,20 @@ export async function buildSummary(period?: Period): Promise<FinanceSummary> {
     .filter((c) => c.total > 0)
     .sort((a, b) => b.total - a.total)
     .slice(0, 6)
+
+  // Grouped by the structured kind. Unclassified is its own bucket, never
+  // folded into "other" — not sorted yet and miscellaneous are different facts.
+  const byKind = new Map<string, { total: number; count: number }>()
+  for (const t of periodExpense) {
+    const k = t.expenseKind ?? 'unclassified'
+    const cur = byKind.get(k) ?? { total: 0, count: 0 }
+    cur.total += base(t)
+    cur.count += 1
+    byKind.set(k, cur)
+  }
+  const expenseKinds: ExpenseKindTotal[] = [...byKind.entries()]
+    .map(([kind, v]) => ({ kind: kind as ExpenseKindTotal['kind'], total: v.total, count: v.count }))
+    .sort((a, b) => b.total - a.total || String(a.kind).localeCompare(String(b.kind)))
 
   const statuses: ProjectStatus[] = ['lead', 'active', 'completed', 'cancelled']
   const statusBreakdown = statuses.map((status) => {
@@ -199,9 +216,10 @@ export async function buildSummary(period?: Period): Promise<FinanceSummary> {
     previous,
     dueRecurring: collectDue(recurring, today),
     monthly,
-    topClients,
+    clients: clients_,
     statusBreakdown,
     expenseCategories,
+    expenseKinds,
     overdueProjects: overdueProjects.slice(0, 6),
     recentTransactions: txns.slice(0, 8),
     revenueByCurrency,

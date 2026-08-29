@@ -5,9 +5,10 @@ import toast from 'react-hot-toast'
 import { Modal } from './Modal'
 import { Field, Text, Area, Select, NumberField, FormActions } from './fields'
 import {
-  CURRENCIES, PAYMENT_METHODS, TRANSACTION_TYPES,
+  CURRENCIES, EXPENSE_KINDS, PAYMENT_METHODS, TRANSACTION_TYPES,
   type FinanceClient, type FinanceProject, type FinanceTransaction,
 } from '@/lib/finance/types'
+import { suggestKind } from '@/lib/finance/expenseKind'
 import { useFinanceLang } from './lang'
 import { todayLocal } from '@/lib/finance/date'
 
@@ -16,20 +17,23 @@ const today = todayLocal
 const base = () => ({
   type: 'income', amount: '', currency: 'UZS', date: today(),
   projectId: '', clientId: '', method: 'bank', category: '', note: '',
+  expenseKind: '', payee: '',
 })
 
 export function TransactionForm({
-  open, initial, projects, clients, onClose, onSaved, onDelete,
+  open, initial, projects, clients, payees = [], onClose, onSaved, onDelete,
 }: {
   open: boolean
   initial: FinanceTransaction | null
   projects: FinanceProject[]
   clients: FinanceClient[]
+  /** Payees already used, so a name is picked rather than retyped. */
+  payees?: string[]
   onClose: () => void
   onSaved: () => void
   onDelete?: () => void
 }) {
-  const { t, tMethod } = useFinanceLang()
+  const { t, tMethod, tKind } = useFinanceLang()
   const [f, setF] = useState(base())
   const [busy, setBusy] = useState(false)
 
@@ -40,11 +44,27 @@ export function TransactionForm({
           type: initial.type, amount: String(initial.amount), currency: initial.currency, date: initial.date || today(),
           projectId: initial.projectId ?? '', clientId: initial.clientId ?? '', method: initial.method,
           category: initial.category, note: initial.note,
+          expenseKind: initial.expenseKind ?? '', payee: initial.payee ?? '',
         }
       : base())
   }, [open, initial])
 
   const set = (k: keyof ReturnType<typeof base>) => (v: string) => setF((p) => ({ ...p, [k]: v }))
+
+  /**
+   * Typing the category on a NEW expense fills in the kind and payee if they
+   * are still blank. A convenience, never an override: once either field has
+   * been touched, or on an existing row, the entry is left alone.
+   */
+  const onCategory = (v: string) => {
+    setF((p) => {
+      const next = { ...p, category: v }
+      if (initial || p.type !== 'expense' || p.expenseKind || p.payee) return next
+      const s = suggestKind({ category: v, note: p.note, payee: '' })
+      if (s.reason === 'none') return next
+      return { ...next, expenseKind: s.kind, payee: s.payee }
+    })
+  }
 
   // Selecting a project pulls its client, and its currency only as a
   // convenience for a NEW, still-empty entry. Never on an existing record:
@@ -76,6 +96,10 @@ export function TransactionForm({
         method: f.method,
         category: f.category,
         note: f.note,
+        // Expense-only. Sent as undefined on income so a row that was flipped
+        // from expense to income doesn't keep a stale kind.
+        expenseKind: f.type === 'expense' && f.expenseKind ? f.expenseKind : undefined,
+        payee: f.type === 'expense' && f.payee.trim() ? f.payee.trim() : undefined,
       }
       const res = await fetch(
         initial ? `/api/finance/transactions/${initial.id}` : '/api/finance/transactions',
@@ -146,8 +170,35 @@ export function TransactionForm({
               options={[{ value: '', label: t('common.none') }, ...clients.map((c) => ({ value: c.id, label: c.company || c.name }))]}
             />
           </Field>
-          <Field label={t('tf.category')}><Text value={f.category} onChange={set('category')} placeholder={income ? t('tf.categoryIncome') : t('tf.categoryExpense')} maxLength={100} /></Field>
+          <Field label={t('tf.category')}><Text value={f.category} onChange={income ? set('category') : onCategory} placeholder={income ? t('tf.categoryIncome') : t('tf.categoryExpense')} maxLength={100} /></Field>
         </div>
+
+        {/* What kind of spending, and who got it. Only for expenses: income has
+            a client and a project, which already say where it came from. */}
+        {!income && (
+          <div className="grid grid-cols-2 gap-3 rounded-lg border border-[#1E1E1E] bg-[#0B0B0B] p-3.5">
+            <Field label={t('tf.expenseKind')} hint={t('tf.expenseKindHint')}>
+              <Select
+                value={f.expenseKind}
+                onChange={set('expenseKind')}
+                options={[{ value: '', label: t('exp.unclassified') }, ...EXPENSE_KINDS.map((k) => ({ value: k, label: tKind(k) }))]}
+              />
+            </Field>
+            <Field label={t('tf.payee')} hint={t('tf.payeeHint')}>
+              <input
+                list="fin-payees"
+                value={f.payee}
+                onChange={(e) => set('payee')(e.target.value)}
+                maxLength={120}
+                placeholder={t('tf.payeePlaceholder')}
+                className="w-full bg-[#111] border border-[#252525] rounded-lg px-3.5 py-2.5 text-sm text-[#EDEBE3] placeholder:text-[#4A4A4A] focus:outline-none focus:border-[#C8FF47] transition-colors"
+              />
+              <datalist id="fin-payees">
+                {payees.map((p) => <option key={p} value={p} />)}
+              </datalist>
+            </Field>
+          </div>
+        )}
 
         <Field label={t('tf.note')}><Area value={f.note} onChange={set('note')} placeholder={t('common.optional')} rows={2} /></Field>
         <FormActions

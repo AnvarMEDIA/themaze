@@ -6,12 +6,14 @@ import {
   TRANSACTION_TYPES,
   PAYMENT_METHODS,
   RECUR_INTERVALS,
+  EXPENSE_KINDS,
   type Currency,
   type ClientStatus,
   type ProjectStatus,
   type TransactionType,
   type PaymentMethod,
   type RecurInterval,
+  type ExpenseKind,
 } from './types'
 
 const str = (max: number) => z.string().trim().max(max, `Max ${max} characters`)
@@ -98,6 +100,9 @@ export const TransactionSchema = z.object({
   type:      z.enum([...TRANSACTION_TYPES] as [TransactionType, ...TransactionType[]]).default('income'),
   kind:      z.literal('prepayment').optional(),
   recurringId: z.string().trim().max(64).optional(),
+  // Expense taxonomy. Optional so income rows and older expenses stay valid.
+  expenseKind: z.enum([...EXPENSE_KINDS] as [ExpenseKind, ...ExpenseKind[]]).optional(),
+  payee:       str(120).optional(),
   projectId: nullableId,
   clientId:  nullableId,
   amount,
