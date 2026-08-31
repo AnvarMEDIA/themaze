@@ -656,6 +656,30 @@ html.lenis, html.lenis body {
   to   { opacity: 1; transform: scale(1); }
 }
 
+/* ─── MFC entry sheet ──────────────────────────────────────────────────────
+   A phone gets a sheet that rises from the bottom edge it is anchored to;
+   translateY(100%) is its own height, so the distance is right whatever the
+   content. From 640px up it is a centred modal and scales like the others.
+   The iOS drawer curve — fast out of the gate, settling long. */
+.mfc-sheet {
+  animation: mfc-sheet-up 300ms cubic-bezier(0.32, 0.72, 0, 1);
+}
+@keyframes mfc-sheet-up {
+  from { transform: translateY(100%); }
+  to   { transform: translateY(0); }
+}
+@media (min-width: 640px) {
+  .mfc-sheet {
+    animation: fin-pop-in 200ms cubic-bezier(0.23, 1, 0.32, 1);
+  }
+}
+/* Motion sickness: keep the fade, drop the travel. */
+@media (prefers-reduced-motion: reduce) {
+  .mfc-sheet {
+    animation: fin-fade-in 160ms ease-out;
+  }
+}
+
 /* Hide the horizontal scrollbar on the finance tab strip (still scrolls) */
 .scrollbar-none {
   -ms-overflow-style: none;

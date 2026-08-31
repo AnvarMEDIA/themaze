@@ -10,7 +10,7 @@ import { useFinanceLang } from './lang'
  * move is *good*, which is not the same as *up*: rising expenses are not a win.
  */
 export function Delta({
-  current, previous, goodWhen = 'up', label,
+  current, previous, goodWhen = 'up', label, fromNothingKey = 'dash.vsFromNothing',
 }: {
   current: number
   previous: number
@@ -18,6 +18,12 @@ export function Delta({
   goodWhen?: 'up' | 'down'
   /** Screen-reader/tooltip context, e.g. "vs last month". */
   label: string
+  /**
+   * What to say when the previous period was zero and a percentage would be a
+   * lie. The default speaks of revenue, which is right on the studio dashboard
+   * and wrong anywhere measuring something else.
+   */
+  fromNothingKey?: string
 }) {
   const { t } = useFinanceLang()
   const diff = current - previous
@@ -35,7 +41,7 @@ export function Delta({
     <span className={`inline-flex items-center gap-1 text-[11px] font-medium ${colour}`} title={label}>
       <span aria-hidden="true">{diff > 0 ? '↑' : '↓'}</span>
       <span className="tabular-nums">
-        {pct === null ? t('dash.vsFromNothing') : `${Math.abs(pct)}%`}
+        {pct === null ? t(fromNothingKey) : `${Math.abs(pct)}%`}
       </span>
     </span>
   )

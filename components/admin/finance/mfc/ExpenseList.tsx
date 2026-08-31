@@ -1,0 +1,141 @@
+'use client'
+
+import { useMemo } from 'react'
+import { formatMoney, txBase } from '@/lib/finance/money'
+import { chipColor } from '@/lib/mfc/palette'
+import type { Currency, FinanceSettings } from '@/lib/finance/types'
+import type { MfcCategory, MfcExpense } from '@/lib/mfc/types'
+import { useFinanceLang } from '../lang'
+import { catLabel, friendlyDate } from './shared'
+
+/**
+ * The ledger, grouped by day with a subtotal per day.
+ *
+ * The day subtotal is the point: a list of individual amounts answers "what
+ * did I buy", but "Tuesday: 340 000" is the line that changes behaviour.
+ *
+ * Each row shows what was actually paid in its own currency, and the base
+ * value underneath when the two differ — so a $12 lunch reads as $12, not as
+ * a som figure the person never saw.
+ */
+export function ExpenseList({
+  expenses,
+  categories,
+  settings,
+  onEdit,
+  emptyTitle,
+  emptyHint,
+  stickyDays = false,
+}: {
+  expenses: MfcExpense[]
+  categories: MfcCategory[]
+  settings: FinanceSettings
+  onEdit?: (e: MfcExpense) => void
+  emptyTitle: string
+  emptyHint: string
+  /**
+   * Pin the day header while scrolling. Worth it on the full ledger, where a
+   * day can run past a screen; wrong in the dashboard's short "recent" panel,
+   * where the header simply detaches and rides over the first row.
+   */
+  stickyDays?: boolean
+}) {
+  const { t, lang, locale } = useFinanceLang()
+  const byId = useMemo(() => new Map(categories.map((c) => [c.id, c])), [categories])
+  const base: Currency = settings.baseCurrency
+
+  const groups = useMemo(() => {
+    const out: { date: string; rows: MfcExpense[]; total: number }[] = []
+    for (const e of expenses) {
+      const last = out[out.length - 1]
+      const value = txBase(e, settings).value ?? 0
+      if (last && last.date === e.date) { last.rows.push(e); last.total += value }
+      else out.push({ date: e.date, rows: [e], total: value })
+    }
+    return out
+  }, [expenses, settings])
+
+  if (expenses.length === 0) {
+    return (
+      <div className="rounded-xl border border-[#1E1E1E] bg-[#0D0D0D] px-6 py-14 text-center">
+        <p className="text-white font-semibold mb-1">{emptyTitle}</p>
+        <p className="text-sm text-[#666]">{emptyHint}</p>
+      </div>
+    )
+  }
+
+  return (
+    <div className="rounded-xl bg-[#0D0D0D] border border-[#1E1E1E] overflow-hidden">
+      {groups.map((g) => (
+        <section key={g.date}>
+          <header
+            className={`flex items-baseline justify-between gap-3 px-5 py-2 bg-[#0B0B0B]/95 backdrop-blur border-y border-[#161616] ${
+              // Clears both nav bars: the finance strip and the MFC tabs.
+              stickyDays ? 'sticky top-[9.5rem] lg:top-[6.5rem] z-10' : ''
+            }`}
+          >
+            <span className="text-[11px] font-semibold tracking-[0.08em] uppercase text-[#6A6A6A]">
+              {friendlyDate(g.date, locale, { today: t('mfc.today'), yesterday: t('mfc.yesterday') })}
+            </span>
+            <span className="text-[11px] text-[#8A8A8A] tabular-nums">
+              {formatMoney(g.total, base, { locale })}
+            </span>
+          </header>
+
+          <ul>
+            {g.rows.map((e) => {
+              const cat = e.categoryId ? byId.get(e.categoryId) : undefined
+              const { value, locked } = txBase(e, settings)
+              const foreign = e.currency !== base
+              const Row = onEdit ? 'button' : 'div'
+              return (
+                <li key={e.id} className="border-b border-[#141414] last:border-b-0">
+                  <Row
+                    {...(onEdit ? { type: 'button' as const, onClick: () => onEdit(e) } : {})}
+                    className={`w-full flex items-center gap-3 px-5 py-3 text-left transition-colors duration-150 ${
+                      onEdit ? 'hover:bg-[#111] active:scale-[0.995]' : ''
+                    }`}
+                  >
+                    <span
+                      className="w-9 h-9 shrink-0 rounded-full flex items-center justify-center text-[16px] leading-none"
+                      style={{ background: cat ? `${chipColor(cat.colorSlot)}26` : '#1A1A1A' }}
+                      aria-hidden="true"
+                    >
+                      {cat?.icon ?? '·'}
+                    </span>
+
+                    <div className="min-w-0 flex-1">
+                      <p className="text-[13px] text-white truncate">
+                        {catLabel(cat, lang, t('mfc.uncategorised'))}
+                      </p>
+                      <p className="text-[11px] text-[#666] truncate">
+                        {e.note || t(`method.${e.method}`)}
+                      </p>
+                    </div>
+
+                    <div className="text-right shrink-0">
+                      <p className="text-[13px] text-white tabular-nums font-medium">
+                        {formatMoney(e.amount, e.currency, { locale })}
+                      </p>
+                      {foreign && (
+                        <p
+                          className="text-[10px] text-[#5A5A5A] tabular-nums"
+                          title={locked
+                            ? t('tf.fxLocked', { rate: e.fxRate ?? '—', date: e.fxDate ?? '—' })
+                            : t('tf.fxFloating')}
+                        >
+                          {value === null ? '—' : formatMoney(value, base, { locale })}
+                          {!locked && <span className="text-[#B5852F] ml-1" aria-hidden="true">~</span>}
+                        </p>
+                      )}
+                    </div>
+                  </Row>
+                </li>
+              )
+            })}
+          </ul>
+        </section>
+      ))}
+    </div>
+  )
+}
