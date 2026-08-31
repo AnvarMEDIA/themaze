@@ -7,7 +7,7 @@ import { formatMoney } from '@/lib/finance/money'
 import type { FinanceSettings } from '@/lib/finance/types'
 import type { MfcCategory, MfcSummary } from '@/lib/mfc/types'
 import { useFinanceLang } from '@/components/admin/finance/lang'
-import { PeriodPicker, periodQuery, type PeriodValue } from '@/components/admin/finance/PeriodPicker'
+import { PeriodPicker, type PeriodValue } from '@/components/admin/finance/PeriodPicker'
 import { Delta } from '@/components/admin/finance/Delta'
 import { AddButton } from '@/components/admin/finance/mfc/MfcNav'
 import { QuickAdd } from '@/components/admin/finance/mfc/QuickAdd'
@@ -15,7 +15,7 @@ import { CategoryBars } from '@/components/admin/finance/mfc/CategoryBars'
 import { TrendBars } from '@/components/admin/finance/mfc/TrendBars'
 import { Budgets } from '@/components/admin/finance/mfc/Budgets'
 import { ExpenseList } from '@/components/admin/finance/mfc/ExpenseList'
-import { catLabel, friendlyDate } from '@/components/admin/finance/mfc/shared'
+import { catLabel, friendlyDate, resolveWindow, windowQuery } from '@/components/admin/finance/mfc/shared'
 
 // Its own remembered period, deliberately not the studio dashboard's: personal
 // spending is looked at by the month, company figures by the year, and sharing
@@ -45,8 +45,9 @@ export default function MfcDashboard() {
   }, [])
 
   const load = useCallback(async () => {
+    // Resolved here, on the user's clock — see resolveWindow.
     const [s, c] = await Promise.all([
-      fetch(`/api/finance/mfc/summary?${periodQuery(period)}`, { cache: 'no-store' }),
+      fetch(`/api/finance/mfc/summary?${windowQuery(resolveWindow(period))}`, { cache: 'no-store' }),
       fetch('/api/finance/mfc/categories', { cache: 'no-store' }),
     ])
     if (s.status === 401 || c.status === 401) { router.push('/admin/finance/unlock'); return }

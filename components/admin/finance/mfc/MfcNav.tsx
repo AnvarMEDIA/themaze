@@ -22,7 +22,10 @@ export function MfcNav() {
     href === '/admin/finance/mfc' ? pathname === href : pathname.startsWith(href)
 
   return (
-    <div className="sticky top-[6.5rem] lg:top-14 z-20 bg-[#080808]/85 backdrop-blur border-b border-[#141414]">
+    // Pinned exactly where the finance strip above ends — measured, not
+    // rounded to the nearest Tailwind step: 6.5rem left a 9px notch on a phone
+    // through which the page scrolled between the two bars.
+    <div className="sticky top-[113px] lg:top-[57px] z-20 bg-[#080808]/85 backdrop-blur border-b border-[#141414]">
       <div className="flex items-center gap-1 px-4 lg:px-6 h-12 max-w-[1400px] mx-auto overflow-x-auto scrollbar-none">
         {TABS.map((tab) => (
           <Link

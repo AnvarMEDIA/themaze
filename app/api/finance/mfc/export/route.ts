@@ -1,10 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { requireFinance } from '@/lib/finance/guard'
 import { getEffectiveFinanceSettings } from '@/lib/finance/settings'
-import { periodFromParams, inPeriod } from '@/lib/finance/period'
+import { inPeriod } from '@/lib/finance/period'
 import { txBase } from '@/lib/finance/money'
 import { csvBody, csvHeaders, periodStamp } from '@/lib/finance/csv'
 import { listExpenses, listCategories } from '@/lib/mfc/data'
+import { mfcPeriodFromParams } from '@/lib/mfc/period'
 
 export const dynamic = 'force-dynamic'
 
@@ -14,7 +15,7 @@ export async function GET(req: NextRequest) {
   if (blocked) return blocked
 
   const { searchParams } = new URL(req.url)
-  const period = periodFromParams({
+  const period = mfcPeriodFromParams({
     preset: searchParams.get('preset'),
     from: searchParams.get('from'),
     to: searchParams.get('to'),

@@ -19,11 +19,31 @@ const now = () => new Date().toISOString()
 
 /* ── Categories ──────────────────────────────────────────────────────────── */
 
+/** A stable id from a default's English name: "Café & dining" → "cafe-dining". */
+function seedId(name: string): string {
+  const slug = name
+    .normalize('NFD').replace(/[̀-ͯ]/g, '')   // strip the accents NFD split off
+    .toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '')
+  return `seed-${slug}`
+}
+
+/**
+ * Ids are derived from the name, not generated.
+ *
+ * Seeding is guarded by a write lock, but that lock is per process — and in
+ * production two requests can be served by two instances at once (the tab
+ * loads the summary and the categories together). Both would find the store
+ * empty, both would seed, and the loser's write would be overwritten. With
+ * random ids the browser would already be holding the losing set, so the next
+ * expense filed against one of them would point at a category that no longer
+ * exists and render as "Uncategorised". Deriving the id makes both writes
+ * identical and the race harmless.
+ */
 function seedCategories(): MfcCategory[] {
   const ts = now()
   return DEFAULT_CATEGORIES.map((c, i) => ({
     ...c,
-    id: uuid(),
+    id: seedId(c.name),
     monthlyLimit: 0,
     archived: false,
     order: i,

@@ -1,8 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { requireFinance } from '@/lib/finance/guard'
 import { getEffectiveFinanceSettings } from '@/lib/finance/settings'
-import { periodFromParams } from '@/lib/finance/period'
 import { listExpenses, listCategories } from '@/lib/mfc/data'
+import { mfcNow, mfcPeriodFromParams } from '@/lib/mfc/period'
 import { buildMfcSummary } from '@/lib/mfc/summary'
 
 export const dynamic = 'force-dynamic'
@@ -12,11 +12,14 @@ export async function GET(req: NextRequest) {
   if (blocked) return blocked
 
   const { searchParams } = new URL(req.url)
-  const period = periodFromParams({
+  // The window and "today" both come from the browser: this process runs in
+  // UTC and would otherwise answer a Tashkent morning with yesterday's month.
+  const period = mfcPeriodFromParams({
     preset: searchParams.get('preset'),
     from: searchParams.get('from'),
     to: searchParams.get('to'),
   })
+  const now = mfcNow(searchParams.get('today'))
 
   const [expenses, categories, settings] = await Promise.all([
     listExpenses(),
@@ -26,5 +29,5 @@ export async function GET(req: NextRequest) {
     getEffectiveFinanceSettings(),
   ])
 
-  return NextResponse.json(buildMfcSummary(expenses, categories, settings, period))
+  return NextResponse.json(buildMfcSummary(expenses, categories, settings, period, now))
 }

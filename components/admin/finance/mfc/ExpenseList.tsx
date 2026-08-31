@@ -64,15 +64,27 @@ export function ExpenseList({
     )
   }
 
+  const lastGroup = groups.length - 1
+
   return (
-    <div className="rounded-xl bg-[#0D0D0D] border border-[#1E1E1E] overflow-hidden">
-      {groups.map((g) => (
+    // No `overflow-hidden` when the day headers stick.
+    //
+    // A clipping ancestor becomes the scroll container for anything sticky
+    // inside it. The header's `top` offset is then measured against this card
+    // rather than the window — and since the offset is larger than the card's
+    // own scrollport, the header was pushed to the bottom of its section and
+    // sat squarely on top of the first row it was meant to label. Without the
+    // clip it sticks to the window, which is what it was asking for; the
+    // corners are rounded on the pieces that actually paint a background.
+    <div className={`rounded-xl bg-[#0D0D0D] border border-[#1E1E1E] ${stickyDays ? '' : 'overflow-hidden'}`}>
+      {groups.map((g, gi) => (
         <section key={g.date}>
           <header
             className={`flex items-baseline justify-between gap-3 px-5 py-2 bg-[#0B0B0B]/95 backdrop-blur border-y border-[#161616] ${
-              // Clears both nav bars: the finance strip and the MFC tabs.
-              stickyDays ? 'sticky top-[9.5rem] lg:top-[6.5rem] z-10' : ''
-            }`}
+              // Where the MFC tab strip ends once both nav bars are pinned —
+              // measured, not guessed (see MfcNav for the two above it).
+              stickyDays ? 'sticky top-[162px] lg:top-[106px] z-10' : ''
+            } ${gi === 0 ? 'rounded-t-xl border-t-0' : ''}`}
           >
             <span className="text-[11px] font-semibold tracking-[0.08em] uppercase text-[#6A6A6A]">
               {friendlyDate(g.date, locale, { today: t('mfc.today'), yesterday: t('mfc.yesterday') })}
@@ -83,18 +95,21 @@ export function ExpenseList({
           </header>
 
           <ul>
-            {g.rows.map((e) => {
+            {g.rows.map((e, ri) => {
               const cat = e.categoryId ? byId.get(e.categoryId) : undefined
               const { value, locked } = txBase(e, settings)
               const foreign = e.currency !== base
               const Row = onEdit ? 'button' : 'div'
+              // The very last row is the only one whose hover fill would
+              // otherwise square off the card's bottom corners.
+              const last = gi === lastGroup && ri === g.rows.length - 1
               return (
                 <li key={e.id} className="border-b border-[#141414] last:border-b-0">
                   <Row
                     {...(onEdit ? { type: 'button' as const, onClick: () => onEdit(e) } : {})}
                     className={`w-full flex items-center gap-3 px-5 py-3 text-left transition-colors duration-150 ${
                       onEdit ? 'hover:bg-[#111] active:scale-[0.995]' : ''
-                    }`}
+                    } ${last ? 'rounded-b-xl' : ''}`}
                   >
                     <span
                       className="w-9 h-9 shrink-0 rounded-full flex items-center justify-center text-[16px] leading-none"

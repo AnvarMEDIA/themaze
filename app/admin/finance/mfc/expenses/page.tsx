@@ -7,11 +7,11 @@ import { inPeriod } from '@/lib/finance/period'
 import type { Currency, FinanceSettings } from '@/lib/finance/types'
 import type { MfcCategory, MfcExpense } from '@/lib/mfc/types'
 import { useFinanceLang } from '@/components/admin/finance/lang'
-import { PeriodPicker, periodQuery, type PeriodValue } from '@/components/admin/finance/PeriodPicker'
+import { PeriodPicker, type PeriodValue } from '@/components/admin/finance/PeriodPicker'
 import { AddButton } from '@/components/admin/finance/mfc/MfcNav'
 import { QuickAdd } from '@/components/admin/finance/mfc/QuickAdd'
 import { ExpenseList } from '@/components/admin/finance/mfc/ExpenseList'
-import { catLabel } from '@/components/admin/finance/mfc/shared'
+import { catLabel, resolveWindow, windowQuery } from '@/components/admin/finance/mfc/shared'
 
 const PERIOD_KEY = 'maze_mfc_period'
 const DEFAULT_PERIOD: PeriodValue = { preset: 'month', from: '', to: '' }
@@ -65,6 +65,12 @@ export default function MfcExpensesPage() {
     [data],
   )
 
+  // The picker only says WHICH preset is on; its from/to stay empty, and an
+  // empty bound means "unbounded" to inPeriod — so filtering on it directly
+  // let every preset list the whole ledger, and the screen disagreed with the
+  // dashboard beside it.
+  const range = useMemo(() => resolveWindow(period), [period])
+
   // Filtering is done here rather than server-side: the whole ledger is a
   // personal one, it is already loaded, and typing that filters without a
   // round trip is the difference between usable and not on a phone.
@@ -73,13 +79,13 @@ export default function MfcExpensesPage() {
     const q = query.trim().toLowerCase()
     const byId = new Map(data.categories.map((c) => [c.id, c]))
     return data.expenses.filter((e) => {
-      if (!inPeriod(e.date, period)) return false
+      if (!inPeriod(e.date, range)) return false
       if (category === 'none' ? e.categoryId !== null : category && e.categoryId !== category) return false
       if (!q) return true
       const c = e.categoryId ? byId.get(e.categoryId) : undefined
       return `${c?.name ?? ''} ${c?.nameRu ?? ''} ${e.note} ${e.amount}`.toLowerCase().includes(q)
     })
-  }, [data, period, category, query])
+  }, [data, range, category, query])
 
   const total = useMemo(
     () => (settings ? filtered.reduce((s, e) => s + (txBase(e, settings).value ?? 0), 0) : 0),
@@ -96,7 +102,8 @@ export default function MfcExpensesPage() {
   }
 
   const cur = data.baseCurrency
-  const exportQuery = new URLSearchParams(periodQuery(period))
+  // Same resolved window the list is showing, so the file matches the screen.
+  const exportQuery = new URLSearchParams(windowQuery(range))
   if (category) exportQuery.set('category', category)
   if (query.trim()) exportQuery.set('q', query.trim())
 
