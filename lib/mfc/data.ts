@@ -44,6 +44,8 @@ function seedCategories(): MfcCategory[] {
   return DEFAULT_CATEGORIES.map((c, i) => ({
     ...c,
     id: seedId(c.name),
+    // Defaults wear their slot; a custom colour is something a person picks.
+    color: '',
     monthlyLimit: 0,
     archived: false,
     order: i,
@@ -76,9 +78,10 @@ export async function listCategories(): Promise<MfcCategory[]> {
 
 function sortCategories(rows: MfcCategory[]): MfcCategory[] {
   return [...rows]
-    // `keywords` arrived after the first categories were stored; a row written
-    // before it has none, and the matcher must not read undefined.
-    .map((c) => (c.keywords === undefined ? { ...c, keywords: '' } : c))
+    // `keywords` and `color` arrived after the first categories were stored;
+    // a row written before them has neither, and nothing downstream should
+    // have to read undefined.
+    .map((c) => ({ ...c, keywords: c.keywords ?? '', color: c.color ?? '' }))
     .sort((a, b) => a.order - b.order || a.name.localeCompare(b.name))
 }
 

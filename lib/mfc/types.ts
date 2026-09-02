@@ -45,11 +45,19 @@ export interface MfcCategory {
    */
   keywords: string
   /**
-   * Identity colour, as an index into MFC_CHIP_SLOTS. Stored as a slot rather
-   * than a hex so the palette can be re-stepped without touching stored data —
-   * and so a category can never be given an unvalidated colour.
+   * Identity colour, as an index into MFC_CHIP_SLOTS. A slot rather than a hex
+   * so the palette can be re-stepped without touching stored data.
    */
   colorSlot: number
+  /**
+   * A colour picked by hand, `#rrggbb`, which wins over the slot when set.
+   *
+   * The eight slots are the validated set and stay the fast path, but they are
+   * eight, and a person with twenty categories has every right to want a
+   * particular teal. Empty string means "use the slot" — which is what every
+   * category written before this field existed says.
+   */
+  color: string
   /**
    * Spending cap for a calendar month, in the base currency. 0 = no budget.
    * A budget is a question ("am I over?"), so it is optional per category
@@ -106,6 +114,8 @@ export interface MfcCategoryTotal {
   nameRu: string
   icon: string
   colorSlot: number
+  /** A hand-picked `#rrggbb` that wins over the slot; '' when none. */
+  color: string
   /** Base currency. */
   total: number
   count: number
@@ -133,6 +143,8 @@ export interface MfcBudgetLine {
   nameRu: string
   icon: string
   colorSlot: number
+  /** A hand-picked `#rrggbb` that wins over the slot; '' when none. */
+  color: string
   limit: number
   spent: number
   /** spent ÷ limit. Can exceed 1 — that is the point of showing it. */

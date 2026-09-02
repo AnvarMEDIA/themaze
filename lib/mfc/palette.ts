@@ -76,6 +76,53 @@ export function chipColor(slot: number): string {
   return MFC_CHIP_SLOTS[((slot % n) + n) % n]
 }
 
+/** `#rgb` or `#rrggbb`, the two forms a colour input and a person produce. */
+export const HEX_RE = /^#([0-9a-f]{3}|[0-9a-f]{6})$/i
+
+/** `#abc` → `#aabbcc`; anything already long, or invalid, comes back as-is. */
+export function expandHex(hex: string): string {
+  const h = hex.trim().toLowerCase()
+  return h.length === 4 && HEX_RE.test(h) ? `#${h[1]}${h[1]}${h[2]}${h[2]}${h[3]}${h[3]}` : h
+}
+
+/**
+ * The colour a category is drawn in: the one it was given by hand, or its
+ * slot.
+ *
+ * Everything that paints a category goes through here, so a colour picked in
+ * the editor turns up on the disc, the bar, the strip and the budget line
+ * without any of them knowing the difference.
+ */
+export function categoryColor(c: { colorSlot: number; color?: string }): string {
+  const custom = (c.color ?? '').trim()
+  return HEX_RE.test(custom) ? expandHex(custom) : chipColor(c.colorSlot)
+}
+
+/** The surface every MFC colour is judged against. */
+export const MFC_SURFACE = '#0D0D0D'
+
+/**
+ * WCAG contrast of a colour against the panel's surface.
+ *
+ * Used to warn — never to refuse. A chart mark wants 3:1 to be seen at all,
+ * and a colour picker will happily hand back near-black, which paints an
+ * invisible bar on a dark panel. Saying so beside the swatch is more useful
+ * than silently correcting a choice someone made on purpose.
+ */
+export function contrastOnSurface(hex: string, surface: string = MFC_SURFACE): number {
+  const lum = (h: string): number => {
+    const v = expandHex(h).slice(1)
+    const ch = [0, 2, 4].map((i) => {
+      const c = parseInt(v.slice(i, i + 2), 16) / 255
+      return c <= 0.03928 ? c / 12.92 : ((c + 0.055) / 1.055) ** 2.4
+    })
+    return 0.2126 * ch[0] + 0.7152 * ch[1] + 0.0722 * ch[2]
+  }
+  if (!HEX_RE.test(hex.trim())) return 0
+  const [hi, lo] = [lum(hex), lum(surface)].sort((a, b) => b - a)
+  return (hi + 0.05) / (lo + 0.05)
+}
+
 /** Neutral track behind a bar or meter. */
 export const MFC_TRACK = '#1E1E1E'
 

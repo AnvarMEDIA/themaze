@@ -655,6 +655,9 @@ const en: Dict = {
   // Column header, so it names the thing rather than continuing a sentence
   // the way the form label does.
   'mfc.colMethod': 'Payment method',
+  'mfc.colorCustom': 'Any colour',
+  'mfc.colorReset': 'Use a preset',
+  'mfc.colorFaint': 'Barely visible on the dark panel — a bar in this colour will be hard to see.',
   'mfc.save': 'Save',
   'mfc.saveAndNext': 'Save and add another',
   'mfc.saved': 'Saved',
@@ -1332,6 +1335,9 @@ const ru: Dict = {
   'mfc.pickDate': 'Выбрать дату',
   'mfc.method': 'Чем платили',
   'mfc.colMethod': 'Способ оплаты',
+  'mfc.colorCustom': 'Любой цвет',
+  'mfc.colorReset': 'Вернуть из набора',
+  'mfc.colorFaint': 'На тёмном фоне почти не видно — полосу такого цвета будет трудно разглядеть.',
   'mfc.save': 'Сохранить',
   'mfc.saveAndNext': 'Сохранить и добавить ещё',
   'mfc.saved': 'Сохранено',

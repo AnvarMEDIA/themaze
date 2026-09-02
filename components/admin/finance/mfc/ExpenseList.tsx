@@ -2,7 +2,7 @@
 
 import { useMemo } from 'react'
 import { formatMoney, txBase } from '@/lib/finance/money'
-import { chipColor } from '@/lib/mfc/palette'
+import { categoryColor } from '@/lib/mfc/palette'
 import type { Currency, FinanceSettings } from '@/lib/finance/types'
 import type { MfcCategory, MfcExpense } from '@/lib/mfc/types'
 import { useFinanceLang } from '../lang'
@@ -122,7 +122,7 @@ export function ExpenseList({
                   >
                     <span
                       className="w-9 h-9 shrink-0 rounded-full flex items-center justify-center text-[16px] leading-none"
-                      style={{ background: cat ? `${chipColor(cat.colorSlot)}26` : '#1A1A1A' }}
+                      style={{ background: cat ? `${categoryColor(cat)}26` : '#1A1A1A' }}
                       aria-hidden="true"
                     >
                       {cat?.icon ?? '·'}

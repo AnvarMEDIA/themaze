@@ -6,7 +6,7 @@ import toast from 'react-hot-toast'
 import { formatMoney } from '@/lib/finance/money'
 import type { Currency } from '@/lib/finance/types'
 import type { MfcCategory, MfcExpense } from '@/lib/mfc/types'
-import { chipColor } from '@/lib/mfc/palette'
+import { categoryColor } from '@/lib/mfc/palette'
 import { useFinanceLang } from '@/components/admin/finance/lang'
 import { CategoryForm } from '@/components/admin/finance/mfc/CategoryForm'
 import { catLabel, unlockHref } from '@/components/admin/finance/mfc/shared'
@@ -130,7 +130,7 @@ export default function MfcCategoriesPage() {
 
             <span
               className="w-10 h-10 shrink-0 rounded-full flex items-center justify-center text-[18px] leading-none"
-              style={{ background: `${chipColor(c.colorSlot)}26` }}
+              style={{ background: `${categoryColor(c)}26` }}
               aria-hidden="true"
             >
               {c.icon}

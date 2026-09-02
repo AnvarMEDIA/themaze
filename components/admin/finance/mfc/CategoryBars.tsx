@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import { formatMoney } from '@/lib/finance/money'
-import { MFC_TRACK, MFC_UNSORTED, chipColor } from '@/lib/mfc/palette'
+import { MFC_TRACK, MFC_UNSORTED, categoryColor } from '@/lib/mfc/palette'
 import type { Currency } from '@/lib/finance/types'
 import type { MfcCategoryTotal } from '@/lib/mfc/types'
 import { useFinanceLang } from '../lang'
@@ -51,7 +51,7 @@ export function CategoryBars({
   const key = (c: MfcCategoryTotal) => c.categoryId ?? '__none__'
   // Uncategorised spending is grey: it is the absence of a category, not one
   // more of them, and giving it a hue would promote it to a peer of the rest.
-  const tone = (c: MfcCategoryTotal) => (c.categoryId ? chipColor(c.colorSlot) : MFC_UNSORTED)
+  const tone = (c: MfcCategoryTotal) => (c.categoryId ? categoryColor(c) : MFC_UNSORTED)
 
   // How much of everything the leading few account for — the sentence a
   // person actually wants out of this panel.

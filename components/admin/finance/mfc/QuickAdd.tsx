@@ -4,7 +4,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import toast from 'react-hot-toast'
 import { CURRENCIES, PAYMENT_METHODS, type Currency, type PaymentMethod } from '@/lib/finance/types'
 import { CURRENCY_META, formatMoney } from '@/lib/finance/money'
-import { chipColor } from '@/lib/mfc/palette'
+import { categoryColor } from '@/lib/mfc/palette'
 import type { MfcCategory, MfcExpense } from '@/lib/mfc/types'
 import { useFinanceLang } from '../lang'
 import { activeCategories, catLabel, friendlyDate, todayIso, yesterdayIso } from './shared'
@@ -272,7 +272,7 @@ export function QuickAdd({
                   >
                     <span
                       className="w-9 h-9 rounded-full flex items-center justify-center text-[17px] leading-none"
-                      style={{ background: `${chipColor(c.colorSlot)}26` }}
+                      style={{ background: `${categoryColor(c)}26` }}
                       aria-hidden="true"
                     >
                       {c.icon}

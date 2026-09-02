@@ -1,6 +1,6 @@
 import { z } from 'zod'
 import { CURRENCIES, PAYMENT_METHODS, type Currency, type PaymentMethod } from '../finance/types'
-import { MFC_CHIP_SLOTS } from './palette'
+import { HEX_RE, MFC_CHIP_SLOTS, expandHex } from './palette'
 
 const str = (max: number) => z.string().trim().max(max, `Max ${max} characters`)
 const currencyEnum = z.enum([...CURRENCIES] as [Currency, ...Currency[]])
@@ -22,6 +22,21 @@ const colorSlot = z
   .min(0)
   .max(MFC_CHIP_SLOTS.length - 1, 'Unknown colour')
 
+/**
+ * A hand-picked colour, or nothing.
+ *
+ * Stored expanded and lower-cased so two spellings of the same colour never
+ * compare unequal, and refused unless it is a plain hex — this string goes
+ * straight into a `style` attribute, and `red; background-image: url(...)` is
+ * not a colour.
+ */
+const customColor = z
+  .string()
+  .trim()
+  .max(7)
+  .refine((v) => v === '' || HEX_RE.test(v), 'Use #rrggbb')
+  .transform((v) => (v === '' ? '' : expandHex(v)))
+
 /* ── Categories ──────────────────────────────────────────────────────────── */
 
 export const MfcCategorySchema = z.object({
@@ -31,6 +46,7 @@ export const MfcCategorySchema = z.object({
   // Roomy: this is a list that grows every time the bot learns a word.
   keywords:     str(600).default(''),
   colorSlot:    colorSlot.default(0),
+  color:        customColor.default(''),
   // Budgets are held in the base currency: a cap that moved with the dollar
   // would be a different cap every month.
   monthlyLimit: z.number().finite().min(0).max(1e15).default(0),

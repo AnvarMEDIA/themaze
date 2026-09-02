@@ -1,7 +1,7 @@
 'use client'
 
 import { formatMoney } from '@/lib/finance/money'
-import { MFC_BUDGET, MFC_TRACK, budgetTone, chipColor } from '@/lib/mfc/palette'
+import { MFC_BUDGET, MFC_TRACK, budgetTone, categoryColor } from '@/lib/mfc/palette'
 import type { Currency } from '@/lib/finance/types'
 import type { MfcBudgetLine } from '@/lib/mfc/types'
 import { useFinanceLang } from '../lang'
@@ -55,7 +55,7 @@ export function Budgets({
                 <div className="flex items-center gap-2.5 mb-1.5">
                   <span
                     className="w-6 h-6 shrink-0 rounded-full flex items-center justify-center text-[12px] leading-none"
-                    style={{ background: `${chipColor(b.colorSlot)}26` }}
+                    style={{ background: `${categoryColor(b)}26` }}
                     aria-hidden="true"
                   >
                     {b.icon}
