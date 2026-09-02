@@ -130,8 +130,16 @@ export function ExpenseList({
                       <p className="text-[13px] text-white truncate">
                         {catLabel(cat, lang, t('mfc.uncategorised'))}
                       </p>
-                      <p className="text-[11px] text-[#666] truncate">
-                        {e.note || t(`method.${e.method}`)}
+                      {/* The method leads and the note follows, rather than
+                          the two taking turns on this line: written as
+                          `note || method` the method vanished the moment a
+                          row had a note, which is most of them, and there was
+                          no way to see what was paid in cash. Leading also
+                          puts it in the same place on every row, so the
+                          column can be read straight down. */}
+                      <p className="text-[11px] truncate">
+                        <span className="text-[#7C7C7C]">{t(`method.${e.method}`)}</span>
+                        {e.note && <span className="text-[#5F5F5F]"> · {e.note}</span>}
                       </p>
                     </div>
 
