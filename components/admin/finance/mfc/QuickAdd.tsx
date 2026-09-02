@@ -181,16 +181,22 @@ export function QuickAdd({
 
       <div
         ref={panelRef}
-        className="relative w-full sm:max-w-md max-h-[92vh] sm:max-h-[88vh] overflow-y-auto overscroll-contain
+        // A column, not one long scroll. The whole sheet used to scroll, and
+        // with eighteen categories the grid alone filled a phone — the keypad,
+        // Save and Delete all sat below the fold, so every entry began by
+        // scrolling past the categories to reach the button. Now only the
+        // category grid scrolls, inside its own area, and everything needed to
+        // finish is always on screen.
+        className="relative w-full sm:max-w-md max-h-[92vh] sm:max-h-[88vh] flex flex-col overscroll-contain
                    rounded-t-3xl sm:rounded-2xl bg-[#0D0D0D] border-t sm:border border-[#232323] shadow-2xl mfc-sheet"
       >
         {/* Grab handle — the affordance that says "this pulls down" on a phone */}
-        <div className="sm:hidden pt-3 pb-1 flex justify-center">
+        <div className="sm:hidden pt-3 pb-1 flex justify-center shrink-0">
           <span className="w-10 h-1 rounded-full bg-[#2E2E2E]" />
         </div>
 
-        {/* Amount */}
-        <div className="px-5 pt-3 sm:pt-5 pb-4 border-b border-[#1A1A1A]">
+        {/* Amount — fixed: it is what the keypad is editing. */}
+        <div className="px-5 pt-3 sm:pt-5 pb-4 border-b border-[#1A1A1A] shrink-0">
           <div className="flex items-start justify-between gap-3">
             <div className="min-w-0">
               <p className="text-[11px] font-semibold tracking-[0.1em] uppercase text-[#5A5A5A] mb-1.5">
@@ -235,7 +241,13 @@ export function QuickAdd({
           </div>
         </div>
 
-        {/* Categories */}
+        {/* Everything that is INPUT scrolls together — the category grid and,
+            when it is open, the note/date/method row. Pinning the latter cost
+            154px on a small phone and pushed Save back off the screen, which
+            is the whole thing this layout exists to prevent. min-h-0 is what
+            lets a flex child actually shrink below its content. */}
+        <div className="flex-1 min-h-0 overflow-y-auto overscroll-contain">
+
         <div className="px-5 py-4 border-b border-[#1A1A1A]">
           <p className="text-[11px] font-semibold tracking-[0.1em] uppercase text-[#5A5A5A] mb-3">
             {t('mfc.category')}
@@ -341,8 +353,11 @@ export function QuickAdd({
           )}
         </div>
 
-        {/* Keypad + save */}
-        <div className="px-5 pt-4 pb-[max(1.25rem,env(safe-area-inset-bottom))]">
+        </div>
+
+        {/* Keypad, Save and Delete — pinned, so finishing an entry never
+            requires scrolling to find the button that does it. */}
+        <div className="px-5 pt-4 pb-[max(1.25rem,env(safe-area-inset-bottom))] shrink-0">
           <div className="grid grid-cols-3 gap-1.5">
             {['1', '2', '3', '4', '5', '6', '7', '8', '9', '.', '0', 'back'].map((k) => (
               <button
