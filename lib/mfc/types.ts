@@ -34,6 +34,17 @@ export interface MfcCategory {
   /** A single emoji. Emoji because it needs no icon font and reads at 16px. */
   icon: string
   /**
+   * What people write when they mean this category — "такси", "кофе",
+   * "бензин". Comma- or space-separated, either language.
+   *
+   * Category titles are nouns for a filing cabinet; messages are what was
+   * actually bought. Nobody types "Транспорт", they type "такси". These are
+   * how a Telegram message finds its category, and the bot appends to them
+   * whenever a category is chosen by hand for a word it did not recognise —
+   * so the list is both editable and self-teaching.
+   */
+  keywords: string
+  /**
    * Identity colour, as an index into MFC_CHIP_SLOTS. Stored as a slot rather
    * than a hex so the palette can be re-stepped without touching stored data —
    * and so a category can never be given an unvalidated colour.

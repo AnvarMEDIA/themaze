@@ -28,6 +28,8 @@ export const MfcCategorySchema = z.object({
   name:         str(60).min(1, 'Name is required'),
   nameRu:       str(60).default(''),
   icon,
+  // Roomy: this is a list that grows every time the bot learns a word.
+  keywords:     str(600).default(''),
   colorSlot:    colorSlot.default(0),
   // Budgets are held in the base currency: a cap that moved with the dollar
   // would be a different cap every month.

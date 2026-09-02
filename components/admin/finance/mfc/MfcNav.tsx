@@ -8,6 +8,7 @@ const TABS = [
   { href: '/admin/finance/mfc',            key: 'mfc.tabDash' },
   { href: '/admin/finance/mfc/expenses',   key: 'mfc.tabList' },
   { href: '/admin/finance/mfc/categories', key: 'mfc.tabCats' },
+  { href: '/admin/finance/mfc/telegram',   key: 'mfc.tabTelegram' },
 ]
 
 /**

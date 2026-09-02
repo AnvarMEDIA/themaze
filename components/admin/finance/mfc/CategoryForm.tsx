@@ -8,7 +8,7 @@ import { MFC_CHIP_SLOTS, chipColor } from '@/lib/mfc/palette'
 import type { Currency } from '@/lib/finance/types'
 import type { MfcCategory } from '@/lib/mfc/types'
 import { Modal } from '../Modal'
-import { Field, FormActions, Text, NumberField } from '../fields'
+import { Field, FormActions, Text, Area, NumberField } from '../fields'
 import { useFinanceLang } from '../lang'
 
 /**
@@ -36,6 +36,7 @@ export function CategoryForm({
   const [name, setName] = useState('')
   const [nameRu, setNameRu] = useState('')
   const [icon, setIcon] = useState<string>(ICON_CHOICES[0])
+  const [keywords, setKeywords] = useState('')
   const [colorSlot, setColorSlot] = useState(0)
   const [limit, setLimit] = useState('0')
   const [busy, setBusy] = useState(false)
@@ -45,6 +46,7 @@ export function CategoryForm({
     setName(editing?.name ?? '')
     setNameRu(editing?.nameRu ?? '')
     setIcon(editing?.icon || ICON_CHOICES[0])
+    setKeywords(editing?.keywords ?? '')
     setColorSlot(editing?.colorSlot ?? 0)
     setLimit(String(editing?.monthlyLimit ?? 0))
   }, [open, editing])
@@ -58,6 +60,7 @@ export function CategoryForm({
         name: name.trim(),
         nameRu: nameRu.trim(),
         icon,
+        keywords: keywords.trim(),
         colorSlot,
         monthlyLimit: Number(limit) || 0,
       })
@@ -162,6 +165,10 @@ export function CategoryForm({
 
         <Field label={t('mfc.limit')} hint={t('mfc.limitHint', { currency: baseCurrency })}>
           <NumberField value={limit} onChange={setLimit} placeholder="0" />
+        </Field>
+
+        <Field label={t('mfc.keywords')} hint={t('mfc.keywordsHint')}>
+          <Area value={keywords} onChange={setKeywords} rows={2} placeholder="такси, метро, автобус" />
         </Field>
 
         <FormActions busy={busy} onCancel={onClose} onDelete={editing ? remove : undefined} />

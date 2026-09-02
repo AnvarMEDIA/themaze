@@ -75,7 +75,11 @@ export async function listCategories(): Promise<MfcCategory[]> {
 }
 
 function sortCategories(rows: MfcCategory[]): MfcCategory[] {
-  return [...rows].sort((a, b) => a.order - b.order || a.name.localeCompare(b.name))
+  return [...rows]
+    // `keywords` arrived after the first categories were stored; a row written
+    // before it has none, and the matcher must not read undefined.
+    .map((c) => (c.keywords === undefined ? { ...c, keywords: '' } : c))
+    .sort((a, b) => a.order - b.order || a.name.localeCompare(b.name))
 }
 
 export async function getCategory(id: string): Promise<MfcCategory | null> {
