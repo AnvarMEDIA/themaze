@@ -12,6 +12,7 @@ import { PeriodPicker, type PeriodValue } from '@/components/admin/finance/Perio
 import { AddButton } from '@/components/admin/finance/mfc/MfcNav'
 import { QuickAdd } from '@/components/admin/finance/mfc/QuickAdd'
 import { ExpenseList } from '@/components/admin/finance/mfc/ExpenseList'
+import { ExpenseTable } from '@/components/admin/finance/mfc/ExpenseTable'
 import { catLabel, resolveWindow, windowQuery } from '@/components/admin/finance/mfc/shared'
 
 const PERIOD_KEY = 'maze_mfc_period'
@@ -164,15 +165,32 @@ export default function MfcExpensesPage() {
         </div>
       </div>
 
-      <ExpenseList
-        expenses={filtered}
-        categories={data.categories}
-        settings={settings}
-        stickyDays
-        onEdit={(e) => { setEditing(e); setAdding(true) }}
-        emptyTitle={data.expenses.length === 0 ? t('mfc.empty') : t('mfc.emptyPeriod')}
-        emptyHint={data.expenses.length === 0 ? t('mfc.emptyHint') : t('mfc.emptyPeriodHint')}
-      />
+      {/* One ledger, two shapes. The table is the point of a desktop: the
+          payment method, the note and the amount each get a column, so a
+          question like "what went on the card" is answered by reading down
+          one strip. A phone has no width to spare for columns, so it keeps
+          the list, where those same fields are stacked per row. */}
+      <div className="md:hidden">
+        <ExpenseList
+          expenses={filtered}
+          categories={data.categories}
+          settings={settings}
+          stickyDays
+          onEdit={(e) => { setEditing(e); setAdding(true) }}
+          emptyTitle={data.expenses.length === 0 ? t('mfc.empty') : t('mfc.emptyPeriod')}
+          emptyHint={data.expenses.length === 0 ? t('mfc.emptyHint') : t('mfc.emptyPeriodHint')}
+        />
+      </div>
+      <div className="hidden md:block">
+        <ExpenseTable
+          expenses={filtered}
+          categories={data.categories}
+          settings={settings}
+          onEdit={(e) => { setEditing(e); setAdding(true) }}
+          emptyTitle={data.expenses.length === 0 ? t('mfc.empty') : t('mfc.emptyPeriod')}
+          emptyHint={data.expenses.length === 0 ? t('mfc.emptyHint') : t('mfc.emptyPeriodHint')}
+        />
+      </div>
 
       <QuickAdd
         open={adding}

@@ -649,6 +649,9 @@ const en: Dict = {
   'mfc.yesterday': 'Yesterday',
   'mfc.pickDate': 'Pick a date',
   'mfc.method': 'Paid with',
+  // Column header, so it names the thing rather than continuing a sentence
+  // the way the form label does.
+  'mfc.colMethod': 'Payment method',
   'mfc.save': 'Save',
   'mfc.saveAndNext': 'Save and add another',
   'mfc.saved': 'Saved',
@@ -1324,6 +1327,7 @@ const ru: Dict = {
   'mfc.yesterday': 'Вчера',
   'mfc.pickDate': 'Выбрать дату',
   'mfc.method': 'Чем платили',
+  'mfc.colMethod': 'Способ оплаты',
   'mfc.save': 'Сохранить',
   'mfc.saveAndNext': 'Сохранить и добавить ещё',
   'mfc.saved': 'Сохранено',
