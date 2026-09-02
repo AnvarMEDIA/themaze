@@ -7,6 +7,29 @@ const isProd = process.env.NODE_ENV === 'production'
 
 // Build the script-src dynamically so we can drop 'unsafe-eval' in prod.
 // Next.js requires eval in dev for Fast Refresh, but not in production.
+/**
+ * Google Tag Manager and the analytics it usually carries.
+ *
+ * The GTM snippet in the layout is an INLINE script that injects a second,
+ * external one from googletagmanager.com. `'unsafe-inline'` let the first
+ * half run, and the missing host silently blocked the second — so the
+ * container was installed, referenced on every page, and never once loaded.
+ * Everything deployed through it (GA4, Search Console verification,
+ * conversions) was dead, and the only trace was a console line nobody reads.
+ *
+ * GA4's collection endpoints are listed too, because a container that loads
+ * and then has its every tag refused is the same failure one level down.
+ * Anything else added to the container later needs its host added here as
+ * well — that is the cost of having a CSP at all, and it is worth paying.
+ */
+const GTM = 'https://www.googletagmanager.com'
+const GA_ENDPOINTS = [
+  'https://www.google-analytics.com',
+  // Regional collectors: region1.google-analytics.com and friends.
+  'https://*.google-analytics.com',
+  'https://*.analytics.google.com',
+]
+
 const scriptSrc = [
   "'self'",
   "'unsafe-inline'",
@@ -16,17 +39,20 @@ const scriptSrc = [
   'https://mc.yandex.ru',
   'https://mc.yandex.com',
   'https://yastatic.net',
+  GTM,
+  'https://www.google-analytics.com',
 ].join(' ')
 
 const CSP = [
   "default-src 'self'",
   `script-src ${scriptSrc}`,
   "style-src 'self' 'unsafe-inline'",
-  "img-src 'self' data: blob: https://*.vercel-storage.com https://images.unsplash.com https://mc.yandex.ru https://mc.yandex.com https://yastatic.net",
+  `img-src 'self' data: blob: https://*.vercel-storage.com https://images.unsplash.com https://mc.yandex.ru https://mc.yandex.com https://yastatic.net ${GTM} https://www.google-analytics.com`,
   "font-src 'self'",
-  "connect-src 'self' https://vitals.vercel-insights.com https://va.vercel-scripts.com https://mc.yandex.ru https://mc.yandex.com https://yastatic.net",
-  // Yandex Metrika injects a hidden iframe for cross-domain ID sync.
-  "frame-src 'self' https://mc.yandex.ru https://mc.yandex.com",
+  `connect-src 'self' https://vitals.vercel-insights.com https://va.vercel-scripts.com https://mc.yandex.ru https://mc.yandex.com https://yastatic.net ${GTM} ${GA_ENDPOINTS.join(' ')}`,
+  // Yandex Metrika injects a hidden iframe for cross-domain ID sync; GTM's
+  // <noscript> fallback is an iframe on ns.html.
+  `frame-src 'self' https://mc.yandex.ru https://mc.yandex.com ${GTM}`,
   "frame-ancestors 'none'",
   "form-action 'self'",
   "base-uri 'self'",
