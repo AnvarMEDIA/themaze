@@ -6,6 +6,21 @@ import { useFinanceLang, LangToggle } from '@/components/admin/finance/lang'
 
 type Mode = 'loading' | 'set' | 'enter'
 
+/**
+ * Where to go once the vault is open.
+ *
+ * One password guards two sections now — Finance and MFC — so the screen that
+ * sent you here says where to return via `?next=`. Only a path inside the
+ * panel is honoured, and never a protocol-relative one: `//evil.example` is a
+ * valid URL to a browser and would turn this into an open redirect.
+ */
+function destination(): string {
+  if (typeof window === 'undefined') return '/admin/finance'
+  const next = new URLSearchParams(window.location.search).get('next') ?? ''
+  const safe = next.startsWith('/admin/') && !next.startsWith('//') && !next.includes('/unlock')
+  return safe ? next : '/admin/finance'
+}
+
 export default function FinanceUnlockPage() {
   const { t } = useFinanceLang()
   const [mode, setMode] = useState<Mode>('loading')
@@ -18,7 +33,7 @@ export default function FinanceUnlockPage() {
     fetch('/api/finance/status', { cache: 'no-store' })
       .then((r) => (r.ok ? r.json() : { passwordSet: false, unlocked: false }))
       .then((d: { passwordSet: boolean; unlocked: boolean }) => {
-        if (d.unlocked) { window.location.href = '/admin/finance'; return }
+        if (d.unlocked) { window.location.href = destination(); return }
         setMode(d.passwordSet ? 'enter' : 'set')
       })
       .catch(() => setMode('enter'))
@@ -42,7 +57,7 @@ export default function FinanceUnlockPage() {
               body: JSON.stringify({ password: pw }),
             })
 
-      if (res.ok) { window.location.href = '/admin/finance'; return }
+      if (res.ok) { window.location.href = destination(); return }
 
       const data = await res.json().catch(() => ({})) as { error?: string }
       if (res.status === 429) toast.error(t('unlock.tooMany'))

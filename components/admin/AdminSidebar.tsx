@@ -29,6 +29,10 @@ const NAV = [
     group: 'Business',
     items: [
       { href: '/admin/finance',   label: 'Finance',    icon: IconFinance },
+      // Personal spending. Its own section, not a tab of Finance: the studio's
+      // books and one person's expenses are different subjects, and this one
+      // is opened several times a day.
+      { href: '/admin/mfc',       label: 'MFC',        icon: IconWallet  },
     ],
   },
   {
@@ -240,6 +244,16 @@ function IconFinance({ size = 16 }: { size?: number }) {
       <ellipse cx="8" cy="4" rx="5.2" ry="2.2" stroke="currentColor" strokeWidth="1.4" opacity=".85" />
       <path d="M2.8 4v4c0 1.2 2.33 2.2 5.2 2.2s5.2-1 5.2-2.2V4" stroke="currentColor" strokeWidth="1.4" opacity=".55" />
       <path d="M2.8 8v4c0 1.2 2.33 2.2 5.2 2.2s5.2-1 5.2-2.2V8" stroke="currentColor" strokeWidth="1.4" opacity=".4" />
+    </svg>
+  )
+}
+
+function IconWallet({ size = 16 }: { size?: number }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 16 16" fill="none">
+      <rect x="1.5" y="3.5" width="13" height="9.5" rx="2" stroke="currentColor" strokeWidth="1.4" opacity=".85" />
+      <path d="M1.5 6.5h13" stroke="currentColor" strokeWidth="1.4" opacity=".5" />
+      <circle cx="11.5" cy="9.75" r="1" fill="currentColor" />
     </svg>
   )
 }

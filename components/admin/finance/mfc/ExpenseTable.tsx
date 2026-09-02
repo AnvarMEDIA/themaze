@@ -73,7 +73,7 @@ export function ExpenseTable({
             {/* Sticky on the cells rather than the row — the row-level version
                 is ignored by parts of Safari, and a header that scrolls away
                 takes the meaning of the columns with it.
-                Where the MFC tab strip ends once both nav bars are pinned. */}
+                The offset is where the MFC bar ends. */}
             {[
               { key: 'cat',    label: t('mfc.category'),   cls: 'px-5 w-[34%]' },
               { key: 'method', label: t('mfc.colMethod'),  cls: 'px-3 w-[18%]' },
@@ -82,7 +82,7 @@ export function ExpenseTable({
             ].map((c) => (
               <th
                 key={c.key}
-                className={`sticky top-[162px] lg:top-[106px] z-10 bg-[#0B0B0B]/95 backdrop-blur
+                className={`sticky top-[113px] lg:top-[57px] z-10 bg-[#0B0B0B]/95 backdrop-blur
                             border-b border-[#1A1A1A] font-medium py-3 ${c.cls}`}
               >
                 {c.label}

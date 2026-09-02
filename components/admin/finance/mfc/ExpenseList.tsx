@@ -88,9 +88,11 @@ export function ExpenseList({
         <section key={g.date}>
           {showDayHeaders && <header
             className={`flex items-baseline justify-between gap-3 px-5 py-2 bg-[#0B0B0B]/95 backdrop-blur border-y border-[#161616] ${
-              // Where the MFC tab strip ends once both nav bars are pinned —
-              // measured, not guessed (see MfcNav for the two above it).
-              stickyDays ? 'sticky top-[162px] lg:top-[106px] z-10' : ''
+              // Where the MFC bar ends, hairline included: the admin shell's
+              // mobile header (56) + the section bar (56) + its border (1) on
+              // a phone; the section bar alone once the sidebar takes over
+              // from lg up. A pixel less and the header covers that hairline.
+              stickyDays ? 'sticky top-[113px] lg:top-[57px] z-10' : ''
             } ${gi === 0 ? 'rounded-t-xl border-t-0' : ''}`}
           >
             <span className="text-[11px] font-semibold tracking-[0.08em] uppercase text-[#6A6A6A]">

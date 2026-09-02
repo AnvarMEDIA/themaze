@@ -50,6 +50,19 @@ export function friendlyDate(
 export const activeCategories = (rows: MfcCategory[]): MfcCategory[] =>
   rows.filter((c) => !c.archived)
 
+/**
+ * Where to send someone whose finance session has lapsed, and how to get them
+ * back afterwards.
+ *
+ * The vault is shared with Finance, so the door is the same one — but MFC is
+ * its own section now, and being dropped into the studio's books after typing
+ * a password is a small betrayal of what you were doing.
+ */
+export function unlockHref(from?: string): string {
+  const next = from ?? (typeof window === 'undefined' ? '' : window.location.pathname)
+  return next ? `/admin/finance/unlock?next=${encodeURIComponent(next)}` : '/admin/finance/unlock'
+}
+
 /* ── reporting window ───────────────────────────────────────────────────── */
 
 /**

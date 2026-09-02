@@ -13,7 +13,7 @@ import { AddButton } from '@/components/admin/finance/mfc/MfcNav'
 import { QuickAdd } from '@/components/admin/finance/mfc/QuickAdd'
 import { ExpenseList } from '@/components/admin/finance/mfc/ExpenseList'
 import { ExpenseTable } from '@/components/admin/finance/mfc/ExpenseTable'
-import { catLabel, resolveWindow, windowQuery } from '@/components/admin/finance/mfc/shared'
+import { catLabel, resolveWindow, unlockHref, windowQuery } from '@/components/admin/finance/mfc/shared'
 
 const PERIOD_KEY = 'maze_mfc_period'
 const DEFAULT_PERIOD: PeriodValue = { preset: 'month', from: '', to: '' }
@@ -50,7 +50,7 @@ export default function MfcExpensesPage() {
 
   const load = useCallback(async () => {
     const res = await fetch('/api/finance/mfc/ledger', { cache: 'no-store' })
-    if (res.status === 401) { router.push('/admin/finance/unlock'); return }
+    if (res.status === 401) { router.push(unlockHref()); return }
     setData(await res.json())
     setLoading(false)
   }, [router])
@@ -59,7 +59,7 @@ export default function MfcExpensesPage() {
 
   const remove = useCallback(async (e: MfcExpense) => {
     const res = await fetch(`/api/finance/mfc/expenses/${e.id}`, { method: 'DELETE' })
-    if (res.status === 401) { router.push('/admin/finance/unlock'); return }
+    if (res.status === 401) { router.push(unlockHref()); return }
     if (!res.ok) { toast.error(t('toast.deleteFail')); return }
     toast.success(t('mfc.deleted'))
     setAdding(false)

@@ -14,9 +14,9 @@ const TABS = [
   { href: '/admin/finance/clients',      key: 'nav.clients' },
   { href: '/admin/finance/recurring',    key: 'nav.recurring' },
   { href: '/admin/finance/reports',      key: 'nav.reports' },
-  // Personal spending. Last before Settings because it is a different subject
-  // from everything to its left — the studio's books end here.
-  { href: '/admin/finance/mfc',          key: 'nav.mfc' },
+  // Personal spending (MFC) used to sit here. It is a section of its own now,
+  // in the sidebar next to Finance: a different subject from everything on
+  // this strip, and one reached often enough not to be two rows deep.
   { href: '/admin/finance/settings',     key: 'nav.settings' },
 ]
 

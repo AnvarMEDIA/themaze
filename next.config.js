@@ -82,6 +82,19 @@ const nextConfig = {
       },
     ]
   },
+  async redirects() {
+    return [
+      // MFC moved out of Finance into a section of its own. Bookmarks and the
+      // browser's own address-bar history still point at the old paths, and a
+      // 404 on the screen someone opens several times a day is not an
+      // acceptable way to tell them something was reorganised.
+      //
+      // Temporary (307), not permanent: a 308 is cached by browsers forever,
+      // and a URL under /admin should stay ours to reuse.
+      { source: '/admin/finance/mfc', destination: '/admin/mfc', permanent: false },
+      { source: '/admin/finance/mfc/:path*', destination: '/admin/mfc/:path*', permanent: false },
+    ]
+  },
 }
 
 const withIntl = withNextIntl(nextConfig)

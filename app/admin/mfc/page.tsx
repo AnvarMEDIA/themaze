@@ -17,7 +17,7 @@ import { TrendBars } from '@/components/admin/finance/mfc/TrendBars'
 import { DayDetail } from '@/components/admin/finance/mfc/DayDetail'
 import { Budgets } from '@/components/admin/finance/mfc/Budgets'
 import { ExpenseList } from '@/components/admin/finance/mfc/ExpenseList'
-import { catLabel, friendlyDate, resolveWindow, windowQuery } from '@/components/admin/finance/mfc/shared'
+import { catLabel, friendlyDate, resolveWindow, unlockHref, windowQuery } from '@/components/admin/finance/mfc/shared'
 
 // Its own remembered period, deliberately not the studio dashboard's: personal
 // spending is looked at by the month, company figures by the year, and sharing
@@ -55,7 +55,7 @@ export default function MfcDashboard() {
       fetch(`/api/finance/mfc/summary?${windowQuery(resolveWindow(period))}`, { cache: 'no-store' }),
       fetch('/api/finance/mfc/categories', { cache: 'no-store' }),
     ])
-    if (s.status === 401 || c.status === 401) { router.push('/admin/finance/unlock'); return }
+    if (s.status === 401 || c.status === 401) { router.push(unlockHref()); return }
     setSum(await s.json())
     setCats(await c.json())
     setLoading(false)
@@ -67,7 +67,7 @@ export default function MfcDashboard() {
   // row to the edit sheet, and the edit sheet is where it can be removed.
   const remove = useCallback(async (e: MfcExpense) => {
     const res = await fetch(`/api/finance/mfc/expenses/${e.id}`, { method: 'DELETE' })
-    if (res.status === 401) { router.push('/admin/finance/unlock'); return }
+    if (res.status === 401) { router.push(unlockHref()); return }
     if (!res.ok) { toast.error(t('toast.deleteFail')); return }
     toast.success(t('mfc.deleted'))
     setAdding(false)
@@ -192,7 +192,7 @@ export default function MfcDashboard() {
               <div className="flex items-baseline justify-between gap-3 mb-2.5 px-1">
                 <h2 className="text-sm font-semibold text-white">{t('mfc.recent')}</h2>
                 <Link
-                  href="/admin/finance/mfc/expenses"
+                  href="/admin/mfc/expenses"
                   className="text-[12px] text-[#888] hover:text-[#C8FF47] transition-colors"
                 >
                   {t('common.viewAll')}

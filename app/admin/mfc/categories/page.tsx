@@ -9,7 +9,7 @@ import type { MfcCategory, MfcExpense } from '@/lib/mfc/types'
 import { chipColor } from '@/lib/mfc/palette'
 import { useFinanceLang } from '@/components/admin/finance/lang'
 import { CategoryForm } from '@/components/admin/finance/mfc/CategoryForm'
-import { catLabel } from '@/components/admin/finance/mfc/shared'
+import { catLabel, unlockHref } from '@/components/admin/finance/mfc/shared'
 
 export default function MfcCategoriesPage() {
   const router = useRouter()
@@ -25,7 +25,7 @@ export default function MfcCategoriesPage() {
 
   const load = useCallback(async () => {
     const res = await fetch('/api/finance/mfc/ledger', { cache: 'no-store' })
-    if (res.status === 401) { router.push('/admin/finance/unlock'); return }
+    if (res.status === 401) { router.push(unlockHref()); return }
     const data = await res.json()
     setCats(data.categories)
     setExpenses(data.expenses)

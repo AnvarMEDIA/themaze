@@ -4,6 +4,7 @@ import { useCallback, useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import toast from 'react-hot-toast'
 import { useFinanceLang } from '@/components/admin/finance/lang'
+import { unlockHref } from '@/components/admin/finance/mfc/shared'
 
 interface Status {
   hasToken: boolean
@@ -26,7 +27,7 @@ export default function MfcTelegramPage() {
 
   const load = useCallback(async () => {
     const res = await fetch('/api/finance/mfc/telegram/setup', { cache: 'no-store' })
-    if (res.status === 401) { router.push('/admin/finance/unlock'); return }
+    if (res.status === 401) { router.push(unlockHref()); return }
     setSt(await res.json())
   }, [router])
 
