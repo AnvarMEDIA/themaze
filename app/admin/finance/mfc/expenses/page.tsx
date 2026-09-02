@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useRouter } from 'next/navigation'
+import toast from 'react-hot-toast'
 import { formatMoney, txBase } from '@/lib/finance/money'
 import { inPeriod } from '@/lib/finance/period'
 import type { Currency, FinanceSettings } from '@/lib/finance/types'
@@ -54,6 +55,16 @@ export default function MfcExpensesPage() {
   }, [router])
 
   useEffect(() => { if (ready) load() }, [ready, load])
+
+  const remove = useCallback(async (e: MfcExpense) => {
+    const res = await fetch(`/api/finance/mfc/expenses/${e.id}`, { method: 'DELETE' })
+    if (res.status === 401) { router.push('/admin/finance/unlock'); return }
+    if (!res.ok) { toast.error(t('toast.deleteFail')); return }
+    toast.success(t('mfc.deleted'))
+    setAdding(false)
+    setEditing(null)
+    await load()
+  }, [router, t, load])
 
   const changePeriod = (p: PeriodValue) => {
     setPeriod(p)
@@ -170,44 +181,8 @@ export default function MfcExpensesPage() {
         baseCurrency={cur}
         editing={editing}
         onSaved={load}
+        onDelete={remove}
       />
-
-      {editing && (
-        <DeleteBar
-          expense={editing}
-          onDeleted={() => { setEditing(null); setAdding(false); load() }}
-        />
-      )}
     </div>
-  )
-}
-
-/**
- * Deleting lives outside the add sheet: the sheet is a keypad, and putting a
- * destructive action next to a grid of big tappable targets is how a row gets
- * deleted by accident.
- */
-function DeleteBar({ expense, onDeleted }: { expense: MfcExpense; onDeleted: () => void }) {
-  const { t } = useFinanceLang()
-  const [busy, setBusy] = useState(false)
-
-  const remove = async () => {
-    setBusy(true)
-    const res = await fetch(`/api/finance/mfc/expenses/${expense.id}`, { method: 'DELETE' })
-    setBusy(false)
-    if (res.ok) onDeleted()
-  }
-
-  return (
-    <button
-      type="button"
-      onClick={remove}
-      disabled={busy}
-      className="fixed left-4 bottom-[max(1rem,env(safe-area-inset-bottom))] z-[120] sm:left-auto sm:right-24
-                 px-4 h-11 rounded-xl bg-[#1A1010] border border-[#3A1D1D] text-[13px] font-medium text-[#E27A5C]
-                 transition-colors duration-150 hover:bg-[#241414] active:scale-[0.97] disabled:opacity-50"
-    >
-      {t('common.delete')}
-    </button>
   )
 }

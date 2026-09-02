@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useRouter } from 'next/navigation'
+import toast from 'react-hot-toast'
 import Link from 'next/link'
 import { formatMoney } from '@/lib/finance/money'
 import type { FinanceSettings } from '@/lib/finance/types'
@@ -61,6 +62,18 @@ export default function MfcDashboard() {
   }, [router, period])
 
   useEffect(() => { if (ready) load() }, [ready, load])
+
+  // Reached from a day opened out of the trend chart: the day sheet hands the
+  // row to the edit sheet, and the edit sheet is where it can be removed.
+  const remove = useCallback(async (e: MfcExpense) => {
+    const res = await fetch(`/api/finance/mfc/expenses/${e.id}`, { method: 'DELETE' })
+    if (res.status === 401) { router.push('/admin/finance/unlock'); return }
+    if (!res.ok) { toast.error(t('toast.deleteFail')); return }
+    toast.success(t('mfc.deleted'))
+    setAdding(false)
+    setEditing(null)
+    await load()
+  }, [router, t, load])
 
   const changePeriod = (p: PeriodValue) => {
     setPeriod(p)
@@ -219,6 +232,7 @@ export default function MfcDashboard() {
         baseCurrency={cur}
         editing={editing}
         onSaved={load}
+        onDelete={remove}
       />
     </div>
   )

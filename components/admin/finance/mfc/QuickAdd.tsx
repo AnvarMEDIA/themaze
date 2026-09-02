@@ -29,6 +29,7 @@ export function QuickAdd({
   baseCurrency,
   editing,
   onSaved,
+  onDelete,
 }: {
   open: boolean
   onClose: () => void
@@ -37,6 +38,12 @@ export function QuickAdd({
   /** Present when editing an existing row rather than adding a new one. */
   editing?: MfcExpense | null
   onSaved: () => void
+  /**
+   * Removing the row being edited. Lives here rather than on the list, so
+   * there is one place to delete from wherever a row was opened — the ledger,
+   * or a day out of the chart.
+   */
+  onDelete?: (e: MfcExpense) => void | Promise<void>
 }) {
   const { t, lang, locale } = useFinanceLang()
 
@@ -373,7 +380,24 @@ export function QuickAdd({
                 : amount > 0 ? t('mfc.needCategory') : t('mfc.needAmount')}
           </button>
 
-          {!editing && (
+          {/* One slot, two jobs: adding offers another row, editing offers to
+              remove this one. Deliberately below the keypad and quiet — a
+              destructive action does not belong beside a grid of big targets
+              a thumb is already moving across. */}
+          {editing ? (
+            <button
+              type="button"
+              onClick={() => {
+                if (window.confirm(t('mfc.confirmDelete'))) onDelete?.(editing)
+              }}
+              disabled={busy || !onDelete}
+              className="w-full mt-2 h-10 rounded-xl text-[13px] font-medium text-[#E27A5C]
+                         transition-colors duration-150 hover:bg-red-500/10
+                         active:scale-[0.98] disabled:opacity-40 disabled:pointer-events-none"
+            >
+              {t('common.delete')}
+            </button>
+          ) : (
             <button
               type="button"
               onClick={() => save(true)}
