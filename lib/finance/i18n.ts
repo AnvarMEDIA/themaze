@@ -617,6 +617,9 @@ const en: Dict = {
   'mfc.tapDay': 'Tap a day',
   'mfc.tapMonth': 'Tap a month',
   'mfc.uncategorised': 'Uncategorised',
+  // The tail of the composition strip: the small categories folded
+  // together, which is not the same thing as spending with no category.
+  'mfc.otherCats': '{n} smaller categories',
   'mfc.share': 'share',
   'mfc.times': '{n}×',
 
@@ -1295,6 +1298,7 @@ const ru: Dict = {
   'mfc.tapDay': 'Нажмите на день',
   'mfc.tapMonth': 'Нажмите на месяц',
   'mfc.uncategorised': 'Без категории',
+  'mfc.otherCats': 'Ещё {n} категорий',
   'mfc.share': 'доля',
   'mfc.times': '{n}×',
 

@@ -4,25 +4,35 @@
  *
  * Two palettes doing two different jobs:
  *
- *  · MFC_RAMP is a SEQUENTIAL ramp. It colours the composition bar and the
- *    ranked category bars, where colour encodes magnitude (biggest slice is
- *    brightest) and identity comes from the label beside it. Validated as an
- *    ordinal ramp: monotone lightness, visible steps, the darkest step still
- *    at 3.18:1 against the surface.
+ *  · MFC_CHIP_SLOTS is CATEGORICAL: a colour belongs to a category, the way a
+ *    folder has one. It paints the disc behind the category's emoji, its bar
+ *    in "where it goes", and its segment of the composition strip — the same
+ *    hue in all three, so the eye can join them without being told.
  *
- *  · MFC_CHIP_SLOTS is a CATEGORICAL set used only for the little coloured
- *    disc behind a category's emoji. That is UI identity — the way a folder
- *    has a colour — never a data encoding, so two categories sharing a hue
- *    costs nothing.
+ *  · MFC_RAMP is a SEQUENTIAL ramp, for magnitude over time: the trend chart's
+ *    columns. Validated as an ordinal ramp — monotone lightness, visible
+ *    steps, the darkest still at 3.18:1 against the surface.
  *
- * There is deliberately NO pie or donut here, though every expense app has
- * one. Spending splits across ~18 categories, and the palette validator is
- * unambiguous about what that costs: on this surface no set of five or more
- * hues clears the colour-blindness floors when slices can land in any order
- * (the best six-hue subset measures ΔE 2.7 against a floor of 8; the best
- * four, ΔE 6.9). A ring of near-identical wedges is a picture of a chart, not
- * a reading of one. A ranked bar list says the same thing, in one hue, with
- * every row named and priced — and it still works at twenty categories.
+ * What the categorical set is and is not good for, measured rather than
+ * argued (dataviz validator, dark, surface #0D0D0D):
+ *
+ *   adjacent pairs → all six checks PASS
+ *   all pairs      → FAIL: #e66767 ↔ #d95926 at ΔE 7.1 for normal vision,
+ *                    #d55181 ↔ #199e70 at ΔE 1.6 for deuteranopia
+ *
+ * Any two of the eight can end up side by side once rows are ranked, so the
+ * all-pairs number is the one that governs — and it says colour cannot be
+ * asked to carry identity here. It isn't: every bar sits on its own row with
+ * the category's emoji, name, amount, share and count beside it, and length
+ * carries the magnitude. Colour is reinforcement. Two categories in a similar
+ * red cost nothing, because nobody has to tell them apart by hue.
+ *
+ * That is exactly why there is still NO pie or donut, though every expense app
+ * has one. In a ring the wedge IS the label, and those same numbers become the
+ * whole reading: the best six-hue subset measures ΔE 2.7 against a floor of 8,
+ * the best four 6.9. A ring of near-identical wedges is a picture of a chart,
+ * not a reading of one. The ranked list says the same thing, names every row,
+ * and still works at twenty categories.
  */
 
 /**
@@ -40,14 +50,13 @@ export const MFC_RAMP = [
   '#2E700C',
 ] as const
 
-/** Everything past the ramp's length shares its last step. */
-export function rampStep(rank: number): string {
-  return MFC_RAMP[Math.min(Math.max(rank, 0), MFC_RAMP.length - 1)]
-}
-
 /**
- * Identity discs. The reference categorical order, stepped for a dark
+ * Category colours. The reference categorical order, stepped for a dark
  * surface; verified on #0D0D0D (adjacent pairs: all six checks pass).
+ *
+ * A slot is stored on the category and never recomputed, so a colour follows
+ * the entity rather than its rank — changing the period reorders the list
+ * without repainting anything.
  */
 export const MFC_CHIP_SLOTS = [
   '#3987e5', // blue
@@ -69,6 +78,14 @@ export function chipColor(slot: number): string {
 
 /** Neutral track behind a bar or meter. */
 export const MFC_TRACK = '#1E1E1E'
+
+/**
+ * Spending with no category yet, and the tail the composition strip folds
+ * together. Grey on purpose — it is the absence of a category, not one more
+ * of them — and light enough to read as a mark: 3.6:1 on the surface, 3.1:1
+ * against the track it sits in.
+ */
+export const MFC_UNSORTED = '#6A6A6A'
 
 /**
  * Budget states. Status colours, reserved — never reused as series colours,
