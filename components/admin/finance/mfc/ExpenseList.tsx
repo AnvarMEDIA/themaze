@@ -26,6 +26,7 @@ export function ExpenseList({
   emptyTitle,
   emptyHint,
   stickyDays = false,
+  showDayHeaders = true,
 }: {
   expenses: MfcExpense[]
   categories: MfcCategory[]
@@ -33,6 +34,12 @@ export function ExpenseList({
   onEdit?: (e: MfcExpense) => void
   emptyTitle: string
   emptyHint: string
+  /**
+   * Off when the surrounding screen already names the day — the day-detail
+   * sheet puts the date and the total in its own header, and repeating both
+   * one line below reads as a mistake.
+   */
+  showDayHeaders?: boolean
   /**
    * Pin the day header while scrolling. Worth it on the full ledger, where a
    * day can run past a screen; wrong in the dashboard's short "recent" panel,
@@ -79,7 +86,7 @@ export function ExpenseList({
     <div className={`rounded-xl bg-[#0D0D0D] border border-[#1E1E1E] ${stickyDays ? '' : 'overflow-hidden'}`}>
       {groups.map((g, gi) => (
         <section key={g.date}>
-          <header
+          {showDayHeaders && <header
             className={`flex items-baseline justify-between gap-3 px-5 py-2 bg-[#0B0B0B]/95 backdrop-blur border-y border-[#161616] ${
               // Where the MFC tab strip ends once both nav bars are pinned —
               // measured, not guessed (see MfcNav for the two above it).
@@ -92,7 +99,7 @@ export function ExpenseList({
             <span className="text-[11px] text-[#8A8A8A] tabular-nums">
               {formatMoney(g.total, base, { locale })}
             </span>
-          </header>
+          </header>}
 
           <ul>
             {g.rows.map((e, ri) => {

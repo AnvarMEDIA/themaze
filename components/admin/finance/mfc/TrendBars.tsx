@@ -21,10 +21,13 @@ export function TrendBars({
   buckets,
   granularity,
   currency,
+  onSelect,
 }: {
   buckets: MfcBucket[]
   granularity: 'day' | 'month'
   currency: Currency
+  /** Opening one column: the bucket's key, YYYY-MM-DD or YYYY-MM. */
+  onSelect?: (key: string) => void
 }) {
   const { t, locale, month } = useFinanceLang()
   const [hover, setHover] = useState<number | null>(null)
@@ -51,11 +54,19 @@ export function TrendBars({
 
   return (
     <div className="rounded-xl bg-[#0D0D0D] border border-[#1E1E1E] p-5">
+      {/* The heading IS the scale. "Over time · By day" said the same thing
+          twice, and the second half is the part that answers what a column is
+          — so it takes the title, and still tells the truth on a long period
+          where the columns are months. */}
       <div className="flex items-baseline justify-between gap-3 mb-1">
-        <h2 className="text-sm font-semibold text-white">{t('mfc.overTime')}</h2>
-        <span className="text-[11px] text-[#5A5A5A]">
+        <h2 className="text-sm font-semibold text-white">
           {granularity === 'day' ? t('mfc.byDay') : t('mfc.byMonth')}
-        </span>
+        </h2>
+        {onSelect && (
+          <span className="text-[11px] text-[#5A5A5A]">
+            {granularity === 'day' ? t('mfc.tapDay') : t('mfc.tapMonth')}
+          </span>
+        )}
       </div>
 
       {/* The readout sits above the chart so a finger on a phone never covers
@@ -72,10 +83,13 @@ export function TrendBars({
       </div>
 
       <div className="flex items-end gap-[2px] h-28" role="img"
-           aria-label={`${t('mfc.overTime')}: ${buckets.length} ${granularity === 'day' ? 'days' : 'months'}`}>
+           aria-label={`${granularity === 'day' ? t('mfc.byDay') : t('mfc.byMonth')}: ${buckets.length}`}>
         {buckets.map((b, i) => {
           const h = max > 0 ? (b.total / max) * 100 : 0
           const isToday = granularity === 'day' && b.key === today
+          // A column with nothing in it has nothing to open. Leaving it
+          // clickable would answer a tap with an empty sheet.
+          const openable = Boolean(onSelect) && b.count > 0
           return (
             <button
               key={b.key}
@@ -84,10 +98,17 @@ export function TrendBars({
               onMouseLeave={() => setHover(null)}
               onFocus={() => setHover(i)}
               onBlur={() => setHover(null)}
+              onClick={openable ? () => onSelect!(b.key) : undefined}
               // A whole-height target, so a 3px-tall column is still tappable.
-              className="flex-1 h-full flex items-end min-w-[3px] group"
+              className={`flex-1 h-full flex items-end min-w-[3px] group ${
+                openable ? 'cursor-pointer' : 'cursor-default'
+              }`}
               title={`${fullLabel(b.key)} · ${money(b.total)}`}
-              aria-label={`${fullLabel(b.key)}: ${money(b.total)}`}
+              aria-label={
+                openable
+                  ? `${fullLabel(b.key)}: ${money(b.total)} — ${t('mfc.times', { n: b.count })}`
+                  : `${fullLabel(b.key)}: ${money(b.total)}`
+              }
             >
               <span
                 className="w-full rounded-[3px] transition-all duration-150"

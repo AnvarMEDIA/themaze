@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { formatMoney } from '@/lib/finance/money'
 import type { FinanceSettings } from '@/lib/finance/types'
-import type { MfcCategory, MfcSummary } from '@/lib/mfc/types'
+import type { MfcCategory, MfcExpense, MfcSummary } from '@/lib/mfc/types'
 import { useFinanceLang } from '@/components/admin/finance/lang'
 import { PeriodPicker, type PeriodValue } from '@/components/admin/finance/PeriodPicker'
 import { Delta } from '@/components/admin/finance/Delta'
@@ -13,6 +13,7 @@ import { AddButton } from '@/components/admin/finance/mfc/MfcNav'
 import { QuickAdd } from '@/components/admin/finance/mfc/QuickAdd'
 import { CategoryBars } from '@/components/admin/finance/mfc/CategoryBars'
 import { TrendBars } from '@/components/admin/finance/mfc/TrendBars'
+import { DayDetail } from '@/components/admin/finance/mfc/DayDetail'
 import { Budgets } from '@/components/admin/finance/mfc/Budgets'
 import { ExpenseList } from '@/components/admin/finance/mfc/ExpenseList'
 import { catLabel, friendlyDate, resolveWindow, windowQuery } from '@/components/admin/finance/mfc/shared'
@@ -32,6 +33,9 @@ export default function MfcDashboard() {
   const [ready, setReady] = useState(false)
   const [loading, setLoading] = useState(true)
   const [adding, setAdding] = useState(false)
+  const [editing, setEditing] = useState<MfcExpense | null>(null)
+  /** The trend column that has been opened, as its bucket key. */
+  const [openBucket, setOpenBucket] = useState<string | null>(null)
 
   useEffect(() => {
     try {
@@ -160,7 +164,12 @@ export default function MfcDashboard() {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
           <div className="lg:col-span-2 space-y-4">
             <CategoryBars categories={sum.categories} total={sum.total} currency={cur} />
-            <TrendBars buckets={sum.buckets} granularity={sum.granularity} currency={cur} />
+            <TrendBars
+              buckets={sum.buckets}
+              granularity={sum.granularity}
+              currency={cur}
+              onSelect={setOpenBucket}
+            />
           </div>
 
           <div className="space-y-4">
@@ -192,11 +201,23 @@ export default function MfcDashboard() {
         <span className="text-[#666]">{t('mfc.aboutTitle')}.</span> {t('mfc.aboutBody')}
       </p>
 
+      {/* What a column of the trend chart was made of. */}
+      <DayDetail
+        open={openBucket !== null}
+        bucketKey={openBucket}
+        granularity={sum.granularity}
+        categories={cats}
+        settings={settings}
+        onClose={() => setOpenBucket(null)}
+        onEdit={(e) => { setEditing(e); setAdding(true) }}
+      />
+
       <QuickAdd
         open={adding}
-        onClose={() => setAdding(false)}
+        onClose={() => { setAdding(false); setEditing(null) }}
         categories={cats}
         baseCurrency={cur}
+        editing={editing}
         onSaved={load}
       />
     </div>
