@@ -5,6 +5,7 @@ import toast from 'react-hot-toast'
 import { CURRENCIES, PAYMENT_METHODS, type Currency, type PaymentMethod } from '@/lib/finance/types'
 import { CURRENCY_META, formatMoney } from '@/lib/finance/money'
 import { categoryColor } from '@/lib/mfc/palette'
+import { MFC_DEFAULT_METHOD } from '@/lib/mfc/types'
 import type { MfcCategory, MfcExpense } from '@/lib/mfc/types'
 import { useFinanceLang } from '../lang'
 import { activeCategories, catLabel, friendlyDate, todayIso, yesterdayIso } from './shared'
@@ -52,7 +53,7 @@ export function QuickAdd({
   const [currency, setCurrency] = useState<Currency>(baseCurrency)
   const [date, setDate] = useState(todayIso())
   const [note, setNote] = useState('')
-  const [method, setMethod] = useState<PaymentMethod>('cash')
+  const [method, setMethod] = useState<PaymentMethod>(MFC_DEFAULT_METHOD)
   const [busy, setBusy] = useState(false)
   const [showDetail, setShowDetail] = useState(false)
   const panelRef = useRef<HTMLDivElement>(null)
@@ -74,7 +75,7 @@ export function QuickAdd({
       setCategoryId(null)
       setCurrency(baseCurrency)
       setDate(todayIso())
-      setMethod('cash')
+      setMethod(MFC_DEFAULT_METHOD)
       setShowDetail(false)
     }
   }, [baseCurrency])
@@ -97,7 +98,7 @@ export function QuickAdd({
       setCurrency(baseCurrency)
       setDate(todayIso())
       setNote('')
-      setMethod('cash')
+      setMethod(MFC_DEFAULT_METHOD)
       setShowDetail(false)
     }
   }, [open, editing, baseCurrency])

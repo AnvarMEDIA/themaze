@@ -16,6 +16,7 @@ import {
   reply, answerCallback, editMessage, confirmation, helpText, notRecognised,
   dayReport, monthReport, categoriesList, ruDate, type InlineButton,
 } from '@/lib/mfc/telegram/bot'
+import { MFC_DEFAULT_METHOD } from '@/lib/mfc/types'
 import type { MfcCategory, MfcExpense } from '@/lib/mfc/types'
 
 export const dynamic = 'force-dynamic'
@@ -180,7 +181,7 @@ async function onMessage(msg: TgMessage): Promise<void> {
   const { amount, currency, date, categoryId, note } = parsed.value
   const lock = await lockFor({ currency, date })
   const row = await createExpense({
-    categoryId, amount, currency, date, note, method: 'cash', ...(lock ?? {}),
+    categoryId, amount, currency, date, note, method: MFC_DEFAULT_METHOD, ...(lock ?? {}),
   })
 
   const category = categories.find((c) => c.id === row.categoryId)

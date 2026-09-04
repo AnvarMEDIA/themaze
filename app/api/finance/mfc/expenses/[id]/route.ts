@@ -21,7 +21,7 @@ export async function PATCH(req: NextRequest, { params }: Ctx) {
   const blocked = await requireFinance()
   if (blocked) return blocked
   // parsePatch, not safeParse: Zod's `.partial()` leaves `.default()` alive, so
-  // a plain safeParse of `{ note }` would also write method:'cash' and
+  // a plain safeParse of `{ note }` would also write the default method and
   // categoryId:null over real data.
   const parsed = parsePatch(MfcExpenseUpdateSchema, await req.json().catch(() => null))
   if (!parsed.success) {

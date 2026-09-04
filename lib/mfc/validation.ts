@@ -1,5 +1,6 @@
 import { z } from 'zod'
 import { CURRENCIES, PAYMENT_METHODS, type Currency, type PaymentMethod } from '../finance/types'
+import { MFC_DEFAULT_METHOD } from './types'
 import { HEX_RE, MFC_CHIP_SLOTS, expandHex } from './palette'
 
 const str = (max: number) => z.string().trim().max(max, `Max ${max} characters`)
@@ -81,7 +82,7 @@ export const MfcExpenseSchema = z.object({
   currency: currencyEnum,
   date:     dateStr,
   note:     str(500).default(''),
-  method:   z.enum([...PAYMENT_METHODS] as [PaymentMethod, ...PaymentMethod[]]).default('cash'),
+  method:   z.enum([...PAYMENT_METHODS] as [PaymentMethod, ...PaymentMethod[]]).default(MFC_DEFAULT_METHOD),
 })
 export const MfcExpenseUpdateSchema = MfcExpenseSchema.partial()
 

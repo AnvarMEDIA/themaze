@@ -19,6 +19,16 @@ import type { Currency, PaymentMethod } from '../finance/types'
 export type { Currency, PaymentMethod }
 
 /**
+ * What a new expense is paid with unless something says otherwise — the web
+ * sheet, a message to the bot, and any client that omits the field.
+ *
+ * Card, because nine in ten of these are. It is only which button starts
+ * selected; the others are still one tap away, and an entry can be changed
+ * afterwards.
+ */
+export const MFC_DEFAULT_METHOD: PaymentMethod = 'card'
+
+/**
  * A spending category — the thing the dashboard groups by.
  *
  * Categories are data, not code: the studio's owner adds "Дача" or "Кофе"
