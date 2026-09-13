@@ -1,4 +1,5 @@
 import type { Metadata, Viewport } from 'next'
+import { getLocale } from 'next-intl/server'
 import { Manrope, Space_Mono } from 'next/font/google'
 import { ThemeProvider } from 'next-themes'
 import { unstable_noStore as noStore } from 'next/cache'
@@ -138,7 +139,13 @@ const baseMetadata: Metadata = {
   // its own self-referential canonical + hreflang via `localizedAlternates`.
   // Pages that set nothing correctly emit no canonical and self-canonicalize.
   alternates: {
-    types: { 'application/rss+xml': `${SITE_URL}/feed.xml` },
+    types: {
+      'application/rss+xml': `${SITE_URL}/feed.xml`,
+      // The plain-text version of the site, for agents that look for one.
+      // /llms.txt was already served and named in robots.txt; this is the
+      // other place a crawler looks — the page it is already parsing.
+      'text/plain': `${SITE_URL}/llms.txt`,
+    },
   },
 }
 
@@ -148,11 +155,25 @@ export const viewport: Viewport = {
   themeColor: '#080808',
 }
 
-/** Root layout — minimal shell. Public locale layout adds Navbar/Footer/animations. */
-export default function RootLayout({ children }: { children: React.ReactNode }) {
+/**
+ * Root layout — minimal shell. Public locale layout adds Navbar/Footer/animations.
+ *
+ * `lang` is read here rather than hard-coded because this is the only place
+ * the `<html>` tag exists, and every Russian page was serving `lang="en"`:
+ * thirty-nine pages telling a screen reader to pronounce Russian with English
+ * phonetics, and telling every parser that the Cyrillic on the page is
+ * English. The hreflang links and og:locale were already right — this was the
+ * one signal that disagreed with them.
+ *
+ * `getLocale()` does not cost the static rendering: the locale pages still
+ * prerender (verified in the build output), because next-intl resolves it
+ * from the segment that `generateStaticParams` already enumerates.
+ */
+export default async function RootLayout({ children }: { children: React.ReactNode }) {
+  const locale = await getLocale()
   return (
     <html
-      lang="en"
+      lang={locale}
       suppressHydrationWarning
       className={`${manrope.variable} ${spaceMono.variable}`}
     >

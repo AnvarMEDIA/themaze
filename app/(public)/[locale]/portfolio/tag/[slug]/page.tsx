@@ -5,7 +5,7 @@ import { routing } from '@/i18n/routing'
 import { PortfolioGrid } from '@/components/portfolio/PortfolioGrid'
 import { getTagSlugs, getProjectsByTagSlug } from '@/lib/portfolio'
 import { JsonLd } from '@/components/JsonLd'
-import { breadcrumbJsonLd, portfolioListJsonLd, homeCrumb, portfolioCrumb } from '@/lib/jsonLd'
+import { breadcrumbJsonLd, collectionPageJsonLd, freshest, portfolioListJsonLd, homeCrumb, portfolioCrumb } from '@/lib/jsonLd'
 import { pageMeta, notFoundMetadata, SITE_URL } from '@/lib/seo'
 
 interface Props {
@@ -61,7 +61,17 @@ export default async function PortfolioTagPage({ params }: Props) {
 
   return (
     <main className="min-h-screen">
-      <JsonLd data={[crumbs, portfolioListJsonLd(data.projects, params.locale)]} />
+      <JsonLd data={[
+        crumbs,
+        collectionPageJsonLd({
+          path: `/portfolio/tag/${params.slug}`,
+          name: `#${data.tag}`,
+          locale: params.locale,
+          dateModified: freshest(data.projects),
+          numberOfItems: data.projects.length,
+        }),
+        portfolioListJsonLd(data.projects, params.locale),
+      ]} />
 
       <section className="pt-28 pb-16 px-6 md:px-10 border-b border-maze-border">
         <div className="max-w-[1440px] mx-auto">
@@ -79,6 +89,9 @@ export default async function PortfolioTagPage({ params }: Props) {
 
       <section className="pt-12 pb-24 px-6 md:px-10">
         <div className="max-w-[1440px] mx-auto">
+          <h2 className="sr-only">
+            {isRu ? `Проекты по тегу «${data.tag}»` : `Projects tagged ${data.tag}`}
+          </h2>
           <PortfolioGrid projects={data.projects} />
         </div>
       </section>

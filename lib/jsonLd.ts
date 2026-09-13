@@ -53,6 +53,11 @@ export function organizationJsonLd(settings: SiteSettings | null) {
       'UI/UX Design', 'Motion Design', 'Print Design', 'Art Direction',
       'Brand Guidelines',
     ],
+    // The languages the studio actually works in. `contactPoint` below says
+    // the same thing about the contact point; this says it about the
+    // organisation, which is the property an assistant reads when asked
+    // whether a studio can run a project in Russian.
+    knowsLanguage: ['en', 'ru', 'uz'],
     email:     settings?.email    || 'hello@maze.uz',
     telephone: settings?.phone    || undefined,
     address: {
@@ -253,6 +258,57 @@ export function portfolioListJsonLd(projects: Project[], locale: string) {
       name: isRu ? (p.titleRu || p.title) : p.title,
     })),
   }
+}
+
+/* ── Listing pages ─────────────────────────────────────────────────────── */
+
+/**
+ * A listing page as a *page*, not only as a list.
+ *
+ * `ItemList` says what is on the page, but it cannot say when the page last
+ * changed: `dateModified` belongs to a CreativeWork and an ItemList is an
+ * Intangible. Listing pages were therefore carrying no freshness signal at
+ * all — and freshness is what an answer engine weighs when deciding whether a
+ * citation is still worth making.
+ *
+ * The date is the freshest item's own, which is exactly what the sitemap
+ * already reports as this URL's `lastmod`. One source, so the two can never
+ * contradict each other.
+ */
+export function collectionPageJsonLd(input: {
+  path: string
+  name: string
+  locale: string
+  description?: string
+  dateModified?: string
+  numberOfItems?: number
+}) {
+  const url = localePath(input.locale, input.path)
+  return {
+    '@context': CONTEXT,
+    '@type': 'CollectionPage',
+    '@id': `${url}#collection`,
+    url,
+    name: input.name,
+    inLanguage: input.locale,
+    isPartOf: { '@id': SITE_ID },
+    publisher: { '@id': ORG_ID },
+    ...(input.description ? { description: input.description } : {}),
+    ...(input.dateModified ? { dateModified: input.dateModified } : {}),
+    ...(input.numberOfItems != null
+      ? { mainEntity: { '@type': 'ItemList', numberOfItems: input.numberOfItems } }
+      : {}),
+  }
+}
+
+/** The freshest `updatedAt` in a set of rows, as a plain ISO date. */
+export function freshest(rows: Array<{ updatedAt?: string }>): string | undefined {
+  let best = -Infinity
+  for (const r of rows) {
+    const ms = r.updatedAt ? new Date(r.updatedAt).getTime() : NaN
+    if (Number.isFinite(ms) && ms > best) best = ms
+  }
+  return best === -Infinity ? undefined : new Date(best).toISOString()
 }
 
 /* ── Person (team members) ─────────────────────────────────────────────── */

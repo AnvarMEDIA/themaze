@@ -96,6 +96,12 @@ export function ProjectCard({ project, index, layout = 'grid' }: Props) {
               alt={title}
               fill
               sizes="(max-width: 640px) 100vw, (max-width: 1200px) 50vw, 33vw"
+              // The first card is the largest thing above the fold on every
+              // portfolio screen — it IS the LCP. Left lazy, the browser only
+              // discovers it after the grid has laid out; `priority` preloads
+              // it with fetchpriority=high instead. Only the first: marking
+              // the whole grid would put twelve images ahead of the page.
+              priority={index === 0}
               className="object-cover transition-transform duration-700 ease-out group-hover:scale-105"
               onError={(e) => { (e.target as HTMLImageElement).style.display = 'none' }}
             />

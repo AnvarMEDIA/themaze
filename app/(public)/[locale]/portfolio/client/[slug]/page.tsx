@@ -5,7 +5,7 @@ import { routing } from '@/i18n/routing'
 import { PortfolioGrid } from '@/components/portfolio/PortfolioGrid'
 import { getClientSlugs, getProjectsByClientSlug } from '@/lib/portfolio'
 import { JsonLd } from '@/components/JsonLd'
-import { breadcrumbJsonLd, portfolioListJsonLd, homeCrumb, portfolioCrumb, clientWorkJsonLd } from '@/lib/jsonLd'
+import { breadcrumbJsonLd, freshest, portfolioListJsonLd, homeCrumb, portfolioCrumb, clientWorkJsonLd } from '@/lib/jsonLd'
 import { pageMeta, notFoundMetadata, SITE_URL } from '@/lib/seo'
 
 interface Props {
@@ -58,7 +58,16 @@ export default async function PortfolioClientPage({ params }: Props) {
 
   return (
     <main className="min-h-screen">
-      <JsonLd data={[crumbs, clientWorkJsonLd(data.clientName, params.slug, params.locale), portfolioListJsonLd(data.projects, params.locale)]} />
+      <JsonLd data={[
+        crumbs,
+        {
+          ...clientWorkJsonLd(data.clientName, params.slug, params.locale),
+          // The freshest piece of work shown here — the same date the sitemap
+          // reports for this URL.
+          ...(freshest(data.projects) ? { dateModified: freshest(data.projects) } : {}),
+        },
+        portfolioListJsonLd(data.projects, params.locale),
+      ]} />
 
       <section className="pt-28 pb-16 px-6 md:px-10 border-b border-maze-border">
         <div className="max-w-[1440px] mx-auto">
@@ -76,6 +85,10 @@ export default async function PortfolioClientPage({ params }: Props) {
 
       <section className="pt-12 pb-24 px-6 md:px-10">
         <div className="max-w-[1440px] mx-auto">
+          {/* The one heading between the client's name and a wall of images. */}
+          <h2 className="sr-only">
+            {params.locale === 'ru' ? `Работы для ${data.clientName}` : `Work for ${data.clientName}`}
+          </h2>
           <PortfolioGrid projects={data.projects} />
         </div>
       </section>

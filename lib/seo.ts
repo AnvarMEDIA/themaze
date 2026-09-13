@@ -39,6 +39,19 @@ export function localizedAlternates(
   return {
     canonical: localeHref(locale, clean),
     languages,
+    // The machine-readable versions of the site.
+    //
+    // These belong on every page, and they cannot be inherited: Next merges
+    // metadata per top-level FIELD, so a page that sets `alternates` for its
+    // own canonical and hreflang replaces the root layout's `alternates`
+    // wholesale — types included. The RSS link declared in app/layout.tsx has
+    // therefore never appeared on a single public page, because every public
+    // page sets its own. Declaring them here puts them where the merge cannot
+    // drop them.
+    types: {
+      'application/rss+xml': `${SITE_URL}/feed.xml`,
+      'text/plain': `${SITE_URL}/llms.txt`,
+    },
   }
 }
 

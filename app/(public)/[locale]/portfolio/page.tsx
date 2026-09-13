@@ -4,7 +4,7 @@ import { routing } from '@/i18n/routing'
 import { PortfolioGrid } from '@/components/portfolio/PortfolioGrid'
 import { getPublishedProjects } from '@/lib/portfolio'
 import { JsonLd } from '@/components/JsonLd'
-import { breadcrumbJsonLd, portfolioListJsonLd, homeCrumb, portfolioCrumb } from '@/lib/jsonLd'
+import { breadcrumbJsonLd, collectionPageJsonLd, freshest, portfolioListJsonLd, homeCrumb, portfolioCrumb } from '@/lib/jsonLd'
 import { pageMeta } from '@/lib/seo'
 import { TextReveal } from '@/components/ui/TextReveal'
 
@@ -41,7 +41,18 @@ export default async function PortfolioPage({ params: { locale } }: Props) {
 
   return (
     <main className="min-h-screen">
-      <JsonLd data={[crumbs, portfolioListJsonLd(projects, locale)]} />
+      <JsonLd data={[
+        crumbs,
+        collectionPageJsonLd({
+          path: '/portfolio',
+          name: t('heading'),
+          locale,
+          description: t('subtitle'),
+          dateModified: freshest(projects),
+          numberOfItems: projects.length,
+        }),
+        portfolioListJsonLd(projects, locale),
+      ]} />
 
       {/* Page header */}
       <section className="pt-28 pb-16 px-6 md:px-10 border-b border-maze-border">
@@ -59,6 +70,10 @@ export default async function PortfolioPage({ params: { locale } }: Props) {
       {/* Portfolio grid */}
       <section className="pt-12 pb-24 px-6 md:px-10">
         <div className="max-w-[1440px] mx-auto">
+          {/* The grid was an unnamed region: a heading is how a crawler and a
+              screen reader know where the list starts and what it is. Visually
+              hidden because the h1 above already says it on screen. */}
+          <h2 className="sr-only">{t('heading')}</h2>
           <PortfolioGrid projects={projects} />
         </div>
       </section>

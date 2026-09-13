@@ -6,7 +6,7 @@ import { Link } from '@/i18n/navigation'
 import { PortfolioGrid } from '@/components/portfolio/PortfolioGrid'
 import { getPublishedProjects } from '@/lib/portfolio'
 import { JsonLd } from '@/components/JsonLd'
-import { breadcrumbJsonLd, portfolioListJsonLd, homeCrumb, portfolioCrumb } from '@/lib/jsonLd'
+import { breadcrumbJsonLd, collectionPageJsonLd, freshest, portfolioListJsonLd, homeCrumb, portfolioCrumb } from '@/lib/jsonLd'
 import { pageMeta, notFoundMetadata, SITE_URL } from '@/lib/seo'
 import { VALID_CATEGORIES, categoryLabel } from '@/lib/utils'
 import type { ProjectCategory } from '@/lib/types'
@@ -77,7 +77,17 @@ export default async function PortfolioCategoryPage({ params }: Props) {
 
   return (
     <main className="min-h-screen">
-      <JsonLd data={[crumbs, portfolioListJsonLd(matching, params.locale)]} />
+      <JsonLd data={[
+        crumbs,
+        collectionPageJsonLd({
+          path: `/portfolio/category/${params.slug}`,
+          name: isRu ? `${label} — наши работы` : `${label} — our work`,
+          locale: params.locale,
+          dateModified: freshest(matching),
+          numberOfItems: matching.length,
+        }),
+        portfolioListJsonLd(matching, params.locale),
+      ]} />
 
       <section className="pt-28 pb-12 px-6 md:px-10 border-b border-maze-border">
         <div className="max-w-[1440px] mx-auto">
@@ -121,6 +131,11 @@ export default async function PortfolioCategoryPage({ params }: Props) {
 
       <section className="pt-12 pb-24 px-6 md:px-10">
         <div className="max-w-[1440px] mx-auto">
+          {/* Names the region the grid lives in — the page had an h1 and then
+              nothing else for a parser to hang an answer on. */}
+          <h2 className="sr-only">
+            {isRu ? `Проекты: ${label}` : `${label} projects`}
+          </h2>
           <PortfolioGrid projects={allProjects} activeCategory={params.slug as ProjectCategory} />
         </div>
       </section>
