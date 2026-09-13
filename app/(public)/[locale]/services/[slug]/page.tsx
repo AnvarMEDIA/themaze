@@ -271,7 +271,14 @@ export default async function ServiceClusterPage({ params }: Props) {
       {/* FAQ */}
       <section className="px-6 md:px-10 py-16 md:py-24 border-b border-maze-border">
         <div className="max-w-3xl mx-auto">
-          <h2 className="display-md text-maze-cream mb-12">{tLabels('faq')}</h2>
+          <h2 className="display-md text-maze-cream mb-5">{tLabels('faq')}</h2>
+          {/* Who is answering, and from where.
+              A retriever quotes a passage, not a page: every chunk taken from
+              these nine pages said "we" and named neither the studio nor the
+              city, which makes it unusable in an answer to "who does branding
+              in Tashkent". One factual line, next to the questions it belongs
+              to — and it reads as normal page furniture to a person too. */}
+          <p className="body-lg text-maze-muted mb-12 leading-relaxed">{tLabels('studioLine')}</p>
           <div className="divide-y divide-maze-border border-y border-maze-border">
             {content.faq.map((item, i) => (
               <details key={i} className="group">

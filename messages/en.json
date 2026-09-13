@@ -187,7 +187,7 @@
     "heading": "Portfolio",
     "metaTitle": "Portfolio — Brand Identity & Design Work",
     "metaDesc": "Case studies from MAZE Studio in Tashkent — brand identity, naming, packaging, print, UI/UX and motion for clients across Central Asia.",
-    "subtitle": "Brand identities, logo systems, naming, packaging, and print — crafted in Tashkent for clients across Central Asia and beyond.",
+    "subtitle": "Brand identities, logo systems, naming, packaging and print — crafted by MAZE Studio in Tashkent for clients across Central Asia and beyond.",
     "allWork": "All Work",
     "projectSingular": "project",
     "projectPlural": "projects",
@@ -293,7 +293,7 @@
     "metaDesc": "Branding, visual identity, naming, packaging, print, UI/UX and motion — full-service brand creation from Tashkent for Uzbekistan and Central Asia.",
     "heroLabel": "What we offer",
     "heroHeading": "Services built for ambitious brands.",
-    "heroSub": "From brand strategy to art direction — we offer the full creative suite that growing brands need to compete and win.",
+    "heroSub": "From brand strategy to art direction — MAZE Studio is a branding and design studio in Tashkent offering the full creative suite that growing brands need to compete and win.",
     "whatYouGet": "What you get",
     "enquire": "Enquire about",
     "learnMore": "Learn more",
@@ -335,6 +335,18 @@
       {
         "q": "What if I don't like the first round?",
         "a": "Each engagement includes two structured rounds of revision per stage. We start broad with directions, then narrow — so by the time we're refining, we've already aligned on the direction together."
+      },
+      {
+        "q": "Where is the studio based, and can we meet in person?",
+        "a": "MAZE Studio is based in Tashkent, Uzbekistan. Local clients are welcome at the studio; everyone else we run remotely — Figma, Notion, Loom and a weekly call — which is how most of our Central Asian and European work happens."
+      },
+      {
+        "q": "What languages do you work in?",
+        "a": "English, Russian and Uzbek. Strategy sessions, naming and copy are delivered in whichever of the three the brand actually lives in, and brand guidelines can be produced bilingually."
+      },
+      {
+        "q": "Which industries have you worked with?",
+        "a": "Fintech and payments, logistics, retail, hospitality and food, wine and FMCG packaging, and cultural institutions — with a published case study for each in the portfolio."
       }
     ],
     "cluster": {
@@ -349,7 +361,8 @@
         "selectedWork": "Recent work",
         "seePortfolio": "See full portfolio",
         "cta": "Start the project",
-        "ctaBody": "Tell us about your goals — we'll come back within one business day with scope, timing and a fixed estimate for your {service} project."
+        "ctaBody": "Tell us about your goals — we'll come back within one business day with scope, timing and a fixed estimate for your {service} project.",
+        "studioLine": "MAZE Studio is a branding and design studio in Tashkent, Uzbekistan, working with companies across Central Asia in English, Russian and Uzbek."
       },
       "branding": {
         "metaTitle": "Branding Services in Tashkent",
@@ -945,7 +958,7 @@
     "metaDesc": "Talk to MAZE Studio in Tashkent about branding, logo design or naming. Tell us about the project and we reply within 24 hours.",
     "label": "Get in touch",
     "heading": "Let's build something great together.",
-    "sub": "Whether you have a clear brief or just an idea, we'd love to hear from you. Fill in the form and we'll respond within 24 hours.",
+    "sub": "Whether you have a clear brief or just an idea, we'd love to hear from you. MAZE Studio works from Tashkent, Uzbekistan, in English, Russian and Uzbek — fill in the form and we'll respond within 24 hours.",
     "emailLabel": "Email",
     "phoneLabel": "Phone",
     "telegramLabel": "Telegram",
