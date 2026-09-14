@@ -38,6 +38,7 @@ yarn-error.log*
 /data/auth_config.json
 /data/inquiries.json
 /data/analytics.json
+/data/telegram_chat.json
 
 # vercel
 .vercel

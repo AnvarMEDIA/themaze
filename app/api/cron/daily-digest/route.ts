@@ -78,5 +78,9 @@ export async function GET(req: NextRequest) {
     // log instead.
     return NextResponse.json({ ok: false, date: target, sent: false, reason: result.error })
   }
-  return NextResponse.json({ ok: true, date: target, sent: true })
+  return NextResponse.json({
+    ok: true, date: target, sent: true,
+    // Only present when the chat had moved: the id to put in TELEGRAM_CHAT_ID.
+    ...(result.migratedTo ? { migratedTo: result.migratedTo } : {}),
+  })
 }
