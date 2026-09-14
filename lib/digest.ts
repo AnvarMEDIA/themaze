@@ -6,6 +6,12 @@ import {
 import { getInquiries } from './inquiries'
 import type { Inquiry } from './inquiries'
 
+/** The first day visitor counting recorded anything, if it ever has. */
+function countingSince(data: AnalyticsData): string | undefined {
+  const keys = Object.keys(data.days ?? {}).sort()
+  return keys[0]
+}
+
 /** Views on one day summed across every page — what the per-path counters know. */
 function viewsFromPaths(data: AnalyticsData, key: string): number {
   let n = 0
@@ -121,6 +127,15 @@ export function buildDigest({ date, analytics, inquiries }: DigestInput): string
     if (today.visitors > 0) {
       L.push(`   из них новых: <b>${today.newVisitors}</b> (${pct(today.newVisitors, today.visitors)}%)`)
     }
+  } else {
+    // Say why the headline number is missing. A line that simply vanishes
+    // reads as a bug to the person expecting it — and this one appears only
+    // for the handful of days recorded before counting started, then never
+    // again.
+    const since = countingSince(analytics)
+    L.push(since
+      ? `👥 Посетителей: <i>за этот день не считались — счётчик работает с ${escapeHtml(readableDate(since).replace(/^[^,]+, /, ''))}</i>`
+      : '👥 Посетителей: <i>счётчик ещё не собрал данных</i>')
   }
   L.push(`👁 Просмотров: <b>${views}</b>${trend(views, yest.views || viewsFromPaths(analytics, previousDay(date)))}`)
   if (today.visitors > 0) {
