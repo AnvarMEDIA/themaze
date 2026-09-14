@@ -17,7 +17,9 @@
  *    because work started after a serverless response may never run.
  */
 
-const API = 'https://api.telegram.org'
+// Overridable so an end-to-end test can point the sender at a local stub and
+// assert on what was actually sent. Unset everywhere else, which is Telegram.
+const API = process.env.TELEGRAM_API_BASE || 'https://api.telegram.org'
 const TIMEOUT_MS = 6000
 
 export interface NotifyResult {

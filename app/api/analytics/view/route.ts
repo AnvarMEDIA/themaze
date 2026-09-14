@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { trackPageview, normalizePath } from '@/lib/analytics'
+import { trackPageview, normalizePath, normalizeSource } from '@/lib/analytics'
 import { rateLimitAsync, clientIp } from '@/lib/rateLimit'
 import { COOKIE_NAME } from '@/lib/auth'
 
@@ -29,12 +29,22 @@ export async function POST(req: NextRequest) {
   }
 
   let rawPath: string
+  let firstEver = false
+  let firstToday = false
+  let source: string | undefined
   try {
-    const body = await req.json() as { path?: unknown }
+    const body = await req.json() as {
+      path?: unknown; firstEver?: unknown; firstToday?: unknown; source?: unknown
+    }
     if (typeof body.path !== 'string') {
       return NextResponse.json({ error: 'Invalid path' }, { status: 400 })
     }
     rawPath = body.path
+    // Booleans only, and only when they are actually booleans: these feed a
+    // counter, so a client sending `firstEver: "yes"` must not increment it.
+    firstEver  = body.firstEver  === true
+    firstToday = body.firstToday === true
+    source = typeof body.source === 'string' ? normalizeSource(body.source) : undefined
   } catch {
     return NextResponse.json({ error: 'Invalid body' }, { status: 400 })
   }
@@ -56,7 +66,10 @@ export async function POST(req: NextRequest) {
   }
 
   try {
-    await trackPageview(path)
+    // Device is read from the user-agent the request already carries and
+    // kept as one bit; the UA string itself is never stored.
+    const mobile = /Mobi|Android|iPhone|iPad|iPod/i.test(ua)
+    await trackPageview(path, { firstEver, firstToday, source, mobile })
     return NextResponse.json({ ok: true })
   } catch (err) {
     console.error('[analytics/view]', err)

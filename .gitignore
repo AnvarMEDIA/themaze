@@ -37,6 +37,7 @@ yarn-error.log*
 /data/mfc_*.json
 /data/auth_config.json
 /data/inquiries.json
+/data/analytics.json
 
 # vercel
 .vercel
