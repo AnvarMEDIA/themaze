@@ -29,13 +29,11 @@ export function DigestPanel({
   const call = async (send: boolean) => {
     setBusy(true)
     try {
-      // Both buttons act on the day the cron would report on — today, in the
-      // studio's timezone. The endpoint defaults an admin to YESTERDAY, which
-      // is right for a morning look at a finished day and wrong for a button
-      // labelled "send now", so the day is named explicitly here.
-      const day = new Intl.DateTimeFormat('en-CA', { timeZone }).format(new Date())
+      // No date: the endpoint's default is the day that just ended, which is
+      // exactly what the cron sends. One meaning of "the report", decided in
+      // one place, so the button and the schedule cannot disagree.
       const res = await fetch(
-        `/api/cron/daily-digest?date=${day}${send ? '&send=1' : ''}`,
+        `/api/cron/daily-digest${send ? '?send=1' : ''}`,
         { cache: 'no-store' },
       )
       const data = await res.json() as { sent?: boolean; preview?: string; reason?: string; date?: string }
@@ -62,7 +60,8 @@ export function DigestPanel({
         <div>
           <h2 className="text-sm font-semibold text-white">Ежедневный отчёт в Telegram</h2>
           <p className="text-xs text-[#555] mt-1">
-            Уходит каждый день в 23:55 по Ташкенту, в тот же чат, что и заявки.
+            Уходит каждый день в 00:05 по Ташкенту — за предыдущий, полностью закрытый день.
+            В тот же чат, что и заявки.
           </p>
         </div>
         <div className="flex gap-2">

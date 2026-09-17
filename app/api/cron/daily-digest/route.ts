@@ -21,9 +21,15 @@ function safeEqual(a: string, b: string): boolean {
  * The end-of-day site report, delivered to the same Telegram chat that
  * receives new inquiries.
  *
- * Scheduled in vercel.json for 18:55 UTC — 23:55 in Tashkent, which is
- * UTC+5 all year, so the cron needs no seasonal correction. The day being
- * reported is the local one that is ending, not a UTC one.
+ * Scheduled in vercel.json for 19:05 UTC, which is 00:05 of the NEXT day in
+ * Tashkent (UTC+5 all year, so no seasonal correction). Running just after
+ * local midnight rather than just before it is what makes the day complete:
+ * at 23:55 the last five minutes were always missing from the numbers.
+ *
+ * Which also means the report is for YESTERDAY. By the time the cron fires,
+ * the local day has already turned over, so "the day that just ended" is the
+ * previous one — and that is the default for every caller, cron and person
+ * alike. `?date=YYYY-MM-DD` overrides it for any day still in the window.
  *
  * Three ways in:
  *   · `Authorization: Bearer <CRON_SECRET>` — the strong path, and the only
@@ -80,11 +86,11 @@ export async function GET(req: NextRequest) {
     })
   }
 
+  // The day that just ended, in the studio's timezone — the same answer for
+  // the cron at 00:05 and for a person pressing the button at lunchtime, so
+  // there is one meaning of "the report" instead of two.
   const asked = url.searchParams.get('date')
-  const date = /^\d{4}-\d{2}-\d{2}$/.test(asked ?? '') ? asked! : todayKey()
-  // A cron firing at 23:55 local reports today; an admin opening this the
-  // next morning almost always means yesterday, so that is the default there.
-  const target = fromCron || asked ? date : previousDay(todayKey())
+  const target = /^\d{4}-\d{2}-\d{2}$/.test(asked ?? '') ? asked! : previousDay(todayKey())
 
   let text: string
   try {
