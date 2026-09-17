@@ -21,8 +21,9 @@ function safeEqual(a: string, b: string): boolean {
  * The end-of-day site report, delivered to the same Telegram chat that
  * receives new inquiries.
  *
- * Scheduled in vercel.json for 18:50 UTC — 23:50 in Tashkent — so it reports
- * a day that has actually finished where the people reading it live.
+ * Scheduled in vercel.json for 18:55 UTC — 23:55 in Tashkent, which is
+ * UTC+5 all year, so the cron needs no seasonal correction. The day being
+ * reported is the local one that is ending, not a UTC one.
  *
  * Three ways in:
  *   · `Authorization: Bearer <CRON_SECRET>` — the strong path, and the only
@@ -81,7 +82,7 @@ export async function GET(req: NextRequest) {
 
   const asked = url.searchParams.get('date')
   const date = /^\d{4}-\d{2}-\d{2}$/.test(asked ?? '') ? asked! : todayKey()
-  // A cron firing at 23:50 local reports today; an admin opening this the
+  // A cron firing at 23:55 local reports today; an admin opening this the
   // next morning almost always means yesterday, so that is the default there.
   const target = fromCron || asked ? date : previousDay(todayKey())
 

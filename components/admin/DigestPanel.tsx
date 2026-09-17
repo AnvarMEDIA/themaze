@@ -62,7 +62,7 @@ export function DigestPanel({
         <div>
           <h2 className="text-sm font-semibold text-white">Ежедневный отчёт в Telegram</h2>
           <p className="text-xs text-[#555] mt-1">
-            Уходит каждый день в 23:50 по Ташкенту, в тот же чат, что и заявки.
+            Уходит каждый день в 23:55 по Ташкенту, в тот же чат, что и заявки.
           </p>
         </div>
         <div className="flex gap-2">
