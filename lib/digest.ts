@@ -5,6 +5,45 @@ import {
 } from './analytics'
 import { getInquiries } from './inquiries'
 import type { Inquiry } from './inquiries'
+import { readStore, updateStore } from './store'
+
+/* ── run log ────────────────────────────────────────────────────────────── */
+
+export const RUNS_KEY = 'digest_runs'
+const KEEP_RUNS = 30
+
+export interface DigestRun {
+  at: string
+  /** The day the report covered. */
+  date: string
+  sent: boolean
+  /** How the caller was recognised: cron secret, Vercel's own cron, or admin. */
+  via: 'secret' | 'vercel-cron' | 'admin'
+  reason?: string
+}
+
+/**
+ * Every attempt is recorded, successful or not.
+ *
+ * Without this there was no way to answer "did the report even try to go
+ * out", and two evenings passed with nobody able to tell a quiet day from a
+ * cron that never fired. Thirty runs is a month of evenings — enough to see a
+ * pattern, small enough to keep in one row.
+ */
+export async function recordRun(run: DigestRun): Promise<void> {
+  try {
+    await updateStore<{ runs?: DigestRun[] }>(RUNS_KEY, {}, (cur) => ({
+      runs: [run, ...(cur.runs ?? [])].slice(0, KEEP_RUNS),
+    }))
+  } catch (err) {
+    console.error('[daily-digest] could not record the run —', err)
+  }
+}
+
+export async function listRuns(): Promise<DigestRun[]> {
+  const { runs = [] } = await readStore<{ runs?: DigestRun[] }>(RUNS_KEY, {})
+  return runs
+}
 
 /** The first day visitor counting recorded anything, if it ever has. */
 function countingSince(data: AnalyticsData): string | undefined {

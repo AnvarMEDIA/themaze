@@ -3,8 +3,7 @@ import { timingSafeEqual } from 'node:crypto'
 import { getAdminSession } from '@/lib/auth'
 import { sendTelegram, telegramConfigured } from '@/lib/notify'
 import { todayKey, previousDay } from '@/lib/analytics'
-import { buildDigest, collectDigest } from '@/lib/digest'
-import { readStore, updateStore } from '@/lib/store'
+import { buildDigest, collectDigest, listRuns, recordRun, type DigestRun } from '@/lib/digest'
 import { rateLimitAsync } from '@/lib/rateLimit'
 
 export const dynamic = 'force-dynamic'
@@ -16,39 +15,6 @@ function safeEqual(a: string, b: string): boolean {
   const bb = Buffer.from(b)
   if (ab.length !== bb.length) return false
   return timingSafeEqual(ab, bb)
-}
-
-/* ── run log ────────────────────────────────────────────────────────────── */
-
-const RUNS_KEY = 'digest_runs'
-const KEEP_RUNS = 30
-
-interface DigestRun {
-  at: string
-  /** The day the report covered. */
-  date: string
-  sent: boolean
-  /** How the caller was recognised: cron secret, Vercel's own cron, or admin. */
-  via: 'secret' | 'vercel-cron' | 'admin'
-  reason?: string
-}
-
-/**
- * Every attempt is recorded, successful or not.
- *
- * Without this there is no way to answer "did the report even try to go out",
- * and two evenings passed with nobody able to tell a quiet day from a cron
- * that never fired. Thirty runs is a month of evenings — enough to see a
- * pattern, small enough to keep in one row.
- */
-async function recordRun(run: DigestRun): Promise<void> {
-  try {
-    await updateStore<{ runs?: DigestRun[] }>(RUNS_KEY, {}, (cur) => ({
-      runs: [run, ...(cur.runs ?? [])].slice(0, KEEP_RUNS),
-    }))
-  } catch (err) {
-    console.error('[daily-digest] could not record the run —', err)
-  }
 }
 
 /**
@@ -88,7 +54,14 @@ export async function GET(req: NextRequest) {
 
   const session = await getAdminSession().catch(() => false)
   if (!fromSecret && !fromVercelCron && !session) {
-    return NextResponse.json({ error: 'Unauthorised' }, { status: 401 })
+    // Say which door to use. A bare "Unauthorised" on a diagnostic URL sends
+    // the reader looking for a bug in the endpoint instead of signing in —
+    // and the log this guards is also on the Statistics page, which is where
+    // someone asking "did the report go out" would naturally look.
+    return NextResponse.json({
+      error: 'Unauthorised',
+      hint: 'Sign in to the admin panel in this browser, or open Admin → Statistics — the report status and the log of the last runs are shown there.',
+    }, { status: 401 })
   }
   const fromCron = fromSecret || fromVercelCron
   const via: DigestRun['via'] = fromSecret ? 'secret' : fromVercelCron ? 'vercel-cron' : 'admin'
@@ -97,7 +70,7 @@ export async function GET(req: NextRequest) {
 
   // The log of recent attempts, for answering "why did nothing arrive".
   if (!fromCron && url.searchParams.get('runs') === '1') {
-    const { runs = [] } = await readStore<{ runs?: DigestRun[] }>(RUNS_KEY, {})
+    const runs = await listRuns()
     return NextResponse.json({
       ok: true,
       cronSecretConfigured: !!cronSecret,

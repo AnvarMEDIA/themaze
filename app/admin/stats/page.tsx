@@ -1,5 +1,8 @@
 import Link from 'next/link'
-import { getAnalytics, sumRange, dailyTotals } from '@/lib/analytics'
+import { getAnalytics, sumRange, dailyTotals, todayKey, SITE_TZ } from '@/lib/analytics'
+import { listRuns } from '@/lib/digest'
+import { telegramConfigured } from '@/lib/notify'
+import { DigestPanel } from '@/components/admin/DigestPanel'
 import { getAllProjects } from '@/lib/portfolio'
 import { getPublishedPosts } from '@/lib/posts'
 import { NotifyIndexingButton } from '@/components/admin/NotifyIndexingButton'
@@ -33,10 +36,11 @@ const STATIC_LABELS: Record<string, string> = {
 }
 
 export default async function StatsPage() {
-  const [data, projects, posts] = await Promise.all([
+  const [data, projects, posts, runs] = await Promise.all([
     getAnalytics(),
     getAllProjects({ includeDeleted: true }),
     getPublishedPosts(),
+    listRuns(),
   ])
 
   const slugToTitle = new Map<string, string>()
@@ -57,7 +61,7 @@ export default async function StatsPage() {
   const totalWeek  = rows.reduce((s, r) => s + r.week,  0)
   const totalMonth = rows.reduce((s, r) => s + r.month, 0)
   const totalToday = (() => {
-    const key = new Date().toISOString().slice(0, 10)
+    const key = todayKey()
     let n = 0
     for (const byDate of Object.values(data.daily)) n += byDate[key] ?? 0
     return n
@@ -91,6 +95,13 @@ export default async function StatsPage() {
         <StatCard label="This month" value={totalMonth} />
         <StatCard label="All time"   value={totalAll} accent />
       </div>
+
+      <DigestPanel
+        runs={runs}
+        cronSecretConfigured={!!process.env.CRON_SECRET}
+        telegramConfigured={telegramConfigured()}
+        timeZone={SITE_TZ}
+      />
 
       {/* 30-day bar chart */}
       <section className="rounded-xl bg-[#0D0D0D] border border-[#1E1E1E] p-5 mb-10">
