@@ -39,6 +39,7 @@ yarn-error.log*
 /data/inquiries.json
 /data/analytics.json
 /data/telegram_chat.json
+/data/digest_runs.json
 
 # vercel
 .vercel

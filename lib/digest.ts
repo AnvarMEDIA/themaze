@@ -82,14 +82,19 @@ export async function collectDigest(date: string): Promise<DigestInput> {
 }
 
 /**
- * Render the report as Telegram HTML.
+ * Render the report as Telegram HTML. Always returns a message.
  *
- * Returns null when there is nothing whatsoever to say — no views, no
- * inquiries, no comparison worth making. A message every evening that says
- * "0" trains its reader to stop opening messages, and the one evening it
- * matters it will not be read either.
+ * It used to return null for a day with no views and no inquiries, on the
+ * theory that a nightly "0" trains its reader to stop opening messages. That
+ * was the wrong call twice over. The report was asked for at the end of EVERY
+ * day, and suppressing it made silence ambiguous: a quiet day and a broken
+ * cron looked identical from the outside, which is exactly how two days went
+ * by without anyone being able to say which it was.
+ *
+ * So a quiet day now says it is quiet, in one line, and anything that looks
+ * like a fault says so too.
  */
-export function buildDigest({ date, analytics, inquiries }: DigestInput): string | null {
+export function buildDigest({ date, analytics, inquiries }: DigestInput): string {
   const today = dayStats(analytics, date)
   const yest = dayStats(analytics, previousDay(date))
 
@@ -115,11 +120,28 @@ export function buildDigest({ date, analytics, inquiries }: DigestInput): string
   const views = today.views || pathViews
   const unmeasured = pathViews > 0 && today.views === 0 && today.visitors === 0
 
-  if (views === 0 && leads.length === 0) return null
-
   const L: string[] = []
   L.push(`📊 <b>Итоги дня — ${escapeHtml(readableDate(date))}</b>`)
   L.push('')
+
+  // A day with nothing on it. Said plainly and briefly, because the message
+  // still has to arrive — its absence is what left us guessing before.
+  if (views === 0 && leads.length === 0) {
+    L.push('Тихий день: ни просмотров, ни заявок.')
+    const recorded = Object.keys(analytics.days ?? {}).length
+    const recentViews = [0, 1, 2, 3].reduce(
+      (n, i) => n + dayStats(analytics, previousDay(date, i)).views + viewsFromPaths(analytics, previousDay(date, i)), 0)
+    if (recentViews === 0) {
+      // Four days without a single recorded view is not a quiet site, it is a
+      // counter that is not writing. Say so here rather than let it look like
+      // an unusually dull week.
+      L.push('')
+      L.push(recorded === 0
+        ? '⚠️ За последние 4 дня не записано ни одного просмотра, и счётчик посетителей ещё ни разу ничего не сохранил. Похоже, статистика не пишется — стоит проверить.'
+        : '⚠️ За последние 4 дня не записано ни одного просмотра. Похоже, статистика не пишется — стоит проверить.')
+    }
+    return L.join('\n')
+  }
 
   /* ── the two numbers the day is judged by ──────────────────────────── */
   if (!unmeasured) {
