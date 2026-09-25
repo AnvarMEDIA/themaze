@@ -2,6 +2,7 @@ import type { Metadata } from 'next'
 import { setRequestLocale, getTranslations } from 'next-intl/server'
 import { routing } from '@/i18n/routing'
 import { BriefForm } from '@/components/brief/BriefForm'
+import { Trail } from '@/components/ui/Trail'
 import { JsonLd } from '@/components/JsonLd'
 import { breadcrumbJsonLd, homeCrumb } from '@/lib/jsonLd'
 import { pageMeta, SITE_URL } from '@/lib/seo'
@@ -39,14 +40,14 @@ export default async function BriefPage({ params: { locale } }: Props) {
   ])
 
   return (
-    <main className="min-h-screen">
+    <div className="min-h-screen">
       <JsonLd data={crumbs} />
 
       {/* Hero header */}
-      <section className="pt-28 pb-12 px-6 md:px-10 border-b border-maze-border">
+      <section className="pt-[9.5rem] md:pt-[10.5rem] pb-12 px-6 md:px-10 border-b border-maze-border">
         <div className="max-w-3xl mx-auto">
-          <p className="label-sm text-maze-lime mb-5">{t('label')}</p>
-          <h1 className="display-md text-maze-cream mb-4">{t('heading')}</h1>
+          <Trail steps={[{ label: t('label') }]} />
+          <h1 className="display-md text-maze-cream mb-4 text-balance">{t('heading')}</h1>
           <p className="body-lg text-maze-muted max-w-lg">{t('sub')}</p>
         </div>
       </section>
@@ -57,6 +58,6 @@ export default async function BriefPage({ params: { locale } }: Props) {
           <BriefForm />
         </div>
       </section>
-    </main>
+    </div>
   )
 }

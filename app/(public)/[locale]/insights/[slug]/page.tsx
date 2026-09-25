@@ -5,6 +5,7 @@ import Image from 'next/image'
 import { Link } from '@/i18n/navigation'
 import { routing } from '@/i18n/routing'
 import { SafeMDX } from '@/components/SafeMDX'
+import { Trail } from '@/components/ui/Trail'
 import { getPostBySlug, getPublishedPosts, estimateReadTime } from '@/lib/posts'
 import { getPublishedProjects } from '@/lib/portfolio'
 import { rankRelatedPosts, relatedProjectsForPost } from '@/lib/recommend'
@@ -101,32 +102,22 @@ export default async function InsightPage({ params }: Props) {
     <article className="pt-28 min-h-screen">
       <JsonLd data={[crumbs, postJsonLd(post, locale)]} />
 
-      <div className="px-6 md:px-10 pb-14 border-b border-maze-border">
+      <div className="px-6 md:px-10 pt-10 md:pt-14 pb-14 border-b border-maze-border">
         <div className="max-w-3xl mx-auto">
-          <Link
-            href="/insights"
-            className="label-sm text-maze-muted hover:text-maze-lime transition-colors mb-8 inline-flex items-center gap-2"
-          >
-            ← {t('back')}
-          </Link>
+          <Trail steps={[{ label: t('label'), href: '/insights' }, { label: title }]} />
 
-          {post.tags.length > 0 && (
-            <div className="flex flex-wrap gap-2 mt-6 mb-6">
-              {post.tags.slice(0, 5).map((tag) => (
-                <span key={tag} className="label-sm text-maze-lime">#{tag}</span>
-              ))}
-            </div>
-          )}
+          <h1 className="display-md text-maze-cream mb-6 text-balance">{title}</h1>
+          {excerpt && <p className="body-lg text-maze-muted max-w-2xl mb-8 text-pretty">{excerpt}</p>}
 
-          <h1 className="display-md text-maze-cream mb-6">{title}</h1>
-          {excerpt && <p className="body-lg text-maze-muted max-w-2xl mb-8">{excerpt}</p>}
-
-          <div className="flex items-center gap-3 label-sm text-maze-muted">
+          <div className="flex flex-wrap items-center gap-x-3 gap-y-1 font-mono text-xs text-maze-muted">
             <span>{post.author}</span>
             <span aria-hidden="true">·</span>
             <span>{fmt(post.publishedAt, locale)}</span>
             <span aria-hidden="true">·</span>
             <span>{minutes} {isRu ? 'мин чтения' : 'min read'}</span>
+            {post.tags.slice(0, 5).map((tag) => (
+              <span key={tag}>#{tag}</span>
+            ))}
           </div>
         </div>
       </div>
@@ -167,18 +158,18 @@ export default async function InsightPage({ params }: Props) {
                 return (
                   <Link key={p.id} href={`/insights/${p.slug}`} className="group block">
                     {p.coverImage && (
-                      <div className="relative aspect-[16/10] rounded-xl overflow-hidden bg-maze-gray mb-4">
+                      <div className="relative aspect-[16/10] rounded-sm overflow-hidden bg-maze-gray mb-4">
                         <Image
                           src={p.coverImage}
                           alt={rTitle}
                           fill
                           sizes="(max-width: 768px) 100vw, 33vw"
-                          className="object-cover transition-transform duration-500 ease-out [@media(hover:hover)]:group-hover:scale-105"
+                          className="object-cover transition-transform duration-500 ease-out [@media(hover:hover)_and_(pointer:fine)]:group-hover:scale-[1.03]"
                         />
                       </div>
                     )}
-                    <p className="label-sm text-maze-muted mb-2">{fmt(p.publishedAt, locale)}</p>
-                    <h3 className="font-semibold text-maze-cream group-hover:text-maze-lime transition-colors">
+                    <p className="font-mono text-xs text-maze-muted mb-2">{fmt(p.publishedAt, locale)}</p>
+                    <h3 className="font-semibold text-maze-cream transition-colors [@media(hover:hover)_and_(pointer:fine)]:group-hover:text-maze-lime">
                       {rTitle}
                     </h3>
                   </Link>
@@ -201,18 +192,18 @@ export default async function InsightPage({ params }: Props) {
                 return (
                   <Link key={p.id} href={`/portfolio/${p.slug}`} className="group block">
                     {p.coverImage && (
-                      <div className="relative aspect-[16/10] rounded-xl overflow-hidden bg-maze-gray mb-4">
+                      <div className="relative aspect-[16/10] rounded-sm overflow-hidden bg-maze-gray mb-4">
                         <Image
                           src={p.coverImage}
                           alt={wTitle}
                           fill
                           sizes="(max-width: 768px) 100vw, 33vw"
-                          className="object-cover transition-transform duration-500 ease-out [@media(hover:hover)]:group-hover:scale-105"
+                          className="object-cover transition-transform duration-500 ease-out [@media(hover:hover)_and_(pointer:fine)]:group-hover:scale-[1.03]"
                         />
                       </div>
                     )}
-                    <p className="label-sm text-maze-lime mb-1">{p.client}</p>
-                    <h3 className="font-semibold text-maze-cream group-hover:text-maze-lime transition-colors">
+                    <p className="text-sm text-maze-muted mb-1">{p.client}</p>
+                    <h3 className="font-semibold text-maze-cream transition-colors [@media(hover:hover)_and_(pointer:fine)]:group-hover:text-maze-lime">
                       {wTitle}
                     </h3>
                   </Link>

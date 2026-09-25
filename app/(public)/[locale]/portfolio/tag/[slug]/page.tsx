@@ -3,6 +3,7 @@ import { setRequestLocale, getTranslations } from 'next-intl/server'
 import { notFound } from 'next/navigation'
 import { routing } from '@/i18n/routing'
 import { PortfolioGrid } from '@/components/portfolio/PortfolioGrid'
+import { Trail } from '@/components/ui/Trail'
 import { getTagSlugs, getProjectsByTagSlug } from '@/lib/portfolio'
 import { JsonLd } from '@/components/JsonLd'
 import { breadcrumbJsonLd, collectionPageJsonLd, freshest, portfolioListJsonLd, homeCrumb, portfolioCrumb } from '@/lib/jsonLd'
@@ -60,7 +61,7 @@ export default async function PortfolioTagPage({ params }: Props) {
   ])
 
   return (
-    <main className="min-h-screen">
+    <div className="min-h-screen">
       <JsonLd data={[
         crumbs,
         collectionPageJsonLd({
@@ -73,9 +74,9 @@ export default async function PortfolioTagPage({ params }: Props) {
         portfolioListJsonLd(data.projects, params.locale),
       ]} />
 
-      <section className="pt-28 pb-16 px-6 md:px-10 border-b border-maze-border">
+      <section className="pt-[9.5rem] md:pt-[10.5rem] pb-14 px-6 md:px-10 border-b border-maze-border">
         <div className="max-w-[1440px] mx-auto">
-          <p className="label-sm text-maze-lime mb-5">{isRu ? 'Тег' : 'Tag'}</p>
+          <Trail steps={[{ label: t('heading'), href: '/portfolio' }, { label: `#${data.tag}` }]} />
           <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-6">
             <h1 className="display-md text-maze-cream max-w-xl">
               <span className="text-maze-muted">#</span>{data.tag}
@@ -95,6 +96,6 @@ export default async function PortfolioTagPage({ params }: Props) {
           <PortfolioGrid projects={data.projects} />
         </div>
       </section>
-    </main>
+    </div>
   )
 }

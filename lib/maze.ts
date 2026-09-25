@@ -103,7 +103,16 @@ function routeOfM(): { cols: number; rows: number; route: Cell[] } {
   return { cols, rows, route }
 }
 
-export function mazeOfM(seed: number): Maze {
+interface Grown {
+  cols: number
+  rows: number
+  route: Cell[]
+  open: Set<number>
+  id: (c: number, r: number) => number
+  passage: (a: number, b: number) => number
+}
+
+function grow(seed: number): Grown {
   const { cols, rows, route } = routeOfM()
   const rand = random(seed)
   const id = (c: number, r: number) => r * cols + c
@@ -140,6 +149,12 @@ export function mazeOfM(seed: number): Maze {
     stack.push(id(x, y))
   }
 
+  return { cols, rows, route, open, id, passage }
+}
+
+export function mazeOfM(seed: number): Maze {
+  const { cols, rows, route, open, id, passage } = grow(seed)
+
   // Walls, merged into the longest straight runs so the path stays short.
   const entrance = route[0][0]
   const exit     = route[route.length - 1][0]
@@ -171,6 +186,46 @@ export function mazeOfM(seed: number): Maze {
   }
 
   return { cols, rows, walls, route }
+}
+
+/**
+ * The same maze walked the wrong way, for the 404: in at the entrance, along
+ * the M for a while, then off down a branch to the dead end furthest from
+ * the entrance. Because the maze is a tree, the walk is the unique path to
+ * that dead end — it simply isn't the one that leads out.
+ */
+export function lostRoute(seed: number): Cell[] {
+  const { cols, rows, route, open, id, passage } = grow(seed)
+  const onRoute = new Set(route.map(([c, r]) => id(c, r)))
+  const start = id(route[0][0], route[0][1])
+  const prev = new Map<number, number>([[start, -1]])
+  const dist = new Map<number, number>([[start, 0]])
+  const queue = [start]
+  let best = start
+  while (queue.length > 0) {
+    const here = queue.shift()!
+    const c = here % cols
+    const r = (here - c) / cols
+    let exits = 0
+    for (const [x, y] of [[c + 1, r], [c - 1, r], [c, r + 1], [c, r - 1]] as const) {
+      if (x < 0 || y < 0 || x >= cols || y >= rows) continue
+      const there = id(x, y)
+      if (!open.has(passage(here, there))) continue
+      exits += 1
+      if (prev.has(there)) continue
+      prev.set(there, here)
+      dist.set(there, dist.get(here)! + 1)
+      queue.push(there)
+    }
+    // A dead end: one way in, and off the route to the exit.
+    if (exits === 1 && !onRoute.has(here) && dist.get(here)! > dist.get(best)!) best = here
+  }
+  const walk: Cell[] = []
+  for (let at = best; at !== -1; at = prev.get(at)!) {
+    const c = at % cols
+    walk.unshift([c, (at - c) / cols])
+  }
+  return walk
 }
 
 /** A maze number for this visit: five digits, printed as "Maze no. 48213". */

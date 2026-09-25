@@ -1,4 +1,4 @@
-import { mazeOfM } from '@/lib/maze'
+import { mazeOfM, lostRoute } from '@/lib/maze'
 
 /** When the first step of the route appears, and how far apart the rest are. */
 const START_MS = 250
@@ -14,8 +14,16 @@ const STUB = 0.9
  * there is nothing to hydrate. The only motion is CSS — each step of the
  * route fading in after the one before it.
  */
-export function MazeMark({ seed, label, className }: { seed: number; label: string; className?: string }) {
-  const { cols, rows, walls, route } = mazeOfM(seed)
+export function MazeMark({ seed, label, className, lost = false }: {
+  seed: number
+  label: string
+  className?: string
+  /** For the 404: walk in and end at a dead end instead of drawing the M. */
+  lost?: boolean
+}) {
+  const maze   = mazeOfM(seed)
+  const { cols, rows, walls } = maze
+  const route  = lost ? lostRoute(seed) : maze.route
   const centre = (i: number) => [route[i][0] + 0.5, route[i][1] + 0.5] as const
 
   // One line per step, so each can arrive on its own beat: in through the
@@ -29,7 +37,8 @@ export function MazeMark({ seed, label, className }: { seed: number; label: stri
     steps.push([x0, y0, x1, y1])
   }
   const [lx, ly] = centre(route.length - 1)
-  steps.push([lx, ly, lx, rows + STUB])
+  if (!lost) steps.push([lx, ly, lx, rows + STUB])
+  const endsAt = START_MS + steps.length * STEP_MS
 
   return (
     <svg
@@ -59,6 +68,18 @@ export function MazeMark({ seed, label, className }: { seed: number; label: stri
           />
         ))}
       </g>
+      {lost && (
+        // Where the walk gives up.
+        <rect
+          x={lx - 0.22}
+          y={ly - 0.22}
+          width={0.44}
+          height={0.44}
+          fill="rgb(var(--lime))"
+          className="maze-step"
+          style={{ animationDelay: `${endsAt}ms` }}
+        />
+      )}
     </svg>
   )
 }

@@ -6,14 +6,14 @@ import { telegramHref, telegramDisplay } from '@/lib/utils'
 import { JsonLd } from '@/components/JsonLd'
 import { breadcrumbJsonLd, contactPageJsonLd, homeCrumb } from '@/lib/jsonLd'
 import { pageMeta } from '@/lib/seo'
-import { Reveal } from '@/components/ui/Reveal'
-import { TextReveal } from '@/components/ui/TextReveal'
+import { Trail } from '@/components/ui/Trail'
 import { Arrow } from '@/components/ui/Arrow'
 
 export const dynamic = 'force-dynamic'
 
 interface Props {
   params: { locale: string }
+  searchParams?: { service?: string | string[] }
 }
 
 export async function generateMetadata({ params: { locale } }: Props): Promise<Metadata> {
@@ -27,21 +27,25 @@ export async function generateMetadata({ params: { locale } }: Props): Promise<M
 }
 
 
-export default async function ContactPage({ params: { locale } }: Props) {
+export default async function ContactPage({ params: { locale }, searchParams }: Props) {
   setRequestLocale(locale)
-  const [t, settings] = await Promise.all([
+  const [t, tNav, settings] = await Promise.all([
     getTranslations({ locale, namespace: 'contactPage' }),
+    getTranslations({ locale, namespace: 'nav' }),
     getSettings(),
   ])
+  const askedFor = typeof searchParams?.service === 'string' ? searchParams.service : undefined
 
   const email    = settings.email    || 'hello@maze.uz'
-  const phone    = settings.phone    || '+998 99 999 99 99'
+  // No invented fallback number: with no phone in Settings the row is left
+  // out rather than offering a stranger's line as the studio's.
+  const phone    = settings.phone
   const telegram = settings.telegram || '@mazestudio'
   const address  = settings.address  || 'Tashkent, Uzbekistan'
 
   const info = [
     { key: 'emailLabel',    value: email,                      href: `mailto:${email}` },
-    { key: 'phoneLabel',    value: phone,                      href: `tel:${phone.replace(/\s/g, '')}` },
+    ...(phone ? [{ key: 'phoneLabel', value: phone, href: `tel:${phone.replace(/\s/g, '')}` }] : []),
     { key: 'telegramLabel', value: telegramDisplay(telegram),  href: telegramHref(telegram) },
     { key: 'locationLabel', value: address,                    href: null },
   ]
@@ -70,32 +74,26 @@ export default async function ContactPage({ params: { locale } }: Props) {
   return (
     <div className="pt-28 min-h-screen">
       <JsonLd data={[crumbs, contactPageJsonLd(locale)]} />
-      <div className="px-6 md:px-10 py-16 md:py-24 border-b border-maze-border">
+      <div className="px-6 md:px-10 pt-10 md:pt-14 pb-14 md:pb-20 border-b border-maze-border">
         <div className="max-w-[1440px] mx-auto">
-          <p className="label-sm text-maze-muted mb-6">{t('label')}</p>
-          <TextReveal as="h1" stagger className="display-md text-maze-cream max-w-2xl">
-            {t('heading')}
-          </TextReveal>
+          <Trail steps={[{ label: tNav('contact') }]} />
+          <h1 className="display-md text-maze-cream max-w-3xl text-balance">{t('heading')}</h1>
         </div>
       </div>
 
       <div className="px-6 md:px-10 py-16 md:py-24">
         <div className="max-w-[1440px] mx-auto grid grid-cols-1 lg:grid-cols-2 gap-16 lg:gap-24">
           <div>
-            <Reveal>
-              <p className="body-lg text-maze-muted mb-10 max-w-md">{t('sub')}</p>
-            </Reveal>
+            <p className="body-lg text-maze-muted mb-10 max-w-md text-pretty">{t('sub')}</p>
 
-            {/* Contact methods — editorial divided list with sliding arrows */}
+            {/* Contact methods */}
             <div className="border-t border-maze-border mb-12">
-              {info.map((item, i) => {
-                const num  = String(i + 1).padStart(2, '0')
+              {info.map((item) => {
                 const body = (
                   <>
                     <div className="flex items-baseline gap-4 min-w-0">
-                      <span className="label-sm text-maze-muted tabular-nums shrink-0">{num}</span>
                       <div className="min-w-0">
-                        <p className="label-sm text-maze-muted mb-1">{t(item.key)}</p>
+                        <p className="font-mono text-xs text-maze-muted mb-1">{t(item.key)}</p>
                         <span className="body-lg text-maze-cream break-words transition-colors [@media(hover:hover)_and_(pointer:fine)]:group-hover:text-maze-lime">
                           {item.value}
                         </span>
@@ -110,7 +108,7 @@ export default async function ContactPage({ params: { locale } }: Props) {
                   </>
                 )
                 return (
-                  <Reveal key={item.key} delay={i * 0.06}>
+                  <div key={item.key}>
                     {item.href ? (
                       <a
                         href={item.href}
@@ -125,13 +123,13 @@ export default async function ContactPage({ params: { locale } }: Props) {
                         {body}
                       </div>
                     )}
-                  </Reveal>
+                  </div>
                 )
               })}
             </div>
 
-            <Reveal delay={0.1}>
-              <p className="label-sm text-maze-muted mb-4">{t('followUs')}</p>
+            <div>
+              <p className="font-mono text-xs text-maze-muted mb-4">{t('followUs')}</p>
               <div className="flex flex-wrap gap-3">
                 {displaySocials.map((s) => (
                   <a
@@ -145,12 +143,11 @@ export default async function ContactPage({ params: { locale } }: Props) {
                   </a>
                 ))}
               </div>
-            </Reveal>
+            </div>
           </div>
 
-          <Reveal delay={0.12}>
-            <ContactForm />
-          </Reveal>
+          {/* Present from the first frame: this is what the page is for. */}
+          <ContactForm initialService={askedFor} />
         </div>
       </div>
     </div>

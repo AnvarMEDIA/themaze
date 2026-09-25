@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect } from 'react'
+import { useTranslations } from 'next-intl'
 import { Link } from '@/i18n/navigation'
 
 interface Props {
@@ -10,40 +11,33 @@ interface Props {
 
 /**
  * Per-locale error boundary — runs inside the public layout so the
- * user still sees the site chrome.
+ * user still sees the site chrome, in the language they were reading.
  */
 export default function LocaleError({ error, reset }: Props) {
+  const t = useTranslations('errorPage')
+
   useEffect(() => {
     console.error('[LocaleError]', error)
   }, [error])
 
   return (
-    <main className="min-h-[70vh] flex items-center justify-center px-6 md:px-10 py-32">
-      <div className="max-w-xl text-center">
-        <p className="label-sm text-maze-muted mb-6">Error · 500</p>
-        <h1 className="display-md text-maze-lime mb-6 leading-[0.9]">Something broke.</h1>
-        <p className="body-lg text-maze-muted mb-6">
-          An unexpected error occurred. Please try again, or go back home.
-        </p>
+    <div className="min-h-[70vh] px-6 md:px-10 pt-36 md:pt-40 pb-20">
+      <div className="max-w-[1440px] mx-auto">
+        <p className="font-mono text-xs text-maze-muted mb-5">{t('label')}</p>
+        <h1 className="display-md text-maze-cream mb-6 text-balance">{t('heading')}</h1>
+        <p className="body-lg text-maze-muted mb-6 max-w-md text-pretty">{t('body')}</p>
         {error.digest && (
-          <p className="label-sm text-maze-muted mb-8 font-mono">Reference: {error.digest}</p>
+          <p className="font-mono text-xs text-maze-muted mb-8">{t('reference')}: {error.digest}</p>
         )}
-        <div className="flex flex-wrap justify-center gap-3">
-          <button
-            type="button"
-            onClick={() => reset()}
-            className="inline-flex items-center gap-2 px-6 py-3.5 bg-maze-lime text-maze-ink font-bold rounded-full label-sm hover:bg-maze-paper transition-colors"
-          >
-            Try again
+        <div className="flex flex-wrap items-center gap-3">
+          <button type="button" onClick={() => reset()} className="btn btn-primary">
+            {t('retry')}
           </button>
-          <Link
-            href="/"
-            className="inline-flex items-center gap-2 px-6 py-3.5 border border-maze-border text-maze-muted font-bold rounded-full label-sm hover:border-maze-cream hover:text-maze-cream transition-colors"
-          >
-            Home
+          <Link href="/" className="btn btn-quiet">
+            {t('home')}
           </Link>
         </div>
       </div>
-    </main>
+    </div>
   )
 }

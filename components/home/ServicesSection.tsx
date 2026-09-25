@@ -1,7 +1,7 @@
 import { useTranslations } from 'next-intl'
 import { Link } from '@/i18n/navigation'
 import { Arrow } from '@/components/ui/Arrow'
-import { SERVICE_SLUGS } from '@/lib/llms'
+import { SERVICE_SLUGS } from '@/lib/services'
 import { SectionHead } from './SectionHead'
 
 const HOVER_LIME  = '[@media(hover:hover)_and_(pointer:fine)]:group-hover:text-maze-lime'

@@ -40,15 +40,16 @@ export function LangToggle() {
               'relative z-10 px-3 py-1 rounded-full label-sm disabled:opacity-50',
               'transition-[color,transform] duration-150 active:scale-[0.95]',
               isActive
-                ? 'text-maze-ink'
+                ? 'text-maze-cream'
                 : 'text-maze-muted [@media(hover:hover)_and_(pointer:fine)]:hover:text-maze-cream'
             )}
           >
-            {/* Sliding lime pill — shared layoutId animates between buttons */}
+            {/* The active language is marked, not shouted: lime is kept for
+                the one primary action in the header. */}
             {isActive && (
               <motion.span
                 layoutId="lang-pill"
-                className="absolute inset-0 rounded-full bg-maze-lime"
+                className="absolute inset-0 rounded-full bg-maze-cream/[0.12]"
                 transition={{ duration: 0.22, ease: EASE_OUT }}
                 style={{ zIndex: -1 }}
               />

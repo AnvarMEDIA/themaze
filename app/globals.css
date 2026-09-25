@@ -181,50 +181,58 @@ label[for],
   }
 }
 
-/* ─── Buttons ────────────────────────────────────────────────────────── */
-/* Rectangular, with the 2px corner of a drawn line — the same geometry as
-   the maze walls. Pills stay where they mean something else: chips and
-   filters that toggle. */
-.btn {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.625rem;
-  min-height: 48px;
-  padding: 0 1.375rem;
-  border-radius: 2px;
-  font-size: 0.8125rem;
-  font-weight: 700;
-  letter-spacing: 0.01em;
-  white-space: nowrap;
-  transition: transform 160ms var(--ease-out), background-color 160ms ease,
-    color 160ms ease, border-color 160ms ease;
-}
-.btn:active { transform: scale(0.97); transition-duration: 80ms; }
-.btn-primary { background: rgb(var(--lime)); color: #0A0A0A; }
-.btn-quiet   { border: 1px solid rgb(var(--border)); color: rgb(var(--text)); }
-@media (hover: hover) and (pointer: fine) {
-  .btn-primary:hover { background: #F0EEE6; }
-  .btn-quiet:hover   { border-color: rgb(var(--muted)); }
-}
+/* In the components layer, so a utility on the same element still wins —
+   `hidden lg:inline-flex btn` has to be able to hide the button. */
+@layer components {
+  /* ─── Buttons ────────────────────────────────────────────────────────── */
+  /* Rectangular, with the 2px corner of a drawn line — the same geometry as
+     the maze walls. Pills stay where they mean something else: chips and
+     filters that toggle. */
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.625rem;
+    min-height: 48px;
+    padding: 0 1.375rem;
+    border-radius: 2px;
+    font-size: 0.8125rem;
+    font-weight: 700;
+    letter-spacing: 0.01em;
+    white-space: nowrap;
+    transition: transform 160ms var(--ease-out), background-color 160ms ease,
+      color 160ms ease, border-color 160ms ease;
+  }
+  .btn:active { transform: scale(0.97); transition-duration: 80ms; }
+  .btn:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
+  .btn-sm { min-height: 40px; padding: 0 1rem; }
+  .btn-block { width: 100%; }
+  .btn-primary { background: rgb(var(--lime)); color: #0A0A0A; }
+  .btn-quiet   { border: 1px solid rgb(var(--border)); color: rgb(var(--text)); }
+  @media (hover: hover) and (pointer: fine) {
+    .btn-primary:hover { background: #F0EEE6; }
+    .btn-quiet:hover   { border-color: rgb(var(--muted)); }
+  }
 
-/* A text link that leads somewhere: the arrow moves, the label warms. */
-.link-arrow {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.5rem;
-  min-height: 44px;
-  font-size: 0.8125rem;
-  font-weight: 700;
-  letter-spacing: 0.01em;
-  color: rgb(var(--text));
-  transition: color 160ms ease, transform 160ms var(--ease-out);
-}
-.link-arrow svg { transition: transform 200ms var(--ease-out); }
-.link-arrow:active { transform: scale(0.97); }
-@media (hover: hover) and (pointer: fine) {
-  .link-arrow:hover { color: rgb(var(--lime)); }
-  .link-arrow:hover svg { transform: translateX(3px); }
+  /* A text link that leads somewhere: the arrow moves, the label warms. */
+  .link-arrow {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    min-height: 44px;
+    font-size: 0.8125rem;
+    font-weight: 700;
+    letter-spacing: 0.01em;
+    color: rgb(var(--text));
+    transition: color 160ms ease, transform 160ms var(--ease-out);
+  }
+  .link-arrow-quiet { color: rgb(var(--muted)); }
+  .link-arrow svg { transition: transform 200ms var(--ease-out); }
+  .link-arrow:active { transform: scale(0.97); }
+  @media (hover: hover) and (pointer: fine) {
+    .link-arrow:hover { color: rgb(var(--lime)); }
+    .link-arrow:hover svg { transform: translateX(3px); }
+  }
 }
 
 /* ─── The homepage maze ──────────────────────────────────────────────── */
@@ -268,43 +276,6 @@ button[class*="border"][class*="rounded-full"]:active {
 @media (hover: hover) and (pointer: fine) {
   .group:hover .group-hover\:scale-105 {
     transform: scale(1.05);
-  }
-}
-
-/* ─── Animated inline-link underline ─────────────────────────────────── */
-/* Wipes in from the left on hover, out to the right on leave — a small
-   detail that compounds. transform-only (GPU), gated to hover devices. */
-.link-underline {
-  position: relative;
-  display: inline-block;
-}
-.link-underline::after {
-  content: '';
-  position: absolute;
-  left: 0;
-  right: 0;
-  bottom: -2px;
-  height: 1px;
-  background: currentColor;
-  transform: scaleX(0);
-  transform-origin: right center;
-  transition: transform 260ms var(--ease-out);
-}
-@media (hover: hover) and (pointer: fine) {
-  .link-underline:hover::after {
-    transform: scaleX(1);
-    transform-origin: left center;
-  }
-}
-
-/* ─── Card lift on hover ─────────────────────────────────────────────── */
-/* Subtle rise + border warm-up. transform-only, gated. */
-.card-lift {
-  transition: transform 300ms var(--ease-out), border-color 200ms ease;
-}
-@media (hover: hover) and (pointer: fine) {
-  .card-lift:hover {
-    transform: translateY(-4px);
   }
 }
 

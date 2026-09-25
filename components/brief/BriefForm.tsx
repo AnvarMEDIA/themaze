@@ -96,7 +96,7 @@ interface ServiceItem { id: string; label: string }
 /* ── Shared class strings ─────────────────────────────────────────────── */
 
 const INPUT_CLASS =
-  'w-full bg-transparent border border-maze-border rounded-lg px-4 py-3.5 body-lg ' +
+  'w-full bg-transparent border border-maze-border rounded-sm px-4 py-3.5 body-lg ' +
   'text-maze-cream placeholder:text-maze-muted focus:outline-none focus:border-maze-lime transition-colors duration-200'
 
 const chipClass = (active: boolean) =>
@@ -213,12 +213,9 @@ export function BriefForm() {
     return (
       <div className="flex flex-col items-center justify-center py-24 text-center">
         <p className="label-sm text-maze-lime mb-6">{t('success.label')}</p>
-        <h2 className="display-sm text-maze-cream mb-4">{t('success.heading')}</h2>
+        <h2 className="heading-lg text-maze-cream mb-4">{t('success.heading')}</h2>
         <p className="body-lg text-maze-muted max-w-sm mb-10">{t('success.body')}</p>
-        <Link
-          href="/"
-          className="label-sm px-8 py-4 bg-maze-lime text-maze-ink font-bold rounded-full hover:bg-maze-paper transition-colors duration-200"
-        >
+        <Link href="/" className="btn btn-primary">
           {t('success.cta')}
         </Link>
       </div>
@@ -233,11 +230,7 @@ export function BriefForm() {
   const navButtons = (isSubmit = false) => (
     <div className="flex gap-3 mt-10 pt-8 border-t border-maze-border">
       {step > 1 && (
-        <button
-          type="button"
-          onClick={handleBack}
-          className="label-sm px-6 py-3.5 border border-maze-border text-maze-muted rounded-full hover:border-maze-cream hover:text-maze-cream transition-colors duration-200"
-        >
+        <button type="button" onClick={handleBack} className="btn btn-quiet">
           ← {t('nav.back')}
         </button>
       )}
@@ -245,7 +238,7 @@ export function BriefForm() {
         type={isSubmit ? 'submit' : 'button'}
         onClick={isSubmit ? undefined : handleNext}
         disabled={loading}
-        className="flex-1 py-4 bg-maze-lime text-maze-ink font-bold rounded-full hover:bg-maze-paper transition-colors duration-200 disabled:opacity-60 disabled:cursor-not-allowed label-sm focus:outline-none focus-visible:ring-2 focus-visible:ring-maze-cream"
+        className="btn btn-primary flex-1"
       >
         {isSubmit
           ? (loading ? t('nav.submitting') : t('nav.submit'))
