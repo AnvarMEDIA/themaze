@@ -1,161 +1,54 @@
-'use client'
-
-import { useRef, useState } from 'react'
 import { useTranslations } from 'next-intl'
 import { Link } from '@/i18n/navigation'
-import { motion, useInView, AnimatePresence, useReducedMotion } from 'framer-motion'
+import { Arrow } from '@/components/ui/Arrow'
+import { SERVICE_SLUGS } from '@/lib/llms'
+import { SectionHead } from './SectionHead'
 
-// Exactly 6 services — one href per service item (indices 0-5)
-const SERVICE_HREFS = [
-  '/services#branding',
-  '/services#identity',
-  '/services#naming',
-  '/services#packaging',
-  '/services#print',
-  '/services#art-direction',
-] as const
+const HOVER_LIME  = '[@media(hover:hover)_and_(pointer:fine)]:group-hover:text-maze-lime'
+const HOVER_NUDGE = '[@media(hover:hover)_and_(pointer:fine)]:group-hover:translate-x-1'
 
-// Strong ease-out curve (Emil Kowalski)
-const EASE_OUT = [0.23, 1, 0.32, 1] as const
-
+/**
+ * All nine services, each one row that is one link to its own page.
+ *
+ * The list used to be six hand-picked names that didn't match the site:
+ * Packaging next to "Print & Packaging", and an Art Direction service with
+ * no page, all pointing at anchors on /services. Names and taglines now
+ * come from the service pages themselves, so the two can't drift apart,
+ * and each row says how long the work takes — the first thing a prospect
+ * asks after "what do you do".
+ */
 export function ServicesSection() {
-  const t            = useTranslations('services')
-  const sectionRef   = useRef<HTMLElement>(null)
-  const inView       = useInView(sectionRef, { once: true, margin: '-10% 0px' })
-  const shouldReduce = useReducedMotion()
-  const [active, setActive] = useState<number | null>(null)
-
-  const items = (t.raw('items') as {
-    title: string
-    description: string
-    tags: string[]
-  }[]).slice(0, 6)
+  const t  = useTranslations('home.services')
+  const tc = useTranslations('servicesPage.cluster')
 
   return (
-    <section
-      ref={sectionRef}
-      className="px-6 md:px-10 py-24 md:py-36 border-t border-maze-border"
-    >
-      {/* Header */}
-      <div className="mb-14">
-        <motion.p
-          initial={{ opacity: 0 }}
-          animate={inView ? { opacity: 1 } : {}}
-          transition={{ duration: 0.5 }}
-          className="label-sm text-maze-muted mb-4"
-        >
-          {t('label')}
-        </motion.p>
-        <div className="overflow-hidden">
-          <motion.h2
-            initial={{ y: '100%' }}
-            animate={inView ? { y: '0%' } : {}}
-            transition={{ duration: 0.9, ease: EASE_OUT }}
-            className="display-md text-maze-cream"
-          >
-            {t('heading')}
-          </motion.h2>
-        </div>
-      </div>
-
-      {/* Service list — stagger entrance */}
-      <div className="border-t border-maze-border">
-        {items.map((service, i) => (
-          <motion.div
-            key={i}
-            initial={shouldReduce ? { opacity: 0 } : { opacity: 0, y: 20 }}
-            animate={inView ? { opacity: 1, y: 0 } : {}}
-            transition={{
-              delay:    i * 0.07,
-              duration: 0.55,
-              ease:     EASE_OUT,
-            }}
-          >
-            <div
-              className="border-b border-maze-border py-6 md:py-8 cursor-default"
-              onMouseEnter={() => setActive(i)}
-              onMouseLeave={() => setActive(null)}
-              onFocus={() => setActive(i)}
-              onBlur={(e) => {
-                if (!e.currentTarget.contains(e.relatedTarget as Node)) setActive(null)
-              }}
-            >
-              <div className="flex items-start justify-between gap-4">
-
-                {/* Left: number + title + expand */}
-                <div className="flex items-start gap-6 md:gap-10 flex-1 min-w-0">
-
-                  {/* Number — 0X in muted color, far left */}
-                  <span className="label-sm text-maze-muted pt-2 shrink-0 w-7 tabular-nums">
-                    0{i + 1}
-                  </span>
-
-                  {/* Title + hover-expand description + tags */}
-                  <div className="flex-1 min-w-0">
-                    <h3
-                      className="heading-lg text-maze-cream"
-                      style={{
-                        color:      active === i ? 'rgb(var(--lime))' : undefined,
-                        transition: 'color 200ms ease-out',
-                      }}
-                    >
-                      {service.title}
-                    </h3>
-
-                    {/* AnimatePresence expand: description + tags on hover */}
-                    <AnimatePresence initial={false}>
-                      {active === i && (
-                        <motion.div
-                          key="expand"
-                          initial={{ height: 0, opacity: 0 }}
-                          animate={{ height: 'auto', opacity: 1 }}
-                          exit={{ height: 0, opacity: 0 }}
-                          transition={{
-                            height:  { duration: 0.32, ease: EASE_OUT },
-                            opacity: { duration: 0.22, ease: EASE_OUT },
-                          }}
-                          className="overflow-hidden"
-                        >
-                          <p className="body-lg text-maze-muted mt-3 max-w-xl">
-                            {service.description}
-                          </p>
-                          {service.tags.length > 0 && (
-                            <div className="flex flex-wrap gap-2 mt-4 pb-1">
-                              {service.tags.map((tag) => (
-                                <span
-                                  key={tag}
-                                  className="label-sm px-3 py-1 border border-maze-border rounded-full text-maze-muted"
-                                >
-                                  {tag}
-                                </span>
-                              ))}
-                            </div>
-                          )}
-                        </motion.div>
-                      )}
-                    </AnimatePresence>
-                  </div>
-                </div>
-
-                {/* Arrow link — far right, rotates to upright on hover (↗) */}
-                <Link
-                  href={SERVICE_HREFS[i] ?? '/services'}
-                  onClick={(e) => e.stopPropagation()}
-                  className="shrink-0 w-10 h-10 rounded-full border flex items-center justify-center mt-1 focus:outline-none focus-visible:ring-2 focus-visible:ring-maze-lime focus-visible:ring-offset-2 focus-visible:ring-offset-maze-black"
-                  style={{
-                    borderColor: active === i ? 'rgb(var(--lime))' : 'rgb(var(--border))',
-                    color:       active === i ? 'rgb(var(--lime))' : 'rgb(var(--muted))',
-                    transform:   active === i ? 'rotate(0deg)'    : 'rotate(-45deg)',
-                    transition:  'border-color 200ms ease-out, color 200ms ease-out, transform 200ms cubic-bezier(0.23, 1, 0.32, 1)',
-                  }}
-                  aria-label={`Go to ${service.title}`}
-                >
-                  <span aria-hidden="true">↗</span>
-                </Link>
-              </div>
-            </div>
-          </motion.div>
-        ))}
+    <section className="px-6 md:px-10 py-12 md:py-16">
+      <div className="max-w-[1440px] mx-auto">
+        <SectionHead title={t('heading')} link={{ href: '/services', label: t('all') }} />
+        <ul>
+          {SERVICE_SLUGS.map((slug) => (
+            <li key={slug} className="border-b border-maze-border first:border-t">
+              <Link
+                href={`/services/${slug}`}
+                className="group grid grid-cols-[minmax(0,1fr)_auto] md:grid-cols-[minmax(0,5fr)_minmax(0,7fr)_7.5rem_1rem] items-baseline gap-x-6 gap-y-1.5 py-5 md:py-6"
+              >
+                <h3 className={`heading-md text-maze-cream transition-colors duration-200 ${HOVER_LIME}`}>
+                  {tc(`${slug}.title`)}
+                </h3>
+                <span className="md:order-3 font-mono text-xs text-maze-muted text-right whitespace-nowrap">
+                  {t(`durations.${slug}`)}
+                </span>
+                <p className="col-span-2 md:col-span-1 md:order-2 text-maze-muted text-pretty">
+                  {tc(`${slug}.tagline`)}
+                </p>
+                <Arrow
+                  direction="right"
+                  className={`hidden md:block md:order-4 text-maze-muted transition-transform duration-200 ease-out ${HOVER_NUDGE}`}
+                />
+              </Link>
+            </li>
+          ))}
+        </ul>
       </div>
     </section>
   )

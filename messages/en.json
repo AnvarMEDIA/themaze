@@ -8,54 +8,80 @@
     "startProject": "Start a project",
     "brandingStudio": "Branding Studio"
   },
-  "hero": {
-    "line1": "WE BUILD",
-    "line2": "BOLD",
-    "words": [
-      "BRANDS",
-      "IDEAS",
-      "FUTURES",
-      "STORIES"
-    ],
-    "subtitle": "We shape values into forms that resonate in the hearts of millions.",
-    "viewWork": "View Work",
-    "startProject": "Start a Project",
-    "scroll": "Scroll",
-    "est": "EST. 2019 — TASHKENT",
-    "fillBrief": "Fill out brief"
-  },
-  "marquee": {
-    "items": [
-      "Branding",
-      "Identity",
-      "Naming",
-      "Packaging",
-      "Print & Packaging",
-      "Art Direction",
-      "Brand Strategy",
-      "Visual Identity",
-      "Brand Book",
-      "Creative Direction"
-    ]
-  },
-  "featured": {
-    "label": "Selected Work",
-    "heading": "Featured Projects",
-    "viewAll": "View all work"
-  },
-  "about": {
-    "label": "About MAZE",
-    "heading": "We navigate complexity.",
-    "body1": "MAZE is a branding and design studio based in Tashkent. Like a well-designed maze, we guide brands through complexity to clarity — crafting identities that navigate markets, define culture, and lead audiences forward.",
-    "body2": "From Uzbekistan's top startups to global brands entering Central Asia, we build visual languages that resonate, endure, and grow.",
-    "cta": "Our story",
-    "stats": {
-      "projects": "Projects completed",
-      "years": "Years of experience",
-      "clients": "Happy clients",
-      "countries": "Countries served"
+  "home": {
+    "hero": {
+      "heading": "We turn complexity into clarity.",
+      "sub": "MAZE is a branding and design studio in Tashkent. Identity, naming, packaging and strategy for companies across Central Asia — since 2019.",
+      "brief": "Fill out the brief",
+      "work": "See the work",
+      "mazeLabel": "Maze no. {no}. Its only way through, from the entrance to the exit, draws the letter M.",
+      "mazeCaption": "<b>Maze no. {no}</b>, drawn for this visit. The only way through is always an M.",
+      "stats": {
+        "projects": "projects",
+        "clients": "clients",
+        "countries": "countries"
+      }
     },
-    "quote": "Design is not just what it looks like. Design is how it works — and how it makes people feel."
+    "work": {
+      "heading": "Selected work",
+      "all": "All work"
+    },
+    "services": {
+      "heading": "Services",
+      "all": "All services",
+      "durations": {
+        "branding": "8–12 weeks",
+        "rebranding": "6–16 weeks",
+        "identity": "6–9 weeks",
+        "naming": "3–5 weeks",
+        "packaging": "6–10 weeks",
+        "ui-ux": "8–14 weeks",
+        "print": "2–12 weeks",
+        "motion": "2–8 weeks",
+        "strategy": "4–8 weeks"
+      }
+    },
+    "studio": {
+      "heading": "Strategy before aesthetics.",
+      "body1": "MAZE was founded in Tashkent in 2019 on a simple conviction: Central Asian brands deserve world-class design. We understand a business before we pick up a pen.",
+      "body2": "We stay small by choice — small enough to care about the kerning, experienced enough to deliver at scale.",
+      "more": "About the studio",
+      "factsHeading": "How we work",
+      "facts": [
+        {
+          "k": "Revisions",
+          "v": "Two structured rounds at every stage"
+        },
+        {
+          "k": "NDA",
+          "v": "Mutual, signed before we see anything sensitive"
+        },
+        {
+          "k": "Ownership",
+          "v": "Full IP transfers to you on final payment"
+        },
+        {
+          "k": "Languages",
+          "v": "English, Russian and Uzbek"
+        },
+        {
+          "k": "Remote",
+          "v": "Figma, Notion, Loom and a weekly call"
+        },
+        {
+          "k": "First reply",
+          "v": "Within 24 hours"
+        }
+      ]
+    },
+    "clients": {
+      "heading": "Clients"
+    },
+    "journal": {
+      "heading": "Journal",
+      "all": "All articles",
+      "min": "{n} min"
+    }
   },
   "services": {
     "label": "What we do",
@@ -123,40 +149,11 @@
       }
     ]
   },
-  "process": {
-    "label": "How we work",
-    "heading": "Our Process",
-    "sub": "A structured approach that brings clarity to every project, from brief to launch.",
-    "steps": [
-      {
-        "title": "Discover",
-        "body": "Deep-dive into your business, audience, and competitive landscape. We ask the hard questions first."
-      },
-      {
-        "title": "Define",
-        "body": "Turn insights into a strategic brief. Positioning, personality, and design principles — crystal clear."
-      },
-      {
-        "title": "Design",
-        "body": "Craft visual solutions with rigour and creativity. Iterate fast, refine relentlessly."
-      },
-      {
-        "title": "Deliver",
-        "body": "Comprehensive handoff: files, guidelines, and support to launch your brand with confidence."
-      }
-    ]
-  },
-  "cta": {
-    "label": "Ready to start?",
-    "line1": "Let's build",
-    "line2": "something great.",
-    "sub": "Tell us about your project. We respond within 24 hours.",
-    "button": "Start a project",
-    "email": "hello@maze.uz"
-  },
   "footer": {
     "tagline": "Branding & Design Studio.\nTashkent, Uzbekistan.",
-    "readyLabel": "Ready to collaborate?",
+    "ctaHeading": "Tell us about the project.",
+    "ctaSub": "We reply within 24 hours — in English, Russian or Uzbek.",
+    "ctaBrief": "Fill out the brief",
     "rights": "All rights reserved.",
     "builtBy": "Designed & built by MAZE",
     "location": "Tashkent, Uzbekistan",
@@ -177,10 +174,6 @@
       "services": "Services",
       "contact": "Contact"
     }
-  },
-  "partners": {
-    "label": "Trusted by",
-    "heading": "Clients & Partners"
   },
   "portfolio": {
     "label": "Our Work",
@@ -996,10 +989,6 @@
       "emailInvalid": "Please enter a valid email address",
       "messageRequired": "Please tell us about your project"
     }
-  },
-  "testimonialsSection": {
-    "label": "What clients say",
-    "heading": "Kind words from people we've worked with."
   },
   "insights": {
     "metaTitle": "Insights — Notes on Brand & Design",

@@ -1,7 +1,7 @@
 'use client'
 
 import { useTranslations } from 'next-intl'
-import { Link } from '@/i18n/navigation'
+import { Link, usePathname } from '@/i18n/navigation'
 import type { SiteSettings } from '@/lib/settings'
 import { telegramHref, telegramDisplay } from '@/lib/utils'
 import { resetConsent } from '@/lib/consent'
@@ -108,154 +108,172 @@ export function Footer({ settings }: Props) {
   const tgDisplay = telegramDisplay(settings.telegram || '')
   const email    = settings.email || 'hello@maze.uz'
 
+  // The call to action closes every page except the two it points to: on
+  // /contact and /brief the form is already the page.
+  const pathname = usePathname()
+  const showCta  = !['/contact', '/brief'].some((p) => pathname === p || pathname.startsWith(p + '/'))
+
   return (
     <footer className="border-t border-maze-border bg-maze-black">
 
-      {/* ── CTA strip ──────────────────────────────────────────────────────────── */}
-      <div className="px-6 md:px-10 py-20 md:py-28 border-b border-maze-border">
-        <p className="label-sm text-maze-muted mb-6 tracking-widest uppercase">{t('readyLabel')}</p>
-
-        {/* Email — largest */}
-        <a
-          href={`mailto:${email}`}
-          className="group display-lg text-maze-cream hover:text-maze-lime transition-colors duration-200 inline-flex items-center gap-3"
-        >
-          {email}
-          <Arrow direction="up-right" className="w-[0.5em] h-[0.5em] transition-transform duration-300 [@media(hover:hover)_and_(pointer:fine)]:group-hover:translate-x-2 [@media(hover:hover)_and_(pointer:fine)]:group-hover:-translate-y-2" />
-        </a>
-
-        {/* Phone + Telegram — large */}
-        <div className="mt-14 flex flex-col sm:flex-row gap-4 sm:gap-10">
-          {phoneDisplay && (
-            <a
-              href={phoneHref}
-              className="text-2xl md:text-3xl font-bold text-maze-muted hover:text-maze-lime transition-colors duration-200 inline-flex items-center gap-3"
-            >
-              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="text-maze-lime flex-shrink-0">
-                <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12a19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 3.6 1.27h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 8.91a16 16 0 0 0 6.06 6.06l.92-.92a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 21.73 16.92z"/>
-              </svg>
-              {phoneDisplay}
-            </a>
-          )}
-          {settings.telegram && (
-            <a
-              href={tgHref}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-2xl md:text-3xl font-bold text-maze-muted hover:text-maze-lime transition-colors duration-200 inline-flex items-center gap-3"
-            >
-              <span className="text-maze-lime flex-shrink-0"><IconTelegram /></span>
-              {tgDisplay}
-            </a>
-          )}
+      {/* ── The one call to action ──────────────────────────────────────────── */}
+      {showCta && (
+        <div className="px-6 md:px-10 py-16 md:py-24 border-b border-maze-border">
+          <div className="max-w-[1440px] mx-auto grid grid-cols-1 lg:grid-cols-12 gap-x-10 gap-y-10 lg:items-end">
+            <div className="lg:col-span-8 min-w-0">
+              <h2 className="heading-lg text-maze-cream">{t('ctaHeading')}</h2>
+              <p className="mt-3 text-maze-muted">{t('ctaSub')}</p>
+              <a
+                href={`mailto:${email}`}
+                className="group mt-8 md:mt-10 inline-flex items-center gap-3 display-md text-maze-cream break-all transition-colors duration-200 [@media(hover:hover)_and_(pointer:fine)]:hover:text-maze-lime"
+              >
+                {email}
+                <Arrow direction="up-right" className="w-[0.5em] h-[0.5em] transition-transform duration-200 ease-out [@media(hover:hover)_and_(pointer:fine)]:group-hover:translate-x-1 [@media(hover:hover)_and_(pointer:fine)]:group-hover:-translate-y-1" />
+              </a>
+            </div>
+            <div className="lg:col-span-4 flex flex-col items-start lg:items-end gap-5">
+              <Link href="/brief" className="btn btn-primary">
+                {t('ctaBrief')}
+                <Arrow direction="right" className="text-base" />
+              </Link>
+              <div className="flex flex-wrap gap-x-6 text-sm">
+                {phoneDisplay && (
+                  <a
+                    href={phoneHref}
+                    className="inline-flex items-center gap-2 py-2 text-maze-muted transition-colors duration-200 hover:text-maze-cream"
+                  >
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                      <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12a19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 3.6 1.27h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 8.91a16 16 0 0 0 6.06 6.06l.92-.92a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 21.73 16.92z"/>
+                    </svg>
+                    {phoneDisplay}
+                  </a>
+                )}
+                {settings.telegram && (
+                  <a
+                    href={tgHref}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-2 py-2 text-maze-muted transition-colors duration-200 hover:text-maze-cream"
+                  >
+                    <IconTelegram />
+                    {tgDisplay}
+                  </a>
+                )}
+              </div>
+            </div>
+          </div>
         </div>
-      </div>
+      )}
 
       {/* ── Main links grid ─────────────────────────────────────────────────────── */}
-      <div className="px-6 md:px-10 pt-16 pb-12 grid grid-cols-2 lg:grid-cols-5 gap-x-10 gap-y-12">
+      <div className="px-6 md:px-10 pt-16 pb-12">
+        <div className="max-w-[1440px] mx-auto grid grid-cols-2 lg:grid-cols-5 gap-x-10 gap-y-12">
 
-        {/* Logo + tagline — spans 2 cols on mobile */}
-        <div className="col-span-2 lg:col-span-1">
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img
-            src={LOGO}
-            alt="MAZE"
-            style={{ height: '52px', width: 'auto', filter: 'brightness(0) invert(1)' }}
-          />
-          <p className="mt-5 text-sm text-maze-muted leading-relaxed max-w-[200px] whitespace-pre-line">
-            {t('tagline')}
-          </p>
-        </div>
+          {/* Logo + tagline — spans 2 cols on mobile */}
+          <div className="col-span-2 lg:col-span-1">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src={LOGO}
+              alt="MAZE"
+              style={{ height: '52px', width: 'auto', filter: 'brightness(0) invert(1)' }}
+            />
+            <p className="mt-5 text-sm text-maze-muted leading-relaxed max-w-[200px] whitespace-pre-line">
+              {t('tagline')}
+            </p>
+          </div>
 
-        {/* Work — column A */}
-        <div>
-          <p className="text-xs font-semibold text-maze-muted mb-3.5 tracking-widest uppercase">{t('groups.Work')}</p>
-          <ul>
-            {workLinksA.map((link) => (
-              <li key={link.href}>
-                <Link href={link.href} className="inline-block py-1.5 text-sm text-maze-muted hover:text-maze-cream transition-colors duration-200">
-                  {link.label}
-                </Link>
-              </li>
-            ))}
-          </ul>
-        </div>
+          {/* Work — column A */}
+          <div>
+            <p className="text-xs font-semibold text-maze-muted mb-3.5 tracking-widest uppercase">{t('groups.Work')}</p>
+            <ul>
+              {workLinksA.map((link) => (
+                <li key={link.href}>
+                  <Link href={link.href} className="inline-block py-1.5 text-sm text-maze-muted hover:text-maze-cream transition-colors duration-200">
+                    {link.label}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </div>
 
-        {/* Work — column B (no heading, continues the list) */}
-        <div>
-          <p aria-hidden="true" className="text-xs font-semibold text-maze-muted mb-3.5 tracking-widest uppercase opacity-0 select-none">–</p>
-          <ul>
-            {workLinksB.map((link) => (
-              <li key={link.href}>
-                <Link href={link.href} className="inline-block py-1.5 text-sm text-maze-muted hover:text-maze-cream transition-colors duration-200">
-                  {link.label}
-                </Link>
-              </li>
-            ))}
-          </ul>
-        </div>
+          {/* Work — column B (no heading, continues the list) */}
+          <div>
+            <p aria-hidden="true" className="text-xs font-semibold text-maze-muted mb-3.5 tracking-widest uppercase opacity-0 select-none">–</p>
+            <ul>
+              {workLinksB.map((link) => (
+                <li key={link.href}>
+                  <Link href={link.href} className="inline-block py-1.5 text-sm text-maze-muted hover:text-maze-cream transition-colors duration-200">
+                    {link.label}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </div>
 
-        {/* Studio */}
-        <div>
-          <p className="text-xs font-semibold text-maze-muted mb-3.5 tracking-widest uppercase">{t('groups.Studio')}</p>
-          <ul>
-            {studioLinks.map((link) => (
-              <li key={link.href}>
-                <Link href={link.href} className="inline-block py-1.5 text-sm text-maze-muted hover:text-maze-cream transition-colors duration-200">
-                  {link.label}
-                </Link>
-              </li>
-            ))}
-          </ul>
-        </div>
+          {/* Studio */}
+          <div>
+            <p className="text-xs font-semibold text-maze-muted mb-3.5 tracking-widest uppercase">{t('groups.Studio')}</p>
+            <ul>
+              {studioLinks.map((link) => (
+                <li key={link.href}>
+                  <Link href={link.href} className="inline-block py-1.5 text-sm text-maze-muted hover:text-maze-cream transition-colors duration-200">
+                    {link.label}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </div>
 
-        {/* Social — with icons */}
-        <div>
-          <p className="text-xs font-semibold text-maze-muted mb-3.5 tracking-widest uppercase">{t('groups.Social')}</p>
-          <ul>
-            {(socialLinks.length > 0 ? socialLinks : FALLBACK_SOCIALS).map((link) => (
-              <li key={link.label}>
-                <a
-                  href={link.href}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-flex items-center gap-2.5 py-1.5 text-sm text-maze-muted hover:text-maze-cream transition-colors duration-200"
-                >
-                  <span>{link.icon}</span>
-                  {link.label}
-                </a>
-              </li>
-            ))}
-          </ul>
+          {/* Social — with icons */}
+          <div>
+            <p className="text-xs font-semibold text-maze-muted mb-3.5 tracking-widest uppercase">{t('groups.Social')}</p>
+            <ul>
+              {(socialLinks.length > 0 ? socialLinks : FALLBACK_SOCIALS).map((link) => (
+                <li key={link.label}>
+                  <a
+                    href={link.href}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-2.5 py-1.5 text-sm text-maze-muted hover:text-maze-cream transition-colors duration-200"
+                  >
+                    <span>{link.icon}</span>
+                    {link.label}
+                  </a>
+                </li>
+              ))}
+            </ul>
+          </div>
         </div>
       </div>
 
       {/* ── Bottom bar ──────────────────────────────────────────────────────────── */}
-      <div className="px-6 md:px-10 py-5 border-t border-maze-border flex flex-col sm:flex-row justify-between items-center gap-3">
-        <p className="text-xs text-maze-muted tracking-widest">
-          © {FOUNDED}–{currentYear} MAZE Studio. {t('rights')}
-        </p>
-        <nav className="flex flex-wrap items-center gap-x-5 text-xs text-maze-muted">
-          <Link href="/legal/privacy" className="py-2 hover:text-maze-cream transition-colors duration-200">
-            {tLegal('privacy.title')}
-          </Link>
-          <Link href="/legal/terms" className="py-2 hover:text-maze-cream transition-colors duration-200">
-            {tLegal('terms.title')}
-          </Link>
-          <Link href="/legal/cookies" className="py-2 hover:text-maze-cream transition-colors duration-200">
-            {tLegal('cookies.title')}
-          </Link>
-          <button
-            type="button"
-            onClick={() => resetConsent()}
-            className="py-2 hover:text-maze-cream transition-colors duration-200 text-left"
-          >
-            {tLegal('cookieSettings')}
-          </button>
-        </nav>
-        <p className="text-xs text-maze-muted tracking-wide">
-          {t('builtBy')}
-        </p>
+      <div className="px-6 md:px-10 py-5 border-t border-maze-border">
+        <div className="max-w-[1440px] mx-auto flex flex-col sm:flex-row justify-between items-center gap-3">
+          <p className="text-xs text-maze-muted tracking-widest">
+            © {FOUNDED}–{currentYear} MAZE Studio. {t('rights')}
+          </p>
+          <nav className="flex flex-wrap items-center gap-x-5 text-xs text-maze-muted">
+            <Link href="/legal/privacy" className="py-2 hover:text-maze-cream transition-colors duration-200">
+              {tLegal('privacy.title')}
+            </Link>
+            <Link href="/legal/terms" className="py-2 hover:text-maze-cream transition-colors duration-200">
+              {tLegal('terms.title')}
+            </Link>
+            <Link href="/legal/cookies" className="py-2 hover:text-maze-cream transition-colors duration-200">
+              {tLegal('cookies.title')}
+            </Link>
+            <button
+              type="button"
+              onClick={() => resetConsent()}
+              className="py-2 hover:text-maze-cream transition-colors duration-200 text-left"
+            >
+              {tLegal('cookieSettings')}
+            </button>
+          </nav>
+          <p className="text-xs text-maze-muted tracking-wide">
+            {t('builtBy')}
+          </p>
+        </div>
       </div>
     </footer>
   )

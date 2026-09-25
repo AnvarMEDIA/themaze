@@ -1,6 +1,6 @@
 import type { Metadata, Viewport } from 'next'
 import { getLocale } from 'next-intl/server'
-import { Manrope, Space_Mono } from 'next/font/google'
+import { Manrope, JetBrains_Mono } from 'next/font/google'
 import { ThemeProvider } from 'next-themes'
 import { unstable_noStore as noStore } from 'next/cache'
 import { getSettings } from '@/lib/settings'
@@ -17,11 +17,14 @@ const manrope = Manrope({
   display: 'swap',
 })
 
-// Space_Mono is only used in tiny admin / debug spots. Skip the
-// preload <link> so the public critical-path stays lean — the font
-// still loads on demand when the page actually needs it.
-const spaceMono = Space_Mono({
-  subsets: ['latin'],
+// The mono face sets the site's small print — maze numbers, durations,
+// dates, the labels of the facts list — so it has to cover Cyrillic: Space
+// Mono (the previous choice) has no Cyrillic at all, and every Russian label
+// fell back to whatever monospace the device had. JetBrains Mono has both
+// scripts. No preload: it is only ever small text, so a swap is harmless and
+// the critical path stays one family.
+const mono = JetBrains_Mono({
+  subsets: ['latin', 'cyrillic'],
   weight: ['400'],
   variable: '--font-mono',
   display: 'swap',
@@ -175,7 +178,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
     <html
       lang={locale}
       suppressHydrationWarning
-      className={`${manrope.variable} ${spaceMono.variable}`}
+      className={`${manrope.variable} ${mono.variable}`}
     >
       <body>
         {/* Google Tag Manager (noscript) — must be the first element
