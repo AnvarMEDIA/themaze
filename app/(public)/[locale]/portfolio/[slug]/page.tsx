@@ -237,7 +237,6 @@ export default async function ProjectPage({ params }: Props) {
                     key={p.id}
                     href={`/portfolio/${p.slug}`}
                     className="group block"
-                    data-cursor="view"
                   >
                     {p.coverImage && (
                       <div className="relative aspect-[4/3] rounded-xl overflow-hidden bg-maze-gray border border-maze-border mb-4">
@@ -275,7 +274,6 @@ export default async function ProjectPage({ params }: Props) {
                     key={post.id}
                     href={`/insights/${post.slug}`}
                     className="group flex items-center gap-4 p-4 rounded-xl border border-maze-border transition-colors hover:border-maze-lime"
-                    data-cursor="view"
                   >
                     {post.coverImage && (
                       <div className="relative w-28 h-20 shrink-0 rounded-lg overflow-hidden bg-maze-gray">
@@ -305,7 +303,6 @@ export default async function ProjectPage({ params }: Props) {
                 href={`/portfolio/${prev.slug}`}
                 className="group block p-5 rounded-xl border border-maze-border transition-colors hover:border-maze-lime"
                 rel="prev"
-                data-cursor="view"
               >
                 <p className="label-sm text-maze-muted mb-2">← {isRu ? 'Предыдущий' : 'Previous'}</p>
                 <p className="heading-md text-maze-cream group-hover:text-maze-lime transition-colors truncate">
@@ -319,7 +316,6 @@ export default async function ProjectPage({ params }: Props) {
                 href={`/portfolio/${next.slug}`}
                 className="group block p-5 rounded-xl border border-maze-border transition-colors hover:border-maze-lime md:text-right"
                 rel="next"
-                data-cursor="view"
               >
                 <p className="label-sm text-maze-muted mb-2">{isRu ? 'Следующий' : 'Next'} →</p>
                 <p className="heading-md text-maze-cream group-hover:text-maze-lime transition-colors truncate">

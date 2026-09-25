@@ -243,7 +243,6 @@ export default async function ServiceClusterPage({ params }: Props) {
                     key={project.id}
                     href={`/portfolio/${project.slug}`}
                     className="group block"
-                    data-cursor="view"
                   >
                     <div className="relative aspect-[4/3] rounded-xl overflow-hidden bg-maze-gray mb-4">
                       {project.coverImage && (

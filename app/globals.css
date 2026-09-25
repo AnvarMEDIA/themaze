@@ -14,7 +14,11 @@
   --gray:    30 30 30;
   --border:  37 37 37;
   --text:    237 235 227;
-  --muted:   90 90 90;
+  /* Was 90 90 90 (#5A5A5A): 2.9:1 on the page, 2.4:1 on cards — under AA on
+     the nav, the hero's one explanatory sentence, every label and the footer.
+     #8C8A82 clears 4.5:1 on all three dark surfaces (5.8 / 5.5 / 4.8), and is
+     warmed toward the cream text instead of being a neutral grey. */
+  --muted:   140 138 130;
   --lime:    200 255 71;
 
   /* Legacy hex vars (kept for components not yet on CSS vars) */
@@ -22,7 +26,7 @@
   --color-surface: #111111;
   --color-border:  #252525;
   --color-text:    #EDEBE3;
-  --color-muted:   #5A5A5A;
+  --color-muted:   #8C8A82;
   --color-lime:    #C8FF47;
 
   /* ─── Emil Kowalski easing curves ──────────────────────────────── */
@@ -58,7 +62,9 @@
 }
 
 html {
-  scroll-behavior: auto; /* Lenis handles smooth scroll */
+  /* Plain scrolling. `smooth` would also animate Next's jump to the top on
+     every route change, which reads as lag rather than polish. */
+  scroll-behavior: auto;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
@@ -88,26 +94,12 @@ body {
 }
 
 /* ─── Cursor ─────────────────────────────────────────────────────────── */
-/* Only hide the native cursor where the custom cursor actually runs (fine pointer, hover-capable). */
-@media (hover: hover) and (pointer: fine) {
-  /* The custom cursor only runs inside the public layout, whose root
-     element carries the `.noise` class. Scoping the rule there means:
-       - admin panel (no .noise wrapper) keeps the native cursor;
-       - portfolio pages opt out via `native-cursor` on <html>, so the
-         :not() makes the rule stop matching and standard browser
-         behaviour resumes (links propagate pointer to children, etc.). */
-  html:not(.native-cursor) .noise * { cursor: none !important; }
-
-  /* Browsers don't set `pointer` on <button> by default — add it (and
-     a few other clickable elements) so portfolio pages still feel
-     right. No !important needed: the `none` rule no longer matches. */
-  html.native-cursor a,
-  html.native-cursor button,
-  html.native-cursor summary,
-  html.native-cursor label[for],
-  html.native-cursor [role="button"],
-  html.native-cursor [data-cursor] { cursor: pointer; }
-}
+/* The native cursor, everywhere. Browsers give <a> a pointer but not <button>,
+   <summary> or a clickable label, so those are added. */
+button:not(:disabled),
+summary,
+label[for],
+[role="button"] { cursor: pointer; }
 
 /* ─── Keyboard focus: visible ring for all interactive elements ──────── */
 :focus-visible {
@@ -180,19 +172,6 @@ body {
     font-weight: 600;
     letter-spacing: 0.12em;
     text-transform: uppercase;
-  }
-
-  /* ─── Noise Texture Overlay ─────────────────────────────────── */
-  .noise::after {
-    content: '';
-    position: fixed;
-    inset: 0;
-    pointer-events: none;
-    z-index: 9999;
-    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E");
-    background-repeat: repeat;
-    background-size: 200px 200px;
-    opacity: 0.4;
   }
 
   /* ─── Maze Grid Pattern ─────────────────────────────────────── */
@@ -424,17 +403,6 @@ button[class*="border"][class*="rounded-full"]:active {
   .transition-opacity {
     transition-duration: 200ms !important;
   }
-}
-
-/* ─── Lenis ──────────────────────────────────────────────────────────── */
-html.lenis, html.lenis body {
-  height: auto;
-}
-.lenis.lenis-smooth {
-  scroll-behavior: auto !important;
-}
-.lenis.lenis-smooth [data-lenis-prevent] {
-  overscroll-behavior: contain;
 }
 
 /* ─── Phone input (react-phone-number-input) ─────────────────────────── */

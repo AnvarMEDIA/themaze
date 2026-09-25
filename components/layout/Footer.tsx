@@ -76,7 +76,7 @@ export function Footer({ settings }: Props) {
   const workLinksB = [
     { href: '/portfolio/category/packaging',    label: t('nav.packaging') },
     { href: '/portfolio/category/print',        label: t('nav.print') },
-    { href: '/portfolio/category/motion',       label: t('nav.artDirection') },
+    { href: '/portfolio/category/motion',       label: t('nav.motion') },
   ]
 
   const studioLinks = [
@@ -100,7 +100,9 @@ export function Footer({ settings }: Props) {
     settings.twitter   && { label: 'X (Twitter)',  href: settings.twitter,                        icon: <IconTwitterX /> },
   ].filter(Boolean) as { label: string; href: string; icon: React.ReactNode }[]) || FALLBACK_SOCIALS
 
-  const phoneDisplay = settings.phone || '+998 90 123 45 67'
+  // No invented fallback: a made-up number printed as a tel: link rings a
+  // stranger. With nothing in Settings the phone simply isn't shown.
+  const phoneDisplay = settings.phone
   const phoneHref    = `tel:${phoneDisplay.replace(/\s/g, '')}`
   const tgHref   = telegramHref(settings.telegram || 'mazestudio')
   const tgDisplay = telegramDisplay(settings.telegram || '')
@@ -116,8 +118,7 @@ export function Footer({ settings }: Props) {
         {/* Email — largest */}
         <a
           href={`mailto:${email}`}
-          className="group display-lg text-maze-cream hover:text-maze-lime transition-colors duration-300 inline-flex items-center gap-3"
-          data-cursor="hover"
+          className="group display-lg text-maze-cream hover:text-maze-lime transition-colors duration-200 inline-flex items-center gap-3"
         >
           {email}
           <Arrow direction="up-right" className="w-[0.5em] h-[0.5em] transition-transform duration-300 [@media(hover:hover)_and_(pointer:fine)]:group-hover:translate-x-2 [@media(hover:hover)_and_(pointer:fine)]:group-hover:-translate-y-2" />
@@ -168,11 +169,11 @@ export function Footer({ settings }: Props) {
 
         {/* Work — column A */}
         <div>
-          <p className="text-xs font-semibold text-maze-muted mb-5 tracking-widest uppercase">{t('groups.Work')}</p>
-          <ul className="space-y-3">
+          <p className="text-xs font-semibold text-maze-muted mb-3.5 tracking-widest uppercase">{t('groups.Work')}</p>
+          <ul>
             {workLinksA.map((link) => (
               <li key={link.href}>
-                <Link href={link.href} className="link-underline text-sm text-maze-muted hover:text-maze-cream transition-colors duration-200">
+                <Link href={link.href} className="inline-block py-1.5 text-sm text-maze-muted hover:text-maze-cream transition-colors duration-200">
                   {link.label}
                 </Link>
               </li>
@@ -182,11 +183,11 @@ export function Footer({ settings }: Props) {
 
         {/* Work — column B (no heading, continues the list) */}
         <div>
-          <p className="text-xs font-semibold text-maze-muted mb-5 tracking-widest uppercase opacity-0 select-none">–</p>
-          <ul className="space-y-3">
+          <p aria-hidden="true" className="text-xs font-semibold text-maze-muted mb-3.5 tracking-widest uppercase opacity-0 select-none">–</p>
+          <ul>
             {workLinksB.map((link) => (
               <li key={link.href}>
-                <Link href={link.href} className="link-underline text-sm text-maze-muted hover:text-maze-cream transition-colors duration-200">
+                <Link href={link.href} className="inline-block py-1.5 text-sm text-maze-muted hover:text-maze-cream transition-colors duration-200">
                   {link.label}
                 </Link>
               </li>
@@ -196,11 +197,11 @@ export function Footer({ settings }: Props) {
 
         {/* Studio */}
         <div>
-          <p className="text-xs font-semibold text-maze-muted mb-5 tracking-widest uppercase">{t('groups.Studio')}</p>
-          <ul className="space-y-3">
+          <p className="text-xs font-semibold text-maze-muted mb-3.5 tracking-widest uppercase">{t('groups.Studio')}</p>
+          <ul>
             {studioLinks.map((link) => (
               <li key={link.href}>
-                <Link href={link.href} className="link-underline text-sm text-maze-muted hover:text-maze-cream transition-colors duration-200">
+                <Link href={link.href} className="inline-block py-1.5 text-sm text-maze-muted hover:text-maze-cream transition-colors duration-200">
                   {link.label}
                 </Link>
               </li>
@@ -210,15 +211,15 @@ export function Footer({ settings }: Props) {
 
         {/* Social — with icons */}
         <div>
-          <p className="text-xs font-semibold text-maze-muted mb-5 tracking-widest uppercase">{t('groups.Social')}</p>
-          <ul className="space-y-3">
+          <p className="text-xs font-semibold text-maze-muted mb-3.5 tracking-widest uppercase">{t('groups.Social')}</p>
+          <ul>
             {(socialLinks.length > 0 ? socialLinks : FALLBACK_SOCIALS).map((link) => (
               <li key={link.label}>
                 <a
                   href={link.href}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="inline-flex items-center gap-2.5 text-sm text-maze-muted hover:text-maze-cream transition-colors duration-200"
+                  className="inline-flex items-center gap-2.5 py-1.5 text-sm text-maze-muted hover:text-maze-cream transition-colors duration-200"
                 >
                   <span>{link.icon}</span>
                   {link.label}
@@ -234,20 +235,20 @@ export function Footer({ settings }: Props) {
         <p className="text-xs text-maze-muted tracking-widest">
           © {FOUNDED}–{currentYear} MAZE Studio. {t('rights')}
         </p>
-        <nav className="flex flex-wrap items-center gap-x-5 gap-y-1 text-xs text-maze-muted">
-          <Link href="/legal/privacy" className="link-underline hover:text-maze-cream transition-colors">
+        <nav className="flex flex-wrap items-center gap-x-5 text-xs text-maze-muted">
+          <Link href="/legal/privacy" className="py-2 hover:text-maze-cream transition-colors duration-200">
             {tLegal('privacy.title')}
           </Link>
-          <Link href="/legal/terms" className="link-underline hover:text-maze-cream transition-colors">
+          <Link href="/legal/terms" className="py-2 hover:text-maze-cream transition-colors duration-200">
             {tLegal('terms.title')}
           </Link>
-          <Link href="/legal/cookies" className="link-underline hover:text-maze-cream transition-colors">
+          <Link href="/legal/cookies" className="py-2 hover:text-maze-cream transition-colors duration-200">
             {tLegal('cookies.title')}
           </Link>
           <button
             type="button"
             onClick={() => resetConsent()}
-            className="hover:text-maze-cream transition-colors text-left"
+            className="py-2 hover:text-maze-cream transition-colors duration-200 text-left"
           >
             {tLegal('cookieSettings')}
           </button>

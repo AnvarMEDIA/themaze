@@ -47,7 +47,6 @@ export function InsightsSection({ posts, locale }: { posts: Post[]; locale: stri
               <Reveal key={p.id} delay={i * 0.06} className="h-full">
                 <Link
                   href={`/insights/${p.slug}`}
-                  data-cursor="view"
                   className="group card-lift h-full flex flex-col rounded-2xl overflow-hidden border border-maze-border bg-maze-dark/30 hover:border-maze-lime/40"
                 >
                   {p.coverImage && (

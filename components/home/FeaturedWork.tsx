@@ -47,7 +47,6 @@ function ProjectCard({
       <Link
         href={`/portfolio/${project.slug}`}
         className="group block"
-        data-cursor="view"
       >
         {/* 16:9 image container */}
         <div className="relative aspect-[16/9] overflow-hidden rounded-xl bg-maze-gray">

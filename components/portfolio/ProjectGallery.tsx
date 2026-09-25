@@ -66,7 +66,6 @@ export function ProjectGallery({ images, title, heading }: Props) {
             key={img.url + i}
             type="button"
             onClick={() => setIndex(i)}
-            data-cursor="view"
             aria-label={`Open image ${i + 1} of ${images.length}: ${img.alt}`}
             className="group relative aspect-[16/9] rounded-xl overflow-hidden bg-maze-gray focus:outline-none focus-visible:ring-2 focus-visible:ring-maze-lime"
           >

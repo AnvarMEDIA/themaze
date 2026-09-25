@@ -38,7 +38,6 @@ export function ProjectCard({ project, index, layout = 'grid' }: Props) {
         <Link
           href={`/portfolio/${project.slug}`}
           className="flex items-center justify-between py-6 md:py-8 group gap-4"
-          data-cursor="view"
         >
           <div className="flex items-center gap-6 md:gap-10 flex-1 min-w-0">
             <span className="label-sm text-maze-muted w-6 shrink-0">{String(index + 1).padStart(2, '0')}</span>
@@ -73,7 +72,6 @@ export function ProjectCard({ project, index, layout = 'grid' }: Props) {
       <Link
         href={`/portfolio/${project.slug}`}
         className="group block"
-        data-cursor="view"
       >
         {/* Image wrapper — 16:9 aspect ratio */}
         <div className="relative overflow-hidden rounded-xl bg-maze-gray">
