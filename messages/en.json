@@ -6,94 +6,157 @@
     "about": "About",
     "contact": "Contact",
     "startProject": "Start a project",
-    "brandingStudio": "Branding Studio",
-    "getInTouch": "Get in touch",
-    "breadcrumb": "Breadcrumb",
-    "home": "MAZE",
-    "openMenu": "Open menu",
-    "closeMenu": "Close menu",
-    "menu": "Main menu"
+    "brandingStudio": "Branding Studio"
   },
-  "home": {
-    "hero": {
-      "heading": "We turn complexity into clarity.",
-      "sub": "MAZE is a branding and design studio in Tashkent. Identity, naming, packaging and strategy for companies across Central Asia — since 2019.",
-      "brief": "Fill out the brief",
-      "work": "See the work",
-      "mazeLabel": "Maze no. {no}. Its only way through, from the entrance to the exit, draws the letter M.",
-      "mazeCaption": "<b>Maze no. {no}</b>, drawn for this visit. The only way through is always an M.",
-      "stats": {
-        "projects": "projects",
-        "clients": "clients",
-        "countries": "countries"
+  "hero": {
+    "line1": "WE BUILD",
+    "line2": "BOLD",
+    "words": [
+      "BRANDS",
+      "IDEAS",
+      "FUTURES",
+      "STORIES"
+    ],
+    "subtitle": "We shape values into forms that resonate in the hearts of millions.",
+    "viewWork": "View Work",
+    "startProject": "Start a Project",
+    "scroll": "Scroll",
+    "est": "EST. 2019 — TASHKENT",
+    "fillBrief": "Fill out brief"
+  },
+  "marquee": {
+    "items": [
+      "Branding",
+      "Identity",
+      "Naming",
+      "Packaging",
+      "Print & Packaging",
+      "Art Direction",
+      "Brand Strategy",
+      "Visual Identity",
+      "Brand Book",
+      "Creative Direction"
+    ]
+  },
+  "featured": {
+    "label": "Selected Work",
+    "heading": "Featured Projects",
+    "viewAll": "View all work"
+  },
+  "about": {
+    "label": "About MAZE",
+    "heading": "We navigate complexity.",
+    "body1": "MAZE is a branding and design studio based in Tashkent. Like a well-designed maze, we guide brands through complexity to clarity — crafting identities that navigate markets, define culture, and lead audiences forward.",
+    "body2": "From Uzbekistan's top startups to global brands entering Central Asia, we build visual languages that resonate, endure, and grow.",
+    "cta": "Our story",
+    "stats": {
+      "projects": "Projects completed",
+      "years": "Years of experience",
+      "clients": "Happy clients",
+      "countries": "Countries served"
+    },
+    "quote": "Design is not just what it looks like. Design is how it works — and how it makes people feel."
+  },
+  "services": {
+    "label": "What we do",
+    "heading": "Services",
+    "items": [
+      {
+        "title": "Branding",
+        "description": "Strategic brand creation from concept to launch. We define what your brand stands for and bring it to life with purpose.",
+        "tags": [
+          "Brand Platform",
+          "Positioning",
+          "Brand Book",
+          "Launch Strategy"
+        ]
+      },
+      {
+        "title": "Identity",
+        "description": "Complete visual language — logo, colour, typography, and imagery. A system designed to work everywhere, at every scale.",
+        "tags": [
+          "Logo Design",
+          "Colour System",
+          "Typography",
+          "Visual Guidelines"
+        ]
+      },
+      {
+        "title": "Naming",
+        "description": "Brand names that resonate across languages and markets — from creative ideation to linguistic validation and trademark check.",
+        "tags": [
+          "Brand Naming",
+          "Linguistic Analysis",
+          "Trademark Check",
+          "Domain Check"
+        ]
+      },
+      {
+        "title": "Packaging",
+        "description": "Packaging design that stands out on the shelf and tells your brand story at the most critical touchpoint.",
+        "tags": [
+          "Structural Design",
+          "Label Design",
+          "Dielines",
+          "Production"
+        ]
+      },
+      {
+        "title": "Print & Packaging",
+        "description": "From business cards to billboard campaigns — tangible brand communication crafted with precision.",
+        "tags": [
+          "Stationery",
+          "Editorial",
+          "Environmental",
+          "Signage"
+        ]
+      },
+      {
+        "title": "Art Direction",
+        "description": "Creative oversight for photography, campaigns, and content — keeping your brand coherent and compelling across every channel.",
+        "tags": [
+          "Photography Direction",
+          "Campaign",
+          "Content Strategy",
+          "Production"
+        ]
       }
-    },
-    "work": {
-      "heading": "Selected work",
-      "all": "All work"
-    },
-    "services": {
-      "heading": "Services",
-      "all": "All services",
-      "durations": {
-        "branding": "8–12 weeks",
-        "rebranding": "6–16 weeks",
-        "identity": "6–9 weeks",
-        "naming": "3–5 weeks",
-        "packaging": "6–10 weeks",
-        "ui-ux": "8–14 weeks",
-        "print": "2–12 weeks",
-        "motion": "2–8 weeks",
-        "strategy": "4–8 weeks"
+    ]
+  },
+  "process": {
+    "label": "How we work",
+    "heading": "Our Process",
+    "sub": "A structured approach that brings clarity to every project, from brief to launch.",
+    "steps": [
+      {
+        "title": "Discover",
+        "body": "Deep-dive into your business, audience, and competitive landscape. We ask the hard questions first."
+      },
+      {
+        "title": "Define",
+        "body": "Turn insights into a strategic brief. Positioning, personality, and design principles — crystal clear."
+      },
+      {
+        "title": "Design",
+        "body": "Craft visual solutions with rigour and creativity. Iterate fast, refine relentlessly."
+      },
+      {
+        "title": "Deliver",
+        "body": "Comprehensive handoff: files, guidelines, and support to launch your brand with confidence."
       }
-    },
-    "studio": {
-      "heading": "Strategy before aesthetics.",
-      "body1": "MAZE was founded in Tashkent in 2019 on a simple conviction: Central Asian brands deserve world-class design. We understand a business before we pick up a pen.",
-      "body2": "We stay small by choice — small enough to care about the kerning, experienced enough to deliver at scale.",
-      "more": "About the studio",
-      "factsHeading": "How we work",
-      "facts": [
-        {
-          "k": "Revisions",
-          "v": "Two structured rounds at every stage"
-        },
-        {
-          "k": "NDA",
-          "v": "Mutual, signed before we see anything sensitive"
-        },
-        {
-          "k": "Ownership",
-          "v": "Full IP transfers to you on final payment"
-        },
-        {
-          "k": "Languages",
-          "v": "English, Russian and Uzbek"
-        },
-        {
-          "k": "Remote",
-          "v": "Figma, Notion, Loom and a weekly call"
-        },
-        {
-          "k": "First reply",
-          "v": "Within 24 hours"
-        }
-      ]
-    },
-    "clients": {
-      "heading": "Clients"
-    },
-    "journal": {
-      "heading": "Journal",
-      "all": "All articles",
-      "min": "{n} min"
-    }
+    ]
+  },
+  "cta": {
+    "label": "Ready to start?",
+    "line1": "Let's build",
+    "line2": "something great.",
+    "sub": "Tell us about your project. We respond within 24 hours.",
+    "button": "Start a project",
+    "email": "hello@maze.uz"
   },
   "footer": {
     "tagline": "Branding & Design Studio.\nTashkent, Uzbekistan.",
-    "ctaHeading": "Tell us about the project.",
-    "ctaSub": "We reply within 24 hours — in English, Russian or Uzbek.",
-    "ctaBrief": "Fill out the brief",
+    "readyLabel": "Ready to collaborate?",
     "rights": "All rights reserved.",
     "builtBy": "Designed & built by MAZE",
     "location": "Tashkent, Uzbekistan",
@@ -109,11 +172,15 @@
       "naming": "Naming",
       "packaging": "Packaging",
       "print": "Print",
-      "motion": "Motion",
+      "artDirection": "Art Direction",
       "about": "About",
       "services": "Services",
       "contact": "Contact"
     }
+  },
+  "partners": {
+    "label": "Trusted by",
+    "heading": "Clients & Partners"
   },
   "portfolio": {
     "label": "Our Work",
@@ -149,6 +216,7 @@
       "motion": "Motion and animation — brand idents, explainer films, social cuts and product animations. Motion turns a static brand into a memorable one. Every motion project starts in After Effects or Cinema 4D from the same identity system we built, so the moving brand feels consistent with the static one. Output ranges from 5-second logo idents to 90-second explainer films.",
       "strategy": "Brand strategy — positioning, brand architecture, naming systems and rollout plans. Strategy is the part of the work no one sees but everyone feels. Every strategic engagement below started with stakeholder interviews and category research, produced a positioning document and a measurable success framework, and led the visual identity that followed. Strategy alone runs 4 to 8 weeks; bundled with identity it adds 2 weeks at the front of the project."
     },
+    "backToWork": "← All Work",
     "aboutProject": "About the project",
     "results": "Results",
     "servicesDelivered": "Services delivered",
@@ -163,17 +231,18 @@
   "aboutPage": {
     "metaTitle": "About — Branding & Design Studio in Tashkent",
     "metaDesc": "MAZE Studio is a branding and design studio in Tashkent, Uzbekistan. Since 2019 we build visual identities, logo systems and brand strategy across Central Asia.",
+    "heroLabel": "About us",
     "heroHeading": "We navigate brands through complexity to clarity.",
     "heroSub": "MAZE is a branding and design studio based in Tashkent, Uzbekistan. Since 2019, we've built bold visual identities for startups, enterprises, and cultural institutions across Central Asia and beyond.",
-    "statsFounded": "Founded in Tashkent",
+    "statsYears": "Years",
     "statsProjects": "Projects",
     "statsClients": "Clients",
     "statsAwards": "Awards",
-    "storyHeading": "Our story",
+    "storyHeading": "Our Story",
     "story1": "MAZE was founded in Tashkent in 2019 with a simple conviction: that Central Asian brands deserve world-class design. At the time, the region's design landscape was largely derivative — copying Western trends without strategic intent.",
     "story2": "We built MAZE to be different. From day one, we insisted on strategy before aesthetics, on understanding a business deeply before picking up a pen. This approach won us early trust from Uzbekistan's most ambitious companies.",
     "story3": "Today, our work reaches millions of people daily — on product labels, apps, storefronts, and city billboards. We remain a tight-knit studio by choice: small enough to care deeply, experienced enough to deliver at scale.",
-    "valuesHeading": "Our values",
+    "valuesHeading": "Our Values",
     "values": [
       {
         "title": "Clarity from complexity",
@@ -192,7 +261,7 @@
         "body": "We build long-term relationships. Your brand's evolution is our ongoing commitment."
       }
     ],
-    "teamHeading": "The team",
+    "teamHeading": "The Team",
     "team": [
       {
         "name": "Anvar Yusupov",
@@ -215,16 +284,24 @@
         "bio": "Specialises in print, packaging, and environmental design with an eye for editorial craft."
       }
     ],
-    "trustedBy": "Clients"
+    "trustedBy": "Trusted by",
+    "readyLabel": "Ready to work together?",
+    "readyCta": "Start a project"
   },
   "servicesPage": {
     "metaTitle": "Branding & Design Services in Tashkent",
     "metaDesc": "Branding, visual identity, naming, packaging, print, UI/UX and motion — full-service brand creation from Tashkent for Uzbekistan and Central Asia.",
-    "heroHeading": "What we do, and how long it takes.",
-    "heroSub": "Nine services, from strategy and naming to packaging, product design and motion. Each has its own page: the approach, what you get, the timeline and the budget.",
+    "heroLabel": "What we offer",
+    "heroHeading": "Services built for ambitious brands.",
+    "heroSub": "From brand strategy to art direction — MAZE Studio is a branding and design studio in Tashkent offering the full creative suite that growing brands need to compete and win.",
     "whatYouGet": "What you get",
-    "enquire": "Enquire",
+    "enquire": "Enquire about",
     "learnMore": "Learn more",
+    "notSureLabel": "Not sure what you need?",
+    "notSureHeading": "Let's talk.",
+    "notSureSub": "Tell us about your challenge and we'll recommend the right engagement model.",
+    "notSureCta": "Book a discovery call",
+    "faqLabel": "FAQ",
     "faqHeading": "Quick answers.",
     "faqItems": [
       {
@@ -274,6 +351,8 @@
     ],
     "cluster": {
       "_labels": {
+        "service": "Service",
+        "back": "All services",
         "approach": "How we work",
         "deliverables": "What you get",
         "timeline": "Timeline",
@@ -282,6 +361,7 @@
         "selectedWork": "Recent work",
         "seePortfolio": "See full portfolio",
         "cta": "Start the project",
+        "ctaBody": "Tell us about your goals — we'll come back within one business day with scope, timing and a fixed estimate for your {service} project.",
         "studioLine": "MAZE Studio is a branding and design studio in Tashkent, Uzbekistan, working with companies across Central Asia in English, Russian and Uzbek."
       },
       "branding": {
@@ -779,12 +859,105 @@
           }
         ]
       }
-    }
+    },
+    "services": [
+      {
+        "id": "branding",
+        "num": "01",
+        "title": "Branding",
+        "tagline": "Build a brand that means something.",
+        "body": "We create brands from the ground up — defining positioning, personality, and purpose before a single visual element is designed. Strategy and identity in one cohesive engagement.",
+        "deliverables": [
+          "Brand platform & strategy",
+          "Positioning & messaging",
+          "Logo system",
+          "Colour & typography",
+          "Brand guidelines",
+          "Launch assets"
+        ]
+      },
+      {
+        "id": "identity",
+        "num": "02",
+        "title": "Identity",
+        "tagline": "The complete visual language of your brand.",
+        "body": "Comprehensive brand identity systems — logo, colour palette, typography, imagery, and iconography — designed to work at every scale and across every medium. From first sketch to final brand book.",
+        "deliverables": [
+          "Logo system (primary, variants, icon)",
+          "Colour palette",
+          "Typography system",
+          "Iconography & illustration style",
+          "Brand guidelines document",
+          "Asset library"
+        ]
+      },
+      {
+        "id": "naming",
+        "num": "03",
+        "title": "Naming",
+        "tagline": "The right name opens every door.",
+        "body": "A brand name is your most permanent creative decision. We explore hundreds of concepts rooted in cultural resonance, linguistic clarity, and trademark availability — delivering a name that is memorable, strategic, and built to last.",
+        "deliverables": [
+          "Naming brief & criteria",
+          "100+ name concepts",
+          "Linguistic & cultural analysis",
+          "Trademark availability check",
+          "Domain availability check",
+          "Naming rationale deck"
+        ]
+      },
+      {
+        "id": "packaging",
+        "num": "04",
+        "title": "Packaging",
+        "tagline": "Packaging design that wins on the shelf.",
+        "body": "We design packaging that communicates brand values instantly and compels purchase. From structural design and label layout to material selection and print production — every detail considered.",
+        "deliverables": [
+          "Structural & dieline design",
+          "Label & surface design",
+          "Material & finish specification",
+          "Retail mockups",
+          "Print-ready files",
+          "Production management"
+        ]
+      },
+      {
+        "id": "print",
+        "num": "05",
+        "title": "Print & Packaging",
+        "tagline": "Tangible design with lasting impact.",
+        "body": "Print remains one of the most powerful brand touchpoints. We design stationery systems, publications, environmental graphics, and campaign materials with the same rigour we apply to digital work.",
+        "deliverables": [
+          "Brand stationery system",
+          "Editorial & publication design",
+          "Environmental & signage design",
+          "Campaign materials",
+          "Outdoor & large format",
+          "Print production management"
+        ]
+      },
+      {
+        "id": "art-direction",
+        "num": "06",
+        "title": "Art Direction",
+        "tagline": "Creative oversight for a unified brand voice.",
+        "body": "We provide art direction for photography shoots, campaigns, and ongoing content — ensuring every visual element stays true to the brand. Available as a one-off project or ongoing creative partnership.",
+        "deliverables": [
+          "Photography direction & moodboards",
+          "Campaign concepting & direction",
+          "Vendor & photographer management",
+          "Content guidelines",
+          "Ongoing creative consultation",
+          "Brand consistency reviews"
+        ]
+      }
+    ]
   },
   "contactPage": {
     "metaTitle": "Contact — Branding Agency in Tashkent",
     "metaDesc": "Talk to MAZE Studio in Tashkent about branding, logo design or naming. Tell us about the project and we reply within 24 hours.",
-    "heading": "Write to the studio.",
+    "label": "Get in touch",
+    "heading": "Let's build something great together.",
     "sub": "Whether you have a clear brief or just an idea, we'd love to hear from you. MAZE Studio works from Tashkent, Uzbekistan, in English, Russian and Uzbek — fill in the form and we'll respond within 24 hours.",
     "emailLabel": "Email",
     "phoneLabel": "Phone",
@@ -803,7 +976,6 @@
       "companyPlaceholder": "Company name",
       "service": "Service",
       "servicePlaceholder": "What can we help with?",
-      "serviceNotSure": "Not sure yet",
       "budget": "Budget",
       "budgets": [
         "Under $2,000",
@@ -825,13 +997,18 @@
       "messageRequired": "Please tell us about your project"
     }
   },
+  "testimonialsSection": {
+    "label": "What clients say",
+    "heading": "Kind words from people we've worked with."
+  },
   "insights": {
     "metaTitle": "Insights — Notes on Brand & Design",
     "metaDesc": "Essays and case studies on branding, design systems, and creative strategy from MAZE Studio.",
     "label": "Insights",
     "heading": "Notes from the studio.",
     "subtitle": "Essays on brand, design, and the craft behind what we ship.",
-    "empty": "New posts are on the way."
+    "empty": "New posts are on the way.",
+    "back": "Back to insights"
   },
   "legal": {
     "privacy": {
@@ -1098,21 +1275,5 @@
     },
     "tooMany": "Too many submissions. Please try again later.",
     "error": "Something went wrong. Please try again."
-  },
-  "notFound": {
-    "label": "Error 404",
-    "heading": "Lost in the maze.",
-    "body": "This page isn’t here — it may have moved, or never existed. The way out is below.",
-    "home": "Back to the homepage",
-    "work": "See the work",
-    "mazeLabel": "A maze. A trail enters it and ends at a dead end."
-  },
-  "errorPage": {
-    "label": "Error 500",
-    "heading": "Something broke.",
-    "body": "An unexpected error on our side. Try again, or go back to the homepage.",
-    "reference": "Reference",
-    "retry": "Try again",
-    "home": "Homepage"
   }
 }

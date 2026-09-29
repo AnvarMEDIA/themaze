@@ -5,29 +5,15 @@ import { useTranslations } from 'next-intl'
 import toast from 'react-hot-toast'
 import PhoneInput, { isValidPhoneNumber } from 'react-phone-number-input'
 import flags from 'react-phone-number-input/flags'
-import { SERVICE_SLUGS, isServiceSlug } from '@/lib/services'
-import { Arrow } from '@/components/ui/Arrow'
 
-/**
- * @param initialService  a service slug from `/contact?service=<slug>` — the
- *   "Enquire" links on the service pages send one, and the form now arrives
- *   with that service chosen instead of ignoring it.
- */
-export function ContactForm({ initialService }: { initialService?: string }) {
+
+export function ContactForm() {
   const t       = useTranslations('contactPage.form')
-  const tc      = useTranslations('servicesPage.cluster')
   const budgets = t.raw('budgets') as string[]
-
-  // The nine services the site actually offers, by the names their pages
-  // use. The list used to be the homepage's old six, two of which were not
-  // services the studio has a page for.
-  const serviceOptions = SERVICE_SLUGS.map((slug) => tc(`${slug}.title`))
-  const preset = initialService && isServiceSlug(initialService) ? tc(`${initialService}.title`) : ''
-
   const [loading, setLoading] = useState(false)
   const [form, setForm] = useState({
     name: '', email: '', phone: '', company: '',
-    service: preset, budget: '', message: '', website: '',
+    service: '', budget: '', message: '', website: '',
   })
   const mountedAt = useRef<number>(Date.now())
 
@@ -96,7 +82,11 @@ export function ContactForm({ initialService }: { initialService?: string }) {
   }
 
   const inputClass =
-    'w-full bg-transparent border border-maze-border rounded-sm px-4 py-3.5 body-lg text-maze-cream placeholder:text-maze-muted focus:outline-none focus:border-maze-lime transition-colors duration-200'
+    'w-full bg-transparent border border-maze-border rounded-lg px-4 py-3.5 body-lg text-maze-cream placeholder:text-maze-muted focus:outline-none focus:border-maze-lime transition-colors duration-200'
+
+  const tServices = useTranslations('services')
+  const serviceItems = tServices.raw('items') as { title: string }[]
+  const serviceOptions = serviceItems.map((s) => s.title)
 
   return (
     <form onSubmit={handleSubmit} className="space-y-5" noValidate>
@@ -183,9 +173,10 @@ export function ContactForm({ initialService }: { initialService?: string }) {
       </div>
 
       <div>
-        <label htmlFor="cf-service" className="label-sm text-maze-muted block mb-2">{t('service')}</label>
+        <label htmlFor="cf-service" className="label-sm text-maze-muted block mb-2">{t('service')} *</label>
         <select
           id="cf-service"
+          required
           value={form.service}
           onChange={(e) => set('service', e.target.value)}
           className={inputClass + ' appearance-none bg-maze-dark'}
@@ -194,7 +185,6 @@ export function ContactForm({ initialService }: { initialService?: string }) {
           {serviceOptions.map((s) => (
             <option key={s} value={s} className="bg-maze-dark">{s}</option>
           ))}
-          <option value={t('serviceNotSure')} className="bg-maze-dark">{t('serviceNotSure')}</option>
         </select>
       </div>
 
@@ -235,9 +225,12 @@ export function ContactForm({ initialService }: { initialService?: string }) {
         />
       </div>
 
-      <button type="submit" disabled={loading} className="btn btn-primary btn-block">
-        {loading ? t('sending') : t('send')}
-        {!loading && <Arrow direction="right" className="text-base" />}
+      <button
+        type="submit"
+        disabled={loading}
+        className="w-full py-4 bg-maze-lime text-maze-ink font-bold rounded-full hover:bg-maze-paper transition-colors duration-200 disabled:opacity-60 disabled:cursor-not-allowed label-sm focus:outline-none focus-visible:ring-2 focus-visible:ring-maze-cream"
+      >
+        {loading ? t('sending') : `${t('send')} ↗`}
       </button>
     </form>
   )

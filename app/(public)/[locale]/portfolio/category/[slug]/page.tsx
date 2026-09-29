@@ -4,8 +4,6 @@ import { notFound } from 'next/navigation'
 import { routing } from '@/i18n/routing'
 import { Link } from '@/i18n/navigation'
 import { PortfolioGrid } from '@/components/portfolio/PortfolioGrid'
-import { Trail } from '@/components/ui/Trail'
-import { Arrow } from '@/components/ui/Arrow'
 import { getPublishedProjects } from '@/lib/portfolio'
 import { JsonLd } from '@/components/JsonLd'
 import { breadcrumbJsonLd, collectionPageJsonLd, freshest, portfolioListJsonLd, homeCrumb, portfolioCrumb } from '@/lib/jsonLd'
@@ -78,7 +76,7 @@ export default async function PortfolioCategoryPage({ params }: Props) {
   ])
 
   return (
-    <div className="min-h-screen">
+    <main className="min-h-screen">
       <JsonLd data={[
         crumbs,
         collectionPageJsonLd({
@@ -91,9 +89,11 @@ export default async function PortfolioCategoryPage({ params }: Props) {
         portfolioListJsonLd(matching, params.locale),
       ]} />
 
-      <section className="pt-[9.5rem] md:pt-[10.5rem] pb-12 px-6 md:px-10 border-b border-maze-border">
+      <section className="pt-28 pb-12 px-6 md:px-10 border-b border-maze-border">
         <div className="max-w-[1440px] mx-auto">
-          <Trail steps={[{ label: t('heading'), href: '/portfolio' }, { label }]} />
+          <p className="label-sm text-maze-lime mb-5">
+            {isRu ? 'Категория' : 'Category'}
+          </p>
           <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-6 mb-10">
             <h1 className="display-md text-maze-cream max-w-xl">
               {isRu ? `${label} — наши работы` : `${label} — our work`}
@@ -119,9 +119,11 @@ export default async function PortfolioCategoryPage({ params }: Props) {
               linking to each other. Services already surface selected work;
               this closes the loop in the other direction. */}
           {serviceName && (
-            <Link href={`/services/${params.slug}`} className="link-arrow mt-6">
-              {isRu ? `Услуга: ${serviceName}` : `Service: ${serviceName}`}
-              <Arrow direction="right" className="text-base" />
+            <Link
+              href={`/services/${params.slug}`}
+              className="inline-flex items-center gap-2 mt-8 label-sm px-5 py-3 border border-maze-lime/40 rounded-full text-maze-lime transition-colors duration-200 hover:bg-maze-lime hover:text-maze-ink active:scale-[0.97]"
+            >
+              {isRu ? `Услуга: ${serviceName}` : `Service: ${serviceName}`} →
             </Link>
           )}
         </div>
@@ -137,6 +139,6 @@ export default async function PortfolioCategoryPage({ params }: Props) {
           <PortfolioGrid projects={allProjects} activeCategory={params.slug as ProjectCategory} />
         </div>
       </section>
-    </div>
+    </main>
   )
 }

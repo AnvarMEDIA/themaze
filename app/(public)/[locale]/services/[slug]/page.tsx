@@ -1,6 +1,7 @@
 import type { Metadata } from 'next'
 import { getTranslations, setRequestLocale } from 'next-intl/server'
 import { notFound } from 'next/navigation'
+import Image from 'next/image'
 import { Link } from '@/i18n/navigation'
 import { routing } from '@/i18n/routing'
 import { getPublishedProjects } from '@/lib/portfolio'
@@ -11,11 +12,16 @@ import {
   homeCrumb,
 } from '@/lib/jsonLd'
 import { pageMeta, notFoundMetadata, SITE_URL } from '@/lib/seo'
-import { Trail } from '@/components/ui/Trail'
-import { ProjectCard } from '@/components/portfolio/ProjectCard'
+import { TextReveal } from '@/components/ui/TextReveal'
 import { Arrow } from '@/components/ui/Arrow'
 import type { ProjectCategory } from '@/lib/types'
-import { SERVICE_SLUGS, isServiceSlug } from '@/lib/services'
+
+const SERVICE_SLUGS = [
+  'branding', 'rebranding', 'identity', 'naming',
+  'packaging', 'ui-ux', 'print', 'motion', 'strategy',
+] as const
+
+type ServiceSlug = (typeof SERVICE_SLUGS)[number]
 
 interface Props {
   params: { locale: string; slug: string }
@@ -32,6 +38,10 @@ interface ServiceContent {
   timeline:        string
   pricing:         string
   faq:             Array<{ q: string; a: string }>
+}
+
+function isServiceSlug(s: string): s is ServiceSlug {
+  return (SERVICE_SLUGS as readonly string[]).includes(s)
 }
 
 export function generateStaticParams() {
@@ -58,11 +68,10 @@ export default async function ServiceClusterPage({ params }: Props) {
   setRequestLocale(params.locale)
   const { locale, slug } = params
 
-  const [tCluster, tLabels, tNav, tHome, projects] = await Promise.all([
+  const [tCluster, tLabels, tCommon, projects] = await Promise.all([
     getTranslations({ locale, namespace: `servicesPage.cluster.${slug}` }),
     getTranslations({ locale, namespace: 'servicesPage.cluster._labels' }),
-    getTranslations({ locale, namespace: 'nav' }),
-    getTranslations({ locale, namespace: 'home.services' }),
+    getTranslations({ locale, namespace: 'servicesPage' }),
     getPublishedProjects(),
   ])
 
@@ -119,23 +128,34 @@ export default async function ServiceClusterPage({ params }: Props) {
       />
 
       {/* Hero */}
-      <header className="px-6 md:px-10 pt-10 md:pt-14 pb-14 border-b border-maze-border">
+      <header className="px-6 md:px-10 pb-14 border-b border-maze-border">
         <div className="max-w-[1440px] mx-auto">
-          <Trail steps={[{ label: tNav('services'), href: '/services' }, { label: content.title }]} />
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-x-10 gap-y-8 lg:items-end">
-            <div className="lg:col-span-8">
-              <h1 className="display-md text-maze-cream mb-4 text-balance">{content.title}</h1>
-              <p className="heading-md text-maze-muted text-pretty">{content.tagline}</p>
-              <p className="mt-5 font-mono text-xs text-maze-muted">{tHome(`durations.${slug}`)}</p>
+          <Link
+            href="/services"
+            className="label-sm text-maze-muted hover:text-maze-lime transition-colors mb-8 inline-flex items-center gap-2"
+          >
+            ← {tLabels('back')}
+          </Link>
+
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 mt-6">
+            <div>
+              <p className="label-sm text-maze-lime mb-4">{tLabels('service')}</p>
+              <TextReveal as="h1" stagger className="display-md text-maze-cream mb-4">{content.title}</TextReveal>
+              <p className="heading-md text-maze-muted">{content.tagline}</p>
             </div>
-            <div className="lg:col-span-4 flex flex-wrap lg:flex-col items-center lg:items-end gap-x-7 gap-y-2">
-              <Link href={`/contact?service=${slug}`} className="btn btn-primary">
+            <div className="flex flex-col gap-4 lg:items-end lg:justify-end">
+              <Link
+                href={`/contact?service=${slug}`}
+                className="inline-flex items-center gap-2 self-start lg:self-end px-6 py-3 bg-maze-lime text-maze-ink font-bold rounded-full label-sm hover:bg-maze-paper transition-colors"
+              >
                 {tLabels('cta')}
-                <Arrow direction="right" className="text-base" />
+                <Arrow direction="up-right" className="text-base" />
               </Link>
-              <Link href={`/portfolio/category/${slug}`} className="link-arrow">
-                {tLabels('seePortfolio')}
-                <Arrow direction="right" className="text-base" />
+              <Link
+                href={`/portfolio/category/${slug}`}
+                className="label-sm text-maze-muted hover:text-maze-cream transition-colors"
+              >
+                {tLabels('seePortfolio')} →
               </Link>
             </div>
           </div>
@@ -154,13 +174,13 @@ export default async function ServiceClusterPage({ params }: Props) {
       {/* Approach */}
       <section className="px-6 md:px-10 py-16 md:py-24 border-b border-maze-border">
         <div className="max-w-[1440px] mx-auto">
-          <h2 className="heading-lg text-maze-cream mb-12 max-w-2xl">
+          <h2 className="display-md text-maze-cream mb-12 max-w-2xl">
             {tLabels('approach')}
           </h2>
           <ol className="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-10">
             {content.approach.map((step, i) => (
               <li key={i} className="flex gap-6">
-                <span className="font-mono text-xs text-maze-muted tabular-nums shrink-0 mt-1.5">
+                <span className="label-sm text-maze-lime tabular-nums shrink-0 mt-1">
                   {String(i + 1).padStart(2, '0')}
                 </span>
                 <div>
@@ -183,7 +203,7 @@ export default async function ServiceClusterPage({ params }: Props) {
             <ul className="space-y-3">
               {content.deliverables.map((d) => (
                 <li key={d} className="flex items-start gap-3">
-                  <span aria-hidden="true" className="w-1.5 h-1.5 bg-maze-muted shrink-0 mt-3" />
+                  <span className="w-1.5 h-1.5 rounded-full bg-maze-lime shrink-0 mt-3" />
                   <span className="body-lg text-maze-cream">{d}</span>
                 </li>
               ))}
@@ -206,17 +226,43 @@ export default async function ServiceClusterPage({ params }: Props) {
       {related.length > 0 && (
         <section className="px-6 md:px-10 py-16 md:py-24 border-b border-maze-border">
           <div className="max-w-[1440px] mx-auto">
-            <div className="flex flex-wrap items-baseline justify-between gap-x-6 gap-y-2 mb-10">
-              <h2 className="heading-lg text-maze-cream">{tLabels('selectedWork')}</h2>
-              <Link href={`/portfolio/category/${slug}`} className="link-arrow">
-                {tLabels('seePortfolio')}
-                <Arrow direction="right" className="text-base" />
+            <div className="flex items-end justify-between gap-4 mb-10">
+              <h2 className="display-md text-maze-cream">{tLabels('selectedWork')}</h2>
+              <Link
+                href={`/portfolio/category/${slug}`}
+                className="label-sm text-maze-muted hover:text-maze-lime transition-colors whitespace-nowrap"
+              >
+                {tLabels('seePortfolio')} →
               </Link>
             </div>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-x-5 gap-y-10">
-              {related.map((project, i) => (
-                <ProjectCard key={project.id} project={project} index={i} priority={false} />
-              ))}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
+              {related.map((project) => {
+                const title = isRu ? (project.titleRu || project.title) : project.title
+                return (
+                  <Link
+                    key={project.id}
+                    href={`/portfolio/${project.slug}`}
+                    className="group block"
+                    data-cursor="view"
+                  >
+                    <div className="relative aspect-[4/3] rounded-xl overflow-hidden bg-maze-gray mb-4">
+                      {project.coverImage && (
+                        <Image
+                          src={project.coverImage}
+                          alt={title}
+                          fill
+                          sizes="(max-width: 768px) 100vw, 33vw"
+                          className="object-cover transition-transform duration-500 ease-out [@media(hover:hover)]:group-hover:scale-105"
+                        />
+                      )}
+                    </div>
+                    <h3 className="font-semibold text-maze-cream group-hover:text-maze-lime transition-colors">
+                      {title}
+                    </h3>
+                    <p className="label-sm text-maze-muted mt-1">{project.client}</p>
+                  </Link>
+                )
+              })}
             </div>
           </div>
         </section>
@@ -225,7 +271,7 @@ export default async function ServiceClusterPage({ params }: Props) {
       {/* FAQ */}
       <section className="px-6 md:px-10 py-16 md:py-24 border-b border-maze-border">
         <div className="max-w-3xl mx-auto">
-          <h2 className="heading-lg text-maze-cream mb-5">{tLabels('faq')}</h2>
+          <h2 className="display-md text-maze-cream mb-5">{tLabels('faq')}</h2>
           {/* Who is answering, and from where.
               A retriever quotes a passage, not a page: every chunk taken from
               these nine pages said "we" and named neither the studio nor the
@@ -237,12 +283,12 @@ export default async function ServiceClusterPage({ params }: Props) {
             {content.faq.map((item, i) => (
               <details key={i} className="group">
                 <summary className="flex items-baseline justify-between gap-4 cursor-pointer py-5 list-none [&::-webkit-details-marker]:hidden">
-                  <span className="heading-md text-maze-cream transition-colors [@media(hover:hover)_and_(pointer:fine)]:group-hover:text-maze-lime">
+                  <span className="heading-md text-maze-cream group-hover:text-maze-lime transition-colors">
                     {item.q}
                   </span>
                   <span
                     aria-hidden="true"
-                    className="font-mono text-sm text-maze-muted shrink-0 transition-transform duration-200 ease-out group-open:rotate-45"
+                    className="label-sm text-maze-muted shrink-0 transition-transform duration-200 group-open:rotate-45"
                   >
                     +
                   </span>
@@ -254,6 +300,19 @@ export default async function ServiceClusterPage({ params }: Props) {
         </div>
       </section>
 
+      {/* CTA */}
+      <section className="px-6 md:px-10 py-24 text-center">
+        <h2 className="display-md text-maze-cream mb-6">{tCommon('notSureHeading')}</h2>
+        <p className="body-lg text-maze-muted max-w-md mx-auto mb-8">
+          {tLabels('ctaBody', { service: content.title })}
+        </p>
+        <Link
+          href={`/contact?service=${slug}`}
+          className="inline-flex items-center gap-3 px-8 py-4 bg-maze-lime text-maze-ink font-bold rounded-full hover:bg-maze-paper transition-colors"
+        >
+          {tLabels('cta')} ↗
+        </Link>
+      </section>
     </article>
   )
 }

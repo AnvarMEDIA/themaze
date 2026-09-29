@@ -3,10 +3,14 @@ import type { Project } from '@/lib/types'
 import { setRequestLocale, getTranslations } from 'next-intl/server'
 import { routing } from '@/i18n/routing'
 import { Hero }            from '@/components/home/Hero'
+import { Marquee }         from '@/components/home/Marquee'
 import { FeaturedWork }    from '@/components/home/FeaturedWork'
+import { AboutSection }    from '@/components/home/AboutSection'
 import { ServicesSection } from '@/components/home/ServicesSection'
-import { StudioSection }   from '@/components/home/StudioSection'
-import { ClientsSection }  from '@/components/home/ClientsSection'
+import { ProcessSection }  from '@/components/home/ProcessSection'
+import { CTASection }      from '@/components/home/CTASection'
+import { PartnersSection } from '@/components/home/PartnersSection'
+import { TestimonialsSection } from '@/components/home/TestimonialsSection'
 import { InsightsSection } from '@/components/home/InsightsSection'
 import { JsonLd } from '@/components/JsonLd'
 import { testimonialsJsonLd } from '@/lib/jsonLd'
@@ -15,7 +19,6 @@ import { getPublishedPosts } from '@/lib/posts'
 import { getPartners } from '@/lib/partners'
 import { getTestimonials } from '@/lib/testimonials'
 import { pageMeta } from '@/lib/seo'
-import { newMazeNumber } from '@/lib/maze'
 
 interface Props {
   params: { locale: string }
@@ -79,32 +82,37 @@ function pickSix(projects: Project[]): Project[] {
 
 export default async function HomePage({ params: { locale } }: Props) {
   setRequestLocale(locale)
-  const [featuredProjects, partners, testimonials, posts, t] = await Promise.all([
+  const [featuredProjects, partners, testimonials, posts, tp, tt] = await Promise.all([
     getPublishedProjects(),
     getPartners(),
     getTestimonials(),
     getPublishedPosts(),
-    getTranslations({ locale, namespace: 'home.clients' }),
+    getTranslations({ locale, namespace: 'partners' }),
+    getTranslations({ locale, namespace: 'testimonialsSection' }),
   ])
 
-  // The work comes straight after the promise, then what the studio does,
-  // how it works and for whom. The page closes on the footer, whose first
-  // block is the one call to action — there used to be two in a row here,
-  // with the email address printed twice.
   return (
     <>
       {testimonials.length > 0 && <JsonLd id="ld-reviews" data={testimonialsJsonLd(testimonials, locale)} />}
-      <Hero mazeNo={newMazeNumber()} />
+      <Hero />
+      <Marquee />
       <FeaturedWork projects={pickSix(featuredProjects)} />
-      <ServicesSection />
-      <StudioSection />
-      <ClientsSection
-        heading={t('heading')}
+      <AboutSection />
+      <PartnersSection
         partners={partners}
+        label={tp('label')}
+        heading={tp('heading')}
+      />
+      <TestimonialsSection
         testimonials={testimonials}
         locale={locale}
+        label={tt('label')}
+        heading={tt('heading')}
       />
+      <ServicesSection />
+      <ProcessSection />
       <InsightsSection posts={posts.slice(0, 3)} locale={locale} />
+      <CTASection />
     </>
   )
 }

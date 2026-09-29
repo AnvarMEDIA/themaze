@@ -15,8 +15,10 @@ import ru from '@/messages/ru.json'
 import { SITE_URL } from './seo'
 import type { Project } from './types'
 
-import { SERVICE_SLUGS } from './services'
-export { SERVICE_SLUGS }
+export const SERVICE_SLUGS = [
+  'branding', 'rebranding', 'identity', 'naming',
+  'packaging', 'ui-ux', 'print', 'motion', 'strategy',
+] as const
 
 export type LlmsLocale = 'en' | 'ru'
 

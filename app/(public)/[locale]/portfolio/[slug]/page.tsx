@@ -8,9 +8,6 @@ import { getProjectBySlug, getPublishedProjects } from '@/lib/portfolio'
 import { getPublishedPosts } from '@/lib/posts'
 import { rankRelatedProjects, relatedPostsForProject } from '@/lib/recommend'
 import { ProjectGallery } from '@/components/portfolio/ProjectGallery'
-import { ProjectCard } from '@/components/portfolio/ProjectCard'
-import { Trail } from '@/components/ui/Trail'
-import { Arrow } from '@/components/ui/Arrow'
 import { JsonLd } from '@/components/JsonLd'
 import { breadcrumbJsonLd, projectJsonLd, homeCrumb, portfolioCrumb } from '@/lib/jsonLd'
 import { pageMeta, notFoundMetadata } from '@/lib/seo'
@@ -108,13 +105,29 @@ export default async function ProjectPage({ params }: Props) {
     <article className="pt-28 min-h-screen">
       <JsonLd data={[crumbs, projectJsonLd(project, locale)]} />
       {/* Hero */}
-      <div className="px-6 md:px-10 pt-10 md:pt-14 pb-14 border-b border-maze-border">
+      <div className="px-6 md:px-10 pb-14 border-b border-maze-border">
         <div className="max-w-[1440px] mx-auto">
-          <Trail steps={[{ label: t('heading'), href: '/portfolio' }, { label: title }]} />
+          <Link
+            href="/portfolio"
+            className="label-sm text-maze-muted hover:text-maze-lime transition-colors mb-8 inline-flex items-center gap-2"
+          >
+            {t('backToWork')}
+          </Link>
 
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-10">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 mt-6">
             <div>
-              <h1 className="display-md text-maze-cream mb-4 text-balance">{title}</h1>
+              <div className="flex flex-wrap gap-2 mb-4">
+                {project.categories.map((c) => (
+                  <Link
+                    key={c}
+                    href={`/portfolio/category/${c}`}
+                    className="label-sm text-maze-lime hover:text-maze-cream transition-colors"
+                  >
+                    {(t.raw('categories') as Record<string,string>)[c] ?? c}
+                  </Link>
+                ))}
+              </div>
+              <h1 className="display-md text-maze-cream mb-4">{title}</h1>
               <Link
                 href={`/portfolio/client/${clientSlug}`}
                 className="heading-md text-maze-muted hover:text-maze-cream transition-colors inline-block"
@@ -133,17 +146,7 @@ export default async function ProjectPage({ params }: Props) {
               <div>
                 <p className="label-sm text-maze-muted mb-1">{t('category')}</p>
                 <p className="font-semibold text-maze-cream">
-                  {project.categories.map((c, i) => (
-                    <span key={c}>
-                      {i > 0 && ', '}
-                      <Link
-                        href={`/portfolio/category/${c}`}
-                        className="underline decoration-maze-border underline-offset-4 transition-colors hover:text-maze-lime hover:decoration-maze-lime"
-                      >
-                        {(t.raw('categories') as Record<string,string>)[c] ?? c}
-                      </Link>
-                    </span>
-                  ))}
+                  {project.categories.map((c) => (t.raw('categories') as Record<string,string>)[c] ?? c).join(', ')}
                 </p>
               </div>
               <div>
@@ -183,7 +186,7 @@ export default async function ProjectPage({ params }: Props) {
             <p className="body-lg text-maze-muted leading-relaxed mb-8">{description}</p>
 
             {results && (
-              <div className="p-6 border border-maze-lime/30 rounded-sm bg-maze-lime/5">
+              <div className="p-6 border border-maze-lime/30 rounded-xl bg-maze-lime/5">
                 <p className="label-sm text-maze-lime mb-2">{t('results')}</p>
                 <p className="body-lg text-maze-cream">{results}</p>
               </div>
@@ -196,7 +199,7 @@ export default async function ProjectPage({ params }: Props) {
               <ul className="space-y-3">
                 {services.map((s) => (
                   <li key={s} className="flex items-center gap-3">
-                    <span aria-hidden="true" className="w-1.5 h-1.5 bg-maze-muted shrink-0" />
+                    <span className="w-1.5 h-1.5 rounded-full bg-maze-lime shrink-0" />
                     <span className="body-lg text-maze-cream">{s}</span>
                   </li>
                 ))}
@@ -204,9 +207,11 @@ export default async function ProjectPage({ params }: Props) {
 
               <div className="mt-10 pt-8 border-t border-maze-border">
                 <p className="label-sm text-maze-muted mb-4">{t('likeProject')}</p>
-                <Link href="/contact" className="btn btn-primary">
-                  {t('startSimilar')}
-                  <Arrow direction="right" className="text-base" />
+                <Link
+                  href="/contact"
+                  className="inline-flex items-center gap-2 px-5 py-3 bg-maze-lime text-maze-ink font-bold rounded-full label-sm hover:bg-maze-paper transition-colors"
+                >
+                  {t('startSimilar')} ↗
                 </Link>
               </div>
             </div>
@@ -224,10 +229,35 @@ export default async function ProjectPage({ params }: Props) {
         {related.length > 0 && (
           <div className="max-w-[1440px] mx-auto mt-24 pt-12 border-t border-maze-border">
             <h3 className="heading-md text-maze-cream mb-8">{t('relatedProjects')}</h3>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-x-5 gap-y-10">
-              {related.map((p, i) => (
-                <ProjectCard key={p.id} project={p} index={i} priority={false} />
-              ))}
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+              {related.map((p) => {
+                const rTitle = isRu ? (p.titleRu || p.title) : p.title
+                return (
+                  <Link
+                    key={p.id}
+                    href={`/portfolio/${p.slug}`}
+                    className="group block"
+                    data-cursor="view"
+                  >
+                    {p.coverImage && (
+                      <div className="relative aspect-[4/3] rounded-xl overflow-hidden bg-maze-gray border border-maze-border mb-4">
+                        <Image
+                          src={p.coverImage}
+                          alt={imageAlt(p, p.coverImage, locale)}
+                          fill
+                          sizes="(max-width: 768px) 100vw, 33vw"
+                          className="object-cover transition-transform duration-500 ease-out [@media(hover:hover)]:group-hover:scale-105"
+                        />
+                      </div>
+                    )}
+                    <p className="label-sm text-maze-lime mb-2">
+                      {p.categories.map((c) => (t.raw('categories') as Record<string,string>)[c] ?? c).join(' · ')}
+                    </p>
+                    <h4 className="heading-md text-maze-cream transition-colors duration-200 [@media(hover:hover)_and_(pointer:fine)]:group-hover:text-maze-lime">{rTitle}</h4>
+                    <p className="label-sm text-maze-muted mt-1">{p.client}</p>
+                  </Link>
+                )
+              })}
             </div>
           </div>
         )}
@@ -244,15 +274,16 @@ export default async function ProjectPage({ params }: Props) {
                   <Link
                     key={post.id}
                     href={`/insights/${post.slug}`}
-                    className="group flex items-center gap-4 p-4 rounded-sm border border-maze-border transition-colors hover:border-maze-muted"
+                    className="group flex items-center gap-4 p-4 rounded-xl border border-maze-border transition-colors hover:border-maze-lime"
+                    data-cursor="view"
                   >
                     {post.coverImage && (
-                      <div className="relative w-28 h-20 shrink-0 rounded-sm overflow-hidden bg-maze-gray">
+                      <div className="relative w-28 h-20 shrink-0 rounded-lg overflow-hidden bg-maze-gray">
                         <Image src={post.coverImage} alt={jTitle} fill sizes="112px" className="object-cover" />
                       </div>
                     )}
                     <div className="min-w-0">
-                      <p className="font-mono text-xs text-maze-muted mb-1">{isRu ? 'Статья' : 'Article'}</p>
+                      <p className="label-sm text-maze-lime mb-1">{isRu ? 'Статья' : 'Article'}</p>
                       <h4 className="font-semibold text-maze-cream group-hover:text-maze-lime transition-colors">{jTitle}</h4>
                     </div>
                   </Link>
@@ -272,8 +303,9 @@ export default async function ProjectPage({ params }: Props) {
             {prev ? (
               <Link
                 href={`/portfolio/${prev.slug}`}
-                className="group block p-5 rounded-sm border border-maze-border transition-colors hover:border-maze-muted"
+                className="group block p-5 rounded-xl border border-maze-border transition-colors hover:border-maze-lime"
                 rel="prev"
+                data-cursor="view"
               >
                 <p className="label-sm text-maze-muted mb-2">← {isRu ? 'Предыдущий' : 'Previous'}</p>
                 <p className="heading-md text-maze-cream group-hover:text-maze-lime transition-colors truncate">
@@ -285,8 +317,9 @@ export default async function ProjectPage({ params }: Props) {
             {next ? (
               <Link
                 href={`/portfolio/${next.slug}`}
-                className="group block p-5 rounded-sm border border-maze-border transition-colors hover:border-maze-muted md:text-right"
+                className="group block p-5 rounded-xl border border-maze-border transition-colors hover:border-maze-lime md:text-right"
                 rel="next"
+                data-cursor="view"
               >
                 <p className="label-sm text-maze-muted mb-2">{isRu ? 'Следующий' : 'Next'} →</p>
                 <p className="heading-md text-maze-cream group-hover:text-maze-lime transition-colors truncate">

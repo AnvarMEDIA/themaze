@@ -14,11 +14,7 @@
   --gray:    30 30 30;
   --border:  37 37 37;
   --text:    237 235 227;
-  /* Was 90 90 90 (#5A5A5A): 2.9:1 on the page, 2.4:1 on cards — under AA on
-     the nav, the hero's one explanatory sentence, every label and the footer.
-     #8C8A82 clears 4.5:1 on all three dark surfaces (5.8 / 5.5 / 4.8), and is
-     warmed toward the cream text instead of being a neutral grey. */
-  --muted:   140 138 130;
+  --muted:   90 90 90;
   --lime:    200 255 71;
 
   /* Legacy hex vars (kept for components not yet on CSS vars) */
@@ -26,7 +22,7 @@
   --color-surface: #111111;
   --color-border:  #252525;
   --color-text:    #EDEBE3;
-  --color-muted:   #8C8A82;
+  --color-muted:   #5A5A5A;
   --color-lime:    #C8FF47;
 
   /* ─── Emil Kowalski easing curves ──────────────────────────────── */
@@ -62,9 +58,7 @@
 }
 
 html {
-  /* Plain scrolling. `smooth` would also animate Next's jump to the top on
-     every route change, which reads as lag rather than polish. */
-  scroll-behavior: auto;
+  scroll-behavior: auto; /* Lenis handles smooth scroll */
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
@@ -94,12 +88,26 @@ body {
 }
 
 /* ─── Cursor ─────────────────────────────────────────────────────────── */
-/* The native cursor, everywhere. Browsers give <a> a pointer but not <button>,
-   <summary> or a clickable label, so those are added. */
-button:not(:disabled),
-summary,
-label[for],
-[role="button"] { cursor: pointer; }
+/* Only hide the native cursor where the custom cursor actually runs (fine pointer, hover-capable). */
+@media (hover: hover) and (pointer: fine) {
+  /* The custom cursor only runs inside the public layout, whose root
+     element carries the `.noise` class. Scoping the rule there means:
+       - admin panel (no .noise wrapper) keeps the native cursor;
+       - portfolio pages opt out via `native-cursor` on <html>, so the
+         :not() makes the rule stop matching and standard browser
+         behaviour resumes (links propagate pointer to children, etc.). */
+  html:not(.native-cursor) .noise * { cursor: none !important; }
+
+  /* Browsers don't set `pointer` on <button> by default — add it (and
+     a few other clickable elements) so portfolio pages still feel
+     right. No !important needed: the `none` rule no longer matches. */
+  html.native-cursor a,
+  html.native-cursor button,
+  html.native-cursor summary,
+  html.native-cursor label[for],
+  html.native-cursor [role="button"],
+  html.native-cursor [data-cursor] { cursor: pointer; }
+}
 
 /* ─── Keyboard focus: visible ring for all interactive elements ──────── */
 :focus-visible {
@@ -174,6 +182,32 @@ label[for],
     text-transform: uppercase;
   }
 
+  /* ─── Noise Texture Overlay ─────────────────────────────────── */
+  .noise::after {
+    content: '';
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 9999;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E");
+    background-repeat: repeat;
+    background-size: 200px 200px;
+    opacity: 0.4;
+  }
+
+  /* ─── Maze Grid Pattern ─────────────────────────────────────── */
+  .maze-grid {
+    background-image:
+      linear-gradient(rgba(var(--border), 0.5) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(var(--border), 0.5) 1px, transparent 1px);
+    background-size: 60px 60px;
+  }
+
+  /* ─── Clip Overflow for text reveal ─────────────────────────── */
+  .clip-text {
+    overflow: hidden;
+  }
+
   /* ─── Horizontal Rule ───────────────────────────────────────── */
   .rule {
     height: 1px;
@@ -181,73 +215,131 @@ label[for],
   }
 }
 
-/* In the components layer, so a utility on the same element still wins —
-   `hidden lg:inline-flex btn` has to be able to hide the button. */
-@layer components {
-  /* ─── Buttons ────────────────────────────────────────────────────────── */
-  /* Rectangular, with the 2px corner of a drawn line — the same geometry as
-     the maze walls. Pills stay where they mean something else: chips and
-     filters that toggle. */
-  .btn {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    gap: 0.625rem;
-    min-height: 48px;
-    padding: 0 1.375rem;
-    border-radius: 2px;
-    font-size: 0.8125rem;
-    font-weight: 700;
-    letter-spacing: 0.01em;
-    white-space: nowrap;
-    transition: transform 160ms var(--ease-out), background-color 160ms ease,
-      color 160ms ease, border-color 160ms ease;
-  }
-  .btn:active { transform: scale(0.97); transition-duration: 80ms; }
-  .btn:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
-  .btn-sm { min-height: 40px; padding: 0 1rem; }
-  .btn-block { width: 100%; }
-  .btn-primary { background: rgb(var(--lime)); color: #0A0A0A; }
-  .btn-quiet   { border: 1px solid rgb(var(--border)); color: rgb(var(--text)); }
-  @media (hover: hover) and (pointer: fine) {
-    .btn-primary:hover { background: #F0EEE6; }
-    .btn-quiet:hover   { border-color: rgb(var(--muted)); }
-  }
+/* ─── Liquid Glass Button System ────────────────────────────────────── */
+/*
+ * Three material layers (Apple visionOS architecture):
+ * 1. Backdrop — blurred + saturated background behind glass
+ * 2. Surface  — semi-transparent tinted fill
+ * 3. Specular — bright rim/highlight (handled as pseudo in React component)
+ */
 
-  /* A text link that leads somewhere: the arrow moves, the label warms. */
-  .link-arrow {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.5rem;
-    min-height: 44px;
-    font-size: 0.8125rem;
-    font-weight: 700;
-    letter-spacing: 0.01em;
-    color: rgb(var(--text));
-    transition: color 160ms ease, transform 160ms var(--ease-out);
-  }
-  .link-arrow-quiet { color: rgb(var(--muted)); }
-  .link-arrow svg { transition: transform 200ms var(--ease-out); }
-  .link-arrow:active { transform: scale(0.97); }
-  @media (hover: hover) and (pointer: fine) {
-    .link-arrow:hover { color: rgb(var(--lime)); }
-    .link-arrow:hover svg { transform: translateX(3px); }
+/* ── Lime (primary CTA) ── */
+.glass-lime {
+  background: rgba(200, 255, 71, 0.11);
+  backdrop-filter: blur(36px) saturate(210%) brightness(1.05);
+  -webkit-backdrop-filter: blur(36px) saturate(210%) brightness(1.05);
+  border: 1px solid rgba(200, 255, 71, 0.26);
+  box-shadow:
+    /* inner rim light — bright edge at top-left */
+    inset 0 1.5px 0 rgba(255, 255, 255, 0.38),
+    inset 1px 0   0 rgba(255, 255, 255, 0.10),
+    /* inner depth — darker at bottom */
+    inset 0 -1px 0 rgba(0, 0, 0, 0.14),
+    /* outer ring — faint lime halo */
+    0 0 0 1px rgba(200, 255, 71, 0.07),
+    /* ambient glow */
+    0 4px 20px rgba(200, 255, 71, 0.16),
+    /* base drop shadow */
+    0 2px 8px  rgba(0, 0, 0, 0.50);
+  color: #C8FF47;
+  transition:
+    background     200ms cubic-bezier(0.23, 1, 0.32, 1),
+    box-shadow     200ms cubic-bezier(0.23, 1, 0.32, 1),
+    border-color   200ms cubic-bezier(0.23, 1, 0.32, 1);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .glass-lime:hover {
+    background: rgba(200, 255, 71, 0.20);
+    border-color: rgba(200, 255, 71, 0.40);
+    box-shadow:
+      inset 0 1.5px 0 rgba(255, 255, 255, 0.52),
+      inset 1px 0   0 rgba(255, 255, 255, 0.14),
+      inset 0 -1px 0 rgba(0, 0, 0, 0.14),
+      0 0 0 1px rgba(200, 255, 71, 0.12),
+      0 8px 36px rgba(200, 255, 71, 0.30),
+      0 3px 14px rgba(0, 0, 0, 0.55);
   }
 }
 
-/* ─── The homepage maze ──────────────────────────────────────────────── */
-/* The way through is drawn cell by cell from the entrance: each step only
-   fades in (opacity is the one thing animated), and the delays do the
-   drawing. Seen once per visit, so it can take a little over a second.
-   With reduced motion the route is simply there. */
-.maze-step {
-  opacity: 0;
-  animation: maze-step 160ms var(--ease-out) forwards;
+.glass-lime:active {
+  background: rgba(200, 255, 71, 0.08);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.25),
+    inset 0 -1px 0 rgba(0, 0, 0, 0.10),
+    0 2px 10px rgba(200, 255, 71, 0.12),
+    0 1px 3px  rgba(0, 0, 0, 0.40);
+  transition-duration: 70ms;
 }
-@keyframes maze-step { to { opacity: 1; } }
-@media (prefers-reduced-motion: reduce) {
-  .maze-step { animation: none; opacity: 1; }
+
+/* ── Clear glass (secondary) ── */
+.glass-clear {
+  background: rgba(255, 255, 255, 0.06);
+  backdrop-filter: blur(28px) saturate(160%);
+  -webkit-backdrop-filter: blur(28px) saturate(160%);
+  border: 1px solid rgba(255, 255, 255, 0.11);
+  box-shadow:
+    inset 0 1.5px 0 rgba(255, 255, 255, 0.20),
+    inset 1px 0   0 rgba(255, 255, 255, 0.07),
+    inset 0 -1px 0 rgba(0, 0, 0, 0.10),
+    0 4px 18px rgba(0, 0, 0, 0.35),
+    0 1px 4px  rgba(0, 0, 0, 0.30);
+  color: rgb(var(--text));
+  transition:
+    background     200ms cubic-bezier(0.23, 1, 0.32, 1),
+    box-shadow     200ms cubic-bezier(0.23, 1, 0.32, 1),
+    border-color   200ms cubic-bezier(0.23, 1, 0.32, 1),
+    color          200ms ease;
 }
+
+@media (hover: hover) and (pointer: fine) {
+  .glass-clear:hover {
+    background: rgba(255, 255, 255, 0.11);
+    border-color: rgba(255, 255, 255, 0.18);
+    box-shadow:
+      inset 0 1.5px 0 rgba(255, 255, 255, 0.28),
+      inset 1px 0   0 rgba(255, 255, 255, 0.10),
+      inset 0 -1px 0 rgba(0, 0, 0, 0.10),
+      0 6px 24px rgba(0, 0, 0, 0.40),
+      0 2px 8px  rgba(0, 0, 0, 0.30);
+    color: rgb(var(--lime));
+    border-color: rgba(200, 255, 71, 0.25);
+  }
+}
+
+.glass-clear:active {
+  background: rgba(255, 255, 255, 0.03);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.12),
+    0 2px 8px rgba(0, 0, 0, 0.25);
+  transition-duration: 70ms;
+}
+
+/* Light theme overrides for glass */
+.light .glass-lime {
+  background: rgba(100, 160, 0, 0.10);
+  border-color: rgba(100, 160, 0, 0.25);
+  box-shadow:
+    inset 0 1.5px 0 rgba(255, 255, 255, 0.50),
+    inset 0 -1px 0 rgba(0, 0, 0, 0.08),
+    0 4px 20px rgba(100, 160, 0, 0.15),
+    0 2px 6px rgba(0, 0, 0, 0.15);
+  color: #4A7A00;
+}
+
+.light .glass-clear {
+  background: rgba(0, 0, 0, 0.04);
+  border-color: rgba(0, 0, 0, 0.10);
+  box-shadow:
+    inset 0 1.5px 0 rgba(255, 255, 255, 0.70),
+    inset 0 -1px 0 rgba(0, 0, 0, 0.06),
+    0 4px 18px rgba(0, 0, 0, 0.12),
+    0 1px 4px rgba(0, 0, 0, 0.10);
+  color: rgb(var(--text));
+}
+
+/* ── Specular highlight layer (rendered as span in LiquidButton) ── */
+/* Applied programmatically — these are just reference docs */
 
 /* ─── Pressable elements — Emil: scale(0.97) on :active ─────────────── */
 @media (hover: hover) and (pointer: fine) {
@@ -279,6 +371,43 @@ button[class*="border"][class*="rounded-full"]:active {
   }
 }
 
+/* ─── Animated inline-link underline ─────────────────────────────────── */
+/* Wipes in from the left on hover, out to the right on leave — a small
+   detail that compounds. transform-only (GPU), gated to hover devices. */
+.link-underline {
+  position: relative;
+  display: inline-block;
+}
+.link-underline::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: -2px;
+  height: 1px;
+  background: currentColor;
+  transform: scaleX(0);
+  transform-origin: right center;
+  transition: transform 260ms var(--ease-out);
+}
+@media (hover: hover) and (pointer: fine) {
+  .link-underline:hover::after {
+    transform: scaleX(1);
+    transform-origin: left center;
+  }
+}
+
+/* ─── Card lift on hover ─────────────────────────────────────────────── */
+/* Subtle rise + border warm-up. transform-only, gated. */
+.card-lift {
+  transition: transform 300ms var(--ease-out), border-color 200ms ease;
+}
+@media (hover: hover) and (pointer: fine) {
+  .card-lift:hover {
+    transform: translateY(-4px);
+  }
+}
+
 /* ─── prefers-reduced-motion — accessibility ─────────────────────────── */
 @media (prefers-reduced-motion: reduce) {
   *,
@@ -295,6 +424,17 @@ button[class*="border"][class*="rounded-full"]:active {
   .transition-opacity {
     transition-duration: 200ms !important;
   }
+}
+
+/* ─── Lenis ──────────────────────────────────────────────────────────── */
+html.lenis, html.lenis body {
+  height: auto;
+}
+.lenis.lenis-smooth {
+  scroll-behavior: auto !important;
+}
+.lenis.lenis-smooth [data-lenis-prevent] {
+  overscroll-behavior: contain;
 }
 
 /* ─── Phone input (react-phone-number-input) ─────────────────────────── */
@@ -473,6 +613,31 @@ button[class*="border"][class*="rounded-full"]:active {
   margin: 2em 0;
   width: 100%;
   height: auto;
+}
+
+/* ─── Marquee ────────────────────────────────────────────────────────── */
+.marquee-track {
+  display: flex;
+  width: max-content;
+  animation: marquee 30s linear infinite;
+}
+.marquee-track-reverse {
+  display: flex;
+  width: max-content;
+  animation: marquee-reverse 30s linear infinite;
+}
+.marquee-track:hover,
+.marquee-track-reverse:hover {
+  animation-play-state: paused;
+}
+
+@keyframes marquee {
+  0%   { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+@keyframes marquee-reverse {
+  0%   { transform: translateX(-50%); }
+  100% { transform: translateX(0); }
 }
 
 /* ─── Finance modal enter (Emil rules: scale .97 + opacity, ease-out) ──── */
