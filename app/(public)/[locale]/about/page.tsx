@@ -3,6 +3,7 @@ import { getTranslations, setRequestLocale } from 'next-intl/server'
 import { AnimatedCounter } from '@/components/ui/AnimatedCounter'
 import { Link } from '@/i18n/navigation'
 import { getTeam } from '@/lib/team'
+import { getPartners } from '@/lib/partners'
 import Image from 'next/image'
 import { JsonLd } from '@/components/JsonLd'
 import { aboutPageJsonLd, breadcrumbJsonLd, homeCrumb } from '@/lib/jsonLd'
@@ -25,19 +26,17 @@ export async function generateMetadata({ params: { locale } }: Props): Promise<M
   })
 }
 
-const clients = [
-  'Hilol', 'UzPay', 'Samarkand Heritage', 'Palov House',
-  'TechUZ', 'Anor Winery', 'UzAir', 'Asaka Motors',
-  'Tashkent University', 'Silk Road Hotels', 'Green Energy UZ', 'Moliya Bank',
-]
-
 export const dynamic = 'force-dynamic'
 
 export default async function AboutPage({ params: { locale } }: Props) {
   setRequestLocale(locale)
-  const [t, team] = await Promise.all([
+  // The client list is the partners managed in the admin — the same list
+  // the homepage shows. It used to be twelve names typed into this file,
+  // half of them the sample projects the site shipped with.
+  const [t, team, partners] = await Promise.all([
     getTranslations({ locale, namespace: 'aboutPage' }),
     getTeam().catch(() => [] as import('@/lib/team').TeamMember[]),
+    getPartners().catch(() => []),
   ])
   const values = t.raw('values') as { title: string; body: string }[]
 
@@ -139,21 +138,25 @@ export default async function AboutPage({ params: { locale } }: Props) {
       </div>
 
       {/* Clients */}
-      <div className="px-6 md:px-10 py-20 border-b border-maze-border">
-        <div className="max-w-[1440px] mx-auto">
-          <p className="label-sm text-maze-muted mb-8">{t('trustedBy')}</p>
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
-            {clients.map((client) => (
-              <div
-                key={client}
-                className="h-14 flex items-center justify-center border border-maze-border rounded-lg text-maze-muted label-sm hover:border-maze-lime hover:text-maze-cream transition-all duration-200"
-              >
-                {client}
-              </div>
-            ))}
+      {partners.length > 0 && (
+        <div className="px-6 md:px-10 py-20 border-b border-maze-border">
+          <div className="max-w-[1440px] mx-auto">
+            <p className="label-sm text-maze-muted mb-8">{t('trustedBy')}</p>
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
+              {partners.map((partner) => (
+                <div
+                  key={partner.id}
+                  // min-height rather than a fixed one: real names run long
+                  // ("Министерство Здравоохранения Республики Узбекистан").
+                  className="min-h-14 px-3 py-3 flex items-center justify-center text-center leading-snug border border-maze-border rounded-lg text-maze-muted label-sm hover:border-maze-lime hover:text-maze-cream transition-all duration-200"
+                >
+                  {partner.name}
+                </div>
+              ))}
+            </div>
           </div>
         </div>
-      </div>
+      )}
 
       {/* CTA */}
       <div className="px-6 md:px-10 py-20 text-center">

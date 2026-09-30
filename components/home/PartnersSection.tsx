@@ -34,9 +34,9 @@ export function PartnersSection({ partners, label, heading }: Props) {
             >
               {label}
             </motion.p>
-            <div className="overflow-hidden">
+            <div className="reveal-mask">
               <motion.h2
-                initial={{ y: '100%' }}
+                initial={{ y: '135%' }}
                 animate={inView ? { y: '0%' } : {}}
                 transition={{ duration: 0.85, ease: [0.23, 1, 0.32, 1] }}
                 className="heading-xl text-maze-cream"

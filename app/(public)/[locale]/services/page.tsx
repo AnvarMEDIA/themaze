@@ -6,6 +6,7 @@ import { JsonLd } from '@/components/JsonLd'
 import { breadcrumbJsonLd, servicesJsonLd, faqJsonLd, homeCrumb } from '@/lib/jsonLd'
 import { pageMeta } from '@/lib/seo'
 import { TextReveal } from '@/components/ui/TextReveal'
+import { SERVICE_SLUGS } from '@/lib/services'
 
 interface Props {
   params: { locale: string }
@@ -30,9 +31,21 @@ const accentColors = ['#C8FF47', '#4B6EF5', '#D4A017', '#06D6A0', '#FF4D1C', '#F
 export default async function ServicesPage({ params: { locale } }: Props) {
   setRequestLocale(locale)
   const t        = await getTranslations({ locale, namespace: 'servicesPage' })
-  const services = t.raw('services') as {
-    id: string; num: string; title: string; tagline: string; body: string; deliverables: string[]
-  }[]
+  // Built from the nine service pages. The list used to be a copy of its
+  // own: six entries, "Print & Packaging" beside Packaging, an Art Direction
+  // entry whose "Learn more" led to a 404, and no entry at all for
+  // Rebranding, UI/UX, Motion or Strategy, which do have pages.
+  const cluster  = t.raw('cluster') as Record<string, {
+    title: string; tagline: string; metaDescription: string; deliverables: string[]
+  }>
+  const services = SERVICE_SLUGS.map((slug, i) => ({
+    id:           slug,
+    num:          String(i + 1).padStart(2, '0'),
+    title:        cluster[slug].title,
+    tagline:      cluster[slug].tagline,
+    body:         cluster[slug].metaDescription,
+    deliverables: cluster[slug].deliverables.slice(0, 6),
+  }))
   const faqItems = (t.raw('faqItems') as Array<{ q: string; a: string }> | undefined) ?? []
 
   const isRu   = locale === 'ru'

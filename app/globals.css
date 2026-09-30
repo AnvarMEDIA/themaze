@@ -208,6 +208,18 @@ body {
     overflow: hidden;
   }
 
+  /* The mask a heading rises through. overflow: hidden used to be the mask,
+     and it cut at the line box — which, with display leading under 1, sits
+     above the descenders: "something great" read "somethinq qreat", and the
+     tails of р, у, д went the same way in Russian. This mask reaches a
+     little above and well below the line instead (percentages of the
+     element's own height, so it scales with the type), without taking any
+     more room in the layout. Text that rises through it starts at 135%
+     rather than 100% so nothing shows in the extra band before it moves. */
+  .reveal-mask {
+    clip-path: inset(-12% -4% -30% -4%);
+  }
+
   /* ─── Horizontal Rule ───────────────────────────────────────── */
   .rule {
     height: 1px;

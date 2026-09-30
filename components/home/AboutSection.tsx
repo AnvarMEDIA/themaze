@@ -49,9 +49,9 @@ export function AboutSection() {
           </motion.p>
 
           {/* Big heading — "We navigate complexity." */}
-          <div className="overflow-hidden mb-8">
+          <div className="reveal-mask mb-8">
             <motion.h2
-              initial={{ y: '100%' }}
+              initial={{ y: '135%' }}
               animate={inView ? { y: '0%' } : {}}
               transition={{ duration: 0.9, ease: EASE_OUT }}
               className="display-md text-maze-cream"

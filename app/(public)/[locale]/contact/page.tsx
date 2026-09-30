@@ -14,6 +14,7 @@ export const dynamic = 'force-dynamic'
 
 interface Props {
   params: { locale: string }
+  searchParams?: { service?: string | string[] }
 }
 
 export async function generateMetadata({ params: { locale } }: Props): Promise<Metadata> {
@@ -27,7 +28,7 @@ export async function generateMetadata({ params: { locale } }: Props): Promise<M
 }
 
 
-export default async function ContactPage({ params: { locale } }: Props) {
+export default async function ContactPage({ params: { locale }, searchParams }: Props) {
   setRequestLocale(locale)
   const [t, settings] = await Promise.all([
     getTranslations({ locale, namespace: 'contactPage' }),
@@ -149,7 +150,7 @@ export default async function ContactPage({ params: { locale } }: Props) {
           </div>
 
           <Reveal delay={0.12}>
-            <ContactForm />
+            <ContactForm initialService={typeof searchParams?.service === 'string' ? searchParams.service : undefined} />
           </Reveal>
         </div>
       </div>

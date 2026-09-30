@@ -76,7 +76,7 @@ export function Footer({ settings }: Props) {
   const workLinksB = [
     { href: '/portfolio/category/packaging',    label: t('nav.packaging') },
     { href: '/portfolio/category/print',        label: t('nav.print') },
-    { href: '/portfolio/category/motion',       label: t('nav.artDirection') },
+    { href: '/portfolio/category/motion',       label: t('nav.motion') },
   ]
 
   const studioLinks = [

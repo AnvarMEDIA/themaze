@@ -62,7 +62,7 @@
     "heading": "Services",
     "items": [
       {
-        "title": "Branding",
+        "slug": "branding",
         "description": "Strategic brand creation from concept to launch. We define what your brand stands for and bring it to life with purpose.",
         "tags": [
           "Brand Platform",
@@ -72,7 +72,17 @@
         ]
       },
       {
-        "title": "Identity",
+        "slug": "rebranding",
+        "description": "For companies that have outgrown their brand — from a focused refresh to a full repositioning, with a rollout plan for every touchpoint.",
+        "tags": [
+          "Brand Audit",
+          "Repositioning",
+          "Identity Refresh",
+          "Rollout Plan"
+        ]
+      },
+      {
+        "slug": "identity",
         "description": "Complete visual language — logo, colour, typography, and imagery. A system designed to work everywhere, at every scale.",
         "tags": [
           "Logo Design",
@@ -82,7 +92,7 @@
         ]
       },
       {
-        "title": "Naming",
+        "slug": "naming",
         "description": "Brand names that resonate across languages and markets — from creative ideation to linguistic validation and trademark check.",
         "tags": [
           "Brand Naming",
@@ -92,7 +102,7 @@
         ]
       },
       {
-        "title": "Packaging",
+        "slug": "packaging",
         "description": "Packaging design that stands out on the shelf and tells your brand story at the most critical touchpoint.",
         "tags": [
           "Structural Design",
@@ -102,7 +112,17 @@
         ]
       },
       {
-        "title": "Print & Packaging",
+        "slug": "ui-ux",
+        "description": "Product design that ships — research, user flows and interfaces, and a design system your engineers can build from.",
+        "tags": [
+          "UX Research",
+          "Interface Design",
+          "Design System",
+          "Prototyping"
+        ]
+      },
+      {
+        "slug": "print",
         "description": "From business cards to billboard campaigns — tangible brand communication crafted with precision.",
         "tags": [
           "Stationery",
@@ -112,13 +132,23 @@
         ]
       },
       {
-        "title": "Art Direction",
-        "description": "Creative oversight for photography, campaigns, and content — keeping your brand coherent and compelling across every channel.",
+        "slug": "motion",
+        "description": "The brand in motion — logo idents, explainers and social formats, built on the same system as the static identity.",
         "tags": [
-          "Photography Direction",
-          "Campaign",
-          "Content Strategy",
-          "Production"
+          "Logo Idents",
+          "Explainers",
+          "Social Formats",
+          "Motion Principles"
+        ]
+      },
+      {
+        "slug": "strategy",
+        "description": "Positioning, brand architecture and the research behind them — the part nobody sees but everyone feels.",
+        "tags": [
+          "Positioning",
+          "Brand Architecture",
+          "Research",
+          "Messaging"
         ]
       }
     ]
@@ -172,7 +202,7 @@
       "naming": "Naming",
       "packaging": "Packaging",
       "print": "Print",
-      "artDirection": "Art Direction",
+      "motion": "Motion",
       "about": "About",
       "services": "Services",
       "contact": "Contact"
@@ -859,99 +889,7 @@
           }
         ]
       }
-    },
-    "services": [
-      {
-        "id": "branding",
-        "num": "01",
-        "title": "Branding",
-        "tagline": "Build a brand that means something.",
-        "body": "We create brands from the ground up — defining positioning, personality, and purpose before a single visual element is designed. Strategy and identity in one cohesive engagement.",
-        "deliverables": [
-          "Brand platform & strategy",
-          "Positioning & messaging",
-          "Logo system",
-          "Colour & typography",
-          "Brand guidelines",
-          "Launch assets"
-        ]
-      },
-      {
-        "id": "identity",
-        "num": "02",
-        "title": "Identity",
-        "tagline": "The complete visual language of your brand.",
-        "body": "Comprehensive brand identity systems — logo, colour palette, typography, imagery, and iconography — designed to work at every scale and across every medium. From first sketch to final brand book.",
-        "deliverables": [
-          "Logo system (primary, variants, icon)",
-          "Colour palette",
-          "Typography system",
-          "Iconography & illustration style",
-          "Brand guidelines document",
-          "Asset library"
-        ]
-      },
-      {
-        "id": "naming",
-        "num": "03",
-        "title": "Naming",
-        "tagline": "The right name opens every door.",
-        "body": "A brand name is your most permanent creative decision. We explore hundreds of concepts rooted in cultural resonance, linguistic clarity, and trademark availability — delivering a name that is memorable, strategic, and built to last.",
-        "deliverables": [
-          "Naming brief & criteria",
-          "100+ name concepts",
-          "Linguistic & cultural analysis",
-          "Trademark availability check",
-          "Domain availability check",
-          "Naming rationale deck"
-        ]
-      },
-      {
-        "id": "packaging",
-        "num": "04",
-        "title": "Packaging",
-        "tagline": "Packaging design that wins on the shelf.",
-        "body": "We design packaging that communicates brand values instantly and compels purchase. From structural design and label layout to material selection and print production — every detail considered.",
-        "deliverables": [
-          "Structural & dieline design",
-          "Label & surface design",
-          "Material & finish specification",
-          "Retail mockups",
-          "Print-ready files",
-          "Production management"
-        ]
-      },
-      {
-        "id": "print",
-        "num": "05",
-        "title": "Print & Packaging",
-        "tagline": "Tangible design with lasting impact.",
-        "body": "Print remains one of the most powerful brand touchpoints. We design stationery systems, publications, environmental graphics, and campaign materials with the same rigour we apply to digital work.",
-        "deliverables": [
-          "Brand stationery system",
-          "Editorial & publication design",
-          "Environmental & signage design",
-          "Campaign materials",
-          "Outdoor & large format",
-          "Print production management"
-        ]
-      },
-      {
-        "id": "art-direction",
-        "num": "06",
-        "title": "Art Direction",
-        "tagline": "Creative oversight for a unified brand voice.",
-        "body": "We provide art direction for photography shoots, campaigns, and ongoing content — ensuring every visual element stays true to the brand. Available as a one-off project or ongoing creative partnership.",
-        "deliverables": [
-          "Photography direction & moodboards",
-          "Campaign concepting & direction",
-          "Vendor & photographer management",
-          "Content guidelines",
-          "Ongoing creative consultation",
-          "Brand consistency reviews"
-        ]
-      }
-    ]
+    }
   },
   "contactPage": {
     "metaTitle": "Contact — Branding Agency in Tashkent",
@@ -1275,5 +1213,20 @@
     },
     "tooMany": "Too many submissions. Please try again later.",
     "error": "Something went wrong. Please try again."
+  },
+  "notFound": {
+    "label": "Error · 404",
+    "heading": "Lost in the maze.",
+    "body": "The page you were looking for can’t be found. It may have moved or never existed.",
+    "home": "Back to home",
+    "work": "See our work"
+  },
+  "errorPage": {
+    "label": "Error · 500",
+    "heading": "Something broke.",
+    "body": "An unexpected error occurred. Please try again, or go back home.",
+    "reference": "Reference",
+    "retry": "Try again",
+    "home": "Home"
   }
 }

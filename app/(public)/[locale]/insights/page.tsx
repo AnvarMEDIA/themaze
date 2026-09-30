@@ -54,7 +54,7 @@ export default async function InsightsPage({ params: { locale } }: Props) {
   ])
 
   return (
-    <main className="min-h-screen">
+    <div className="min-h-screen">
       <JsonLd data={[crumbs, blogJsonLd(locale), postListJsonLd(posts, locale)]} />
 
       <section className="pt-28 pb-16 px-6 md:px-10 border-b border-maze-border">
@@ -125,6 +125,6 @@ export default async function InsightsPage({ params: { locale } }: Props) {
           )}
         </div>
       </section>
-    </main>
+    </div>
   )
 }

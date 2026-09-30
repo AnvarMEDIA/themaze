@@ -87,7 +87,7 @@ export function Hero() {
 
             {/* Rotating word slot — y-slide + opacity via AnimatePresence mode="wait" */}
             <span
-              className="relative inline-block overflow-hidden"
+              className="relative inline-block reveal-mask"
               style={{ minWidth: '4ch' }}
             >
               <AnimatePresence mode="wait">

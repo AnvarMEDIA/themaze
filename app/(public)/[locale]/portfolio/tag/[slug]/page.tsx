@@ -60,7 +60,7 @@ export default async function PortfolioTagPage({ params }: Props) {
   ])
 
   return (
-    <main className="min-h-screen">
+    <div className="min-h-screen">
       <JsonLd data={[
         crumbs,
         collectionPageJsonLd({
@@ -95,6 +95,6 @@ export default async function PortfolioTagPage({ params }: Props) {
           <PortfolioGrid projects={data.projects} />
         </div>
       </section>
-    </main>
+    </div>
   )
 }

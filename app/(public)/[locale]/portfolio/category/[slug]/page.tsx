@@ -76,7 +76,7 @@ export default async function PortfolioCategoryPage({ params }: Props) {
   ])
 
   return (
-    <main className="min-h-screen">
+    <div className="min-h-screen">
       <JsonLd data={[
         crumbs,
         collectionPageJsonLd({
@@ -139,6 +139,6 @@ export default async function PortfolioCategoryPage({ params }: Props) {
           <PortfolioGrid projects={allProjects} activeCategory={params.slug as ProjectCategory} />
         </div>
       </section>
-    </main>
+    </div>
   )
 }

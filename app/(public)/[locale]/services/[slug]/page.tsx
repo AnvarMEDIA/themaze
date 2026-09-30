@@ -15,13 +15,7 @@ import { pageMeta, notFoundMetadata, SITE_URL } from '@/lib/seo'
 import { TextReveal } from '@/components/ui/TextReveal'
 import { Arrow } from '@/components/ui/Arrow'
 import type { ProjectCategory } from '@/lib/types'
-
-const SERVICE_SLUGS = [
-  'branding', 'rebranding', 'identity', 'naming',
-  'packaging', 'ui-ux', 'print', 'motion', 'strategy',
-] as const
-
-type ServiceSlug = (typeof SERVICE_SLUGS)[number]
+import { SERVICE_SLUGS, isServiceSlug } from '@/lib/services'
 
 interface Props {
   params: { locale: string; slug: string }
@@ -38,10 +32,6 @@ interface ServiceContent {
   timeline:        string
   pricing:         string
   faq:             Array<{ q: string; a: string }>
-}
-
-function isServiceSlug(s: string): s is ServiceSlug {
-  return (SERVICE_SLUGS as readonly string[]).includes(s)
 }
 
 export function generateStaticParams() {

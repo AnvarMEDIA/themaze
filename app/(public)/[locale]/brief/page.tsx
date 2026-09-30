@@ -39,7 +39,7 @@ export default async function BriefPage({ params: { locale } }: Props) {
   ])
 
   return (
-    <main className="min-h-screen">
+    <div className="min-h-screen">
       <JsonLd data={crumbs} />
 
       {/* Hero header */}
@@ -57,6 +57,6 @@ export default async function BriefPage({ params: { locale } }: Props) {
           <BriefForm />
         </div>
       </section>
-    </main>
+    </div>
   )
 }

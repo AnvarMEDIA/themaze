@@ -40,7 +40,7 @@ export default async function PortfolioPage({ params: { locale } }: Props) {
   ])
 
   return (
-    <main className="min-h-screen">
+    <div className="min-h-screen">
       <JsonLd data={[
         crumbs,
         collectionPageJsonLd({
@@ -78,6 +78,6 @@ export default async function PortfolioPage({ params: { locale } }: Props) {
         </div>
       </section>
 
-    </main>
+    </div>
   )
 }

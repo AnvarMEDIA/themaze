@@ -41,15 +41,17 @@ export function TextReveal({
   if (stagger) {
     const words = children.split(' ')
     return (
-      <Tag ref={ref as React.Ref<never>} className={cn('overflow-hidden', className)} aria-label={children}>
+      // Only horizontal overflow is clipped here: the vertical clip used to
+      // cut the descenders off the last line (see .reveal-mask).
+      <Tag ref={ref as React.Ref<never>} className={cn('overflow-x-clip', className)} aria-label={children}>
         {words.map((word, i) => (
-          <span key={i} className="inline-block overflow-hidden mr-[0.25em]">
+          <span key={i} className="inline-block reveal-mask mr-[0.25em]">
             <motion.span
               className="inline-block"
-              initial={shouldReduce ? { opacity: 0 } : { y: '110%' }}
+              initial={shouldReduce ? { opacity: 0 } : { y: '135%' }}
               animate={show
                 ? (shouldReduce ? { opacity: 1 } : { y: '0%' })
-                : (shouldReduce ? { opacity: 0 } : { y: '110%' })
+                : (shouldReduce ? { opacity: 0 } : { y: '135%' })
               }
               transition={{
                 duration: shouldReduce ? 0.2 : 0.7,
@@ -66,9 +68,9 @@ export function TextReveal({
     )
   }
 
-  const initial = shouldReduce ? { y: 0, opacity: 0 } : { y: '110%' }
+  const initial = shouldReduce ? { y: 0, opacity: 0 } : { y: '135%' }
   return (
-    <span className="inline-block overflow-hidden">
+    <span className="inline-block reveal-mask">
       <motion.span
         ref={ref as React.Ref<HTMLSpanElement>}
         className={cn('inline-block', className)}

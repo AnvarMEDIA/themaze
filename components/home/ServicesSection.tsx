@@ -5,31 +5,25 @@ import { useTranslations } from 'next-intl'
 import { Link } from '@/i18n/navigation'
 import { motion, useInView, AnimatePresence, useReducedMotion } from 'framer-motion'
 
-// Exactly 6 services — one href per service item (indices 0-5)
-const SERVICE_HREFS = [
-  '/services#branding',
-  '/services#identity',
-  '/services#naming',
-  '/services#packaging',
-  '/services#print',
-  '/services#art-direction',
-] as const
-
 // Strong ease-out curve (Emil Kowalski)
 const EASE_OUT = [0.23, 1, 0.32, 1] as const
 
 export function ServicesSection() {
   const t            = useTranslations('services')
+  // Names come from the service pages, so this list and those pages can't
+  // disagree: it used to show "Print & Packaging" beside Packaging and an
+  // Art Direction service that has no page.
+  const tc           = useTranslations('servicesPage.cluster')
   const sectionRef   = useRef<HTMLElement>(null)
   const inView       = useInView(sectionRef, { once: true, margin: '-10% 0px' })
   const shouldReduce = useReducedMotion()
   const [active, setActive] = useState<number | null>(null)
 
   const items = (t.raw('items') as {
-    title: string
+    slug: string
     description: string
     tags: string[]
-  }[]).slice(0, 6)
+  }[]).map((item) => ({ ...item, title: tc(`${item.slug}.title`) }))
 
   return (
     <section
@@ -46,9 +40,9 @@ export function ServicesSection() {
         >
           {t('label')}
         </motion.p>
-        <div className="overflow-hidden">
+        <div className="reveal-mask">
           <motion.h2
-            initial={{ y: '100%' }}
+            initial={{ y: '135%' }}
             animate={inView ? { y: '0%' } : {}}
             transition={{ duration: 0.9, ease: EASE_OUT }}
             className="display-md text-maze-cream"
@@ -139,7 +133,7 @@ export function ServicesSection() {
 
                 {/* Arrow link — far right, rotates to upright on hover (↗) */}
                 <Link
-                  href={SERVICE_HREFS[i] ?? '/services'}
+                  href={`/services/${service.slug}`}
                   onClick={(e) => e.stopPropagation()}
                   className="shrink-0 w-10 h-10 rounded-full border flex items-center justify-center mt-1 focus:outline-none focus-visible:ring-2 focus-visible:ring-maze-lime focus-visible:ring-offset-2 focus-visible:ring-offset-maze-black"
                   style={{

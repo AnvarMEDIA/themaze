@@ -52,9 +52,9 @@ export function CTASection() {
         </motion.p>
 
         {/* Line 1 — cream display-lg */}
-        <div className="overflow-hidden mb-2">
+        <div className="reveal-mask mb-2">
           <motion.h2
-            initial={shouldReduce ? { opacity: 0 } : { y: '100%' }}
+            initial={shouldReduce ? { opacity: 0 } : { y: '135%' }}
             animate={inView ? { opacity: 1, y: '0%' } : {}}
             transition={{ duration: 1, ease: EASE_EXPRESSIVE }}
             className="display-lg text-maze-cream"
@@ -64,9 +64,9 @@ export function CTASection() {
         </div>
 
         {/* Line 2 — lime display-lg */}
-        <div className="overflow-hidden mb-10">
+        <div className="reveal-mask mb-10">
           <motion.h2
-            initial={shouldReduce ? { opacity: 0 } : { y: '100%' }}
+            initial={shouldReduce ? { opacity: 0 } : { y: '135%' }}
             animate={inView ? { opacity: 1, y: '0%' } : {}}
             transition={{ delay: 0.08, duration: 1, ease: EASE_EXPRESSIVE }}
             className="display-lg text-maze-lime"

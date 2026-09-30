@@ -5,15 +5,28 @@ import { useTranslations } from 'next-intl'
 import toast from 'react-hot-toast'
 import PhoneInput, { isValidPhoneNumber } from 'react-phone-number-input'
 import flags from 'react-phone-number-input/flags'
+import { SERVICE_SLUGS, isServiceSlug } from '@/lib/services'
 
-
-export function ContactForm() {
+/**
+ * @param initialService  a service slug from `/contact?service=<slug>` — the
+ *   "Enquire" links on the service pages send one; the form now arrives with
+ *   that service already chosen instead of ignoring it.
+ */
+export function ContactForm({ initialService }: { initialService?: string }) {
   const t       = useTranslations('contactPage.form')
+  const tc      = useTranslations('servicesPage.cluster')
   const budgets = t.raw('budgets') as string[]
+
+  // The nine services the site has pages for, by the names those pages use.
+  // The list used to be the homepage's old six, two of which weren't services
+  // the studio has a page for.
+  const serviceOptions = SERVICE_SLUGS.map((slug) => tc(`${slug}.title`))
+  const preset = initialService && isServiceSlug(initialService) ? tc(`${initialService}.title`) : ''
+
   const [loading, setLoading] = useState(false)
   const [form, setForm] = useState({
     name: '', email: '', phone: '', company: '',
-    service: '', budget: '', message: '', website: '',
+    service: preset, budget: '', message: '', website: '',
   })
   const mountedAt = useRef<number>(Date.now())
 
@@ -84,9 +97,6 @@ export function ContactForm() {
   const inputClass =
     'w-full bg-transparent border border-maze-border rounded-lg px-4 py-3.5 body-lg text-maze-cream placeholder:text-maze-muted focus:outline-none focus:border-maze-lime transition-colors duration-200'
 
-  const tServices = useTranslations('services')
-  const serviceItems = tServices.raw('items') as { title: string }[]
-  const serviceOptions = serviceItems.map((s) => s.title)
 
   return (
     <form onSubmit={handleSubmit} className="space-y-5" noValidate>

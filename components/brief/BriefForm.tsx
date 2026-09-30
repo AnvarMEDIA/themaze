@@ -213,7 +213,7 @@ export function BriefForm() {
     return (
       <div className="flex flex-col items-center justify-center py-24 text-center">
         <p className="label-sm text-maze-lime mb-6">{t('success.label')}</p>
-        <h2 className="display-sm text-maze-cream mb-4">{t('success.heading')}</h2>
+        <h2 className="heading-lg text-maze-cream mb-4">{t('success.heading')}</h2>
         <p className="body-lg text-maze-muted max-w-sm mb-10">{t('success.body')}</p>
         <Link
           href="/"
