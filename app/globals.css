@@ -463,6 +463,9 @@ html.lenis, html.lenis body {
 
 /* ─── Phone input (react-phone-number-input) ─────────────────────────── */
 .maze-phone {
+  /* The library's own focus colour is teal (#03b2cb); it shows around the
+     flag when the country select has keyboard focus. Use the site's accent. */
+  --PhoneInput-color--focus: rgb(var(--lime));
   display: flex;
   align-items: stretch;
   background: transparent;
