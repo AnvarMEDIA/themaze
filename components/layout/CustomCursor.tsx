@@ -107,7 +107,7 @@ export function CustomCursor() {
         style={{
           width:           10,
           height:          10,
-          backgroundColor: '#C8FF47',
+          backgroundColor: '#FFFFFF',
           mixBlendMode:    blendMode as React.CSSProperties['mixBlendMode'],
           /* Only transform + opacity transitions — Emil's rule */
           transition: `transform 160ms cubic-bezier(0.23,1,0.32,1), opacity 160ms ease`,

@@ -123,7 +123,7 @@ export function LiquidButton({
     /* Focus ring via outline — accessible, doesn't clip (outline is outside) */
     'focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-3',
     variant === 'lime'
-      ? 'focus-visible:outline-[rgba(200,255,71,0.6)]'
+      ? 'focus-visible:outline-[rgba(255,255,255,0.6)]'
       : 'focus-visible:outline-[rgba(255,255,255,0.4)]',
     className
   )

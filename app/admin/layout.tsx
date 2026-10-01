@@ -17,7 +17,10 @@ export const metadata: Metadata = {
 export default function AdminRootLayout({ children }: { children: React.ReactNode }) {
   return (
     <>
+      {/* The public site went black and white; the admin keeps its lime.
+          Same variables as app/globals.css, set back for these pages only. */}
       <style>{`
+        :root, .dark { --lime: 200 255 71; --color-lime: #C8FF47; --accent-hover: 240 238 230; }
         body { background: #080808; color: #EDEBE3; }
         * { cursor: auto !important; }
       `}</style>

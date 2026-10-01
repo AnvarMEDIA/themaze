@@ -36,7 +36,7 @@ export default function GlobalError({ error, reset }: Props) {
           <p style={{ fontSize: 12, letterSpacing: '0.15em', textTransform: 'uppercase', color: '#5A5A5A' }}>
             Error · 500
           </p>
-          <h1 style={{ fontSize: 'clamp(2.5rem, 8vw, 6rem)', fontWeight: 900, margin: '1rem 0', lineHeight: 0.95, color: '#C8FF47' }}>
+          <h1 style={{ fontSize: 'clamp(2.5rem, 8vw, 6rem)', fontWeight: 900, margin: '1rem 0', lineHeight: 0.95, color: '#FFFFFF' }}>
             Something broke.
           </h1>
           <p style={{ color: '#8A8A8A', fontSize: 18, lineHeight: 1.6, marginBottom: '2rem' }}>
@@ -53,7 +53,7 @@ export default function GlobalError({ error, reset }: Props) {
               style={{
                 padding: '14px 28px',
                 borderRadius: 999,
-                background: '#C8FF47',
+                background: '#FFFFFF',
                 color: '#0A0A0A',
                 fontWeight: 700,
                 border: 'none',

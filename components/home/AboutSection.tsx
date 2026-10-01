@@ -123,7 +123,7 @@ export function AboutSection() {
               aria-hidden
               className="absolute inset-0 opacity-[0.35]"
               style={{
-                backgroundImage: 'radial-gradient(circle, rgba(200,255,71,0.25) 1px, transparent 1px)',
+                backgroundImage: 'radial-gradient(circle, rgba(255,255,255,0.25) 1px, transparent 1px)',
                 backgroundSize:  '28px 28px',
               }}
             />

@@ -6,20 +6,6 @@ export const alt         = 'MAZE Studio — Service'
 export const contentType = OG_CONTENT_TYPE
 export const size        = OG_SIZE
 
-// Matches the accents the services index paints each row with, so a shared
-// link and the page it opens feel like the same thing.
-const ACCENTS: Record<string, string> = {
-  branding:   '#C8FF47',
-  rebranding: '#4B6EF5',
-  identity:   '#D4A017',
-  naming:     '#06D6A0',
-  packaging:  '#FF4D1C',
-  'ui-ux':    '#FF9E00',
-  print:      '#B47AEA',
-  motion:     '#4B6EF5',
-  strategy:   '#C8FF47',
-}
-
 export default async function Image({
   params,
 }: {
@@ -39,6 +25,5 @@ export default async function Image({
     title,
     subtitle: isRu ? 'Ташкент · Центральная Азия' : 'Tashkent · Central Asia',
     footer:   `${slug.toUpperCase()} · MAZE.UZ`,
-    accent:   ACCENTS[slug],
   })
 }

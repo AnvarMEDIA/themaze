@@ -18,8 +18,11 @@ const config: Config = {
         'maze-muted':  'rgb(var(--muted) / <alpha-value>)',
         'maze-lime':   'rgb(var(--lime) / <alpha-value>)',
         /* Fixed colors — never change with theme */
-        'maze-ink':    '#0A0A0A',   /* always dark — for text on lime buttons */
-        'maze-paper':  '#F0EEE6',   /* always light — for hover on lime buttons */
+        /* Text and hover colour on accent-filled elements (the white
+           buttons). Variables, so a black accent on the light theme gets
+           white text instead of black-on-black. */
+        'maze-ink':    'rgb(var(--on-accent) / <alpha-value>)',
+        'maze-paper':  'rgb(var(--accent-hover) / <alpha-value>)',
       },
       fontFamily: {
         sans: ['var(--font-sans)', 'system-ui', 'sans-serif'],

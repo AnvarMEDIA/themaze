@@ -15,7 +15,15 @@
   --border:  37 37 37;
   --text:    237 235 227;
   --muted:   90 90 90;
-  --lime:    200 255 71;
+  /* The accent. The site is black and white: this was lime (#C8FF47) and
+     is now white — primary buttons, focus rings, highlights, selection.
+     The name stays so every `maze-lime` class keeps working. The admin
+     keeps its lime: app/admin/layout.tsx sets these back for its pages. */
+  --lime:    255 255 255;
+  /* On an accent-filled element (a white button): black text, and a light
+     grey when it is hovered. */
+  --on-accent:    10 10 10;
+  --accent-hover: 214 214 214;
 
   /* Legacy hex vars (kept for components not yet on CSS vars) */
   --color-bg:      #080808;
@@ -23,7 +31,7 @@
   --color-border:  #252525;
   --color-text:    #EDEBE3;
   --color-muted:   #5A5A5A;
-  --color-lime:    #C8FF47;
+  --color-lime:    #FFFFFF;
 
   /* ─── Emil Kowalski easing curves ──────────────────────────────── */
   --ease-out:      cubic-bezier(0.23, 1, 0.32, 1);      /* strong ease-out for UI enters */
@@ -42,14 +50,18 @@
   /* Darkened from #7A7870 → #706E64 so muted text clears WCAG AA (4.5:1)
      on the light background (was ~3.96:1). */
   --muted:   112 110 100;
-  --lime:    200 255 71;
+  /* Black and white here too: on a light page the accent is black, and
+     what sits on it is white. */
+  --lime:    10 10 10;
+  --on-accent:    255 255 255;
+  --accent-hover: 51 51 51;
 
   --color-bg:      #F5F4F0;
   --color-surface: #ECEAE2;
   --color-border:  #D0CFC7;
   --color-text:    #0A0A0A;
   --color-muted:   #706E64;
-  --color-lime:    #C8FF47;
+  --color-lime:    #0A0A0A;
 }
 
 /* ─── Base Reset ─────────────────────────────────────────────────────── */
@@ -237,10 +249,10 @@ body {
 
 /* ── Lime (primary CTA) ── */
 .glass-lime {
-  background: rgba(200, 255, 71, 0.11);
+  background: rgba(255, 255, 255, 0.11);
   backdrop-filter: blur(36px) saturate(210%) brightness(1.05);
   -webkit-backdrop-filter: blur(36px) saturate(210%) brightness(1.05);
-  border: 1px solid rgba(200, 255, 71, 0.26);
+  border: 1px solid rgba(255, 255, 255, 0.26);
   box-shadow:
     /* inner rim light — bright edge at top-left */
     inset 0 1.5px 0 rgba(255, 255, 255, 0.38),
@@ -248,12 +260,12 @@ body {
     /* inner depth — darker at bottom */
     inset 0 -1px 0 rgba(0, 0, 0, 0.14),
     /* outer ring — faint lime halo */
-    0 0 0 1px rgba(200, 255, 71, 0.07),
+    0 0 0 1px rgba(255, 255, 255, 0.07),
     /* ambient glow */
-    0 4px 20px rgba(200, 255, 71, 0.16),
+    0 4px 20px rgba(255, 255, 255, 0.16),
     /* base drop shadow */
     0 2px 8px  rgba(0, 0, 0, 0.50);
-  color: #C8FF47;
+  color: #FFFFFF;
   transition:
     background     200ms cubic-bezier(0.23, 1, 0.32, 1),
     box-shadow     200ms cubic-bezier(0.23, 1, 0.32, 1),
@@ -262,24 +274,24 @@ body {
 
 @media (hover: hover) and (pointer: fine) {
   .glass-lime:hover {
-    background: rgba(200, 255, 71, 0.20);
-    border-color: rgba(200, 255, 71, 0.40);
+    background: rgba(255, 255, 255, 0.20);
+    border-color: rgba(255, 255, 255, 0.40);
     box-shadow:
       inset 0 1.5px 0 rgba(255, 255, 255, 0.52),
       inset 1px 0   0 rgba(255, 255, 255, 0.14),
       inset 0 -1px 0 rgba(0, 0, 0, 0.14),
-      0 0 0 1px rgba(200, 255, 71, 0.12),
-      0 8px 36px rgba(200, 255, 71, 0.30),
+      0 0 0 1px rgba(255, 255, 255, 0.12),
+      0 8px 36px rgba(255, 255, 255, 0.30),
       0 3px 14px rgba(0, 0, 0, 0.55);
   }
 }
 
 .glass-lime:active {
-  background: rgba(200, 255, 71, 0.08);
+  background: rgba(255, 255, 255, 0.08);
   box-shadow:
     inset 0 1px 0 rgba(255, 255, 255, 0.25),
     inset 0 -1px 0 rgba(0, 0, 0, 0.10),
-    0 2px 10px rgba(200, 255, 71, 0.12),
+    0 2px 10px rgba(255, 255, 255, 0.12),
     0 1px 3px  rgba(0, 0, 0, 0.40);
   transition-duration: 70ms;
 }
@@ -315,7 +327,7 @@ body {
       0 6px 24px rgba(0, 0, 0, 0.40),
       0 2px 8px  rgba(0, 0, 0, 0.30);
     color: rgb(var(--lime));
-    border-color: rgba(200, 255, 71, 0.25);
+    border-color: rgba(255, 255, 255, 0.25);
   }
 }
 
@@ -329,14 +341,14 @@ body {
 
 /* Light theme overrides for glass */
 .light .glass-lime {
-  background: rgba(100, 160, 0, 0.10);
-  border-color: rgba(100, 160, 0, 0.25);
+  background: rgba(10, 10, 10, 0.08);
+  border-color: rgba(10, 10, 10, 0.25);
   box-shadow:
     inset 0 1.5px 0 rgba(255, 255, 255, 0.50),
     inset 0 -1px 0 rgba(0, 0, 0, 0.08),
-    0 4px 20px rgba(100, 160, 0, 0.15),
+    0 4px 20px rgba(10, 10, 10, 0.12),
     0 2px 6px rgba(0, 0, 0, 0.15);
-  color: #4A7A00;
+  color: #0A0A0A;
 }
 
 .light .glass-clear {

@@ -33,7 +33,7 @@ export function CTASection() {
         <div
           className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[700px] h-[700px]"
           style={{
-            background: 'radial-gradient(circle, rgba(200,255,71,0.07) 0%, transparent 65%)',
+            background: 'radial-gradient(circle, rgba(255,255,255,0.07) 0%, transparent 65%)',
           }}
         />
       </motion.div>
@@ -98,7 +98,7 @@ export function CTASection() {
               href="/contact"
               className="inline-flex items-center gap-3 px-8 py-4 bg-maze-lime text-maze-ink font-bold rounded-full label-sm active:scale-[0.97]"
               style={{ transition: 'background-color 200ms ease-out, transform 150ms ease-out' }}
-              onMouseEnter={e => { e.currentTarget.style.backgroundColor = '#F0EEE6' }}
+              onMouseEnter={e => { e.currentTarget.style.backgroundColor = 'rgb(var(--accent-hover))' }}
               onMouseLeave={e => { e.currentTarget.style.backgroundColor = '' }}
             >
               {t('button')} ↗

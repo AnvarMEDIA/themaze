@@ -45,7 +45,7 @@ export function Hero() {
         <div
           className="absolute inset-0 opacity-[0.28]"
           style={{
-            backgroundImage:  'radial-gradient(circle, rgba(200,255,71,0.38) 1px, transparent 1px)',
+            backgroundImage:  'radial-gradient(circle, rgba(255,255,255,0.38) 1px, transparent 1px)',
             backgroundSize:   '36px 36px',
             maskImage:        'radial-gradient(ellipse 72% 60% at 50% 48%, black 0%, transparent 100%)',
             WebkitMaskImage:  'radial-gradient(ellipse 72% 60% at 50% 48%, black 0%, transparent 100%)',
@@ -54,12 +54,12 @@ export function Hero() {
         {/* Lime ambient glow — top-right, very low opacity ~0.06 */}
         <div
           className="absolute -top-48 -right-48 w-[760px] h-[760px] rounded-full"
-          style={{ background: 'radial-gradient(circle, rgba(200,255,71,0.06) 0%, transparent 65%)' }}
+          style={{ background: 'radial-gradient(circle, rgba(255,255,255,0.06) 0%, transparent 65%)' }}
         />
         {/* Lime ambient glow — bottom-left, very low opacity ~0.06 */}
         <div
           className="absolute -bottom-32 -left-32 w-[560px] h-[560px] rounded-full"
-          style={{ background: 'radial-gradient(circle, rgba(200,255,71,0.06) 0%, transparent 65%)' }}
+          style={{ background: 'radial-gradient(circle, rgba(255,255,255,0.06) 0%, transparent 65%)' }}
         />
       </div>
 
@@ -160,7 +160,7 @@ export function Hero() {
                 href="/brief"
                 className="flex items-center gap-2 px-6 py-3.5 bg-maze-lime text-maze-ink rounded-full label-sm font-bold active:scale-[0.97]"
                 style={{ transition: 'background-color 200ms ease-out, transform 150ms ease-out' }}
-                onMouseEnter={e => { e.currentTarget.style.backgroundColor = '#F0EEE6' }}
+                onMouseEnter={e => { e.currentTarget.style.backgroundColor = 'rgb(var(--accent-hover))' }}
                 onMouseLeave={e => { e.currentTarget.style.backgroundColor = '' }}
               >
                 {t('fillBrief')}

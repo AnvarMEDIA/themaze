@@ -26,7 +26,10 @@ export async function generateMetadata({ params: { locale } }: Props): Promise<M
   })
 }
 
-const accentColors = ['#C8FF47', '#4B6EF5', '#D4A017', '#06D6A0', '#FF4D1C', '#FF9E00', '#B47AEA']
+// Black and white: every service in the site's one accent. Each used to
+// get a colour of its own (lime, blue, gold, teal, orange, amber, violet).
+const ACCENT      = 'rgb(var(--lime))'
+const ACCENT_LINE = 'rgb(var(--lime) / 0.2)'
 
 export default async function ServicesPage({ params: { locale } }: Props) {
   setRequestLocale(locale)
@@ -76,7 +79,7 @@ export default async function ServicesPage({ params: { locale } }: Props) {
       <div className="px-6 md:px-10">
         <div className="max-w-[1440px] mx-auto">
           {services.map((service, i) => {
-            const accent = accentColors[i % accentColors.length]
+            const accent = ACCENT
             return (
               <div
                 key={service.id}
@@ -88,7 +91,7 @@ export default async function ServicesPage({ params: { locale } }: Props) {
                     <span className="label-sm font-bold" style={{ color: accent }}>
                       {service.num}
                     </span>
-                    <div className="h-px flex-1" style={{ background: accent + '33' }} />
+                    <div className="h-px flex-1" style={{ background: ACCENT_LINE }} />
                   </div>
                   <h2 className="heading-lg text-maze-cream mb-3">{service.title}</h2>
                   <p className="heading-md mb-6" style={{ color: accent }}>{service.tagline}</p>

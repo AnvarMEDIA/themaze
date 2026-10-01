@@ -61,11 +61,11 @@ export function InfiniteGrid() {
             willChange:      'transform',
             backgroundImage: [
               /* glowing dot at each intersection */
-              `radial-gradient(circle, rgba(200,255,71,0.55) 1px, transparent 1px)`,
+              `radial-gradient(circle, rgba(255,255,255,0.55) 1px, transparent 1px)`,
               /* horizontal grid lines */
-              `linear-gradient(rgba(200,255,71,0.10) 1px, transparent 1px)`,
+              `linear-gradient(rgba(255,255,255,0.10) 1px, transparent 1px)`,
               /* vertical grid lines */
-              `linear-gradient(90deg, rgba(200,255,71,0.10) 1px, transparent 1px)`,
+              `linear-gradient(90deg, rgba(255,255,255,0.10) 1px, transparent 1px)`,
             ].join(', '),
             backgroundSize:     `${CELL}px ${CELL}px, ${CELL}px ${CELL}px, ${CELL}px ${CELL}px`,
             backgroundPosition: '0 0',
@@ -143,7 +143,7 @@ export function InfiniteGrid() {
           width:     '480px',
           height:    '240px',
           borderRadius: '50%',
-          background: 'radial-gradient(ellipse, rgba(200,255,71,0.07) 0%, transparent 70%)',
+          background: 'radial-gradient(ellipse, rgba(255,255,255,0.07) 0%, transparent 70%)',
           filter:    'blur(40px)',
         }}
       />

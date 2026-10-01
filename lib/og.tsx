@@ -9,7 +9,8 @@ import { ImageResponse } from 'next/og'
 export const OG_SIZE = { width: 1200, height: 630 }
 export const OG_CONTENT_TYPE = 'image/png'
 
-const DEFAULT_ACCENT = '#C8FF47'
+// White: the site is black and white.
+const DEFAULT_ACCENT = '#FFFFFF'
 
 async function loadFont(family: string, weight: number): Promise<ArrayBuffer | null> {
   try {

@@ -10,7 +10,8 @@ import { writeFileSync } from 'node:fs'
 
 const OUT  = new URL('../public/', import.meta.url).pathname.replace(/\/$/, '')
 const INK  = '#080808'
-const LIME = '#C8FF47'
+// The site is black and white: a white M on the black tile (was lime).
+const MARK = '#FFFFFF'
 
 /**
  * The M, as a stroked polyline: legible down to 16 px where type is mush.
@@ -24,19 +25,19 @@ const mark = (stroke) => `
 /** Rounded tile for the browser tab / desktop. */
 const tile = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
   <rect width="100" height="100" rx="22" fill="${INK}"/>
-  ${mark(LIME)}
+  ${mark(MARK)}
 </svg>`
 
 /** iOS masks the corners itself, so this one is full-bleed. */
 const appleTile = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
   <rect width="100" height="100" fill="${INK}"/>
-  ${mark(LIME)}
+  ${mark(MARK)}
 </svg>`
 
 /** Android maskable icons are cropped to a circle: keep the mark inside 80%. */
 const maskable = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
   <rect width="100" height="100" fill="${INK}"/>
-  <g transform="translate(50 50) scale(0.72) translate(-50 -50)">${mark(LIME)}</g>
+  <g transform="translate(50 50) scale(0.72) translate(-50 -50)">${mark(MARK)}</g>
 </svg>`
 
 const png = (svg, size) =>
