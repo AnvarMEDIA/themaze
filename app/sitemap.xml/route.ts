@@ -1,14 +1,34 @@
-import { MetadataRoute } from 'next'
 import {
   getPublishedProjects,
   getClientSlugs,
   getTagSlugs,
 } from '@/lib/portfolio'
 import { getPublishedPosts } from '@/lib/posts'
-import { localeHref } from '@/lib/seo'
+import { SITE_URL, localeHref } from '@/lib/seo'
 import { VALID_CATEGORIES, slugify } from '@/lib/utils'
 
-type Entry = MetadataRoute.Sitemap[number]
+/**
+ * The sitemap, written out here rather than returned from app/sitemap.ts.
+ * Next 14 serialises a sitemap entry's url, alternates, lastmod, changefreq
+ * and priority, and nothing else: the `images` that file passed for project
+ * covers, galleries and post covers were dropped without a word, so the
+ * image entries it was written to produce never reached the XML.
+ */
+
+// The stores are read live everywhere else in the app; a project published
+// from the admin is listed on the next request.
+export const dynamic = 'force-dynamic'
+
+type ChangeFrequency = 'always' | 'hourly' | 'daily' | 'weekly' | 'monthly' | 'yearly' | 'never'
+
+interface Entry {
+  url:             string
+  lastModified:    Date
+  changeFrequency: ChangeFrequency
+  priority:        number
+  languages:       Record<string, string>
+  images:          string[]
+}
 
 /**
  * Static-page anchor date. Pages whose content rarely changes
@@ -20,25 +40,44 @@ const SITE_LAUNCH = new Date('2024-01-01T00:00:00Z')
 
 /* ── helpers ─────────────────────────────────────────────────────────── */
 
+function escapeXml(value: string): string {
+  return value
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&apos;')
+}
+
+// Uploads from before the Blob store are site-relative paths; an image
+// sitemap only accepts absolute URLs.
+function absoluteUrl(src: string): string {
+  return /^https?:\/\//.test(src) ? src : `${SITE_URL}/${src.replace(/^\/+/, '')}`
+}
+
 function localized(
   path:            string,
   lastModified:    Date,
-  changeFrequency: Entry['changeFrequency'],
+  changeFrequency: ChangeFrequency,
   priority:        number,
-  images?:         string[],
+  images:          Array<string | undefined> = [],
 ): Entry[] {
   const languages = {
     'x-default': localeHref('en', path),
     en: localeHref('en', path),
     ru: localeHref('ru', path),
   }
+  // A cover is often repeated as the first gallery image.
+  const imageUrls = Array.from(new Set(
+    images.filter((src): src is string => Boolean(src)).map(absoluteUrl),
+  ))
   return (['en', 'ru'] as const).map((locale) => ({
     url: localeHref(locale, path),
     lastModified,
     changeFrequency,
     priority,
-    alternates: { languages },
-    ...(images?.length ? { images: images.filter(Boolean) } : {}),
+    languages,
+    images: imageUrls,
   }))
 }
 
@@ -52,9 +91,33 @@ function maxDate(values: Array<Date | string | undefined | null>): Date | undefi
   return best === -Infinity ? undefined : new Date(best)
 }
 
+function toXml(entries: Entry[]): string {
+  const urls = entries.map((e) => [
+    '<url>',
+    `<loc>${escapeXml(e.url)}</loc>`,
+    ...Object.entries(e.languages).map(([lang, href]) =>
+      `<xhtml:link rel="alternate" hreflang="${lang}" href="${escapeXml(href)}" />`),
+    // An unparseable date would throw and take the whole sitemap down with
+    // it; the element is optional, so a bad one is simply left out.
+    ...(Number.isFinite(e.lastModified.getTime()) ? [`<lastmod>${e.lastModified.toISOString()}</lastmod>`] : []),
+    `<changefreq>${e.changeFrequency}</changefreq>`,
+    `<priority>${e.priority}</priority>`,
+    ...e.images.map((src) => `<image:image><image:loc>${escapeXml(src)}</image:loc></image:image>`),
+    '</url>',
+  ].join('\n'))
+
+  return [
+    '<?xml version="1.0" encoding="UTF-8"?>',
+    '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:xhtml="http://www.w3.org/1999/xhtml" xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">',
+    ...urls,
+    '</urlset>',
+    '',
+  ].join('\n')
+}
+
 /* ── main ────────────────────────────────────────────────────────────── */
 
-export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
+export async function GET() {
   const [projects, posts, clients, tags] = await Promise.all([
     getPublishedProjects(),
     getPublishedPosts(),
@@ -99,7 +162,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     }
   }
 
-  const staticPages: MetadataRoute.Sitemap = [
+  const staticPages: Entry[] = [
     ...localized('',              siteFreshness,   'weekly',  1.0),
     ...localized('portfolio',     freshestProject, 'weekly',  0.9),
     ...localized('services',      SITE_LAUNCH,     'monthly', 0.8),
@@ -110,6 +173,9 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     ...(posts.length ? localized('insights', freshestPost, 'weekly', 0.8) : []),
     ...localized('about',         SITE_LAUNCH,     'monthly', 0.7),
     ...localized('contact',       SITE_LAUNCH,     'yearly',  0.5),
+    // Indexable, and the page every "Fill in the brief" button leads to, but
+    // it had been left out.
+    ...localized('brief',         SITE_LAUNCH,     'yearly',  0.5),
     ...localized('legal/privacy', SITE_LAUNCH,     'yearly',  0.3),
     ...localized('legal/terms',   SITE_LAUNCH,     'yearly',  0.3),
     ...localized('legal/cookies', SITE_LAUNCH,     'yearly',  0.3),
@@ -119,7 +185,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   // service vertical's commercial keyword. Updated each time a project
   // in the matching category is published, since the "Selected work"
   // block is pulled live from the portfolio.
-  const servicePages: MetadataRoute.Sitemap = VALID_CATEGORIES.flatMap((slug) => localized(
+  const servicePages: Entry[] = VALID_CATEGORIES.flatMap((slug) => localized(
     `services/${slug}`,
     lastByCategory.get(slug) ?? SITE_LAUNCH,
     'monthly',
@@ -128,7 +194,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
   // Category landing pages — only emit ones that actually have at
   // least one project so we never ship 404s to crawlers.
-  const categoryPages: MetadataRoute.Sitemap = VALID_CATEGORIES
+  const categoryPages: Entry[] = VALID_CATEGORIES
     .filter((c) => usedCategories.has(c))
     .flatMap((c) => localized(
       `portfolio/category/${c}`,
@@ -137,7 +203,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       0.8,
     ))
 
-  const clientPages: MetadataRoute.Sitemap = clients.flatMap(({ slug }) => localized(
+  const clientPages: Entry[] = clients.flatMap(({ slug }) => localized(
     `portfolio/client/${slug}`,
     lastByClient.get(slug) ?? freshestProject,
     'monthly',
@@ -146,7 +212,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
   // Tag landing pages (only tags used by ≥2 projects so we don't
   // ship near-duplicate single-item pages).
-  const tagPages: MetadataRoute.Sitemap = tags.flatMap(({ slug }) => localized(
+  const tagPages: Entry[] = tags.flatMap(({ slug }) => localized(
     `portfolio/tag/${slug}`,
     lastByTag.get(slug) ?? freshestProject,
     'monthly',
@@ -157,23 +223,23 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   // so Google Image Search has a direct signal.
   // Featured projects float to the top of the homepage and get a
   // slightly higher priority.
-  const projectPages: MetadataRoute.Sitemap = projects.flatMap((p) => localized(
+  const projectPages: Entry[] = projects.flatMap((p) => localized(
     `portfolio/${p.slug}`,
     new Date(p.updatedAt),
     'monthly',
     p.featured ? 0.8 : 0.7,
-    [p.coverImage, ...(p.images ?? [])].filter(Boolean),
+    [p.coverImage, ...(p.images ?? [])],
   ))
 
-  const postPages: MetadataRoute.Sitemap = posts.flatMap((p) => localized(
+  const postPages: Entry[] = posts.flatMap((p) => localized(
     `insights/${p.slug}`,
     new Date(p.updatedAt),
     'monthly',
     0.6,
-    p.coverImage ? [p.coverImage] : undefined,
+    [p.coverImage],
   ))
 
-  return [
+  const xml = toXml([
     ...staticPages,
     ...servicePages,
     ...categoryPages,
@@ -181,5 +247,9 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     ...tagPages,
     ...projectPages,
     ...postPages,
-  ]
+  ])
+
+  return new Response(xml, {
+    headers: { 'Content-Type': 'application/xml; charset=utf-8' },
+  })
 }
