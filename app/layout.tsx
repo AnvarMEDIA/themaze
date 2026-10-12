@@ -129,6 +129,10 @@ const baseMetadata: Metadata = {
   },
   verification: {
     yandex: '90dee1899184f344',
+    other: {
+      // Bing Webmaster Tools
+      'msvalidate.01': '67159B4339466FBE68D55F6898C22872',
+    },
   },
   manifest: '/site.webmanifest',
   // NOTE: intentionally NO `canonical` or `languages` here. A canonical set
