@@ -9,6 +9,7 @@ import {
   citationSection,
   clientsSection,
   contactSection,
+  creditsSection,
   factsSection,
   faqSection,
   oneLine,
@@ -36,8 +37,10 @@ export async function GET() {
     `- [${p.title}](${SITE_URL}/insights/${p.slug})${p.excerpt ? `: ${oneLine(p.excerpt)}` : ''}`,
   ).join('\n')
 
-  const clients = clientsSection(projects, partners)
-  const contact = contactSection(settings)
+  const clients   = clientsSection(projects, partners)
+  const contact   = contactSection(settings)
+  const creditsEn = creditsSection(projects, 'en')
+  const creditsRu = creditsSection(projects, 'ru', '####')
 
   const body = `# MAZE Studio — Branding & Design Studio (Tashkent, Uzbekistan)
 
@@ -51,7 +54,7 @@ ${servicesIndex('en')}
 
 ## Selected work
 ${workIndex(projects, 'en')}
-${clients ? `\n## Clients\n${clients}\n` : ''}
+${creditsEn ? `\n## Who designed these brands\n${creditsEn}\n` : ''}${clients ? `\n## Clients\n${clients}\n` : ''}
 ## Common questions
 ${faqSection('en')}
 ${insights ? `\n## Insights\n${insights}\n` : ''}
@@ -78,7 +81,7 @@ ${insights ? `- [RSS feed](${SITE_URL}/feed.xml)\n` : ''}- [Full text for LLMs](
 
 ### Услуги
 ${servicesIndex('ru')}
-
+${creditsRu ? `\n### Кто разработал эти бренды\n${creditsRu}\n` : ''}
 ### Частые вопросы
 ${faqSection('ru', '####')}
 

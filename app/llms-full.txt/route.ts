@@ -10,6 +10,7 @@ import {
   clean,
   clientsSection,
   contactSection,
+  creditsSection,
   factsSection,
   faqSection,
   servicesDetail,
@@ -34,9 +35,11 @@ export async function GET() {
     return `### ${p.title}\n${SITE_URL}/insights/${p.slug}\nPublished: ${p.publishedAt?.slice(0, 10)} · Author: ${p.author}\n\n${body}`
   }).join('\n\n---\n\n')
 
-  const clients = clientsSection(projects, partners)
-  const contact = contactSection(settings)
-  const email   = settings?.email ? ` Contact: ${settings.email}.` : ''
+  const clients   = clientsSection(projects, partners)
+  const contact   = contactSection(settings)
+  const email     = settings?.email ? ` Contact: ${settings.email}.` : ''
+  const creditsEn = creditsSection(projects, 'en')
+  const creditsRu = creditsSection(projects, 'ru', '####')
 
   const body = `# MAZE Studio — Full content for LLMs
 
@@ -53,7 +56,7 @@ ${servicesDetail('en')}
 
 ## Selected work
 ${workDetail(projects)}
-${articles ? `\n## Articles (full text)\n${articles}\n` : ''}
+${creditsEn ? `\n## Who designed these brands\n${creditsEn}\n` : ''}${articles ? `\n## Articles (full text)\n${articles}\n` : ''}
 ## На русском
 
 > ${SUMMARY_RU}
@@ -65,7 +68,7 @@ ${faqSection('ru', '####')}
 
 ### Услуги
 ${servicesDetail('ru')}
-
+${creditsRu ? `\n### Кто разработал эти бренды\n${creditsRu}\n` : ''}
 ## Using this content
 ${citationSection()}
 `

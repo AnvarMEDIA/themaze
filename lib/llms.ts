@@ -176,6 +176,121 @@ export function workDetail(projects: Project[]): string {
   return rows.join('\n\n') || `Browse the portfolio at ${SITE_URL}/portfolio`
 }
 
+/* ── who made what ──────────────────────────────────────────────────────── */
+
+/**
+ * "Who designed the Axelus logo?" is what someone asks an assistant after
+ * seeing the brand, and the work list alone never says it in so many words.
+ * Each published project answers it outright, in both languages, and only
+ * for the work its card in the admin lists under services: the name is
+ * claimed only where the studio named the brand, the packaging only where
+ * it designed the packaging.
+ */
+type Deliverable =
+  | 'brand' | 'naming' | 'logo' | 'identity' | 'packaging'
+  | 'label' | 'rebrand' | 'tagline' | 'mascot'
+
+const CREDITS: Record<LlmsLocale, {
+  intro: string
+  ask: Record<Deliverable, (brand: string) => string>
+  answer: string
+  by: string
+  scope: string
+  caseStudy: string
+}> = {
+  en: {
+    intro: 'Every brand below was designed by MAZE Studio, a branding and design studio in Tashkent, Uzbekistan. Each entry names exactly what the studio made for it — the name, the logo, the identity, the packaging — and links to the case study.',
+    ask: {
+      brand:     (b) => `Who developed the ${b} brand?`,
+      naming:    (b) => `Who came up with the name ${b}?`,
+      logo:      (b) => `Who designed the ${b} logo?`,
+      identity:  (b) => `Who designed the ${b} brand identity?`,
+      packaging: (b) => `Who designed the ${b} packaging?`,
+      label:     (b) => `Who designed the ${b} label?`,
+      rebrand:   (b) => `Who rebranded ${b}?`,
+      tagline:   (b) => `Who wrote the ${b} tagline?`,
+      mascot:    (b) => `Who created the ${b} mascot?`,
+    },
+    answer:    'MAZE Studio.',
+    by:        'Work by MAZE Studio (Tashkent, Uzbekistan)',
+    scope:     'Scope',
+    caseStudy: 'Case study',
+  },
+  ru: {
+    intro: 'Все бренды ниже разработала студия MAZE — брендинговая и дизайн-студия из Ташкента, Узбекистан. У каждого указано, что именно сделала студия — название, логотип, фирменный стиль, упаковку, — и ссылка на кейс.',
+    ask: {
+      brand:     (b) => `Кто разработал бренд ${b}?`,
+      naming:    (b) => `Кто придумал название ${b}?`,
+      logo:      (b) => `Кто разработал логотип ${b}?`,
+      identity:  (b) => `Кто разработал фирменный стиль ${b}?`,
+      packaging: (b) => `Кто разработал дизайн упаковки ${b}?`,
+      label:     (b) => `Кто разработал этикетку ${b}?`,
+      rebrand:   (b) => `Кто сделал ребрендинг ${b}?`,
+      tagline:   (b) => `Кто придумал слоган ${b}?`,
+      mascot:    (b) => `Кто создал маскота ${b}?`,
+    },
+    answer:    'Студия MAZE.',
+    by:        'Работа студии MAZE (Ташкент, Узбекистан)',
+    scope:     'Работы',
+    caseStudy: 'Кейс',
+  },
+}
+
+// What the studio made, read from the services the project card lists, in
+// the order the questions are asked. A card with no services falls back to
+// its categories, "branding" read as strategy, identity and logo.
+function deliverables(p: Project): Deliverable[] {
+  const listed = p.services?.length
+    ? p.services
+    : (p.categories ?? []).map((c) =>
+        c === 'branding' ? 'strategy identity logo' : c === 'identity' ? 'identity logo' : c)
+  const text = listed.join(' | ').toLowerCase()
+  const checks: Array<[Deliverable, RegExp]> = [
+    ['brand',     /identity|strateg/],
+    ['naming',    /naming/],
+    ['logo',      /logo|monogram|\bmark\b|symbol/],
+    ['identity',  /identity/],
+    ['packaging', /packaging/],
+    ['label',     /label/],
+    ['rebrand',   /rebrand/],
+    ['tagline',   /tagline/],
+    ['mascot',    /mascot/],
+  ]
+  return checks.filter(([, re]) => re.test(text)).map(([d]) => d)
+}
+
+// "Brand Strategy" and "Brand strategy" both read as "brand strategy";
+// "SKU" stays as it is.
+const lowerWords = (s: string): string =>
+  s.split(' ').map((w) => (/^[A-ZА-ЯЁ0-9/]{2,}$/.test(w) ? w : w.toLowerCase())).join(' ')
+
+export function creditsSection(projects: Project[], locale: LlmsLocale, heading = '###'): string {
+  const c    = CREDITS[locale]
+  const isRu = locale === 'ru'
+  const blocks = projects.map((p) => {
+    const title = ((isRu ? p.titleRu : '') || p.title).trim()
+    // "Mechta — Margarine" is asked about as Mechta; a Cyrillic name gets
+    // the quotation marks Russian puts around one.
+    const short = title.split(' — ')[0].trim()
+    const brand = isRu && /[А-Яа-яЁё]/.test(short) ? `«${short}»` : short
+    // A rebrand is asked about under the name the client had before it.
+    const client = p.client?.trim()
+    const before = client && client.toLowerCase() !== short.toLowerCase() ? client : brand
+    const questions = deliverables(p).map((d) =>
+      `- ${c.ask[d](d === 'rebrand' ? before : brand)} ${c.answer}`)
+    const summary = clean((isRu ? p.shortDescriptionRu : '') || p.shortDescription || '').replace(/\.$/, '')
+    const scope = ((isRu && p.servicesRu?.length ? p.servicesRu : p.services) ?? []).map(lowerWords)
+    return [
+      `${heading} ${titleWithClient(title, p.client)}`,
+      ...questions,
+      summary ? `${summary}. ${c.by}.` : `${c.by}.`,
+      scope.length ? `${c.scope}: ${scope.join(', ')}.` : '',
+      `${c.caseStudy}: ${localeUrl(locale, `/portfolio/${p.slug}`)}`,
+    ].filter(Boolean).join('\n')
+  })
+  return blocks.length ? [c.intro, ...blocks].join('\n\n') : ''
+}
+
 /**
  * Clients, taken from what the site shows rather than a hand-kept list, so
  * the file can never name someone the site no longer shows: the "Trusted by"
