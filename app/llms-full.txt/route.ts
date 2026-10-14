@@ -1,12 +1,15 @@
 import { getPublishedPosts } from '@/lib/posts'
 import { getPublishedProjects } from '@/lib/portfolio'
+import { getPartners } from '@/lib/partners'
+import { getSettings } from '@/lib/settings'
 import { SITE_URL } from '@/lib/seo'
 import {
   SUMMARY_EN,
   SUMMARY_RU,
   citationSection,
   clean,
-  clientsLine,
+  clientsSection,
+  contactSection,
   factsSection,
   faqSection,
   servicesDetail,
@@ -19,22 +22,29 @@ import {
 export const dynamic = 'force-dynamic'
 
 export async function GET() {
-  const [posts, projects] = await Promise.all([getPublishedPosts(), getPublishedProjects()])
+  const [posts, projects, partners, settings] = await Promise.all([
+    getPublishedPosts(),
+    getPublishedProjects(),
+    getPartners(),
+    getSettings().catch(() => null),
+  ])
 
   const articles = posts.map((p) => {
     const body = clean(p.body || '')
     return `### ${p.title}\n${SITE_URL}/insights/${p.slug}\nPublished: ${p.publishedAt?.slice(0, 10)} · Author: ${p.author}\n\n${body}`
-  }).join('\n\n---\n\n') || `No articles are published yet. The journal lives at ${SITE_URL}/insights.`
+  }).join('\n\n---\n\n')
 
-  const clients = clientsLine(projects)
+  const clients = clientsSection(projects, partners)
+  const contact = contactSection(settings)
+  const email   = settings?.email ? ` Contact: ${settings.email}.` : ''
 
   const body = `# MAZE Studio — Full content for LLMs
 
-> ${SUMMARY_EN} Contact: hello@maze.uz. A shorter index is at ${SITE_URL}/llms.txt.
+> ${SUMMARY_EN}${email} A shorter index is at ${SITE_URL}/llms.txt.
 
 ## Facts
-${factsSection()}
-${clients ? `\n## Clients\n${clients}\n` : ''}
+${factsSection(settings?.email)}
+${contact ? `\n## Contact\n${contact}\n- Contact form: ${SITE_URL}/contact\n` : ''}${clients ? `\n## Clients\n${clients}\n` : ''}
 ## Working with the studio
 ${faqSection('en')}
 
@@ -43,10 +53,7 @@ ${servicesDetail('en')}
 
 ## Selected work
 ${workDetail(projects)}
-
-## Articles (full text)
-${articles}
-
+${articles ? `\n## Articles (full text)\n${articles}\n` : ''}
 ## На русском
 
 > ${SUMMARY_RU}

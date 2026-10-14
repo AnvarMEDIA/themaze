@@ -13,6 +13,9 @@
 import en from '@/messages/en.json'
 import ru from '@/messages/ru.json'
 import { SITE_URL } from './seo'
+import { telegramHref } from './utils'
+import type { Partner } from './partners'
+import type { SiteSettings } from './settings'
 import type { Project } from './types'
 
 import { SERVICE_SLUGS } from './services'
@@ -56,7 +59,7 @@ export const SUMMARY_EN =
 export const SUMMARY_RU =
   'MAZE — брендинговая и дизайн-студия из Ташкента, Узбекистан. С 2019 года создаём фирменные стили, логотипы, нейминг, упаковку, полиграфию, UI/UX, моушн и стратегию бренда для стартапов, компаний и культурных институций Центральной Азии и за её пределами. Работаем на английском, русском и узбекском.'
 
-export function factsSection(): string {
+export function factsSection(email?: string): string {
   return [
     '- Name: MAZE Studio (also written MAZE)',
     '- Type: independent branding and design studio',
@@ -64,10 +67,30 @@ export function factsSection(): string {
     '- Location: Tashkent, Uzbekistan',
     '- Working languages: English, Russian, Uzbek',
     '- Serves: Uzbekistan, Kazakhstan, Kyrgyzstan, Tajikistan, Turkmenistan, and clients worldwide; remote engagements are normal',
-    '- Contact: hello@maze.uz',
+    ...(email ? [`- Contact: ${email}`] : []),
     '- Disciplines: brand strategy, naming, visual identity, logo systems, packaging, print, UI/UX, motion design',
     `- Start a project: ${SITE_URL}/brief`,
   ].join('\n')
+}
+
+/**
+ * Contact details as set in the admin: the same source as the contact page,
+ * the footer and the structured data. The email used to be typed in here,
+ * and it was not the one those pages show.
+ */
+export function contactSection(settings: SiteSettings | null): string {
+  if (!settings) return ''
+  const address = [settings.addressDetail, settings.address].filter(Boolean).join(', ')
+  return [
+    settings.email     && `- Email: ${settings.email}`,
+    settings.phone     && `- Phone: ${settings.phone}`,
+    settings.telegram  && `- Telegram: ${telegramHref(settings.telegram)}`,
+    address            && `- Address: ${address}`,
+    settings.instagram && `- Instagram: ${settings.instagram}`,
+    settings.behance   && `- Behance: ${settings.behance}`,
+    settings.linkedin  && `- LinkedIn: ${settings.linkedin}`,
+    settings.twitter   && `- X (Twitter): ${settings.twitter}`,
+  ].filter(Boolean).join('\n')
 }
 
 /* ── services ───────────────────────────────────────────────────────────── */
@@ -77,7 +100,9 @@ export function servicesIndex(locale: LlmsLocale): string {
   return SERVICE_SLUGS.map((slug) => {
     const item = c[slug] ?? {}
     const name = item.title || slug
-    const desc = item.tagline || item.metaDescription || ''
+    // The description says what the service covers and where; the tagline
+    // is a slogan ("Designed for permanence.") that tells a reader nothing.
+    const desc = item.metaDescription || item.tagline || ''
     return `- [${name}](${localeUrl(locale, `/services/${slug}`)})${desc ? `: ${oneLine(desc)}` : ''}`
   }).join('\n')
 }
@@ -117,21 +142,31 @@ export function faqSection(locale: LlmsLocale, heading = '###'): string {
 
 /* ── work ───────────────────────────────────────────────────────────────── */
 
+// "Axelus — Axelus" says the same thing twice. The client is named only
+// when it adds something the title doesn't already say.
+function titleWithClient(title: string, client?: string): string {
+  const norm = (s: string) => s.toLowerCase().replace(/[^\p{L}\p{N}]/gu, '')
+  const name = client?.trim()
+  return name && !norm(title).includes(norm(name)) ? `${title} — ${name}` : title
+}
+
 export function workIndex(projects: Project[], locale: LlmsLocale, limit = 40): string {
   const isRu = locale === 'ru'
   const rows = projects.slice(0, limit).map((p) => {
     const title = (isRu ? p.titleRu : '') || p.title
     const blurb = (isRu ? p.shortDescriptionRu : '') || p.shortDescription
-    return `- [${title} — ${p.client}](${localeUrl(locale, `/portfolio/${p.slug}`)})${blurb ? `: ${oneLine(blurb)}` : ''}`
+    return `- [${titleWithClient(title, p.client)}](${localeUrl(locale, `/portfolio/${p.slug}`)})${blurb ? `: ${oneLine(blurb)}` : ''}`
   })
   return rows.join('\n') || `- Browse the portfolio at ${localeUrl(locale, '/portfolio')}`
 }
 
-export function workDetail(projects: Project[], limit = 30): string {
-  const rows = projects.slice(0, limit).map((p) => {
+// Every published project. The full file is the one meant to be complete,
+// and a cap of 30 had started leaving the 31st out.
+export function workDetail(projects: Project[]): string {
+  const rows = projects.map((p) => {
     const categories = [...(p.categories ?? []), ...(p.tags ?? [])].filter(Boolean).join(', ')
     return [
-      `### ${p.title} — ${p.client}`,
+      `### ${titleWithClient(p.title, p.client)}`,
       `${SITE_URL}/portfolio/${p.slug}`,
       categories ? `Disciplines: ${categories}` : '',
       '',
@@ -142,12 +177,21 @@ export function workDetail(projects: Project[], limit = 30): string {
 }
 
 /**
- * Clients, taken from the published portfolio rather than a hand-kept list,
- * so the file can never name someone the site no longer shows.
+ * Clients, taken from what the site shows rather than a hand-kept list, so
+ * the file can never name someone the site no longer shows: the "Trusted by"
+ * list managed in the admin (it holds the ministries and the Academy of
+ * Sciences, which the case studies alone never named), then every client
+ * with a published case study.
  */
-export function clientsLine(projects: Project[]): string {
-  const names = [...new Set(projects.map((p) => p.client?.trim()).filter(Boolean))]
-  return names.length ? names.join(', ') : ''
+export function clientsSection(projects: Project[], partners: Partner[]): string {
+  const unique = (names: Array<string | undefined>) =>
+    [...new Set(names.map((n) => n?.trim()).filter(Boolean))]
+  const trustedBy = unique(partners.map((p) => p.name))
+  const withCase  = unique(projects.map((p) => p.client))
+  return [
+    trustedBy.length && `- Clients & partners listed on the site: ${trustedBy.join(', ')}`,
+    withCase.length  && `- Clients with a published case study: ${withCase.join(', ')}`,
+  ].filter(Boolean).join('\n')
 }
 
 /* ── attribution ────────────────────────────────────────────────────────── */

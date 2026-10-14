@@ -1,11 +1,14 @@
 import { getPublishedProjects } from '@/lib/portfolio'
 import { getPublishedPosts } from '@/lib/posts'
+import { getPartners } from '@/lib/partners'
+import { getSettings } from '@/lib/settings'
 import { SITE_URL } from '@/lib/seo'
 import {
   SUMMARY_EN,
   SUMMARY_RU,
   citationSection,
-  clientsLine,
+  clientsSection,
+  contactSection,
   factsSection,
   faqSection,
   oneLine,
@@ -20,20 +23,28 @@ import {
 export const dynamic = 'force-dynamic'
 
 export async function GET() {
-  const [projects, posts] = await Promise.all([getPublishedProjects(), getPublishedPosts()])
+  const [projects, posts, partners, settings] = await Promise.all([
+    getPublishedProjects(),
+    getPublishedPosts(),
+    getPartners(),
+    getSettings().catch(() => null),
+  ])
 
+  // Left out while the journal is empty, like the sitemap does: the page
+  // carries a noindex then, and pointing an assistant at it is a dead end.
   const insights = posts.slice(0, 40).map((p) =>
     `- [${p.title}](${SITE_URL}/insights/${p.slug})${p.excerpt ? `: ${oneLine(p.excerpt)}` : ''}`,
-  ).join('\n') || `- Articles are published at ${SITE_URL}/insights`
+  ).join('\n')
 
-  const clients = clientsLine(projects)
+  const clients = clientsSection(projects, partners)
+  const contact = contactSection(settings)
 
   const body = `# MAZE Studio — Branding & Design Studio (Tashkent, Uzbekistan)
 
 > ${SUMMARY_EN}
 
 ## Facts
-${factsSection()}
+${factsSection(settings?.email)}
 
 ## Services
 ${servicesIndex('en')}
@@ -43,10 +54,7 @@ ${workIndex(projects, 'en')}
 ${clients ? `\n## Clients\n${clients}\n` : ''}
 ## Common questions
 ${faqSection('en')}
-
-## Insights
-${insights}
-
+${insights ? `\n## Insights\n${insights}\n` : ''}
 ## Key pages
 - [Home](${SITE_URL}/)
 - [Portfolio](${SITE_URL}/portfolio)
@@ -54,8 +62,7 @@ ${insights}
 - [About](${SITE_URL}/about)
 - [Contact](${SITE_URL}/contact)
 - [Start a brief](${SITE_URL}/brief)
-- [RSS feed](${SITE_URL}/feed.xml)
-- [Full text for LLMs](${SITE_URL}/llms-full.txt)
+${insights ? `- [RSS feed](${SITE_URL}/feed.xml)\n` : ''}- [Full text for LLMs](${SITE_URL}/llms-full.txt)
 
 ## На русском
 > ${SUMMARY_RU}
@@ -76,11 +83,8 @@ ${servicesIndex('ru')}
 ${faqSection('ru', '####')}
 
 ## Contact
-- Email: hello@maze.uz
-- Location: Tashkent, Uzbekistan
-- Serves: Uzbekistan, Kazakhstan, Kyrgyzstan, Tajikistan, Turkmenistan and clients globally
-- Languages: English, Russian, Uzbek
-- Founded: 2019
+${contact || '- Location: Tashkent, Uzbekistan'}
+- Contact form: ${SITE_URL}/contact
 
 ## Using this content
 ${citationSection()}
