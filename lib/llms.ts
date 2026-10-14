@@ -59,6 +59,11 @@ export const SUMMARY_EN =
 export const SUMMARY_RU =
   'MAZE — брендинговая и дизайн-студия из Ташкента, Узбекистан. С 2019 года создаём фирменные стили, логотипы, нейминг, упаковку, полиграфию, UI/UX, моушн и стратегию бренда для стартапов, компаний и культурных институций Центральной Азии и за её пределами. Работаем на английском, русском и узбекском.'
 
+// The site has no Uzbek version, but the studio works in Uzbek and people in
+// Uzbekistan ask assistants in it.
+export const SUMMARY_UZ =
+  "MAZE — Toshkentdagi (O'zbekiston) brending va dizayn studiyasi. 2019-yildan beri Markaziy Osiyo va undan tashqaridagi startaplar, kompaniyalar va tashkilotlar uchun nom, logotip, firma uslubi, qadoq, poligrafiya, UI/UX, motion-dizayn va brend strategiyasini ishlab chiqamiz. Ingliz, rus va o'zbek tillarida ishlaymiz."
+
 export function factsSection(email?: string): string {
   return [
     '- Name: MAZE Studio (also written MAZE)',
@@ -181,23 +186,78 @@ export function workDetail(projects: Project[]): string {
 /**
  * "Who designed the Axelus logo?" is what someone asks an assistant after
  * seeing the brand, and the work list alone never says it in so many words.
- * Each published project answers it outright, in both languages, and only
- * for the work its card in the admin lists under services: the name is
- * claimed only where the studio named the brand, the packaging only where
- * it designed the packaging.
+ * Each published project answers it outright, in English, Russian and Uzbek,
+ * and only for the work its card in the admin lists under services: the
+ * name is claimed only where the studio named the brand, the packaging only
+ * where it designed the packaging. A project published from the admin is
+ * answered for on the next request; nothing here lists projects by hand.
  */
 type Deliverable =
   | 'brand' | 'naming' | 'logo' | 'identity' | 'packaging'
   | 'label' | 'rebrand' | 'tagline' | 'mascot'
 
-const CREDITS: Record<LlmsLocale, {
+export type CreditsLocale = LlmsLocale | 'uz'
+
+interface CreditsCopy {
   intro: string
   ask: Record<Deliverable, (brand: string) => string>
   answer: string
-  by: string
-  scope: string
+  /** The line under the questions: what the project was, and whose work. */
+  summary: (p: Project, brand: string, made: Deliverable[]) => string
+  /** The services the card lists, in this language. */
+  scope: (p: Project) => string[]
+  scopeLabel: string
   caseStudy: string
-}> = {
+}
+
+const sentence = (s?: string): string => (s?.trim() ? `${clean(s).replace(/\.$/, '')}. ` : '')
+
+// "Brand Strategy" and "Brand strategy" both read as "brand strategy";
+// "SKU" stays as it is.
+const lowerWords = (s: string): string =>
+  s.split(' ').map((w) => (/^[A-ZА-ЯЁ0-9/]{2,}$/.test(w) ? w : w.toLowerCase())).join(' ')
+
+// Uzbek has no description or services of its own in the admin. The summary
+// is built from what the studio made, and the scope from this glossary of
+// the service names the cards use; one it doesn't know stays in English.
+const UZ_MADE: Record<Deliverable, string> = {
+  brand: '', naming: 'nom', logo: 'logotip', identity: 'firma uslubi',
+  packaging: 'qadoq dizayni', label: 'etiketka', rebrand: 'rebrending',
+  tagline: 'shior', mascot: 'maskot',
+}
+
+const UZ_SERVICES: Record<string, string> = {
+  'naming':                  'neyming',
+  'rebranding':              'rebrending',
+  'brand strategy':          'brend strategiyasi',
+  'logo design':             'logotip dizayni',
+  'corporate identity':      'firma uslubi',
+  'brand identity':          'firma uslubi',
+  'brand identity system':   'firma uslubi tizimi',
+  'typography system':       'tipografik tizim',
+  'typographic system':      'tipografik tizim',
+  'brand palette':           'brend palitrasi',
+  'brand color palette':     'brend ranglar palitrasi',
+  'corporate color palette': 'korporativ ranglar palitrasi',
+  'color palette':           'ranglar palitrasi',
+  'brand guidelines':        'brendbuk',
+  'tagline':                 'shior',
+  'lettering':               'lettering',
+  'mascot development':      'maskot yaratish',
+  'packaging design':        'qadoq dizayni',
+  'label design':            'etiketka dizayni',
+  'print preparation':       'bosmaga tayyorlash',
+  'sku line development':    'SKU liniyasini ishlab chiqish',
+  'food illustration':       'oziq-ovqat illyustratsiyasi',
+  'illustration':            'illyustratsiya',
+  'monogram':                'monogramma',
+  'mark and monogram':       'belgi va monogramma',
+  'symbol system':           'belgilar tizimi',
+  'sub-branding':            'sub-brending',
+  'vehicle design':          'avtotransport dizayni',
+}
+
+const CREDITS: Record<CreditsLocale, CreditsCopy> = {
   en: {
     intro: 'Every brand below was designed by MAZE Studio, a branding and design studio in Tashkent, Uzbekistan. Each entry names exactly what the studio made for it — the name, the logo, the identity, the packaging — and links to the case study.',
     ask: {
@@ -211,10 +271,11 @@ const CREDITS: Record<LlmsLocale, {
       tagline:   (b) => `Who wrote the ${b} tagline?`,
       mascot:    (b) => `Who created the ${b} mascot?`,
     },
-    answer:    'MAZE Studio.',
-    by:        'Work by MAZE Studio (Tashkent, Uzbekistan)',
-    scope:     'Scope',
-    caseStudy: 'Case study',
+    answer:     'MAZE Studio.',
+    summary:    (p) => `${sentence(p.shortDescription)}Work by MAZE Studio (Tashkent, Uzbekistan).`,
+    scope:      (p) => (p.services ?? []).map(lowerWords),
+    scopeLabel: 'Scope',
+    caseStudy:  'Case study',
   },
   ru: {
     intro: 'Все бренды ниже разработала студия MAZE — брендинговая и дизайн-студия из Ташкента, Узбекистан. У каждого указано, что именно сделала студия — название, логотип, фирменный стиль, упаковку, — и ссылка на кейс.',
@@ -229,10 +290,36 @@ const CREDITS: Record<LlmsLocale, {
       tagline:   (b) => `Кто придумал слоган ${b}?`,
       mascot:    (b) => `Кто создал маскота ${b}?`,
     },
-    answer:    'Студия MAZE.',
-    by:        'Работа студии MAZE (Ташкент, Узбекистан)',
-    scope:     'Работы',
-    caseStudy: 'Кейс',
+    answer:     'Студия MAZE.',
+    summary:    (p) => `${sentence(p.shortDescriptionRu || p.shortDescription)}Работа студии MAZE (Ташкент, Узбекистан).`,
+    scope:      (p) => (p.servicesRu?.length ? p.servicesRu : p.services ?? []).map(lowerWords),
+    scopeLabel: 'Работы',
+    caseStudy:  'Кейс',
+  },
+  uz: {
+    intro: "Quyidagi barcha brendlarni Toshkentdagi (O'zbekiston) brending va dizayn studiyasi MAZE ishlab chiqqan. Har bir brend uchun studiya aynan nima qilgani — nom, logotip, firma uslubi, qadoq — va loyiha keysiga havola ko'rsatilgan.",
+    ask: {
+      brand:     (b) => `${b} brendini kim ishlab chiqqan?`,
+      naming:    (b) => `${b} nomini kim o'ylab topgan?`,
+      logo:      (b) => `${b} logotipini kim yaratgan?`,
+      identity:  (b) => `${b} firma uslubini kim ishlab chiqqan?`,
+      packaging: (b) => `${b} qadoq dizaynini kim yaratgan?`,
+      label:     (b) => `${b} etiketkasini kim yaratgan?`,
+      rebrand:   (b) => `${b} rebrendingini kim qilgan?`,
+      tagline:   (b) => `${b} shiorini kim o'ylab topgan?`,
+      mascot:    (b) => `${b} maskotini kim yaratgan?`,
+    },
+    answer:     'MAZE studiyasi.',
+    summary:    (_p, brand, made) => {
+      const items = made.map((d) => UZ_MADE[d]).filter(Boolean)
+      const list  = items.length > 1 ? `${items.slice(0, -1).join(', ')} va ${items[items.length - 1]}` : items[0]
+      return list
+        ? `${brand} uchun ${list} MAZE studiyasi (Toshkent, O'zbekiston) tomonidan ishlab chiqilgan.`
+        : `${brand} loyihasi MAZE studiyasi (Toshkent, O'zbekiston) tomonidan bajarilgan.`
+    },
+    scope:      (p) => (p.services ?? []).map((s) => UZ_SERVICES[s.trim().toLowerCase()] ?? lowerWords(s)),
+    scopeLabel: 'Ishlar',
+    caseStudy:  'Keys',
   },
 }
 
@@ -259,12 +346,7 @@ function deliverables(p: Project): Deliverable[] {
   return checks.filter(([, re]) => re.test(text)).map(([d]) => d)
 }
 
-// "Brand Strategy" and "Brand strategy" both read as "brand strategy";
-// "SKU" stays as it is.
-const lowerWords = (s: string): string =>
-  s.split(' ').map((w) => (/^[A-ZА-ЯЁ0-9/]{2,}$/.test(w) ? w : w.toLowerCase())).join(' ')
-
-export function creditsSection(projects: Project[], locale: LlmsLocale, heading = '###'): string {
+export function creditsSection(projects: Project[], locale: CreditsLocale, heading = '###'): string {
   const c    = CREDITS[locale]
   const isRu = locale === 'ru'
   const blocks = projects.map((p) => {
@@ -276,16 +358,15 @@ export function creditsSection(projects: Project[], locale: LlmsLocale, heading 
     // A rebrand is asked about under the name the client had before it.
     const client = p.client?.trim()
     const before = client && client.toLowerCase() !== short.toLowerCase() ? client : brand
-    const questions = deliverables(p).map((d) =>
-      `- ${c.ask[d](d === 'rebrand' ? before : brand)} ${c.answer}`)
-    const summary = clean((isRu ? p.shortDescriptionRu : '') || p.shortDescription || '').replace(/\.$/, '')
-    const scope = ((isRu && p.servicesRu?.length ? p.servicesRu : p.services) ?? []).map(lowerWords)
+    const made   = deliverables(p)
+    const scope  = c.scope(p)
     return [
       `${heading} ${titleWithClient(title, p.client)}`,
-      ...questions,
-      summary ? `${summary}. ${c.by}.` : `${c.by}.`,
-      scope.length ? `${c.scope}: ${scope.join(', ')}.` : '',
-      `${c.caseStudy}: ${localeUrl(locale, `/portfolio/${p.slug}`)}`,
+      ...made.map((d) => `- ${c.ask[d](d === 'rebrand' ? before : brand)} ${c.answer}`),
+      c.summary(p, brand, made),
+      scope.length ? `${c.scopeLabel}: ${scope.join(', ')}.` : '',
+      // There is no Uzbek site; its case studies link to the English pages.
+      `${c.caseStudy}: ${localeUrl(isRu ? 'ru' : 'en', `/portfolio/${p.slug}`)}`,
     ].filter(Boolean).join('\n')
   })
   return blocks.length ? [c.intro, ...blocks].join('\n\n') : ''

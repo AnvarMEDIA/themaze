@@ -6,6 +6,7 @@ import { SITE_URL } from '@/lib/seo'
 import {
   SUMMARY_EN,
   SUMMARY_RU,
+  SUMMARY_UZ,
   citationSection,
   clean,
   clientsSection,
@@ -40,6 +41,7 @@ export async function GET() {
   const email     = settings?.email ? ` Contact: ${settings.email}.` : ''
   const creditsEn = creditsSection(projects, 'en')
   const creditsRu = creditsSection(projects, 'ru', '####')
+  const creditsUz = creditsSection(projects, 'uz', '####')
 
   const body = `# MAZE Studio — Full content for LLMs
 
@@ -69,6 +71,12 @@ ${faqSection('ru', '####')}
 ### Услуги
 ${servicesDetail('ru')}
 ${creditsRu ? `\n### Кто разработал эти бренды\n${creditsRu}\n` : ''}
+## O'zbekcha
+
+> ${SUMMARY_UZ}
+
+Sayt ingliz va rus tillarida: ${SITE_URL} va ${SITE_URL}/ru.
+${creditsUz ? `\n### Bu brendlarni kim ishlab chiqqan\n${creditsUz}\n` : ''}
 ## Using this content
 ${citationSection()}
 `
