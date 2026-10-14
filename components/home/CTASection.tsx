@@ -11,7 +11,9 @@ const EASE_OUT = [0.23, 1, 0.32, 1] as const
 // Expressive ease for headline reveal
 const EASE_EXPRESSIVE = [0.19, 1, 0.22, 1] as const
 
-export function CTASection() {
+// `email` comes from the admin settings, like the footer's and the contact
+// page's; the copy in the message files had drifted to an old address.
+export function CTASection({ email }: { email: string }) {
   const t            = useTranslations('cta')
   const ref          = useRef<HTMLElement>(null)
   const inView       = useInView(ref, { once: true, margin: '-10% 0px' })
@@ -108,7 +110,7 @@ export function CTASection() {
           {/* Secondary — border, shows email address */}
           <MagneticButton>
             <a
-              href={`mailto:${t('email')}`}
+              href={`mailto:${email}`}
               className="inline-flex items-center gap-3 px-8 py-4 border border-maze-border text-maze-cream rounded-full label-sm active:scale-[0.97]"
               style={{ transition: 'border-color 200ms ease-out, color 200ms ease-out, transform 150ms ease-out' }}
               onMouseEnter={e => {
@@ -122,7 +124,7 @@ export function CTASection() {
                 el.style.color = ''
               }}
             >
-              {t('email')}
+              {email}
             </a>
           </MagneticButton>
         </motion.div>

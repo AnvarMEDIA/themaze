@@ -18,6 +18,7 @@ import { getPublishedProjects } from '@/lib/portfolio'
 import { getPublishedPosts } from '@/lib/posts'
 import { getPartners } from '@/lib/partners'
 import { getTestimonials } from '@/lib/testimonials'
+import { getSettings } from '@/lib/settings'
 import { pageMeta } from '@/lib/seo'
 
 interface Props {
@@ -82,11 +83,12 @@ function pickSix(projects: Project[]): Project[] {
 
 export default async function HomePage({ params: { locale } }: Props) {
   setRequestLocale(locale)
-  const [featuredProjects, partners, testimonials, posts, tp, tt] = await Promise.all([
+  const [featuredProjects, partners, testimonials, posts, settings, tp, tt] = await Promise.all([
     getPublishedProjects(),
     getPartners(),
     getTestimonials(),
     getPublishedPosts(),
+    getSettings(),
     getTranslations({ locale, namespace: 'partners' }),
     getTranslations({ locale, namespace: 'testimonialsSection' }),
   ])
@@ -112,7 +114,7 @@ export default async function HomePage({ params: { locale } }: Props) {
       <ServicesSection />
       <ProcessSection />
       <InsightsSection posts={posts.slice(0, 3)} locale={locale} />
-      <CTASection />
+      <CTASection email={settings.email || 'go@themaze.uz'} />
     </>
   )
 }

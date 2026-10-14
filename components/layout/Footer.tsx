@@ -104,7 +104,7 @@ export function Footer({ settings }: Props) {
   const phoneHref    = `tel:${phoneDisplay.replace(/\s/g, '')}`
   const tgHref   = telegramHref(settings.telegram || 'mazestudio')
   const tgDisplay = telegramDisplay(settings.telegram || '')
-  const email    = settings.email || 'hello@maze.uz'
+  const email    = settings.email || 'go@themaze.uz'
 
   return (
     <footer className="border-t border-maze-border bg-maze-black">

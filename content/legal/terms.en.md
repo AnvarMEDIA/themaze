@@ -1,6 +1,6 @@
 # Terms of Service
 
-_Last updated: 23 April 2026_
+_Last updated: 14 October 2026_
 
 These terms govern your use of the **maze.uz** website (the "Site"). By
 accessing or using the Site you agree to them.
@@ -40,4 +40,4 @@ courts of Tashkent.
 
 ## 7. Contact
 
-For any question regarding these terms, email **hello@maze.uz**.
+For any question regarding these terms, email **go@themaze.uz**.

@@ -35,7 +35,7 @@ export default async function ContactPage({ params: { locale }, searchParams }: 
     getSettings(),
   ])
 
-  const email    = settings.email    || 'hello@maze.uz'
+  const email    = settings.email    || 'go@themaze.uz'
   const phone    = settings.phone    || '+998 99 999 99 99'
   const telegram = settings.telegram || '@mazestudio'
   const address  = settings.address  || 'Tashkent, Uzbekistan'

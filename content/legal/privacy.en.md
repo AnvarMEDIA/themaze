@@ -1,6 +1,6 @@
 # Privacy Policy
 
-_Last updated: 23 April 2026_
+_Last updated: 14 October 2026_
 
 This Privacy Policy explains how **MAZE Studio** ("we", "us") collects, uses,
 and protects personal data when you use our website `www.maze.uz`.
@@ -8,7 +8,7 @@ and protects personal data when you use our website `www.maze.uz`.
 ## 1. Who we are
 
 MAZE Studio is a branding and design studio based in Tashkent, Uzbekistan.
-For any privacy-related question, contact us at **hello@maze.uz**.
+For any privacy-related question, contact us at **go@themaze.uz**.
 
 ## 2. What we collect
 
@@ -41,7 +41,7 @@ We do not sell or rent personal data. We share it only with:
 ## 5. Your rights
 
 You can request access, correction, deletion or portability of your data.
-Email **hello@maze.uz** with the subject "Privacy request" and we will reply
+Email **go@themaze.uz** with the subject "Privacy request" and we will reply
 within 30 days.
 
 ## 6. Retention

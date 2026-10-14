@@ -58,7 +58,7 @@ export function organizationJsonLd(settings: SiteSettings | null) {
     // organisation, which is the property an assistant reads when asked
     // whether a studio can run a project in Russian.
     knowsLanguage: ['en', 'ru', 'uz'],
-    email:     settings?.email    || 'hello@maze.uz',
+    email:     settings?.email    || 'go@themaze.uz',
     telephone: settings?.phone    || undefined,
     address: {
       '@type': 'PostalAddress',
@@ -69,7 +69,7 @@ export function organizationJsonLd(settings: SiteSettings | null) {
     },
     contactPoint: {
       '@type': 'ContactPoint',
-      email:            settings?.email || 'hello@maze.uz',
+      email:            settings?.email || 'go@themaze.uz',
       telephone:        settings?.phone || undefined,
       contactType:      'customer service',
       areaServed:       ['UZ', 'KZ', 'KG', 'TJ', 'TM', 'AZ', 'GE'],
@@ -123,7 +123,7 @@ export function localBusinessJsonLd(settings: SiteSettings | null) {
     url: SITE_URL,
     image: LOGO_URL,
     telephone: settings?.phone || undefined,
-    email:     settings?.email || 'hello@maze.uz',
+    email:     settings?.email || 'go@themaze.uz',
     priceRange: '$$',
     foundingDate: '2019',
     areaServed: [

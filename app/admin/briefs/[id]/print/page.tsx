@@ -1,5 +1,6 @@
 import { notFound } from 'next/navigation'
 import { getBriefs } from '@/lib/briefs'
+import { getSettings } from '@/lib/settings'
 import { BriefPrintActions } from '@/components/admin/BriefPrintActions'
 import enMessages from '@/messages/en.json'
 import ruMessages from '@/messages/ru.json'
@@ -82,7 +83,7 @@ export default async function BriefPrintPage({ params, searchParams }: Props) {
   const lang: Lang = searchParams.lang === 'ru' ? 'ru' : 'en'
   const t = T[lang]
 
-  const briefs = await getBriefs()
+  const [briefs, settings] = await Promise.all([getBriefs(), getSettings()])
   const brief = briefs.find((b) => b.id === params.id)
   if (!brief) notFound()
 
@@ -181,10 +182,12 @@ export default async function BriefPrintPage({ params, searchParams }: Props) {
           </Section>
         )}
 
+        {/* The admin's contacts, as on the site. These were typed in: an
+            old address and a placeholder phone, +998 71 123 45 67. */}
         <footer className="foot">
           <span>maze.uz</span>
-          <span>hello@maze.uz</span>
-          <span>+998 71 123 45 67</span>
+          <span>{settings.email || 'go@themaze.uz'}</span>
+          {settings.phone && <span>{settings.phone}</span>}
         </footer>
       </div>
     </>

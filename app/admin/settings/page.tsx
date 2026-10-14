@@ -129,7 +129,7 @@ export default function AdminSettingsPage() {
     {
       title: 'Contact Information',
       fields: [
-        { key: 'email',    label: 'Email',    placeholder: 'hello@maze.uz', type: 'email' },
+        { key: 'email',    label: 'Email',    placeholder: 'go@themaze.uz', type: 'email' },
         { key: 'phone',    label: 'Phone',    placeholder: '+998 71 123 45 67' },
         { key: 'telegram', label: 'Telegram', placeholder: '@mazestudio' },
       ],

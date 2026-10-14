@@ -9,7 +9,9 @@ import { LangToggle } from '@/components/ui/LangToggle'
 
 const EASE_OUT = [0.23, 1, 0.32, 1] as const
 
-export function Navbar() {
+// `email` comes from the admin settings, like the footer's and the contact
+// page's; a copy typed in here had drifted to an address no longer used.
+export function Navbar({ email }: { email: string }) {
   const t             = useTranslations('nav')
   const pathname      = usePathname()
   const [scrolled, setScrolled] = useState(false)
@@ -247,10 +249,10 @@ export function Navbar() {
               <div>
                 <p className="label-sm text-maze-muted mb-2">Get in touch</p>
                 <a
-                  href="mailto:hello@maze.uz"
+                  href={`mailto:${email}`}
                   className="text-lg font-semibold text-maze-cream hover:text-maze-lime transition-colors"
                 >
-                  hello@maze.uz
+                  {email}
                 </a>
               </div>
               <Link

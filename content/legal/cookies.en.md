@@ -1,6 +1,6 @@
 # Cookie Policy
 
-_Last updated: 23 April 2026_
+_Last updated: 14 October 2026_
 
 This policy explains what cookies and similar technologies are used on
 `www.maze.uz`.
@@ -43,4 +43,4 @@ policies:
 
 ## 5. Contact
 
-Questions about this policy: **hello@maze.uz**.
+Questions about this policy: **go@themaze.uz**.

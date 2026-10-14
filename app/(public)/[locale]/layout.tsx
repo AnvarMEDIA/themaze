@@ -48,7 +48,7 @@ export default async function LocaleLayout({ children, params }: Props) {
             Skip to main content
           </a>
           <CustomCursor />
-          <Navbar />
+          <Navbar email={settings.email || 'go@themaze.uz'} />
           <main id="main-content">{children}</main>
           <Footer settings={settings} />
         </div>
