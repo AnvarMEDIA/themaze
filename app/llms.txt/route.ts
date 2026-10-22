@@ -1,5 +1,6 @@
 import { getPublishedProjects } from '@/lib/portfolio'
 import { getPublishedPosts } from '@/lib/posts'
+import { INSIGHTS_ENABLED } from '@/lib/features'
 import { getPartners } from '@/lib/partners'
 import { getSettings } from '@/lib/settings'
 import { SITE_URL } from '@/lib/seo'
@@ -27,7 +28,7 @@ export const dynamic = 'force-dynamic'
 export async function GET() {
   const [projects, posts, partners, settings] = await Promise.all([
     getPublishedProjects(),
-    getPublishedPosts(),
+    INSIGHTS_ENABLED ? getPublishedPosts() : Promise.resolve([]),
     getPartners(),
     getSettings().catch(() => null),
   ])

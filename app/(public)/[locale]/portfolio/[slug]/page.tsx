@@ -6,6 +6,7 @@ import { Link } from '@/i18n/navigation'
 import { routing } from '@/i18n/routing'
 import { getProjectBySlug, getPublishedProjects } from '@/lib/portfolio'
 import { getPublishedPosts } from '@/lib/posts'
+import { INSIGHTS_ENABLED } from '@/lib/features'
 import { rankRelatedProjects, relatedPostsForProject } from '@/lib/recommend'
 import { ProjectGallery } from '@/components/portfolio/ProjectGallery'
 import { JsonLd } from '@/components/JsonLd'
@@ -71,7 +72,7 @@ export default async function ProjectPage({ params }: Props) {
 
   const [all, allPosts] = await Promise.all([
     getPublishedProjects(),
-    getPublishedPosts(),
+    INSIGHTS_ENABLED ? getPublishedPosts() : Promise.resolve([]),
   ])
   // Weighted recommendations (same client ≫ category > tags > services,
   // recency tie-break) plus cross-links to insights on the same topics.

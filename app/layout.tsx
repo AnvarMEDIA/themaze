@@ -4,6 +4,7 @@ import { Manrope, Space_Mono } from 'next/font/google'
 import { ThemeProvider } from 'next-themes'
 import { unstable_noStore as noStore } from 'next/cache'
 import { getSettings } from '@/lib/settings'
+import { INSIGHTS_ENABLED } from '@/lib/features'
 import { GoogleTagManager, GoogleTagManagerNoScript } from '@/components/GoogleTagManager'
 import './globals.css'
 
@@ -144,7 +145,7 @@ const baseMetadata: Metadata = {
   // Pages that set nothing correctly emit no canonical and self-canonicalize.
   alternates: {
     types: {
-      'application/rss+xml': `${SITE_URL}/feed.xml`,
+      ...(INSIGHTS_ENABLED ? { 'application/rss+xml': `${SITE_URL}/feed.xml` } : {}),
       // The plain-text version of the site, for agents that look for one.
       // /llms.txt was already served and named in robots.txt; this is the
       // other place a crawler looks — the page it is already parsing.

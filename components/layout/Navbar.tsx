@@ -5,6 +5,7 @@ import { useTranslations } from 'next-intl'
 import { Link, usePathname } from '@/i18n/navigation'
 import { motion, AnimatePresence, useReducedMotion, useScroll, useSpring } from 'framer-motion'
 import { cn } from '@/lib/utils'
+import { INSIGHTS_ENABLED } from '@/lib/features'
 import { LangToggle } from '@/components/ui/LangToggle'
 
 const EASE_OUT = [0.23, 1, 0.32, 1] as const
@@ -27,7 +28,7 @@ export function Navbar({ email }: { email: string }) {
   const navLinks = [
     { href: '/portfolio', label: t('work') },
     { href: '/services',  label: t('services') },
-    { href: '/insights',  label: t('insights') },
+    ...(INSIGHTS_ENABLED ? [{ href: '/insights', label: t('insights') }] : []),
     { href: '/about',     label: t('about') },
     { href: '/contact',   label: t('contact') },
   ]

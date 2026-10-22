@@ -4,6 +4,7 @@ import {
   getTagSlugs,
 } from '@/lib/portfolio'
 import { getPublishedPosts } from '@/lib/posts'
+import { INSIGHTS_ENABLED } from '@/lib/features'
 import { SITE_URL, localeHref } from '@/lib/seo'
 import { VALID_CATEGORIES, slugify } from '@/lib/utils'
 
@@ -120,7 +121,7 @@ function toXml(entries: Entry[]): string {
 export async function GET() {
   const [projects, posts, clients, tags] = await Promise.all([
     getPublishedProjects(),
-    getPublishedPosts(),
+    INSIGHTS_ENABLED ? getPublishedPosts() : Promise.resolve([]),
     getClientSlugs(),
     getTagSlugs(2),
   ])

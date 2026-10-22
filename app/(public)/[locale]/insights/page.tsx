@@ -1,12 +1,14 @@
 import type { Metadata } from 'next'
 import { getTranslations, setRequestLocale } from 'next-intl/server'
+import { notFound } from 'next/navigation'
 import { routing } from '@/i18n/routing'
 import { Link } from '@/i18n/navigation'
 import Image from 'next/image'
 import { getPublishedPosts, estimateReadTime } from '@/lib/posts'
 import { JsonLd } from '@/components/JsonLd'
 import { blogJsonLd, breadcrumbJsonLd, homeCrumb, postListJsonLd } from '@/lib/jsonLd'
-import { pageMeta } from '@/lib/seo'
+import { pageMeta, notFoundMetadata } from '@/lib/seo'
+import { INSIGHTS_ENABLED } from '@/lib/features'
 
 interface Props {
   params: { locale: string }
@@ -19,6 +21,7 @@ export function generateStaticParams() {
 }
 
 export async function generateMetadata({ params: { locale } }: Props): Promise<Metadata> {
+  if (!INSIGHTS_ENABLED) return notFoundMetadata
   const t = await getTranslations({ locale, namespace: 'insights' })
   // An empty journal is a thin page: while nothing is published it stays out
   // of the index (and out of the sitemap) rather than competing for the
@@ -41,6 +44,8 @@ function fmt(iso: string, locale: string) {
 }
 
 export default async function InsightsPage({ params: { locale } }: Props) {
+  // Switched off in lib/features.ts: the journal answers 404 until it's back.
+  if (!INSIGHTS_ENABLED) notFound()
   setRequestLocale(locale)
   const [t, posts] = await Promise.all([
     getTranslations({ locale, namespace: 'insights' }),

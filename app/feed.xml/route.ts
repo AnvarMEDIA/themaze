@@ -1,5 +1,6 @@
 import { getPublishedPosts } from '@/lib/posts'
 import { SITE_URL, localeHref } from '@/lib/seo'
+import { INSIGHTS_ENABLED } from '@/lib/features'
 
 // The post store is treated as dynamic everywhere else in the app; match
 // that and let the CDN cache the rendered feed via Cache-Control instead.
@@ -20,6 +21,9 @@ function escapeXml(value: string): string {
  * the document head via `alternates.types` in the root layout.
  */
 export async function GET() {
+  // The journal is switched off (lib/features.ts), and its feed with it.
+  if (!INSIGHTS_ENABLED) return new Response('Not found', { status: 404 })
+
   const posts = await getPublishedPosts()
   const feedUrl  = `${SITE_URL}/feed.xml`
   const indexUrl = localeHref('en', 'insights')

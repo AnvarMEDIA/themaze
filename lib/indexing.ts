@@ -1,4 +1,5 @@
 import crypto from 'node:crypto'
+import { INSIGHTS_ENABLED } from './features'
 
 /**
  * IndexNow notifications — single POST tells Bing, Yandex, Seznam,
@@ -49,6 +50,9 @@ export function getKeyLocation(): string {
  */
 export async function notifyIndexNow(urls: string[]): Promise<{ ok: boolean; status?: number; submitted: number }> {
   const clean = Array.from(new Set(urls.filter((u): u is string => typeof u === 'string' && u.startsWith('https://'))))
+    // While the journal is switched off (lib/features.ts) its pages answer
+    // 404; announcing them would only get them dropped from the index.
+    .filter((u) => INSIGHTS_ENABLED || !/\/insights(\/|$)/.test(new URL(u).pathname))
   if (clean.length === 0) return { ok: true, submitted: 0 }
   if (!SITE_URL.startsWith('https://')) return { ok: true, submitted: 0 }
 

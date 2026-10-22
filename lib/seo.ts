@@ -1,4 +1,5 @@
 import type { Metadata } from 'next'
+import { INSIGHTS_ENABLED } from './features'
 
 export const SITE_URL =
   process.env.NEXT_PUBLIC_SITE_URL ?? 'https://www.maze.uz'
@@ -49,7 +50,8 @@ export function localizedAlternates(
     // page sets its own. Declaring them here puts them where the merge cannot
     // drop them.
     types: {
-      'application/rss+xml': `${SITE_URL}/feed.xml`,
+      // The feed exists only while the journal is switched on.
+      ...(INSIGHTS_ENABLED ? { 'application/rss+xml': `${SITE_URL}/feed.xml` } : {}),
       'text/plain': `${SITE_URL}/llms.txt`,
     },
   }

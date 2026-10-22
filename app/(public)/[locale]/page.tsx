@@ -16,6 +16,7 @@ import { JsonLd } from '@/components/JsonLd'
 import { testimonialsJsonLd } from '@/lib/jsonLd'
 import { getPublishedProjects } from '@/lib/portfolio'
 import { getPublishedPosts } from '@/lib/posts'
+import { INSIGHTS_ENABLED } from '@/lib/features'
 import { getPartners } from '@/lib/partners'
 import { getTestimonials } from '@/lib/testimonials'
 import { getSettings } from '@/lib/settings'
@@ -87,7 +88,7 @@ export default async function HomePage({ params: { locale } }: Props) {
     getPublishedProjects(),
     getPartners(),
     getTestimonials(),
-    getPublishedPosts(),
+    INSIGHTS_ENABLED ? getPublishedPosts() : Promise.resolve([]),
     getSettings(),
     getTranslations({ locale, namespace: 'partners' }),
     getTranslations({ locale, namespace: 'testimonialsSection' }),

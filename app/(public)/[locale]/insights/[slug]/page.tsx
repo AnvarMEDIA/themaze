@@ -12,6 +12,7 @@ import { getAdminSession } from '@/lib/auth'
 import { JsonLd } from '@/components/JsonLd'
 import { breadcrumbJsonLd, homeCrumb, insightsCrumb, postJsonLd } from '@/lib/jsonLd'
 import { pageMeta, notFoundMetadata, SITE_URL } from '@/lib/seo'
+import { INSIGHTS_ENABLED } from '@/lib/features'
 
 interface Props {
   params: { locale: string; slug: string }
@@ -26,6 +27,7 @@ interface Props {
 export const dynamic = 'force-dynamic'
 
 export async function generateStaticParams() {
+  if (!INSIGHTS_ENABLED) return []
   const posts = await getPublishedPosts()
   return routing.locales.flatMap((locale) =>
     posts.map((post) => ({ locale, slug: post.slug })),
@@ -33,6 +35,7 @@ export async function generateStaticParams() {
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
+  if (!INSIGHTS_ENABLED) return notFoundMetadata
   const post = await getPostBySlug(params.slug)
   if (!post) return notFoundMetadata
   const isRu  = params.locale === 'ru'
@@ -63,6 +66,9 @@ function fmt(iso: string, locale: string) {
 }
 
 export default async function InsightPage({ params }: Props) {
+  // Switched off in lib/features.ts: the journal answers 404 until it's
+  // back, except to a signed-in admin previewing a post written ahead.
+  if (!INSIGHTS_ENABLED && !(await getAdminSession())) notFound()
   const { locale, slug } = params
   setRequestLocale(locale)
 
