@@ -32,6 +32,8 @@ const KNOWN_KEYS = [
   'posts',
   'settings',
   'inquiries',
+  'worldmap',
+  'homestats',
 ] as const
 
 export async function GET(req: NextRequest) {

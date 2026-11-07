@@ -5,11 +5,17 @@ import { useTranslations } from 'next-intl'
 import { Link } from '@/i18n/navigation'
 import { motion, useInView, useScroll, useTransform, useReducedMotion } from 'framer-motion'
 import { AnimatedCounter } from '@/components/ui/AnimatedCounter'
+import type { LocalStat, StatId } from '@/lib/homeStats'
 
 // Strong ease-out curve (Emil Kowalski)
 const EASE_OUT = [0.23, 1, 0.32, 1] as const
 
-export function AboutSection() {
+// The card keeps the order it always had; the first screen shows the same
+// numbers in its own.
+const CARD_ORDER: StatId[] = ['projects', 'years', 'clients', 'countries']
+
+/** `stats`: the homepage's numbers, edited in the admin (lib/homeStats.ts). */
+export function AboutSection({ stats: allStats }: { stats: LocalStat[] }) {
   const t            = useTranslations('about')
   const sectionRef   = useRef<HTMLElement>(null)
   const inView       = useInView(sectionRef, { once: true, margin: '-10% 0px' })
@@ -22,12 +28,9 @@ export function AboutSection() {
   })
   const y = useTransform(scrollYProgress, [0, 1], shouldReduce ? [0, 0] : [-24, 24])
 
-  const stats = [
-    { value: 200, suffix: '+', label: t('stats.projects')   },
-    { value: 6,   suffix: '+', label: t('stats.years')      },
-    { value: 80,  suffix: '+', label: t('stats.clients')    },
-    { value: 5,   suffix: '+', label: t('stats.countries')  },
-  ]
+  const stats = CARD_ORDER
+    .map((id) => allStats.find((s) => s.id === id))
+    .filter((s): s is LocalStat => !!s)
 
   return (
     <section
@@ -131,7 +134,7 @@ export function AboutSection() {
             <div className="relative z-10 grid grid-cols-2 gap-5">
               {stats.map((stat, i) => (
                 <motion.div
-                  key={stat.label}
+                  key={stat.id}
                   initial={shouldReduce ? { opacity: 0 } : { opacity: 0, y: 16 }}
                   animate={inView ? { opacity: 1, y: 0 } : {}}
                   transition={{

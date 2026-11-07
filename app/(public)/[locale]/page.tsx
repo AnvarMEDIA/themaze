@@ -10,6 +10,7 @@ import { ServicesSection } from '@/components/home/ServicesSection'
 import { ProcessSection }  from '@/components/home/ProcessSection'
 import { CTASection }      from '@/components/home/CTASection'
 import { PartnersSection } from '@/components/home/PartnersSection'
+import { WorldMapSection } from '@/components/home/WorldMapSection'
 import { TestimonialsSection } from '@/components/home/TestimonialsSection'
 import { InsightsSection } from '@/components/home/InsightsSection'
 import { JsonLd } from '@/components/JsonLd'
@@ -20,6 +21,10 @@ import { INSIGHTS_ENABLED } from '@/lib/features'
 import { getPartners } from '@/lib/partners'
 import { getTestimonials } from '@/lib/testimonials'
 import { getSettings } from '@/lib/settings'
+import { getWorldMap } from '@/lib/worldMap'
+import { getHomeStats } from '@/lib/homeStatsStore'
+import { localizeStats } from '@/lib/homeStats'
+import { sectionCountries } from '@/lib/geo/mapData'
 import { pageMeta } from '@/lib/seo'
 
 interface Props {
@@ -84,23 +89,33 @@ function pickSix(projects: Project[]): Project[] {
 
 export default async function HomePage({ params: { locale } }: Props) {
   setRequestLocale(locale)
-  const [featuredProjects, partners, testimonials, posts, settings, tp, tt] = await Promise.all([
+  const [featuredProjects, partners, testimonials, posts, settings, worldMap, homeStats, tp, tm, tt] = await Promise.all([
     getPublishedProjects(),
     getPartners(),
     getTestimonials(),
     INSIGHTS_ENABLED ? getPublishedPosts() : Promise.resolve([]),
     getSettings(),
+    getWorldMap(),
+    getHomeStats(),
     getTranslations({ locale, namespace: 'partners' }),
+    getTranslations({ locale, namespace: 'worldMap' }),
     getTranslations({ locale, namespace: 'testimonialsSection' }),
   ])
+
+  const stats = localizeStats(homeStats, locale)
 
   return (
     <>
       {testimonials.length > 0 && <JsonLd id="ld-reviews" data={testimonialsJsonLd(testimonials, locale)} />}
-      <Hero />
+      <Hero stats={stats} />
       <Marquee />
+      <WorldMapSection
+        countries={sectionCountries(worldMap, locale)}
+        label={tm('label')}
+        heading={tm('heading')}
+      />
       <FeaturedWork projects={pickSix(featuredProjects)} />
-      <AboutSection />
+      <AboutSection stats={stats} />
       <PartnersSection
         partners={partners}
         label={tp('label')}

@@ -207,6 +207,10 @@
       "contact": "Contact"
     }
   },
+  "worldMap": {
+    "label": "Geography",
+    "heading": "Projects around the world"
+  },
   "partners": {
     "label": "Trusted by",
     "heading": "Clients & Partners"

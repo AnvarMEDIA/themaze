@@ -18,6 +18,8 @@ const NAV = [
     items: [
       { href: '/admin/projects',      label: 'Projects',     icon: IconProjects    },
       { href: '/admin/partners',      label: 'Partners',     icon: IconPartners    },
+      { href: '/admin/map',           label: 'World map',    icon: IconGlobe       },
+      { href: '/admin/numbers',       label: 'Numbers',      icon: IconNumbers     },
       { href: '/admin/team',          label: 'Team',         icon: IconTeam        },
       { href: '/admin/testimonials',  label: 'Testimonials', icon: IconInquiries   },
       { href: '/admin/insights',      label: 'Insights',     icon: IconProjects    },
@@ -193,6 +195,25 @@ function IconPartners({ size = 16 }: { size?: number }) {
       <circle cx="11" cy="6" r="3" stroke="currentColor" strokeWidth="1.5" opacity=".5"/>
       <path d="M1 14c0-2.21 1.79-4 4-4s4 1.79 4 4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" opacity=".8"/>
       <path d="M11 10c1.66 0 3 1.34 3 3" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" opacity=".5"/>
+    </svg>
+  )
+}
+
+function IconGlobe({ size = 16 }: { size?: number }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 16 16" fill="none">
+      <circle cx="8" cy="8" r="6.25" stroke="currentColor" strokeWidth="1.5" opacity=".8"/>
+      <ellipse cx="8" cy="8" rx="2.6" ry="6.25" stroke="currentColor" strokeWidth="1.2" opacity=".5"/>
+      <path d="M2 8h12" stroke="currentColor" strokeWidth="1.2" opacity=".5"/>
+    </svg>
+  )
+}
+
+function IconNumbers({ size = 16 }: { size?: number }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 16 16" fill="none">
+      <path d="M6 2.5L4.5 13.5M11.5 2.5L10 13.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" opacity=".8"/>
+      <path d="M2.5 6h11M2 10.5h11" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" opacity=".5"/>
     </svg>
   )
 }

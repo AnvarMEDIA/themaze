@@ -1,4 +1,5 @@
 import { z } from 'zod'
+import { STAT_IDS } from './homeStats'
 
 /* ── Shared primitives ───────────────────────────────────────────────────── */
 
@@ -106,6 +107,60 @@ export const PartnerSchema = z.object({
 })
 
 export type PartnerInput = z.infer<typeof PartnerSchema>
+
+/* ── World map (the homepage "Geography" section) ───────────────────────── */
+
+const latitude  = z.number().min(-90).max(90)
+const longitude = z.number().min(-180).max(180)
+const hasName   = (v: { nameEn: string; nameRu: string }) => !!(v.nameEn || v.nameRu)
+
+export const WorldMapCitySchema = z.object({
+  id:     z.string().regex(/^[a-z0-9-]{1,64}$/, 'Invalid city id'),
+  nameEn: safeString(60),
+  nameRu: safeString(60),
+  lat:    latitude,
+  lng:    longitude,
+}).refine(hasName, { message: 'Every city needs a name' })
+
+export const WorldMapCountrySchema = z.object({
+  code:   z.string().regex(/^[A-Z]{2}$/, 'Invalid country code'),
+  nameEn: safeString(60),
+  nameRu: safeString(60),
+  lat:    latitude,
+  lng:    longitude,
+  cities: z.array(WorldMapCitySchema).max(40),
+}).refine(hasName, { message: 'Every country needs a name' })
+
+export const WorldMapSchema = z.object({
+  countries: z.array(WorldMapCountrySchema).max(120),
+}).superRefine((map, ctx) => {
+  const codes = new Set<string>()
+  const ids   = new Set<string>()
+  for (const country of map.countries) {
+    if (codes.has(country.code)) ctx.addIssue({ code: 'custom', message: `${country.code} is listed twice` })
+    codes.add(country.code)
+    for (const city of country.cities) {
+      if (ids.has(city.id)) ctx.addIssue({ code: 'custom', message: `City id ${city.id} is used twice` })
+      ids.add(city.id)
+    }
+  }
+})
+
+/* ── Homepage numbers ("200+ projects completed"…) ──────────────────────── */
+
+export const HomeStatSchema = z.object({
+  id:      z.enum(STAT_IDS),
+  value:   z.number().int().min(0).max(1_000_000),
+  suffix:  safeString(4),
+  labelEn: safeString(40),
+  labelRu: safeString(40),
+}).refine((s) => !!(s.labelEn || s.labelRu), { message: 'Every number needs a caption' })
+
+export const HomeStatsSchema = z.object({
+  stats: z.array(HomeStatSchema).length(STAT_IDS.length),
+}).refine((v) => new Set(v.stats.map((s) => s.id)).size === STAT_IDS.length, {
+  message: 'Each place is listed once',
+})
 
 /* ── Team member ─────────────────────────────────────────────────────────── */
 
