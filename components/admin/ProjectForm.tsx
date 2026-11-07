@@ -48,6 +48,7 @@ export function ProjectForm({ project }: Props) {
   const [form, setForm]         = useState<FormState>(project ? { ...EMPTY, ...project } : EMPTY)
   const [loading, setLoading]   = useState(false)
   const [translating, setTranslating] = useState(false)
+  const [generatingSeo, setGeneratingSeo] = useState(false)
 
   const set = <K extends keyof FormState>(key: K, value: FormState[K]) =>
     setForm((prev) => ({
@@ -107,6 +108,57 @@ export function ProjectForm({ project }: Props) {
       toast.error(err instanceof Error ? err.message : 'Ошибка перевода')
     } finally {
       setTranslating(false)
+    }
+  }
+
+  // Writes the four SEO texts from the project's own fields. They only fill
+  // the form; nothing is saved until "Update project".
+  const handleGenerateSeo = async () => {
+    if (!form.title && !form.titleRu) {
+      toast.error('Сначала заполните название проекта')
+      return
+    }
+    const filled = [form.metaTitle, form.metaTitleRu, form.metaDescription, form.metaDescriptionRu]
+      .some((v) => v?.trim())
+    if (filled && !window.confirm('Заменить уже заполненные SEO-поля новыми текстами?')) return
+
+    setGeneratingSeo(true)
+    try {
+      const res = await fetch('/api/seo-generate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          title:              form.title,
+          titleRu:            form.titleRu,
+          client:             form.client,
+          categories:         form.categories,
+          services:           form.services,
+          servicesRu:         form.servicesRu,
+          tags:               form.tags,
+          shortDescription:   form.shortDescription,
+          shortDescriptionRu: form.shortDescriptionRu,
+          description:        form.description,
+          descriptionRu:      form.descriptionRu,
+        }),
+      })
+      const data = await res.json() as {
+        error?: string
+        metaTitle?: string; metaTitleRu?: string
+        metaDescription?: string; metaDescriptionRu?: string
+      }
+      if (!res.ok) throw new Error(data.error ?? 'Не удалось сгенерировать')
+      setForm((prev) => ({
+        ...prev,
+        metaTitle:         data.metaTitle         ?? prev.metaTitle,
+        metaTitleRu:       data.metaTitleRu       ?? prev.metaTitleRu,
+        metaDescription:   data.metaDescription   ?? prev.metaDescription,
+        metaDescriptionRu: data.metaDescriptionRu ?? prev.metaDescriptionRu,
+      }))
+      toast.success('SEO-тексты готовы — проверьте и сохраните проект')
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : 'Ошибка генерации')
+    } finally {
+      setGeneratingSeo(false)
     }
   }
 
@@ -530,10 +582,28 @@ export function ProjectForm({ project }: Props) {
 
       {/* SEO overrides */}
       <section className="space-y-4">
-        <h2 className="label-sm text-maze-muted border-b border-maze-border pb-2">SEO</h2>
+        <div className="flex items-center justify-between border-b border-maze-border pb-2">
+          <h2 className="label-sm text-maze-muted">SEO</h2>
+          <button
+            type="button"
+            onClick={handleGenerateSeo}
+            disabled={generatingSeo}
+            className="flex items-center gap-2 px-4 py-2 rounded-full border border-maze-lime/40 text-maze-lime label-sm hover:bg-maze-lime/10 transition-colors disabled:opacity-50"
+          >
+            {generatingSeo ? (
+              <>
+                <span className="w-3 h-3 border border-maze-lime border-t-transparent rounded-full animate-spin" />
+                Генерируем…
+              </>
+            ) : (
+              <>✦ Сгенерировать SEO</>
+            )}
+          </button>
+        </div>
         <p className="text-[11px] text-maze-muted -mt-2">
-          Leave blank to auto-generate <code className="font-mono text-maze-cream">&laquo;Title — Category for Client&raquo;</code> and use the short description.
-          Google shows ~60 chars in titles and ~160 in descriptions.
+          Leave blank to auto-generate <code className="font-mono text-maze-cream">&laquo;Title — Category for Client&raquo;</code> and use the short description,
+          or press ✦ to have the texts written from the project&apos;s fields.
+          Google shows ~60 chars in titles and ~160 in descriptions; a title without &laquo;MAZE&raquo; gets &laquo; | MAZE Studio&raquo; added, 14 chars.
         </p>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
