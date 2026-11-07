@@ -3,7 +3,7 @@ import countries from './countries.json'
 import { MAP_COLS, MAP_ROWS } from './projection'
 
 /**
- * The homepage "Geography" section's data: the countries the studio has
+ * The homepage world map's data: the countries the studio has
  * worked for, each with the cities to mark on the map. Edited in the admin
  * at /admin/map and stored under the "worldmap" key.
  *

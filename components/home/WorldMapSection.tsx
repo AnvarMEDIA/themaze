@@ -1,6 +1,6 @@
 'use client'
 
-import { useRef, useState, type CSSProperties, type MouseEvent, type PointerEvent, type ReactNode } from 'react'
+import { useEffect, useRef, type CSSProperties, type MouseEvent, type PointerEvent, type ReactNode } from 'react'
 import { motion, useInView } from 'framer-motion'
 import type { SectionCountry } from '@/lib/geo/mapData'
 import { MAP_COLS, MAP_ROWS, toMap } from '@/lib/geo/projection'
@@ -19,37 +19,61 @@ export interface MapInteraction {
 
 interface Props {
   countries:    SectionCountry[]
-  label:        string
   heading:      string
   interaction?: MapInteraction
 }
 
 /**
- * "Geography": a dotted world map with the countries the studio has worked
- * for lit and breathing, and their cities pulsing. Props only, so the admin
- * can show the very same section while its list is being edited.
+ * "Projects around the world": a dotted world map with the countries the
+ * studio has worked for lit and breathing, and their cities pulsing; a
+ * city's name shows on hover. Props only, so the admin can show the very
+ * same section while its list is being edited.
  *
- * The map is decoration (aria-hidden); the list under it says the same in
- * words, for people and for search engines. Hovering a country there lights
- * it on the map and names its cities.
+ * The map is decoration (aria-hidden). Screen readers and search engines get
+ * the same list in words, visually hidden.
+ *
+ * The heading stays on one line at every width: the site's heading size,
+ * made smaller wherever that would wrap (see .world-map-heading).
  *
  * It sits under the marquee, whose bottom line is its top edge, so it draws
  * only the line below itself.
  */
-export function WorldMapSection({ countries, label, heading, interaction }: Props) {
-  const ref      = useRef<HTMLElement>(null)
-  const inView   = useInView(ref, { once: true, margin: '-10% 0px' })
-  const onScreen = useInView(ref)
-  const [active, setActive] = useState<string | null>(null)
-  const present = useRef<Set<string> | null>(null)
+export function WorldMapSection({ countries, heading, interaction }: Props) {
+  const ref        = useRef<HTMLElement>(null)
+  const headingRef = useRef<HTMLHeadingElement>(null)
+  const inView     = useInView(ref, { once: true, margin: '-10% 0px' })
+  const onScreen   = useInView(ref)
+  const present    = useRef<Set<string> | null>(null)
+
+  // How wide the heading is per em of type, measured once its font is in:
+  // that sets the size, in container units, at which it just fits one line
+  // (--fit). The stylesheet's fallback fits the current headings already;
+  // this keeps any other wording on one line too.
+  useEffect(() => {
+    const el = headingRef.current
+    if (!el?.parentElement) return
+    let live = true
+    const measure = () => {
+      if (!live) return
+      const probe = el.cloneNode(true) as HTMLElement
+      probe.style.cssText = 'position:absolute;visibility:hidden;white-space:nowrap;font-size:100px;transform:none'
+      el.parentElement!.appendChild(probe)
+      const perEm = probe.getBoundingClientRect().width / 100
+      probe.remove()
+      if (perEm > 0) el.style.setProperty('--fit', `${(97 / perEm).toFixed(3)}cqi`)
+    }
+    if (document.fonts?.ready) document.fonts.ready.then(measure)
+    else measure()
+    return () => { live = false }
+  }, [heading])
 
   if (countries.length === 0 && !interaction) return null
 
   // A country is marked by its cities, or, with none, by a point of its own.
   const markers = countries.flatMap((c) =>
     c.cities.length > 0
-      ? c.cities.map((city) => ({ id: city.id, code: c.code, name: city.name, lat: city.lat, lng: city.lng }))
-      : [{ id: `country-${c.code}`, code: c.code, name: c.name, lat: c.lat, lng: c.lng }],
+      ? c.cities.map((city) => ({ id: city.id, name: city.name, lat: city.lat, lng: city.lng }))
+      : [{ id: `country-${c.code}`, name: c.name, lat: c.lat, lng: c.lng }],
   )
 
   // The entrance, in ms: the dots fade in, the countries light one after
@@ -68,38 +92,37 @@ export function WorldMapSection({ countries, label, heading, interaction }: Prop
   const startAt = (key: string, ms: number) =>
     `${present.current && !present.current.has(key) ? 0 : Math.round(ms)}ms`
 
-  // A hover effect, so a mouse only: a tap would leave it stuck on.
-  const hover = (code: string | null) => (e: PointerEvent) => {
-    if (e.pointerType === 'mouse') setActive(code)
-  }
-
   return (
     <section
       ref={ref}
-      className="px-6 md:px-10 py-20 md:py-28 border-b border-maze-border overflow-hidden"
+      className="px-6 md:px-10 pt-16 md:pt-24 pb-16 md:pb-24 border-b border-maze-border overflow-hidden"
     >
       <div className="max-w-[1440px] mx-auto">
         {/* Header */}
-        <div className="mb-12 md:mb-16 max-w-4xl">
-          <motion.p
-            initial={{ opacity: 0, y: 8 }}
-            animate={inView ? { opacity: 1, y: 0 } : {}}
-            transition={{ duration: 0.5 }}
-            className="label-sm text-maze-muted mb-3"
-          >
-            {label}
-          </motion.p>
+        <div className="world-map-head mb-8 md:mb-12">
           <div className="reveal-mask">
             <motion.h2
+              ref={headingRef}
               initial={{ y: '135%' }}
               animate={inView ? { y: '0%' } : {}}
               transition={{ duration: 0.85, ease: EASE_OUT }}
-              className="display-md text-maze-cream"
+              className="world-map-heading display-md text-maze-cream"
             >
               {heading}
             </motion.h2>
           </div>
         </div>
+
+        {/* The map's content, in words */}
+        {countries.length > 0 && (
+          <ul className="sr-only">
+            {countries.map((c) => (
+              <li key={c.code}>
+                {c.name}{c.cities.length > 0 ? `: ${c.cities.map((city) => city.name).join(', ')}` : ''}
+              </li>
+            ))}
+          </ul>
+        )}
 
         {/* Map */}
         <div
@@ -110,20 +133,20 @@ export function WorldMapSection({ countries, label, heading, interaction }: Prop
           onClick={interaction?.onClick}
           onPointerMove={interaction?.onPointerMove}
           onPointerLeave={interaction?.onPointerLeave}
+          aria-hidden="true"
         >
-          <div className="world-map-base absolute inset-0" aria-hidden="true" />
+          <div className="world-map-base absolute inset-0" />
 
           {countries.map((c, i) => c.layer ? (
             <div
               key={c.code}
-              className={`world-map-layer absolute ${active && active !== c.code ? 'is-dimmed' : ''}`}
+              className="world-map-layer absolute"
               style={{
                 left:   `${c.layer.box.left}%`,
                 top:    `${c.layer.box.top}%`,
                 width:  `${c.layer.box.width}%`,
                 height: `${c.layer.box.height}%`,
               }}
-              aria-hidden="true"
             >
               <svg
                 viewBox={c.layer.viewBox}
@@ -144,7 +167,7 @@ export function WorldMapSection({ countries, label, heading, interaction }: Prop
             return (
               <span
                 key={m.id}
-                className={`world-map-marker ${active === m.code ? 'is-active' : ''} ${active && active !== m.code ? 'is-dimmed' : ''}`}
+                className="world-map-marker"
                 data-edge={x < 7 ? 'start' : x > 93 ? 'end' : undefined}
                 style={{
                   left:     `${x}%`,
@@ -152,7 +175,6 @@ export function WorldMapSection({ countries, label, heading, interaction }: Prop
                   '--in':   startAt(m.id, markerFrom + i * markerStep),
                   '--beat': `${((i * 0.83) % 2.8).toFixed(2)}s`,
                 } as CSSProperties}
-                aria-hidden="true"
               >
                 <span className="world-map-ping" />
                 <span className="world-map-dot" />
@@ -163,34 +185,6 @@ export function WorldMapSection({ countries, label, heading, interaction }: Prop
 
           {interaction?.overlay}
         </div>
-
-        {/* The same, in words */}
-        {countries.length > 0 && (
-          <ul className="mt-12 md:mt-16 pt-10 border-t border-maze-border grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-x-6 gap-y-6 md:gap-y-8">
-            {countries.map((c, i) => (
-              <motion.li
-                key={c.code}
-                initial={{ opacity: 0, y: 8 }}
-                animate={inView ? { opacity: 1, y: 0 } : {}}
-                transition={{ delay: 0.2 + i * 0.05, duration: 0.5, ease: EASE_OUT }}
-                onPointerEnter={hover(c.code)}
-                onPointerLeave={hover(null)}
-              >
-                <div className={`transition-opacity duration-200 ${active && active !== c.code ? 'opacity-40' : ''}`}>
-                  <p className="flex items-center gap-2.5 text-base md:text-lg font-semibold text-maze-cream leading-snug">
-                    <span className="w-1.5 h-1.5 rounded-full bg-maze-lime shrink-0" aria-hidden="true" />
-                    {c.name}
-                  </p>
-                  {c.cities.length > 0 && (
-                    <p className="text-sm text-maze-muted mt-1.5 pl-4 leading-relaxed">
-                      {c.cities.map((city) => city.name).join(' · ')}
-                    </p>
-                  )}
-                </div>
-              </motion.li>
-            ))}
-          </ul>
-        )}
       </div>
     </section>
   )

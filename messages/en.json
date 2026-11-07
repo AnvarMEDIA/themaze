@@ -208,7 +208,6 @@
     }
   },
   "worldMap": {
-    "label": "Geography",
     "heading": "Projects around the world"
   },
   "partners": {
@@ -267,9 +266,6 @@
     "heroLabel": "About us",
     "heroHeading": "We navigate brands through complexity to clarity.",
     "heroSub": "MAZE is a branding and design studio based in Tashkent, Uzbekistan. Since 2019, we've built bold visual identities for startups, enterprises, and cultural institutions across Central Asia and beyond.",
-    "statsYears": "Years",
-    "statsProjects": "Projects",
-    "statsClients": "Clients",
     "statsAwards": "Awards",
     "storyHeading": "Our Story",
     "story1": "MAZE was founded in Tashkent in 2019 with a simple conviction: that Central Asian brands deserve world-class design. At the time, the region's design landscape was largely derivative — copying Western trends without strategic intent.",

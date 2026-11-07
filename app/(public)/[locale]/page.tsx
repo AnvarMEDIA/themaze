@@ -111,7 +111,6 @@ export default async function HomePage({ params: { locale } }: Props) {
       <Marquee />
       <WorldMapSection
         countries={sectionCountries(worldMap, locale)}
-        label={tm('label')}
         heading={tm('heading')}
       />
       <FeaturedWork projects={pickSix(featuredProjects)} />

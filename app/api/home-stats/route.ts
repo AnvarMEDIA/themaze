@@ -6,7 +6,7 @@ import { getHomeStats, saveHomeStats } from '@/lib/homeStatsStore'
 
 export const dynamic = 'force-dynamic'
 
-/** The homepage's four numbers; the same ones the homepage shows. */
+/** The studio's numbers, as the homepage and the About page show them. */
 export async function GET() {
   try {
     return NextResponse.json(await getHomeStats())
@@ -30,9 +30,9 @@ export async function PUT(req: NextRequest) {
   }
 
   try {
-    await saveHomeStats(parsed.data)
+    const saved = await saveHomeStats(parsed.data)
     revalidatePath('/', 'layout')
-    return NextResponse.json(parsed.data)
+    return NextResponse.json(saved)
   } catch (err) {
     console.error('[home-stats PUT]', err)
     return NextResponse.json({ error: 'Failed to save the numbers' }, { status: 500 })

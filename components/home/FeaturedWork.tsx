@@ -145,7 +145,9 @@ export function FeaturedWork({ projects }: Props) {
   const featured = projects
 
   return (
-    <section className="px-6 md:px-10 py-24 md:py-36">
+    // The top matches the world map's bottom above it, so the line between
+    // the two sits in the middle of the gap.
+    <section className="px-6 md:px-10 pt-16 md:pt-24 pb-24 md:pb-36">
 
       {/* Section header — label only */}
       <div

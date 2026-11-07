@@ -1,9 +1,11 @@
 import type { Metadata } from 'next'
 import { getTranslations, setRequestLocale } from 'next-intl/server'
-import { AnimatedCounter } from '@/components/ui/AnimatedCounter'
+import { AboutStats } from '@/components/about/AboutStats'
 import { Link } from '@/i18n/navigation'
 import { getTeam } from '@/lib/team'
 import { getPartners } from '@/lib/partners'
+import { getHomeStats } from '@/lib/homeStatsStore'
+import { ABOUT_PAGE_STAT_IDS, localizeStats } from '@/lib/homeStats'
 import Image from 'next/image'
 import { JsonLd } from '@/components/JsonLd'
 import { aboutPageJsonLd, breadcrumbJsonLd, homeCrumb } from '@/lib/jsonLd'
@@ -33,10 +35,11 @@ export default async function AboutPage({ params: { locale } }: Props) {
   // The client list is the partners managed in the admin — the same list
   // the homepage shows. It used to be twelve names typed into this file,
   // half of them the sample projects the site shipped with.
-  const [t, team, partners] = await Promise.all([
+  const [t, team, partners, numbers] = await Promise.all([
     getTranslations({ locale, namespace: 'aboutPage' }),
     getTeam().catch(() => [] as import('@/lib/team').TeamMember[]),
     getPartners().catch(() => []),
+    getHomeStats(),
   ])
   const values = t.raw('values') as { title: string; body: string }[]
 
@@ -58,24 +61,8 @@ export default async function AboutPage({ params: { locale } }: Props) {
         </div>
       </div>
 
-      {/* Stats */}
-      <div className="px-6 md:px-10 py-16 border-b border-maze-border bg-maze-dark">
-        <div className="max-w-[1440px] mx-auto grid grid-cols-2 md:grid-cols-4 gap-8">
-          {[
-            { end: 6,   suffix: '+', label: t('statsYears') },
-            { end: 200, suffix: '+', label: t('statsProjects') },
-            { end: 80,  suffix: '+', label: t('statsClients') },
-            { end: 12,  suffix: '',  label: t('statsAwards') },
-          ].map((s) => (
-            <div key={s.label} className="text-center">
-              <div className="display-md text-maze-lime font-black">
-                <AnimatedCounter end={s.end} suffix={s.suffix} />
-              </div>
-              <p className="label-sm text-maze-muted mt-2">{s.label}</p>
-            </div>
-          ))}
-        </div>
-      </div>
+      {/* Stats: the same numbers as the homepage, edited in the admin */}
+      <AboutStats stats={localizeStats(numbers, locale, ABOUT_PAGE_STAT_IDS)} />
 
       {/* Story + Values */}
       <div className="px-6 md:px-10 py-20 md:py-32 border-b border-maze-border">

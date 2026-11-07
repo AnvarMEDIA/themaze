@@ -1,15 +1,24 @@
 /**
- * The four numbers under the homepage's first screen ("200+ projects
- * completed"…), which the "About" card further down repeats. Edited in the
- * admin at /admin/numbers; stored by lib/homeStatsStore.ts.
+ * The studio's numbers ("200+ projects completed"…), edited in the admin at
+ * /admin/numbers and stored by lib/homeStatsStore.ts. One set for the whole
+ * site, so no two pages can disagree:
+ *
+ *   - the strip under the homepage's first screen, and the "About" card
+ *     further down the homepage: projects, clients, years, countries;
+ *   - the row on the About page: years, projects, clients, awards.
  *
  * Shared by the server and the admin's preview, so nothing here touches the
  * store.
  */
 
-/** Four fixed places. The id says which one, never what it shows: a place can be relabelled. */
-export const STAT_IDS = ['projects', 'clients', 'years', 'countries'] as const
+/** Fixed places. The id says which one, never what it shows: a place can be relabelled. */
+export const STAT_IDS = ['projects', 'clients', 'years', 'countries', 'awards'] as const
 export type StatId = typeof STAT_IDS[number]
+
+/** The homepage strip, in its order. */
+export const HOME_STAT_IDS: StatId[] = ['projects', 'clients', 'years', 'countries']
+/** The About page row, in its order. */
+export const ABOUT_PAGE_STAT_IDS: StatId[] = ['years', 'projects', 'clients', 'awards']
 
 export interface HomeStat {
   id:      StatId
@@ -21,7 +30,6 @@ export interface HomeStat {
 }
 
 export interface HomeStats {
-  /** In the order the first screen shows them. */
   stats: HomeStat[]
 }
 
@@ -33,12 +41,16 @@ export interface LocalStat {
   label:  string
 }
 
-export function localizeStats(data: HomeStats, locale: string): LocalStat[] {
+/** The numbers for `ids`, in that order, in one language. */
+export function localizeStats(data: HomeStats, locale: string, ids: StatId[] = HOME_STAT_IDS): LocalStat[] {
   const ru = locale === 'ru'
-  return data.stats.map((s) => ({
-    id:     s.id,
-    value:  s.value,
-    suffix: s.suffix,
-    label:  ((ru ? s.labelRu : s.labelEn) || s.labelEn || s.labelRu).trim(),
-  }))
+  return ids
+    .map((id) => data.stats.find((s) => s.id === id))
+    .filter((s): s is HomeStat => !!s)
+    .map((s) => ({
+      id:     s.id,
+      value:  s.value,
+      suffix: s.suffix,
+      label:  ((ru ? s.labelRu : s.labelEn) || s.labelEn || s.labelRu).trim(),
+    }))
 }

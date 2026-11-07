@@ -25,7 +25,7 @@ import { pluralRu } from '@/lib/utils'
  * a country's card, a click places a city.
  */
 
-interface Copy { label: string; heading: string }
+interface Copy { heading: string }
 
 type Pick =
   | { kind: 'new-city';     code: string }
@@ -345,7 +345,7 @@ export function WorldMapEditor({ copy }: { copy: Record<PreviewLang, Copy> }) {
         <div>
           <h1 className="text-2xl font-bold text-white tracking-tight">World map</h1>
           <p className="text-sm text-[#555] mt-1 max-w-lg">
-            Секция «География» на главной. Превью ниже — то же, что увидят на сайте; изменения попадут на сайт после «Сохранить».
+            Карта «Проекты по всему миру» на главной. Превью ниже — то же, что увидят на сайте; изменения попадут на сайт после «Сохранить».
           </p>
         </div>
         <div className="flex flex-wrap items-center gap-3 lg:shrink-0">
@@ -376,7 +376,7 @@ export function WorldMapEditor({ copy }: { copy: Record<PreviewLang, Copy> }) {
           <p className={`text-xs ${pick ? 'text-[#C8FF47]' : 'text-[#555]'}`}>
             {pick
               ? <>{pickHint} · <span className="text-[#888]">Esc — отмена</span></>
-              : 'Нажмите на страну на карте, чтобы добавить её. Наведите на страну в списке под картой — увидите, как она подсвечивается на сайте.'}
+              : 'Нажмите на страну на карте, чтобы добавить её. Наведите на точку города — появится подпись, как на сайте.'}
           </p>
           {pick && (
             <button type="button" onClick={() => setPick(null)} className={chipClass}>
@@ -392,7 +392,6 @@ export function WorldMapEditor({ copy }: { copy: Record<PreviewLang, Copy> }) {
           ) : (
             <WorldMapSection
               countries={preview}
-              label={copy[lang].label}
               heading={copy[lang].heading}
               interaction={{
                 className:      `map-edit ${pick ? 'is-pick' : hoverCode ? 'is-land' : ''}`,

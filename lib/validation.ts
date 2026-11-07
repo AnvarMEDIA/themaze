@@ -108,7 +108,7 @@ export const PartnerSchema = z.object({
 
 export type PartnerInput = z.infer<typeof PartnerSchema>
 
-/* ── World map (the homepage "Geography" section) ───────────────────────── */
+/* ── World map (the homepage section "Projects around the world") ──────── */
 
 const latitude  = z.number().min(-90).max(90)
 const longitude = z.number().min(-180).max(180)
@@ -156,9 +156,12 @@ export const HomeStatSchema = z.object({
   labelRu: safeString(40),
 }).refine((s) => !!(s.labelEn || s.labelRu), { message: 'Every number needs a caption' })
 
+// Places missing from a set are filled with their defaults on read and on
+// save (lib/homeStatsStore.ts), so a set saved before a place was added
+// stays valid.
 export const HomeStatsSchema = z.object({
-  stats: z.array(HomeStatSchema).length(STAT_IDS.length),
-}).refine((v) => new Set(v.stats.map((s) => s.id)).size === STAT_IDS.length, {
+  stats: z.array(HomeStatSchema).min(1).max(STAT_IDS.length),
+}).refine((v) => new Set(v.stats.map((s) => s.id)).size === v.stats.length, {
   message: 'Each place is listed once',
 })
 

@@ -667,11 +667,26 @@ html.lenis, html.lenis body {
   100% { transform: translateX(0); }
 }
 
-/* ─── World map (homepage "Geography", components/home/WorldMapSection) ──
+/* ─── World map (homepage, components/home/WorldMapSection) ────────────────
    Every land dot comes from one cached SVG used as a mask, so the dots take
    the theme's colour. The countries worked for are drawn over it, one SVG
    each, breathing; cities pulse. Only opacity and transform animate, and
    everything stops while the section is off screen (data-paused). */
+
+/* The heading on one line at every width: the .display-md size, or less
+   wherever that would wrap. --fit is set by the section from the heading's
+   measured width; the fallback already fits the English and Russian ones.
+   Browsers without container units keep .display-md, wrapping as before. */
+@supports (font-size: 1cqi) {
+  .world-map-head {
+    container-type: inline-size;
+  }
+  .world-map-heading {
+    white-space: nowrap;
+    font-size: min(clamp(2rem, 4.5vw, 5.5rem), var(--fit, 8cqi));
+  }
+}
+
 .world-map-base {
   background-color: rgb(var(--text) / 0.16);
   -webkit-mask: url('/map/world-dots.svg') center / 100% 100% no-repeat;
@@ -682,12 +697,6 @@ html.lenis, html.lenis body {
   animation: world-map-fade 900ms var(--ease-out) both;
 }
 
-.world-map-layer {
-  transition: opacity 200ms ease;
-}
-.world-map-layer.is-dimmed {
-  opacity: 0.18;
-}
 .world-map-country {
   color: rgb(var(--lime));
   opacity: 0;
@@ -704,13 +713,6 @@ html.lenis, html.lenis body {
   width: 8px;
   height: 8px;
   margin: -4px 0 0 -4px;           /* centred on its point */
-  transition: opacity 200ms ease;
-}
-.world-map-marker.is-dimmed {
-  opacity: 0.25;
-}
-.world-map-marker.is-active {
-  z-index: 3;
 }
 /* A larger target than the dot, for the mouse. */
 .world-map-marker::before {
@@ -759,8 +761,7 @@ html.lenis, html.lenis body {
   }
 }
 
-/* The city's name: on hover, or when its country is hovered in the list.
-   Comes in at 200ms, goes at 120ms. */
+/* The city's name, on hover. Comes in at 200ms, goes at 120ms. */
 .world-map-label {
   --lx: -50%;
   position: absolute;
@@ -784,11 +785,6 @@ html.lenis, html.lenis body {
 }
 .world-map-marker[data-edge='start'] .world-map-label { --lx: 0%;    left: -6px; }
 .world-map-marker[data-edge='end']   .world-map-label { --lx: -100%; left: calc(100% + 6px); }
-.world-map-marker.is-active .world-map-label {
-  opacity: 1;
-  transform: translate(var(--lx), 0);
-  transition-duration: 200ms;
-}
 @media (hover: hover) and (pointer: fine) {
   .world-map-marker:hover {
     z-index: 3;

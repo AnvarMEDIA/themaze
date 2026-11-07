@@ -12,8 +12,8 @@ export default function AdminWorldMapPage() {
   return (
     <WorldMapEditor
       copy={{
-        en: { label: en.worldMap.label, heading: en.worldMap.heading },
-        ru: { label: ru.worldMap.label, heading: ru.worldMap.heading },
+        en: { heading: en.worldMap.heading },
+        ru: { heading: ru.worldMap.heading },
       }}
     />
   )
