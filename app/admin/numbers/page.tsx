@@ -6,7 +6,7 @@ import { HeroStats } from '@/components/home/HeroStats'
 import { AboutStats } from '@/components/about/AboutStats'
 import { PreviewSwitches, SitePreview, type PreviewLang, type PreviewTheme } from '@/components/admin/SitePreview'
 import {
-  ABOUT_PAGE_STAT_IDS, HOME_STAT_IDS, localizeStats,
+  ABOUT_PAGE_STAT_IDS, HOME_STAT_IDS, isShown, localizeStats,
   type HomeStat, type HomeStats, type StatId,
 } from '@/lib/homeStats'
 import { pluralRu } from '@/lib/utils'
@@ -182,7 +182,7 @@ export default function AdminNumbersPage() {
       <div className="mt-12">
         <SectionTitle
           title="Страница «О нас»"
-          note="Опыт, проекты и клиенты здесь те же, что на главной: правятся выше. Своя у страницы только четвёртая цифра."
+          note="Опыт, проекты и клиенты здесь те же, что на главной: правятся выше. Своя у страницы только четвёртая цифра, «Награды»: выключенная, она не показывается, и в ряду остаются три цифры."
         />
         <div className="rounded-xl border border-[#1E1E1E] overflow-hidden">
           {/* The row's bottom line parts it from the next block on the site. */}
@@ -193,7 +193,12 @@ export default function AdminNumbersPage() {
 
         <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4 mt-4">
           {!loading && stat('awards') && (
-            <StatCard index={HOME_STAT_IDS.length} stat={stat('awards')!} onEdit={(patch) => edit('awards', patch)} />
+            <StatCard
+              index={HOME_STAT_IDS.length}
+              stat={stat('awards')!}
+              onEdit={(patch) => edit('awards', patch)}
+              toggle
+            />
           )}
         </div>
       </div>
@@ -211,24 +216,62 @@ function SectionTitle({ title, note }: { title: string; note: string }) {
 }
 
 function StatCard({
-  index, stat: s, onEdit, children,
+  index, stat: s, onEdit, toggle = false, children,
 }: {
   index:     number
   stat:      HomeStat
   onEdit:    (patch: Partial<HomeStat>) => void
+  /** Offer a switch that takes the number off the site. */
+  toggle?:   boolean
   children?: React.ReactNode
 }) {
   const missing = !(s.labelRu.trim() || s.labelEn.trim())
+  const on      = isShown(s)
   return (
     <div className="rounded-xl bg-[#0D0D0D] border border-[#1E1E1E] p-5">
-      <div className="flex items-baseline justify-between gap-3 mb-4">
+      <div className="flex items-center justify-between gap-3 mb-4">
         <p className="text-sm font-semibold text-white">
           <span className="text-[11px] font-mono text-[#333] mr-2">{String(index + 1).padStart(2, '0')}</span>
           {PLACE[s.id].title}
         </p>
-        <p className="text-lg font-black text-[#C8FF47] tabular-nums">{s.value}{s.suffix}</p>
+        {toggle ? (
+          <div className="flex items-center gap-2.5">
+            <span className={`text-xs font-medium ${on ? 'text-[#C8FF47]' : 'text-[#555]'}`} aria-hidden="true">
+              {on ? 'Вкл' : 'Выкл'}
+            </span>
+            <button
+              type="button"
+              role="switch"
+              aria-checked={on}
+              aria-label={`${PLACE[s.id].title}: показывать на сайте`}
+              title={on ? 'Показывается на сайте' : 'Не показывается на сайте'}
+              onClick={() => onEdit({ visible: !on })}
+              className={[
+                'relative inline-flex h-5 w-9 items-center rounded-full transition-colors',
+                on ? 'bg-maze-lime' : 'bg-maze-border',
+              ].join(' ')}
+            >
+              <span
+                className={[
+                  'inline-block h-3.5 w-3.5 rounded-full bg-maze-ink transition-transform',
+                  on ? 'translate-x-[18px]' : 'translate-x-[3px]',
+                ].join(' ')}
+              />
+            </button>
+          </div>
+        ) : (
+          <p className="text-lg font-black text-[#C8FF47] tabular-nums">{s.value}{s.suffix}</p>
+        )}
       </div>
 
+      {toggle && !on && (
+        <p className="text-[11px] text-[#555] -mt-1 mb-4">
+          Не показывается на сайте. Включите, когда будет что показать: число и подписи сохранятся.
+        </p>
+      )}
+
+      {/* Switched off, the fields stay editable, only quieter. */}
+      <div className={`transition-opacity duration-200 ${on ? '' : 'opacity-50'}`}>
       <div className="grid grid-cols-[1fr_88px] gap-2">
         <label className="block">
           <span className="text-xs font-medium text-[#555] block mb-1.5">Число</span>
@@ -278,6 +321,7 @@ function StatCard({
           className={`${inputClass} ${missing ? '!border-red-500/60' : ''}`}
         />
       </label>
+      </div>
 
       {children}
     </div>

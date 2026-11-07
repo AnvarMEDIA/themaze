@@ -154,6 +154,7 @@ export const HomeStatSchema = z.object({
   suffix:  safeString(4),
   labelEn: safeString(40),
   labelRu: safeString(40),
+  visible: z.boolean().optional(),
 }).refine((s) => !!(s.labelEn || s.labelRu), { message: 'Every number needs a caption' })
 
 // Places missing from a set are filled with their defaults on read and on

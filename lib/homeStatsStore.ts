@@ -13,7 +13,7 @@ const DEFAULTS: Record<StatId, HomeStat> = {
   clients:   { id: 'clients',   value: 80,  suffix: '+', labelEn: en.about.stats.clients,   labelRu: ru.about.stats.clients },
   years:     { id: 'years',     value: 6,   suffix: '+', labelEn: en.about.stats.years,     labelRu: ru.about.stats.years },
   countries: { id: 'countries', value: 5,   suffix: '+', labelEn: en.about.stats.countries, labelRu: ru.about.stats.countries },
-  awards:    { id: 'awards',    value: 12,  suffix: '',  labelEn: en.aboutPage.statsAwards, labelRu: ru.aboutPage.statsAwards },
+  awards:    { id: 'awards',    value: 0,   suffix: '',  labelEn: en.aboutPage.statsAwards, labelRu: ru.aboutPage.statsAwards, visible: false },
 }
 
 export const DEFAULT_HOME_STATS: HomeStats = { stats: STAT_IDS.map((id) => DEFAULTS[id]) }

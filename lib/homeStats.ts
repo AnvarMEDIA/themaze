@@ -27,7 +27,24 @@ export interface HomeStat {
   suffix:  string
   labelEn: string
   labelRu: string
+  /** Switched off in the admin; unset means the place's default (SHOWN_BY_DEFAULT). */
+  visible?: boolean
 }
+
+/**
+ * Whether a place shows when it was never switched. Awards is off: the
+ * studio has none yet, and the number in the template the site started
+ * from was not real.
+ */
+export const SHOWN_BY_DEFAULT: Record<StatId, boolean> = {
+  projects:  true,
+  clients:   true,
+  years:     true,
+  countries: true,
+  awards:    false,
+}
+
+export const isShown = (s: HomeStat): boolean => s.visible ?? SHOWN_BY_DEFAULT[s.id]
 
 export interface HomeStats {
   stats: HomeStat[]
@@ -41,12 +58,12 @@ export interface LocalStat {
   label:  string
 }
 
-/** The numbers for `ids`, in that order, in one language. */
+/** The numbers for `ids` that are switched on, in that order, in one language. */
 export function localizeStats(data: HomeStats, locale: string, ids: StatId[] = HOME_STAT_IDS): LocalStat[] {
   const ru = locale === 'ru'
   return ids
     .map((id) => data.stats.find((s) => s.id === id))
-    .filter((s): s is HomeStat => !!s)
+    .filter((s): s is HomeStat => !!s && isShown(s))
     .map((s) => ({
       id:     s.id,
       value:  s.value,
