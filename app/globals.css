@@ -827,6 +827,46 @@ html.lenis, html.lenis body {
   }
 }
 
+/* ─── Animated counter (components/ui/AnimatedCounter) ─────────────────────
+   The digits in the page are always the real number. The count-up is
+   drawn over them from data-count while they are see-through; the alt
+   text after the slash keeps screen readers on the real number. Until the
+   script decides (data-phase=pending) the number is hidden; it shows by
+   itself after 3s if the script never runs, and at once without
+   scripting, in print and in forced-colours mode. inline-block makes the
+   drawn digits sit on the real ones' baseline. */
+.counter {
+  position: relative;
+  display: inline-block;
+}
+.counter[data-phase='pending'],
+.counter[data-count] {
+  -webkit-text-fill-color: transparent;
+}
+.counter[data-phase='pending'] {
+  animation: counter-show 0s linear 3s forwards;
+}
+.counter[data-count]::after {
+  content: attr(data-count);
+  content: attr(data-count) / '';
+  position: absolute;
+  inset: 0;
+  white-space: nowrap;
+  -webkit-text-fill-color: currentColor;
+}
+@keyframes counter-show {
+  to { -webkit-text-fill-color: currentColor; }
+}
+@media (scripting: none), print, (forced-colors: active) {
+  .counter[data-phase='pending'],
+  .counter[data-count] {
+    -webkit-text-fill-color: currentColor;
+  }
+  .counter[data-count]::after {
+    display: none;
+  }
+}
+
 /* ─── Finance modal enter (Emil rules: scale .97 + opacity, ease-out) ──── */
 .fin-fade {
   animation: fin-fade-in 160ms ease-out;
