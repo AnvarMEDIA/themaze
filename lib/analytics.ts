@@ -112,7 +112,20 @@ export interface ViewMeta {
   mobile?: boolean
 }
 
-/** A referrer host reduced to something safe to use as a store key. */
+// A source arrives as a referrer host or as a link's utm_source; the same
+// service can name itself either way, and one store key per service keeps
+// the report honest.
+const SOURCE_ALIASES: Record<string, string> = {
+  'chatgpt':          'chatgpt.com',
+  'chat.openai.com':  'chatgpt.com',
+  'openai':           'chatgpt.com',
+  'perplexity':       'perplexity.ai',
+  'claude':           'claude.ai',
+  'gemini':           'gemini.google.com',
+  'copilot':          'copilot.microsoft.com',
+}
+
+/** A referrer host or utm_source reduced to something safe to use as a store key. */
 export function normalizeSource(raw: string | undefined | null): string | undefined {
   if (!raw || typeof raw !== 'string' || raw.length > 200) return undefined
   let host = raw.trim().toLowerCase()
@@ -121,7 +134,21 @@ export function normalizeSource(raw: string | undefined | null): string | undefi
   } catch { return undefined }
   host = host.replace(/^www\./, '')
   if (!/^[a-z0-9][a-z0-9.-]{0,60}$/.test(host)) return undefined
-  return host
+  return SOURCE_ALIASES[host] ?? host
+}
+
+/** Sources that are AI assistants, for the report's own line. */
+const AI_SOURCES = new Set([
+  'chatgpt.com', 'perplexity.ai', 'claude.ai', 'gemini.google.com', 'copilot.microsoft.com',
+  'copilot.com', 'chat.deepseek.com', 'deepseek.com', 'grok.com', 'meta.ai', 'you.com',
+  'poe.com', 'chat.mistral.ai', 'mistral.ai', 'chat.qwen.ai', 'kimi.com', 'alice.yandex.ru',
+])
+
+export const isAiSource = (source: string): boolean => AI_SOURCES.has(source)
+
+/** Views that came from an AI assistant on one day. */
+export function aiViews(day: Pick<DayStats, 'sources'>): number {
+  return Object.entries(day.sources).reduce((n, [host, views]) => n + (isAiSource(host) ? views : 0), 0)
 }
 
 /** Increment today's counters for `path`, applying cleanup of buckets

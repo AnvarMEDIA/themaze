@@ -1,6 +1,6 @@
 import { escapeHtml } from './notify'
 import {
-  dayStats, getAnalytics, previousDay, topPages, SITE_TZ,
+  aiViews, dayStats, getAnalytics, previousDay, topPages, SITE_TZ,
   type AnalyticsData,
 } from './analytics'
 import { getInquiries } from './inquiries'
@@ -237,6 +237,8 @@ export function buildDigest({ date, analytics, inquiries }: DigestInput): string
     const direct = Math.max(today.views - referred, 0)
     if (direct > 0) L.push(`   ${direct} · напрямую и закладки`)
     for (const [host, n] of sources) L.push(`   ${n} · ${escapeHtml(host)}`)
+    const ai = aiViews(today)
+    if (ai > 0) L.push(`   в том числе из ИИ-ассистентов: ${ai}`)
   }
 
   const devices = today.mobile + today.desktop
@@ -259,9 +261,20 @@ export function buildDigest({ date, analytics, inquiries }: DigestInput): string
       const k = new Intl.DateTimeFormat('en-CA', { timeZone: SITE_TZ }).format(new Date(i.createdAt))
       return k <= date && k > previousDay(date, 7)
     }).length
+    // Monday to this Sunday, the same seven days the leads are counted over.
+    // (The 7-day mean above is the seven days *before* today, so it can't be
+    // reused here: added to today it made eight.)
+    let wkViews = 0, wkVisitors = 0, wkAi = 0
+    for (let i = 0; i < 7; i++) {
+      const d = dayStats(analytics, previousDay(date, i))
+      wkViews += d.views
+      wkVisitors += d.visitors
+      wkAi += aiViews(d)
+    }
     L.push('')
-    L.push(`<b>Неделя целиком:</b> ${weekVisitors + today.visitors} посетителей, `
-      + `${weekViews + today.views} просмотров, ${weekLeads} заявок.`)
+    L.push(`<b>Неделя целиком:</b> ${wkVisitors} посетителей, `
+      + `${wkViews} просмотров, ${weekLeads} заявок.`
+      + (wkAi > 0 ? ` Из ИИ-ассистентов: ${wkAi} просмотров.` : ''))
   }
 
   return L.join('\n')

@@ -7,6 +7,22 @@ const SEEN_KEY = 'maze_seen'   // has this browser ever been here
 const DAY_KEY  = 'maze_day'    // the last day it was counted on
 
 /**
+ * The landing link's utm_source, read once per page load, before the first
+ * in-site navigation drops the query: like document.referrer, it then marks
+ * every view of the visit. Since October 2026 ChatGPT's links carry no
+ * referrer (they open with noreferrer); they say ?utm_source=chatgpt.com
+ * instead, and without this their visits read as direct.
+ */
+const LANDING_SOURCE: string | undefined = (() => {
+  if (typeof window === 'undefined') return undefined
+  try {
+    return new URLSearchParams(window.location.search).get('utm_source')?.trim() || undefined
+  } catch {
+    return undefined
+  }
+})()
+
+/**
  * Fire-and-forget first-party pageview tracker.
  *
  * Posts the (locale-stripped) pathname to /api/analytics/view on
@@ -49,15 +65,18 @@ export function PageviewTracker() {
       firstToday = false
     }
 
-    // Only the host, and only when the visit came from somewhere else.
-    let source: string | undefined
-    try {
-      const ref = document.referrer
-      if (ref) {
-        const host = new URL(ref).hostname
-        if (host && host !== window.location.hostname) source = host
-      }
-    } catch { /* a malformed referrer is simply no referrer */ }
+    // Where the visit came from: the link's own tag first, as any analytics
+    // tool reads it, else the referrer's host when it is another site.
+    let source: string | undefined = LANDING_SOURCE
+    if (!source) {
+      try {
+        const ref = document.referrer
+        if (ref) {
+          const host = new URL(ref).hostname
+          if (host && host !== window.location.hostname) source = host
+        }
+      } catch { /* a malformed referrer is simply no referrer */ }
+    }
 
     void fetch('/api/analytics/view', {
       method:  'POST',
