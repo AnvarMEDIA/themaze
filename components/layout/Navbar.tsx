@@ -12,7 +12,9 @@ const EASE_OUT = [0.23, 1, 0.32, 1] as const
 
 // `email` comes from the admin settings, like the footer's and the contact
 // page's; a copy typed in here had drifted to an address no longer used.
-export function Navbar({ email }: { email: string }) {
+// `internship` is the intake switch in the admin: the link exists only while
+// applications are open.
+export function Navbar({ email, internship = false }: { email: string; internship?: boolean }) {
   const t             = useTranslations('nav')
   const pathname      = usePathname()
   const [scrolled, setScrolled] = useState(false)
@@ -30,6 +32,7 @@ export function Navbar({ email }: { email: string }) {
     { href: '/services',  label: t('services') },
     ...(INSIGHTS_ENABLED ? [{ href: '/insights', label: t('insights') }] : []),
     { href: '/about',     label: t('about') },
+    ...(internship ? [{ href: '/internship', label: t('internship') }] : []),
     { href: '/contact',   label: t('contact') },
   ]
 
@@ -224,7 +227,10 @@ export function Navbar({ email }: { email: string }) {
                       )}
                     >
                       <span className="label-sm text-maze-muted shrink-0 tabular-nums w-7">{num}</span>
-                      <span className="text-5xl sm:text-7xl font-bold leading-[0.95] tracking-tight">
+                      {/* 3rem, eased down on narrow phones so the longest
+                          label ("Стажировка") still fits beside its number
+                          at 320px instead of running past the edge. */}
+                      <span className="text-[clamp(2rem,calc(17vw_-_19px),3rem)] sm:text-7xl font-bold leading-[0.95] tracking-tight">
                         {link.label}
                       </span>
                       <span

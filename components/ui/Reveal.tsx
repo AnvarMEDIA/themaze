@@ -28,6 +28,8 @@ interface RevealProps {
   /** Travel distance in px (0 = fade only). */
   y?: number
   once?: boolean
+  /** Render as a list item, so a revealed row can sit directly in a list. */
+  as?: 'div' | 'li'
 }
 
 /**
@@ -35,14 +37,16 @@ interface RevealProps {
  * reduced-motion aware (fades without moving). Wrap section blocks or
  * map over list items with `delay={i * 0.06}` for a stagger.
  */
-export function Reveal({ children, className, delay = 0, y = 22, once = true }: RevealProps) {
+export function Reveal({ children, className, delay = 0, y = 22, once = true, as = 'div' }: RevealProps) {
+  // Typed as a div ref: the observer only needs an element, whichever tag it is.
   const ref    = useRef<HTMLDivElement>(null)
   const inView = useInView(ref, { once, margin: '-12% 0px' })
   const reduce = useReducedMotion()
   const show   = useRevealTrigger(inView)
+  const Tag    = (as === 'li' ? motion.li : motion.div) as typeof motion.div
 
   return (
-    <motion.div
+    <Tag
       ref={ref}
       initial={reduce ? { opacity: 0 } : { opacity: 0, y }}
       animate={show ? { opacity: 1, y: 0 } : (reduce ? { opacity: 0 } : { opacity: 0, y })}
@@ -50,7 +54,7 @@ export function Reveal({ children, className, delay = 0, y = 22, once = true }: 
       className={className}
     >
       {children}
-    </motion.div>
+    </Tag>
   )
 }
 

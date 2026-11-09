@@ -12,6 +12,7 @@ import { CookieBanner }      from '@/components/CookieBanner'
 import { PageviewTracker }   from '@/components/PageviewTracker'
 import { Toaster }           from 'react-hot-toast'
 import { getSettings }  from '@/lib/settings'
+import { getInternshipSettings } from '@/lib/internshipStore'
 import { organizationJsonLd, websiteJsonLd, localBusinessJsonLd } from '@/lib/jsonLd'
 
 interface Props {
@@ -32,7 +33,9 @@ export default async function LocaleLayout({ children, params }: Props) {
 
   setRequestLocale(locale)
 
-  const [messages, settings] = await Promise.all([getMessages(), getSettings()])
+  const [messages, settings, internship] = await Promise.all([
+    getMessages(), getSettings(), getInternshipSettings(),
+  ])
 
   return (
     <NextIntlClientProvider messages={messages} locale={locale}>
@@ -48,9 +51,9 @@ export default async function LocaleLayout({ children, params }: Props) {
             Skip to main content
           </a>
           <CustomCursor />
-          <Navbar email={settings.email || 'go@themaze.uz'} />
+          <Navbar email={settings.email || 'go@themaze.uz'} internship={internship.open} />
           <main id="main-content">{children}</main>
-          <Footer settings={settings} />
+          <Footer settings={settings} internship={internship.open} />
         </div>
       </SmoothScroll>
       <CookieBanner />

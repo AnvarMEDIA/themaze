@@ -556,3 +556,68 @@ export function clientWorkJsonLd(clientName: string, slug: string, locale: strin
     publisher: { '@id': ORG_ID },
   }
 }
+
+/* ── JobPosting for the internship ─────────────────────────────────────── */
+
+const escapeHtmlText = (s: string): string =>
+  s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+
+/**
+ * The internship as a job posting, which is what Google's job search and
+ * the assistants that read it understand. Emitted only while the intake is
+ * open: a posting left up after it closes is exactly what the job search
+ * guidelines penalise.
+ *
+ * Hybrid is described as an office job (jobLocation) with no
+ * `jobLocationType`: TELECOMMUTE is for posts that are entirely remote. There
+ * is no `baseSalary`, because there is none, and the description says so.
+ */
+export function internshipJsonLd(input: {
+  locale: string
+  title: string
+  /** Plain paragraphs and lists, assembled from the page's own copy. */
+  intro: string
+  sections: Array<{ heading: string; items: string[] }>
+  datePosted: string
+  settings: SiteSettings | null
+}) {
+  const { locale, title, intro, sections, datePosted, settings } = input
+  const description = [
+    `<p>${escapeHtmlText(intro)}</p>`,
+    ...sections.map((s) =>
+      `<p><strong>${escapeHtmlText(s.heading)}</strong></p>` +
+      `<ul>${s.items.map((i) => `<li>${escapeHtmlText(i)}</li>`).join('')}</ul>`),
+  ].join('')
+  const url = localePath(locale, '/internship')
+
+  return {
+    '@context': CONTEXT,
+    '@type': 'JobPosting',
+    '@id': `${url}#job`,
+    title,
+    description,
+    datePosted,
+    employmentType: 'INTERN',
+    directApply: true,
+    url,
+    inLanguage: locale,
+    occupationalCategory: '27-1024.00 Graphic Designers',
+    hiringOrganization: {
+      '@type': 'Organization',
+      '@id': ORG_ID,
+      name: 'MAZE Studio',
+      sameAs: SITE_URL,
+      logo: LOGO_URL,
+    },
+    jobLocation: {
+      '@type': 'Place',
+      address: {
+        '@type': 'PostalAddress',
+        ...(settings?.addressDetail ? { streetAddress: settings.addressDetail } : {}),
+        addressLocality: 'Tashkent',
+        addressRegion:   'Tashkent',
+        addressCountry:  'UZ',
+      },
+    },
+  }
+}

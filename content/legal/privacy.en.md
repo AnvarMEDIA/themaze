@@ -1,6 +1,6 @@
 # Privacy Policy
 
-_Last updated: 14 October 2026_
+_Last updated: 9 November 2026_
 
 This Privacy Policy explains how **MAZE Studio** ("we", "us") collects, uses,
 and protects personal data when you use our website `www.maze.uz`.
@@ -18,6 +18,10 @@ needed to operate the site securely.
 - **Contact form submissions** — name, email, phone, company, service
   interest, budget, message. Used to respond to your inquiry. Stored until
   the project is completed or you ask us to delete it.
+- **Internship applications** — name, phone, email, Telegram, city,
+  portfolio link, the text about yourself. Used only to select interns and
+  to contact you. Kept for the period in section 6 or until you ask us to
+  delete them.
 - **Server logs** — IP address, user agent, URL, timestamp. Used for rate
   limiting, debugging and security. Retained for 30 days.
 - **Analytics** — aggregated usage statistics via Yandex Metrika and Vercel
@@ -35,7 +39,8 @@ legitimate interest in running the site, and compliance with applicable law
 We do not sell or rent personal data. We share it only with:
 
 - Service providers strictly required to deliver the site (Vercel for
-  hosting, Resend for transactional email).
+  hosting, Resend for transactional email, Telegram for notifying the team
+  of new submissions).
 - Authorities, where we are legally obliged.
 
 ## 5. Your rights

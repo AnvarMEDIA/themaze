@@ -25,6 +25,7 @@ const NAV = [
       { href: '/admin/insights',      label: 'Insights',     icon: IconProjects    },
       { href: '/admin/inquiries',     label: 'Inquiries',    icon: IconInquiries   },
       { href: '/admin/briefs',        label: 'Briefs',       icon: IconBriefs      },
+      { href: '/admin/internship',    label: 'Internship',   icon: IconIntern      },
     ],
   },
   {
@@ -255,6 +256,16 @@ function IconBriefs({ size = 16 }: { size?: number }) {
       <rect x="1.5" y="4.5" width="13" height="9.5" rx="1.8" stroke="currentColor" strokeWidth="1.4" opacity=".85" />
       <path d="M5.5 4.5V3.2A1.2 1.2 0 016.7 2h2.6a1.2 1.2 0 011.2 1.2v1.3" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" />
       <path d="M1.5 8.2h13" stroke="currentColor" strokeWidth="1.4" opacity=".5" />
+    </svg>
+  )
+}
+
+function IconIntern({ size = 16 }: { size?: number }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 16 16" fill="none">
+      <path d="M8 2.5L1.5 5.75 8 9l6.5-3.25L8 2.5z" stroke="currentColor" strokeWidth="1.4" strokeLinejoin="round" opacity=".85" />
+      <path d="M4 7v3.6c0 .9 1.8 2 4 2s4-1.1 4-2V7" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" opacity=".55" />
+      <path d="M14.5 5.75V9.5" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" opacity=".55" />
     </svg>
   )
 }

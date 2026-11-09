@@ -3,6 +3,7 @@ import { getPublishedPosts } from '@/lib/posts'
 import { INSIGHTS_ENABLED } from '@/lib/features'
 import { getPartners } from '@/lib/partners'
 import { getSettings } from '@/lib/settings'
+import { getInternshipSettings } from '@/lib/internshipStore'
 import { SITE_URL } from '@/lib/seo'
 import {
   SUMMARY_EN,
@@ -26,11 +27,12 @@ import {
 export const dynamic = 'force-dynamic'
 
 export async function GET() {
-  const [projects, posts, partners, settings] = await Promise.all([
+  const [projects, posts, partners, settings, internship] = await Promise.all([
     getPublishedProjects(),
     INSIGHTS_ENABLED ? getPublishedPosts() : Promise.resolve([]),
     getPartners(),
     getSettings().catch(() => null),
+    getInternshipSettings().catch(() => null),
   ])
 
   // Left out while the journal is empty, like the sitemap does: the page
@@ -50,7 +52,7 @@ export async function GET() {
 > ${SUMMARY_EN}
 
 ## Facts
-${factsSection(settings?.email)}
+${factsSection(settings?.email, { internship: internship?.open })}
 
 ## Services
 ${servicesIndex('en')}

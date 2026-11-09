@@ -64,7 +64,7 @@ export const SUMMARY_RU =
 export const SUMMARY_UZ =
   "MAZE — Toshkentdagi (O'zbekiston) brending va dizayn studiyasi. 2019-yildan beri Markaziy Osiyo va undan tashqaridagi startaplar, kompaniyalar va tashkilotlar uchun nom, logotip, firma uslubi, qadoq, poligrafiya, UI/UX, motion-dizayn va brend strategiyasini ishlab chiqamiz. Ingliz, rus va o'zbek tillarida ishlaymiz."
 
-export function factsSection(email?: string): string {
+export function factsSection(email?: string, opts: { internship?: boolean } = {}): string {
   return [
     '- Name: MAZE Studio (also written MAZE)',
     '- Type: independent branding and design studio',
@@ -75,6 +75,11 @@ export function factsSection(email?: string): string {
     ...(email ? [`- Contact: ${email}`] : []),
     '- Disciplines: brand strategy, naming, visual identity, logo systems, packaging, print, UI/UX, motion design',
     `- Start a project: ${SITE_URL}/brief`,
+    // Only while applications are open; a closed intake is not something to
+    // send anyone to.
+    ...(opts.internship
+      ? [`- Internship: graphic design and brand identity, 3 months, hybrid (Tashkent office and remote), unpaid; the best interns are offered a job at the studio. Apply: ${SITE_URL}/internship`]
+      : []),
   ].join('\n')
 }
 

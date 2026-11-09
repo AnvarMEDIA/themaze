@@ -4,6 +4,7 @@
     "services": "Services",
     "insights": "Insights",
     "about": "About",
+    "internship": "Internship",
     "contact": "Contact",
     "startProject": "Start a project",
     "brandingStudio": "Branding Studio"
@@ -204,6 +205,7 @@
       "motion": "Motion",
       "about": "About",
       "services": "Services",
+      "internship": "Internship",
       "contact": "Contact"
     }
   },
@@ -1212,6 +1214,126 @@
     },
     "tooMany": "Too many submissions. Please try again later.",
     "error": "Something went wrong. Please try again."
+  },
+  "internship": {
+    "metaTitle": "Graphic Design Internship in Tashkent",
+    "metaDesc": "A 3-month graphic design and brand identity internship at MAZE, a branding studio in Tashkent. Hybrid and unpaid; the best interns are offered a job at the studio.",
+    "label": "Internship",
+    "statusOpen": "Applications open",
+    "statusClosed": "Applications closed",
+    "heading": "Internship at MAZE",
+    "sub": "Three months with a branding studio's team: graphic design and brand identity on real projects. The best interns are offered a place at MAZE.",
+    "apply": "Apply now",
+    "facts": [
+      {
+        "label": "Field",
+        "value": "Graphic design and brand identity"
+      },
+      {
+        "label": "Duration",
+        "value": "3 months"
+      },
+      {
+        "label": "Format",
+        "value": "Hybrid: Tashkent office and remote"
+      },
+      {
+        "label": "Terms",
+        "value": "Unpaid, with a path to a job at the studio"
+      }
+    ],
+    "doHeading": "What you'll do",
+    "do": [
+      {
+        "title": "Real projects",
+        "body": "Logos, identities and brand applications for the studio's clients, not practice briefs."
+      },
+      {
+        "title": "The whole brand journey",
+        "body": "From the brief and references to the concept, the presentation and the guidelines."
+      },
+      {
+        "title": "A review of every piece",
+        "body": "Feedback on every layout from the art director and the studio's designers."
+      },
+      {
+        "title": "Part of the team",
+        "body": "Briefings, critiques and presentations alongside the studio."
+      }
+    ],
+    "lookHeading": "Who we're looking for",
+    "look": [
+      "You have a portfolio; student and personal projects count",
+      "You're confident in Figma, Illustrator or Photoshop",
+      "You have a feel for typography, composition and color",
+      "You can work from our Tashkent office part of the week",
+      "You're ready to learn, take critique and see work through"
+    ],
+    "stepsLabel": "Selection",
+    "stepsHeading": "How selection works",
+    "steps": [
+      {
+        "title": "Apply",
+        "body": "Tell us about yourself and send a link to your portfolio."
+      },
+      {
+        "title": "Meet",
+        "body": "We meet at the studio or on a call to look at your work and talk about your goals."
+      },
+      {
+        "title": "Internship",
+        "body": "Three months on real projects alongside the team."
+      },
+      {
+        "title": "A job at MAZE",
+        "body": "We offer the best interns a place on the team."
+      }
+    ],
+    "form": {
+      "heading": "Apply for the internship",
+      "sub": "We'll look through your portfolio and get in touch by phone or on Telegram.",
+      "name": "Full name",
+      "namePlaceholder": "Your name",
+      "phone": "Phone",
+      "telegram": "Telegram",
+      "telegramPlaceholder": "@username",
+      "email": "Email",
+      "emailPlaceholder": "you@email.com",
+      "city": "City",
+      "cityPlaceholder": "Tashkent",
+      "portfolio": "Portfolio link",
+      "portfolioPlaceholder": "behance.net/username",
+      "portfolioHint": "Behance, Dribbble, a website or a PDF on Google Drive: any link that opens without an access request.",
+      "about": "About you",
+      "aboutPlaceholder": "What you studied, what you've made, why MAZE",
+      "consent": "By applying, you agree to our <link>privacy policy</link>.",
+      "submit": "Send application",
+      "submitting": "Sending…"
+    },
+    "validation": {
+      "nameRequired": "Please enter your name",
+      "phoneRequired": "Please enter your phone number",
+      "phoneInvalid": "Please enter a valid phone number",
+      "emailInvalid": "Please enter a valid email",
+      "portfolioRequired": "Please add a link to your portfolio",
+      "portfolioInvalid": "Please check the portfolio link",
+      "aboutRequired": "Please tell us a little about yourself"
+    },
+    "error": "Couldn't send your application. Please try again.",
+    "tooMany": "Too many attempts. Please try again in 10 minutes.",
+    "closedError": "Applications have closed for now.",
+    "success": {
+      "label": "Application sent",
+      "heading": "Thank you!",
+      "body": "We'll look through your portfolio and get in touch.",
+      "cta": "See our work"
+    },
+    "closed": {
+      "heading": "Applications are closed",
+      "body": "We'll announce the next intake on this page. Meanwhile, have a look at what we're working on.",
+      "cta": "See our work"
+    },
+    "jobTitle": "Graphic Design Intern (Brand Identity)"
   },
   "notFound": {
     "label": "Error · 404",

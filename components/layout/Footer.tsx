@@ -58,9 +58,11 @@ function IconTwitterX() {
 
 interface Props {
   settings: SiteSettings
+  /** The internship intake is open: its link joins the studio column. */
+  internship?: boolean
 }
 
-export function Footer({ settings }: Props) {
+export function Footer({ settings, internship = false }: Props) {
   const t           = useTranslations('footer')
   const tLegal      = useTranslations('legal')
   const currentYear = new Date().getFullYear()
@@ -82,6 +84,7 @@ export function Footer({ settings }: Props) {
   const studioLinks = [
     { href: '/about',    label: t('nav.about') },
     { href: '/services', label: t('nav.services') },
+    ...(internship ? [{ href: '/internship', label: t('nav.internship') }] : []),
     { href: '/contact',  label: t('nav.contact') },
   ]
 

@@ -7,6 +7,7 @@ import { getPublishedPosts } from '@/lib/posts'
 import { INSIGHTS_ENABLED } from '@/lib/features'
 import { SITE_URL, localeHref } from '@/lib/seo'
 import { VALID_CATEGORIES, slugify } from '@/lib/utils'
+import { getInternshipSettings } from '@/lib/internshipStore'
 
 /**
  * The sitemap, written out here rather than returned from app/sitemap.ts.
@@ -119,11 +120,12 @@ function toXml(entries: Entry[]): string {
 /* ── main ────────────────────────────────────────────────────────────── */
 
 export async function GET() {
-  const [projects, posts, clients, tags] = await Promise.all([
+  const [projects, posts, clients, tags, internship] = await Promise.all([
     getPublishedProjects(),
     INSIGHTS_ENABLED ? getPublishedPosts() : Promise.resolve([]),
     getClientSlugs(),
     getTagSlugs(2),
+    getInternshipSettings(),
   ])
 
   const freshestProject = maxDate(projects.map((p) => p.updatedAt)) ?? SITE_LAUNCH
@@ -177,6 +179,11 @@ export async function GET() {
     // Indexable, and the page every "Fill in the brief" button leads to, but
     // it had been left out.
     ...localized('brief',         SITE_LAUNCH,     'yearly',  0.5),
+    // Listed while applications are open, dated from the day this intake
+    // opened; closed, the page is noindex and leaves the sitemap with it.
+    ...(internship.open
+      ? localized('internship', new Date(`${internship.openedAt}T00:00:00Z`), 'weekly', 0.6)
+      : []),
     ...localized('legal/privacy', SITE_LAUNCH,     'yearly',  0.3),
     ...localized('legal/terms',   SITE_LAUNCH,     'yearly',  0.3),
     ...localized('legal/cookies', SITE_LAUNCH,     'yearly',  0.3),

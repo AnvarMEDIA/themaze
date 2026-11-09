@@ -1,5 +1,6 @@
 import { z } from 'zod'
 import { STAT_IDS } from './homeStats'
+import { INTERN_STATUSES } from './internship'
 
 /* ── Shared primitives ───────────────────────────────────────────────────── */
 
@@ -242,6 +243,47 @@ export const BriefSchema = z.object({
   hp:          z.string().max(500).optional().default(''),
 })
 export type BriefInput = z.infer<typeof BriefSchema>
+
+/* ── Internship application ──────────────────────────────────────────────── */
+
+// A portfolio link as people type it: "behance.net/name" is as common as the
+// full address, so a missing scheme is supplied rather than refused. What is
+// stored is the parsed URL's own form, with quotes, spaces and brackets
+// percent-encoded, so the link is safe to put in an href as it stands.
+const portfolioLink = z.string().trim().min(1, 'Portfolio is required').max(500)
+  .transform((raw, ctx) => {
+    try {
+      const u = new URL(/^https?:\/\//i.test(raw) ? raw : `https://${raw}`)
+      const web = u.protocol === 'https:' || u.protocol === 'http:'
+      // A real host has a TLD; IDN hosts arrive as punycode (xn--…).
+      if (web && /\.(?:[a-z]{2,}|xn--[a-z0-9-]+)$/i.test(u.hostname)) return u.href
+    } catch { /* not a URL at all */ }
+    ctx.addIssue({ code: 'custom', message: 'Invalid portfolio link' })
+    return z.NEVER
+  })
+
+export const InternApplicationSchema = z.object({
+  name:      safeString(100).min(1, 'Name is required'),
+  phone:     z.string().trim().regex(/^\+[1-9]\d{6,14}$/, 'Invalid phone'),
+  email:     z.union([z.string().trim().email('Invalid email').max(254), z.literal('')])
+               .optional().default(''),
+  telegram:  safeString(64).optional().default(''),
+  city:      safeString(100).optional().default(''),
+  portfolio: portfolioLink,
+  about:     safeString(3000).min(1, 'About is required'),
+  locale:    z.enum(['en', 'ru']).optional(),
+  // Honeypot: bots fill this hidden field, humans never see it.
+  hp:        z.string().max(500).optional().default(''),
+})
+
+export const InternApplicationPatchSchema = z.object({
+  status: z.enum(INTERN_STATUSES).optional(),
+  note:   safeString(2000).optional(),
+}).refine((v) => v.status !== undefined || v.note !== undefined, { message: 'Nothing to update' })
+
+export const InternshipSettingsSchema = z.object({
+  open: z.boolean(),
+})
 
 /* ── Login ───────────────────────────────────────────────────────────────── */
 

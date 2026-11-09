@@ -1,4 +1,5 @@
 import { readStore, updateStore } from './store'
+import { displayUrl, telegramUsername } from './internship'
 
 /**
  * Outbound notifications for new contact-form inquiries.
@@ -294,6 +295,54 @@ export function formatBrief(b: BriefLike, siteUrl: string): string {
 export async function notifyNewBrief(b: BriefLike, siteUrl: string): Promise<NotifyResult> {
   try {
     return await sendTelegram(formatBrief(b, siteUrl))
+  } catch (err) {
+    console.error('[notify] unexpected failure', err)
+    return { ok: false, configured: telegramConfigured(), error: 'unexpected' }
+  }
+}
+
+export interface InternApplicationLike {
+  name:      string
+  phone:     string
+  email?:    string
+  telegram?: string
+  city?:     string
+  portfolio: string
+  about:     string
+  locale?:   string
+}
+
+/** An internship application as a Telegram message. */
+export function formatInternApplication(a: InternApplicationLike, siteUrl: string): string {
+  const e = escapeHtml
+  const out: string[] = ['🎓 <b>Заявка на стажировку</b>', '']
+
+  out.push(`👤 <b>${e(a.name)}</b>${a.city?.trim() ? ` — ${e(a.city)}` : ''}`)
+  out.push(`📞 ${e(a.phone)}`)
+  const tg = telegramUsername(a.telegram)
+  if (tg) out.push(`✈️ <a href="https://t.me/${tg}">@${tg}</a>`)
+  else if (a.telegram?.trim()) out.push(`✈️ ${e(a.telegram)}`)
+  if (a.email?.trim()) out.push(`✉️ ${e(a.email)}`)
+  // The schema stores only parsed http(s) links; the quote is escaped as well,
+  // because one left raw would end the attribute and Telegram would refuse
+  // the whole message.
+  out.push(`🎨 <a href="${e(a.portfolio).replace(/"/g, '&quot;')}">${e(truncate(displayUrl(a.portfolio), 80))}</a>`)
+
+  out.push('', '<b>О себе</b>', e(truncate(a.about, 1500)))
+  // Worth knowing before the first call: which language they wrote in.
+  if (a.locale === 'en') out.push('', '<i>Заявка с английской версии сайта</i>')
+
+  out.push('', `<a href="${e(siteUrl)}/admin/internship">Открыть в админке</a>`)
+  return truncate(out.join('\n'), 3900)
+}
+
+/** Notify about a new internship application. Never throws. */
+export async function notifyNewInternApplication(
+  a: InternApplicationLike,
+  siteUrl: string,
+): Promise<NotifyResult> {
+  try {
+    return await sendTelegram(formatInternApplication(a, siteUrl))
   } catch (err) {
     console.error('[notify] unexpected failure', err)
     return { ok: false, configured: telegramConfigured(), error: 'unexpected' }

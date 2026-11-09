@@ -3,6 +3,7 @@ import { INSIGHTS_ENABLED } from '@/lib/features'
 import { getPublishedProjects } from '@/lib/portfolio'
 import { getPartners } from '@/lib/partners'
 import { getSettings } from '@/lib/settings'
+import { getInternshipSettings } from '@/lib/internshipStore'
 import { SITE_URL } from '@/lib/seo'
 import {
   SUMMARY_EN,
@@ -25,11 +26,12 @@ import {
 export const dynamic = 'force-dynamic'
 
 export async function GET() {
-  const [posts, projects, partners, settings] = await Promise.all([
+  const [posts, projects, partners, settings, internship] = await Promise.all([
     INSIGHTS_ENABLED ? getPublishedPosts() : Promise.resolve([]),
     getPublishedProjects(),
     getPartners(),
     getSettings().catch(() => null),
+    getInternshipSettings().catch(() => null),
   ])
 
   const articles = posts.map((p) => {
@@ -49,7 +51,7 @@ export async function GET() {
 > ${SUMMARY_EN}${email} A shorter index is at ${SITE_URL}/llms.txt.
 
 ## Facts
-${factsSection(settings?.email)}
+${factsSection(settings?.email, { internship: internship?.open })}
 ${contact ? `\n## Contact\n${contact}\n- Contact form: ${SITE_URL}/contact\n` : ''}${clients ? `\n## Clients\n${clients}\n` : ''}
 ## Working with the studio
 ${faqSection('en')}

@@ -915,3 +915,30 @@ html.lenis, html.lenis body {
 .scrollbar-none::-webkit-scrollbar {
   display: none;
 }
+
+/* ─── "Applications open" — the internship's live dot ─────────────────────
+   A ring leaves the dot and fades, like a signal: transform and opacity only.
+   Reduced motion keeps the dot and drops the ring. */
+.intern-live {
+  position: relative;
+  display: inline-block;
+  width: 6px;
+  height: 6px;
+  border-radius: 9999px;
+  background: rgb(var(--lime));
+}
+.intern-live::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: inherit;
+  animation: intern-live 2.4s cubic-bezier(0.23, 1, 0.32, 1) infinite;
+}
+@keyframes intern-live {
+  from { transform: scale(1); opacity: 0.55; }
+  to   { transform: scale(3.2); opacity: 0; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .intern-live::after { animation: none; opacity: 0; }
+}
