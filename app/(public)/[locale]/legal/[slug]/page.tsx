@@ -9,16 +9,10 @@ import { Link } from '@/i18n/navigation'
 import { JsonLd } from '@/components/JsonLd'
 import { breadcrumbJsonLd, homeCrumb, legalPageJsonLd } from '@/lib/jsonLd'
 import { pageMeta, notFoundMetadata, SITE_URL } from '@/lib/seo'
-
-const LEGAL_SLUGS = ['privacy', 'terms', 'cookies'] as const
-type LegalSlug = (typeof LEGAL_SLUGS)[number]
+import { LEGAL_SLUGS, isLegalSlug, type LegalSlug } from '@/lib/legal'
 
 interface Props {
   params: { locale: string; slug: string }
-}
-
-function isLegalSlug(v: string): v is LegalSlug {
-  return (LEGAL_SLUGS as readonly string[]).includes(v)
 }
 
 async function readDoc(slug: LegalSlug, locale: string): Promise<string | null> {

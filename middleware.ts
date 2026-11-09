@@ -2,6 +2,7 @@ import createMiddleware from 'next-intl/middleware'
 import { routing } from './i18n/routing'
 import { type NextRequest, NextResponse } from 'next/server'
 import { jwtVerify } from 'jose'
+import { NOT_FOUND_SEGMENT, isPublicPage } from './lib/publicRoutes'
 
 const intlMiddleware = createMiddleware(routing)
 
@@ -108,7 +109,56 @@ export async function middleware(req: NextRequest) {
 
   // ── i18n locale routing for all public routes ───────────────────
   const res = await intlMiddleware(req) as NextResponse
+
+  // A redirect (a locale prefix to add or to drop) goes out as it is; the
+  // address it points to comes back through here.
+  if (res.status >= 300 && res.status < 400) return addSecurityHeaders(res)
+
+  // ── An address no page claims — answer with the 404 page ───────
+  // With `localePrefix: 'as-needed'` what is left is either a path that
+  // starts with a locale or one in the default locale.
+  const [first = '', ...rest] = pathSegments(pathname)
+  const prefixed = (routing.locales as readonly string[]).includes(first)
+  const locale   = prefixed ? first : routing.defaultLocale
+  const segments = prefixed ? rest : [first, ...rest].filter(Boolean)
+
+  if (!isPublicPage(segments, req.cookies.has('maze_admin_token'))) {
+    return addSecurityHeaders(notFound(req, res, locale))
+  }
+
   return addSecurityHeaders(res)
+}
+
+/** /ru/portfolio/caf%C3%A9 → ['ru', 'portfolio', 'café'] */
+function pathSegments(pathname: string): string[] {
+  return pathname.split('/').filter(Boolean).map((s) => {
+    try {
+      return decodeURIComponent(s)
+    } catch {
+      return s
+    }
+  })
+}
+
+/**
+ * The 404 page of the visitor's language, under the address they asked for
+ * and with the status that says so. Rewritten to, rather than thrown as
+ * `notFound()` by a page, because this way it is rendered on the server
+ * (see lib/publicRoutes.ts).
+ */
+function notFound(req: NextRequest, intl: NextResponse, locale: string): NextResponse {
+  const url = req.nextUrl.clone()
+  url.pathname = `/${locale}/${NOT_FOUND_SEGMENT}`
+  url.search   = ''
+
+  // What the locale middleware decided still holds: the locale it hands to
+  // the layouts, its cookie. Only where the request goes changes, and the
+  // links to the other language versions go, since there are none.
+  const headers = new Headers(intl.headers)
+  headers.delete('x-middleware-next')
+  headers.delete('link')
+
+  return NextResponse.rewrite(url, { status: 404, headers })
 }
 
 export const config = {
