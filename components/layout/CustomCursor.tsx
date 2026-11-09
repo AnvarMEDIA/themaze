@@ -107,7 +107,10 @@ export function CustomCursor() {
         style={{
           width:           10,
           height:          10,
-          backgroundColor: '#FFFFFF',
+          // Resting and "View": the accent (white on dark, black on light).
+          // Hover: white with difference blending, which inverts whatever
+          // is underneath on either theme; black would blend to nothing.
+          backgroundColor: variant === 'hover' ? '#FFFFFF' : 'rgb(var(--lime))',
           mixBlendMode:    blendMode as React.CSSProperties['mixBlendMode'],
           /* Only transform + opacity transitions — Emil's rule */
           transition: `transform 160ms cubic-bezier(0.23,1,0.32,1), opacity 160ms ease`,
@@ -116,7 +119,7 @@ export function CustomCursor() {
       >
         {/* "View" label — opacity fade only (no layout change) */}
         <span
-          className="absolute inset-0 flex items-center justify-center text-[#080808] font-bold tracking-[0.15em] uppercase select-none"
+          className="absolute inset-0 flex items-center justify-center text-maze-ink font-bold tracking-[0.15em] uppercase select-none"
           style={{
             fontSize: 9 / scale,  // compensate for scale so text reads at ~9px
             opacity:  variant === 'view' ? 1 : 0,

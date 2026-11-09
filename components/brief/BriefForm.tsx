@@ -107,9 +107,9 @@ const chipClass = (active: boolean) =>
   }`
 
 const Check = () => (
-  <span className="absolute top-2.5 right-2.5 w-4 h-4 rounded-full bg-maze-lime flex items-center justify-center">
+  <span className="absolute top-2.5 right-2.5 w-4 h-4 rounded-full bg-maze-lime text-maze-ink flex items-center justify-center">
     <svg width="8" height="6" viewBox="0 0 8 6" fill="none">
-      <path d="M1 3L3 5L7 1" stroke="#080808" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+      <path d="M1 3L3 5L7 1" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
     </svg>
   </span>
 )

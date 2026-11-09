@@ -7,6 +7,7 @@ import { motion, AnimatePresence, useReducedMotion, useScroll, useSpring } from 
 import { cn } from '@/lib/utils'
 import { INSIGHTS_ENABLED } from '@/lib/features'
 import { LangToggle } from '@/components/ui/LangToggle'
+import { ThemeToggle } from '@/components/ui/ThemeToggle'
 
 const EASE_OUT = [0.23, 1, 0.32, 1] as const
 
@@ -127,8 +128,10 @@ export function Navbar({ email, internship = false }: { email: string; internshi
             })}
           </ul>
 
-          {/* Right side: lang toggle + CTA + hamburger */}
+          {/* Right side: theme + lang toggles + CTA + hamburger. On a phone
+              the header has no room for the theme switch; it sits in the menu. */}
           <div className="flex items-center gap-3">
+            <ThemeToggle className="hidden sm:grid" />
             <LangToggle />
 
             <Link
@@ -253,6 +256,12 @@ export function Navbar({ email, internship = false }: { email: string; internshi
               transition={{ delay: 0.55, duration: 0.5, ease: EASE_OUT }}
               className="mt-12 flex flex-col sm:flex-row sm:items-end sm:justify-between gap-6 pt-8 border-t border-maze-border"
             >
+              {/* Phones only: from sm up the switch is in the header, which
+                  stays above the open menu. */}
+              <div className="sm:hidden flex flex-wrap items-center justify-between gap-x-4 gap-y-3">
+                <p className="label-sm text-maze-muted">{t('theme')}</p>
+                <ThemeToggle labels />
+              </div>
               <div>
                 <p className="label-sm text-maze-muted mb-2">Get in touch</p>
                 <a
@@ -279,11 +288,10 @@ export function Navbar({ email, internship = false }: { email: string; internshi
 function MazeLogo({ scrolled }: { scrolled: boolean }) {
   return (
     <div
-      className="relative transition-[height,width] duration-300 ease-out"
+      className="logo-ink relative transition-[height,width] duration-300 ease-out"
       style={{
         height: scrolled ? '36px' : '52px',
         width:  scrolled ? '92px' : '136px',
-        filter: 'brightness(0) invert(1)',
       }}
     >
       {/* SVG kept as <img> so the optimiser doesn't rasterise the vector. */}

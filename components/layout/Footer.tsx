@@ -162,7 +162,8 @@ export function Footer({ settings, internship = false }: Props) {
           <img
             src={LOGO}
             alt="MAZE"
-            style={{ height: '52px', width: 'auto', filter: 'brightness(0) invert(1)' }}
+            className="logo-ink"
+            style={{ height: '52px', width: 'auto' }}
           />
           <p className="mt-5 text-sm text-maze-muted leading-relaxed max-w-[200px] whitespace-pre-line">
             {t('tagline')}

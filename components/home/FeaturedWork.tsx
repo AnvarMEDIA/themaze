@@ -186,7 +186,7 @@ export function FeaturedWork({ projects }: Props) {
             const el = e.currentTarget
             el.style.backgroundColor = 'rgb(var(--lime))'
             el.style.borderColor = 'rgb(var(--lime))'
-            el.style.color = '#0A0A0A'
+            el.style.color = 'rgb(var(--on-accent))'
           }}
           onMouseLeave={e => {
             const el = e.currentTarget

@@ -98,7 +98,7 @@ export function AboutSection({ stats: allStats }: { stats: LocalStat[] }) {
               onMouseEnter={e => {
                 const el = e.currentTarget
                 el.style.backgroundColor = 'rgb(var(--lime))'
-                el.style.color = '#0A0A0A'
+                el.style.color = 'rgb(var(--on-accent))'
               }}
               onMouseLeave={e => {
                 const el = e.currentTarget
@@ -126,7 +126,7 @@ export function AboutSection({ stats: allStats }: { stats: LocalStat[] }) {
               aria-hidden
               className="absolute inset-0 opacity-[0.35]"
               style={{
-                backgroundImage: 'radial-gradient(circle, rgba(255,255,255,0.25) 1px, transparent 1px)',
+                backgroundImage: 'radial-gradient(circle, rgb(var(--dot) / 0.25) 1px, transparent 1px)',
                 backgroundSize:  '28px 28px',
               }}
             />

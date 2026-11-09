@@ -7,7 +7,10 @@
     "internship": "Стажировка",
     "contact": "Контакт",
     "startProject": "Начать проект",
-    "brandingStudio": "Брендинг Студия"
+    "brandingStudio": "Брендинг Студия",
+    "theme": "Тема",
+    "themeLight": "Светлая",
+    "themeDark": "Тёмная"
   },
   "hero": {
     "line1": "МЫ СОЗДАЁМ",

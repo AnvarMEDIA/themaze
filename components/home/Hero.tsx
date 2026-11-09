@@ -40,7 +40,7 @@ export function Hero({ stats }: { stats: LocalStat[] }) {
         <div
           className="absolute inset-0 opacity-[0.28]"
           style={{
-            backgroundImage:  'radial-gradient(circle, rgba(255,255,255,0.38) 1px, transparent 1px)',
+            backgroundImage:  'radial-gradient(circle, rgb(var(--dot) / 0.38) 1px, transparent 1px)',
             backgroundSize:   '36px 36px',
             maskImage:        'radial-gradient(ellipse 72% 60% at 50% 48%, black 0%, transparent 100%)',
             WebkitMaskImage:  'radial-gradient(ellipse 72% 60% at 50% 48%, black 0%, transparent 100%)',

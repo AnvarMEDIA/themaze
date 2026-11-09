@@ -24,6 +24,8 @@
      grey when it is hovered. */
   --on-accent:    10 10 10;
   --accent-hover: 214 214 214;
+  /* Decorative dot grids: light dots on the dark page. */
+  --dot:          255 255 255;
 
   /* Legacy hex vars (kept for components not yet on CSS vars) */
   --color-bg:      #080808;
@@ -55,6 +57,8 @@
   --lime:    10 10 10;
   --on-accent:    255 255 255;
   --accent-hover: 51 51 51;
+  /* …and dark dots on the light one. */
+  --dot:          10 10 10;
 
   --color-bg:      #F5F4F0;
   --color-surface: #ECEAE2;
@@ -941,4 +945,46 @@ html.lenis, html.lenis body {
 }
 @media (prefers-reduced-motion: reduce) {
   .intern-live::after { animation: none; opacity: 0; }
+}
+
+/* ─── The logo in the site's ink ───────────────────────────────────────────
+   The file is coloured; the site shows it in one ink: white on the dark
+   theme, black on the light one. It was forced white, which on the light
+   theme made it vanish. */
+.logo-ink { filter: brightness(0) invert(1); }
+.light .logo-ink { filter: brightness(0); }
+
+/* ─── Theme switch ─────────────────────────────────────────────────────────
+   Which half is lit is read from the class next-themes puts on <html> before
+   the first paint, not from React state: the switch is right in the server
+   HTML and never jumps when the page hydrates. Dark is the default, so
+   "not light" covers a page whose class has not been set. */
+.theme-switch-indicator {
+  transform: translateX(100%);
+  transition: transform 220ms var(--ease-out);
+}
+.light .theme-switch-indicator { transform: translateX(0); }
+
+.theme-switch [data-theme-option] {
+  color: rgb(var(--muted));
+  transition: color 150ms ease, transform 150ms var(--ease-out);
+}
+:root:not(.light) .theme-switch [data-theme-option='dark'],
+.light .theme-switch [data-theme-option='light'] {
+  color: rgb(var(--on-accent));
+}
+@media (hover: hover) and (pointer: fine) {
+  :root:not(.light) .theme-switch [data-theme-option='light']:hover,
+  .light .theme-switch [data-theme-option='dark']:hover {
+    color: rgb(var(--text));
+  }
+}
+
+/* The swap itself: the new theme grows as a circle out of the switch. Only
+   while it runs (html.theme-vt), so no other view transition is touched; the
+   circle is drawn by script, so the default cross-fade is switched off. */
+html.theme-vt::view-transition-old(root),
+html.theme-vt::view-transition-new(root) {
+  animation: none;
+  mix-blend-mode: normal;
 }
