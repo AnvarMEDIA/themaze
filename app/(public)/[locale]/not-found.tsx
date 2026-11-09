@@ -9,6 +9,10 @@ export const metadata = {
 /**
  * Per-locale 404 — rendered inside the public layout, so Navbar/Footer/
  * smooth scroll stay intact. Copy is kept deliberately short and visual.
+ *
+ * Shown two ways. By Next, in the browser, when a page throws `notFound()`
+ * (a draft, opened signed out). And by app/not-found.tsx, on the server,
+ * for an address no page claims, which is how nearly every visitor meets it.
  */
 export default function LocaleNotFound() {
   // In the visitor's language — it used to be English on /ru too.

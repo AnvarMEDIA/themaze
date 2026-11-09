@@ -36,15 +36,25 @@ export const NOT_FOUND_HEADER = 'x-maze-not-found'
  */
 export const NOWHERE = 'nowhere'
 
-/** A segment only the store can vouch for. Here every value passes, and the page decides. */
-const ANY = Symbol('any')
+/**
+ * What only the store knows: which projects, clients, tags and posts there
+ * are today, and which categories have a project in them.
+ */
+export const STORE_KINDS = ['project', 'client', 'tag', 'category', 'post'] as const
 
-type Segment = string | readonly string[] | typeof ANY
+export type StoreKind = (typeof STORE_KINDS)[number]
 
-// The journal: a list and its posts.
-const INSIGHTS: ReadonlyArray<readonly Segment[]> = [['insights'], ['insights', ANY]]
+/** A segment the store has to vouch for, out of a fixed list where there is one. */
+interface Stored {
+  kind:   StoreKind
+  among?: readonly string[]
+}
 
-const PAGES: ReadonlyArray<readonly Segment[]> = [
+type Segment = string | readonly string[] | Stored
+
+type Page = readonly Segment[]
+
+const SITE: readonly Page[] = [
   [],
   ['about'],
   ['brief'],
@@ -52,36 +62,70 @@ const PAGES: ReadonlyArray<readonly Segment[]> = [
   ['internship'],
   ['legal', LEGAL_SLUGS],
   ['portfolio'],
-  ['portfolio', ANY],
-  ['portfolio', 'category', VALID_CATEGORIES],
-  ['portfolio', 'client', ANY],
-  ['portfolio', 'tag', ANY],
+  ['portfolio', { kind: 'project' }],
+  ['portfolio', 'category', { kind: 'category', among: VALID_CATEGORIES }],
+  ['portfolio', 'client', { kind: 'client' }],
+  ['portfolio', 'tag', { kind: 'tag' }],
   ['services'],
   ['services', SERVICE_SLUGS],
-  // Switched off, it answers 404 (lib/features.ts).
-  ...(INSIGHTS_ENABLED ? INSIGHTS : []),
 ]
 
-/**
- * Pages only someone signed in to the admin can open: a post can be read
- * before Insights is switched on. The page checks the session itself; this
- * only keeps the middleware out of its way.
- */
-const PREVIEWS: ReadonlyArray<readonly Segment[]> = INSIGHTS_ENABLED ? [] : INSIGHTS.slice(1)
+// The journal: its list and its posts. Switched off, both answer 404
+// (lib/features.ts).
+const JOURNAL: readonly Page[] = [
+  ['insights'],
+  ['insights', { kind: 'post' }],
+]
 
-function matches(page: readonly Segment[], segments: readonly string[]): boolean {
-  return page.length === segments.length && page.every((want, i) => {
-    if (want === ANY) return true
-    return typeof want === 'string' ? want === segments[i] : want.includes(segments[i])
-  })
+const PAGES: readonly Page[] = INSIGHTS_ENABLED ? [...SITE, ...JOURNAL] : SITE
+
+/**
+ * Open to someone signed in to the admin only: a post can be read before
+ * Insights is switched on.
+ */
+const PREVIEWS: readonly Page[] = INSIGHTS_ENABLED ? [] : JOURNAL.slice(1)
+
+/** Every page folder as a pattern, 'portfolio/category/*'. For the test that compares them with the folders. */
+export const PAGE_PATTERNS: readonly string[] = [...SITE, ...JOURNAL].map((page) =>
+  page.map((segment) => (typeof segment === 'string' ? segment : '*')).join('/'),
+)
+
+/** A page claims the address if the store has this. */
+export interface StoreQuestion {
+  kind: StoreKind
+  slug: string
+}
+
+function match(page: Page, segments: readonly string[]): boolean | StoreQuestion {
+  if (page.length !== segments.length) return false
+  let question: StoreQuestion | null = null
+  for (let i = 0; i < page.length; i++) {
+    const want = page[i]
+    const have = segments[i]
+    if (typeof want === 'string') {
+      if (want !== have) return false
+    } else if ('kind' in want) {
+      if (want.among && !want.among.includes(have)) return false
+      question = { kind: want.kind, slug: have }
+    } else if (!want.includes(have)) {
+      return false
+    }
+  }
+  return question ?? true
 }
 
 /**
- * Whether a page claims this address. `segments` is the path below the
- * locale, split and decoded: /ru/portfolio/category/naming is
- * ['portfolio', 'category', 'naming'].
+ * Whether a page claims this address: yes, no, or a question for the store.
+ * `segments` is the path below the locale, split and decoded:
+ * /ru/portfolio/category/naming is ['portfolio', 'category', 'naming'].
+ *
+ * Someone signed in to the admin gets a yes where the store would be asked:
+ * they can open drafts, which the page checks against their session itself.
  */
-export function isPublicPage(segments: readonly string[], signedIn = false): boolean {
-  return PAGES.some((page) => matches(page, segments))
-    || (signedIn && PREVIEWS.some((page) => matches(page, segments)))
+export function claimOn(segments: readonly string[], signedIn = false): boolean | StoreQuestion {
+  for (const page of PAGES) {
+    const found = match(page, segments)
+    if (found) return signedIn ? true : found
+  }
+  return signedIn && PREVIEWS.some((page) => match(page, segments))
 }

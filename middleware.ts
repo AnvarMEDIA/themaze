@@ -2,7 +2,7 @@ import createMiddleware from 'next-intl/middleware'
 import { routing } from './i18n/routing'
 import { type NextRequest, NextResponse } from 'next/server'
 import { jwtVerify } from 'jose'
-import { NOT_FOUND_HEADER, NOWHERE, isPublicPage } from './lib/publicRoutes'
+import { NOT_FOUND_HEADER, NOWHERE, claimOn } from './lib/publicRoutes'
 
 const intlMiddleware = createMiddleware(routing)
 
@@ -122,11 +122,10 @@ export async function middleware(req: NextRequest) {
   const locale   = prefixed ? first : routing.defaultLocale
   const segments = prefixed ? rest : [first, ...rest].filter(Boolean)
 
-  if (!isPublicPage(segments, req.cookies.has('maze_admin_token'))) {
-    return addSecurityHeaders(notFound(req, res, locale))
-  }
+  // A slug only the store can vouch for is left to its page.
+  const claimed = claimOn(segments, req.cookies.has('maze_admin_token')) !== false
 
-  return addSecurityHeaders(res)
+  return addSecurityHeaders(claimed ? res : notFound(req, res, locale))
 }
 
 /** /ru/portfolio/caf%C3%A9 → ['ru', 'portfolio', 'café'] */

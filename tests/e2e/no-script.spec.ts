@@ -80,6 +80,50 @@ test.describe('without JavaScript', () => {
     await expect(page.locator('main h3 + noscript > p').first()).toBeVisible()
   })
 
+  // An address no page claims. Thrown as `notFound()` by a page, the 404
+  // is an empty document that a script fills in, a blank page here. So the
+  // middleware answers these itself (lib/publicRoutes.ts) and the screen
+  // comes from the server, in the header and the footer.
+  const MISSING = [
+    { path: '/ru/nope',                      lang: 'ru', heading: 'Заблудились в лабиринте.', home: '/ru' },
+    { path: '/nope',                         lang: 'en', heading: 'Lost in the maze.',        home: '/' },
+    { path: '/ru/services/nope',             lang: 'ru', heading: 'Заблудились в лабиринте.', home: '/ru' },
+  ]
+
+  for (const { path, lang, heading, home } of MISSING) {
+    test(`${path} shows the 404 screen`, async ({ page }) => {
+      const res = await page.goto(path)
+      expect(res?.status()).toBe(404)
+
+      await expect(page.locator('html')).toHaveAttribute('lang', lang)
+      await expect(page.locator('.noise > header')).toBeVisible()
+      await expect(page.locator('.noise > footer')).toBeVisible()
+
+      const screen = await page.evaluate(() => {
+        // Opacity all the way up: the page wrapper waits at 0 for a script.
+        const shown = (el: Element | null) => {
+          let opacity = el ? 1 : 0
+          for (let e = el; e && e !== document.body; e = e.parentElement) opacity *= parseFloat(getComputedStyle(e).opacity)
+          return opacity
+        }
+        const h1 = document.querySelector('main h1')
+        const links = Array.from(document.querySelectorAll('main a'))
+        return {
+          heading: h1?.textContent,
+          shown:   [h1, ...links].map(shown),
+          links:   links.map((a) => a.getAttribute('href')),
+          robots:  Array.from(document.querySelectorAll('meta[name="robots"]')).map((m) => m.getAttribute('content')),
+        }
+      })
+
+      expect(screen.heading).toBe(heading)
+      // A way back, and it can be seen.
+      expect(screen.links).toContain(home)
+      expect(screen.shown.every((opacity) => opacity === 1)).toBe(true)
+      expect(screen.robots.join()).toContain('noindex')
+    })
+  }
+
   test('a form says it cannot be sent', async ({ page }) => {
     for (const path of ['/contact', '/brief']) {
       await page.goto(path)

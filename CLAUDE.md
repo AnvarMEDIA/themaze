@@ -22,6 +22,7 @@
 - `components/home/` — homepage sections
 - `components/layout/` — Navbar, Footer, CustomCursor, SmoothScroll
 - `i18n/` — routing.ts, request.ts, navigation.ts
+- `lib/publicRoutes.ts` — the list of public pages the middleware checks; a page added under `app/(public)/[locale]/` must be added there too, or it answers 404
 - `messages/` — en.json, ru.json
 
 ## Animation Rules (from Emil Kowalski's skill)
