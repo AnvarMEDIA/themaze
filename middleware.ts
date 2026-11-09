@@ -145,12 +145,12 @@ function pathSegments(pathname: string): string[] {
  * can, so the middleware asks it and remembers the answer for as long as
  * this instance lives.
  *
- * What it remembers only ever lets a request through. A slug on the list is
- * taken as there for a minute; after that, or for a slug that is not on it,
- * the list is fetched again before anything is answered 404. So a project
- * published a moment ago is found, and the usual visit, to a page that
- * exists, costs nothing. The few seconds a miss is trusted for keep a run
- * of made-up addresses from fetching the list once each.
+ * A slug on the list is taken as there for a minute, so the usual visit,
+ * to a page that exists, costs nothing. A slug that is not on it is
+ * answered 404 only from a list fetched within the last few seconds;
+ * otherwise the list is fetched again first, so a project published a
+ * moment ago is found. Those few seconds keep a run of made-up addresses
+ * from fetching the list once each.
  *
  * If the list cannot be had (the request fails, or takes too long) the
  * address goes on to its page, which decides as it always did.
