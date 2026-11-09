@@ -81,3 +81,35 @@ test('the 404 is the screen it was: same address, header and footer, nothing for
 
   expect(errors).toEqual([])
 })
+
+test('a slug the store does not have is a 404, one it has is its page', async ({ request }) => {
+  for (const [p, status] of [
+    ['/portfolio/no-such-project', 404],
+    ['/portfolio/client/no-such-client', 404],
+    ['/portfolio/tag/no-such-tag', 404],
+    ['/ru/portfolio/category/nope', 404],
+  ] as const) {
+    const res = await request.get(p)
+    expect(res.status(), p).toBe(status)
+    // Drawn on the server, not left for a script.
+    expect(await res.text(), p).toContain('<h1')
+  }
+
+  // Every slug the middleware is told about opens.
+  const slugs = await (await request.get('/api/public-slugs')).json() as Record<string, string[]>
+  const pages = [
+    ...slugs.project.map((s) => `/portfolio/${s}`),
+    ...slugs.client.map((s) => `/portfolio/client/${s}`),
+    ...slugs.tag.map((s) => `/portfolio/tag/${s}`),
+    ...slugs.category.map((s) => `/portfolio/category/${s}`),
+  ]
+  expect(pages.length).toBeGreaterThan(10)
+  const failed: string[] = []
+  for (let i = 0; i < pages.length; i += 8) {
+    await Promise.all(pages.slice(i, i + 8).map(async (p) => {
+      const res = await request.get(p)
+      if (res.status() !== 200) failed.push(`${res.status()} ${p}`)
+    }))
+  }
+  expect(failed).toEqual([])
+})

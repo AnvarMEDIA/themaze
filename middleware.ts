@@ -2,7 +2,7 @@ import createMiddleware from 'next-intl/middleware'
 import { routing } from './i18n/routing'
 import { type NextRequest, NextResponse } from 'next/server'
 import { jwtVerify } from 'jose'
-import { NOT_FOUND_HEADER, NOWHERE, claimOn } from './lib/publicRoutes'
+import { NOT_FOUND_HEADER, NOWHERE, STORE_KINDS, claimOn, type StoreKind, type StoreQuestion } from './lib/publicRoutes'
 
 const intlMiddleware = createMiddleware(routing)
 
@@ -122,8 +122,8 @@ export async function middleware(req: NextRequest) {
   const locale   = prefixed ? first : routing.defaultLocale
   const segments = prefixed ? rest : [first, ...rest].filter(Boolean)
 
-  // A slug only the store can vouch for is left to its page.
-  const claimed = claimOn(segments, req.cookies.has('maze_admin_token')) !== false
+  const claim   = claimOn(segments, req.cookies.has('maze_admin_token'))
+  const claimed = typeof claim === 'boolean' ? claim : await storeHas(req, claim)
 
   return addSecurityHeaders(claimed ? res : notFound(req, res, locale))
 }
@@ -137,6 +137,77 @@ function pathSegments(pathname: string): string[] {
       return s
     }
   })
+}
+
+/* ── What the store has ────────────────────────────────────────────────
+ * A project, a client, a tag: the page for it exists if the store has one
+ * by that slug, and the store cannot be read from here. /api/public-slugs
+ * can, so the middleware asks it and remembers the answer for as long as
+ * this instance lives.
+ *
+ * What it remembers only ever lets a request through. A slug on the list is
+ * taken as there for a minute; after that, or for a slug that is not on it,
+ * the list is fetched again before anything is answered 404. So a project
+ * published a moment ago is found, and the usual visit, to a page that
+ * exists, costs nothing. The few seconds a miss is trusted for keep a run
+ * of made-up addresses from fetching the list once each.
+ *
+ * If the list cannot be had (the request fails, or takes too long) the
+ * address goes on to its page, which decides as it always did.
+ */
+type Slugs = Record<StoreKind, Set<string>>
+
+const TRUST_A_HIT_FOR  = 60_000
+const TRUST_A_MISS_FOR = 5_000
+const WAIT_FOR_STORE   = 3_000
+
+// The list, and the site it was fetched from: one site's list never answers
+// for another's.
+let known: { origin: string; slugs: Slugs; at: number } | null = null
+
+async function storeHas(req: NextRequest, { kind, slug }: StoreQuestion): Promise<boolean> {
+  const { origin } = req.nextUrl
+
+  if (known && known.origin === origin) {
+    const age = Date.now() - known.at
+    const has = known.slugs[kind].has(slug)
+    if (has && age < TRUST_A_HIT_FOR) return true
+    if (!has && age < TRUST_A_MISS_FOR) return false
+  }
+
+  const slugs = await fetchSlugs(origin, req.headers.get('cookie'))
+  if (!slugs) return true
+  known = { origin, slugs, at: Date.now() }
+  return slugs[kind].has(slug)
+}
+
+async function fetchSlugs(origin: string, cookie: string | null): Promise<Slugs | null> {
+  const giveUp = new AbortController()
+  const timer  = setTimeout(() => giveUp.abort(), WAIT_FOR_STORE)
+  try {
+    const res = await fetch(new URL('/api/public-slugs', origin), {
+      // A preview deployment behind Vercel's login lets the visitor's own
+      // cookie through, and nothing without one.
+      headers: cookie ? { cookie } : undefined,
+      signal:  giveUp.signal,
+    })
+    if (!res.ok) return null
+    const lists = await res.json() as Partial<Record<StoreKind, unknown>>
+
+    const slugs = {} as Slugs
+    for (const kind of STORE_KINDS) {
+      // Anything but the expected lists is no answer at all: an empty set
+      // here would turn every page of that kind into a 404.
+      const list = lists[kind]
+      if (!Array.isArray(list)) return null
+      slugs[kind] = new Set(list as string[])
+    }
+    return slugs
+  } catch {
+    return null
+  } finally {
+    clearTimeout(timer)
+  }
 }
 
 /**

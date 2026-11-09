@@ -88,6 +88,8 @@ test.describe('without JavaScript', () => {
     { path: '/ru/nope',                      lang: 'ru', heading: 'Заблудились в лабиринте.', home: '/ru' },
     { path: '/nope',                         lang: 'en', heading: 'Lost in the maze.',        home: '/' },
     { path: '/ru/services/nope',             lang: 'ru', heading: 'Заблудились в лабиринте.', home: '/ru' },
+    // Only the store knows there is no such project.
+    { path: '/ru/portfolio/no-such-project', lang: 'ru', heading: 'Заблудились в лабиринте.', home: '/ru' },
   ]
 
   for (const { path, lang, heading, home } of MISSING) {
