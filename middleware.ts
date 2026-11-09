@@ -2,7 +2,7 @@ import createMiddleware from 'next-intl/middleware'
 import { routing } from './i18n/routing'
 import { type NextRequest, NextResponse } from 'next/server'
 import { jwtVerify } from 'jose'
-import { NOT_FOUND_SEGMENT, isPublicPage } from './lib/publicRoutes'
+import { NOT_FOUND_HEADER, NOWHERE, isPublicPage } from './lib/publicRoutes'
 
 const intlMiddleware = createMiddleware(routing)
 
@@ -114,7 +114,7 @@ export async function middleware(req: NextRequest) {
   // address it points to comes back through here.
   if (res.status >= 300 && res.status < 400) return addSecurityHeaders(res)
 
-  // ── An address no page claims — answer with the 404 page ───────
+  // ── An address no page claims ───────────────────────────────────
   // With `localePrefix: 'as-needed'` what is left is either a path that
   // starts with a locale or one in the default locale.
   const [first = '', ...rest] = pathSegments(pathname)
@@ -141,24 +141,28 @@ function pathSegments(pathname: string): string[] {
 }
 
 /**
- * The 404 page of the visitor's language, under the address they asked for
- * and with the status that says so. Rewritten to, rather than thrown as
- * `notFound()` by a page, because this way it is rendered on the server
- * (see lib/publicRoutes.ts).
+ * The answer to an address no page claims. The request goes on to a path
+ * where no page lives, so Next answers with app/not-found.tsx and a 404,
+ * rendered on the server, and the mark it carries tells that file to draw
+ * the public 404 screen in the visitor's language. A page that throws
+ * `notFound()` cannot do this: its answer is an empty document that a
+ * script fills in (see lib/publicRoutes.ts).
  */
 function notFound(req: NextRequest, intl: NextResponse, locale: string): NextResponse {
   const url = req.nextUrl.clone()
-  url.pathname = `/${locale}/${NOT_FOUND_SEGMENT}`
+  url.pathname = `/${locale}/${NOWHERE}`
   url.search   = ''
 
-  // What the locale middleware decided still holds: the locale it hands to
-  // the layouts, its cookie. Only where the request goes changes, and the
-  // links to the other language versions go, since there are none.
-  const headers = new Headers(intl.headers)
-  headers.delete('x-middleware-next')
-  headers.delete('link')
+  const headers = new Headers(req.headers)
+  headers.set(NOT_FOUND_HEADER, locale)
+  // The header next-intl's own middleware puts on a request. The root
+  // layout reads it (getLocale) for <html lang>.
+  headers.set('X-NEXT-INTL-LOCALE', locale)
 
-  return NextResponse.rewrite(url, { status: 404, headers })
+  const res = NextResponse.rewrite(url, { request: { headers } })
+  // The locale middleware's cookie still goes out.
+  for (const cookie of intl.cookies.getAll()) res.cookies.set(cookie)
+  return res
 }
 
 export const config = {

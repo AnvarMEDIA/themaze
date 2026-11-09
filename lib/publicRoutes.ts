@@ -9,19 +9,32 @@ import { VALID_CATEGORIES } from './utils'
  * Next 14 answers `notFound()` with an empty document: the error leaves the
  * server render, the status becomes 404, and the body is a shell that a
  * script fills in afterwards. With scripts off that is a blank page. (Next
- * 16 does the same.) A page reached by a rewrite that carries the status is
- * rendered like any other, so middleware.ts answers an address nobody claims
- * itself, with the page in app/(public)/[locale]/page-not-found and a 404.
- * For that it has to know, before anything is rendered, which addresses a
- * page does claim. That is this list.
+ * 16 does the same.) The one 404 Next does render on the server is its own:
+ * app/not-found.tsx, for a request that matches no route at all.
+ *
+ * So middleware.ts turns an address nobody claims into exactly that. It
+ * sends the request on to a path where no page lives, marked with the
+ * visitor's locale, and app/not-found.tsx, seeing the mark, draws the
+ * localized 404 inside the header and the footer. For this the middleware
+ * has to know, before anything is rendered, which addresses a page does
+ * claim. That is this list.
  *
  * It mirrors the folders of app/(public)/[locale]. A page added there and
  * not here answers 404, in development as well, which is hard to miss, and
  * tests/e2e/404.spec.ts compares the two.
  */
 
-/** The folder of the page that is shown for an address nobody claims. */
-export const NOT_FOUND_SEGMENT = 'page-not-found'
+/**
+ * The request header that marks a public address nobody claims. Its value
+ * is the locale to answer in.
+ */
+export const NOT_FOUND_HEADER = 'x-maze-not-found'
+
+/**
+ * A folder under [locale] that must never exist: /<locale>/nowhere is
+ * where such a request is sent, for Next to find nothing there.
+ */
+export const NOWHERE = 'nowhere'
 
 /** A segment only the store can vouch for. Here every value passes, and the page decides. */
 const ANY = Symbol('any')
