@@ -8,6 +8,7 @@ import { cn } from '@/lib/utils'
 import { INSIGHTS_ENABLED } from '@/lib/features'
 import { LangToggle } from '@/components/ui/LangToggle'
 import { ThemeToggle } from '@/components/ui/ThemeToggle'
+import { AuroraFill, auroraStir } from '@/components/ui/AuroraFill'
 
 const EASE_OUT = [0.23, 1, 0.32, 1] as const
 
@@ -134,15 +135,21 @@ export function Navbar({ email, internship = false }: { email: string; internshi
             <ThemeToggle className="hidden sm:grid" />
             <LangToggle />
 
+            {/* The one coloured thing in the header: a gradient that flows
+                (.aurora-btn in globals.css), a little faster under the
+                pointer. */}
             <Link
               href="/contact"
+              data-cursor="light"
+              {...auroraStir}
               className={cn(
-                'hidden lg:inline-flex group/cta items-center gap-2 px-5 py-2.5 rounded-full',
-                'bg-maze-lime text-maze-ink text-sm font-semibold tracking-wide',
-                'hover:bg-maze-paper transition-colors duration-200',
+                'aurora-btn hidden lg:inline-flex group/cta items-center gap-2 px-5 py-2.5 rounded-full',
+                'text-sm font-semibold tracking-wide',
+                'transition-transform duration-150 ease-out',
                 'focus:outline-none focus-visible:ring-2 focus-visible:ring-maze-cream focus-visible:ring-offset-2 focus-visible:ring-offset-maze-black',
               )}
             >
+              <AuroraFill />
               <span>{t('startProject')}</span>
               <svg
                 width="10"
@@ -273,8 +280,10 @@ export function Navbar({ email, internship = false }: { email: string; internshi
               </div>
               <Link
                 href="/contact"
-                className="inline-flex items-center gap-3 px-8 py-4 bg-maze-lime text-maze-ink font-bold rounded-full text-lg hover:bg-maze-paper transition-colors"
+                data-cursor="light"
+                className="aurora-btn inline-flex items-center gap-3 px-8 py-4 font-bold rounded-full text-lg transition-transform duration-150 ease-out"
               >
+                <AuroraFill />
                 {t('startProject')} ↗
               </Link>
             </motion.div>

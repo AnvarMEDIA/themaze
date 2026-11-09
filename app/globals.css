@@ -126,10 +126,13 @@ body {
 }
 
 /* ─── Keyboard focus: visible ring for all interactive elements ──────── */
+/* The outline follows the element's own corners. This rule used to set a
+   2px radius as well, and since it comes after the utilities it won: every
+   pill on the site (the language and theme switches, the header button)
+   turned into a rectangle for as long as it held keyboard focus. */
 :focus-visible {
   outline: 2px solid rgb(var(--lime));
   outline-offset: 2px;
-  border-radius: 2px;
 }
 
 /* Tailwind's sr-only-only helper is enough, but we make sure focus brings it back */
@@ -987,4 +990,153 @@ html.theme-vt::view-transition-old(root),
 html.theme-vt::view-transition-new(root) {
   animation: none;
   mix-blend-mode: normal;
+}
+
+/* ─── "Start a project": a gradient that flows ─────────────────────────────
+   The one coloured thing on a black-and-white site. Its colours are taken
+   from four reference gradients and laid end to end as one strip, which
+   loops, so the button passes through all of them:
+     ember → rose → lavender → sky → azure     (warm light into blue)
+     cyan → teal → green → lime                (blue into green)
+     mint → periwinkle → violet                (the pastel one)
+     berry → crimson → blush rose → ember      (the red one)
+   The darkest tones of the references (black, navy, plum) are lifted and
+   the label is dark: every stop, and every blend between two stops, keeps
+   the label above 5:1, which no single label colour could do if the strip
+   ran from pastel to black.
+
+   Markup: components/ui/AuroraFill.tsx. Only `transform` is animated. */
+.aurora-btn {
+  position: relative;
+  /* Its own stacking context: the fill sits at z -1 inside it, under the
+     label; it also keeps the rounded clip intact while the layers move. */
+  isolation: isolate;
+  overflow: hidden;
+  color: #0a0a0a;
+  /* What shows if the layers ever don't: the first reference's warm-to-blue. */
+  background: linear-gradient(105deg, #fa583a, #ee6e8c 38%, #b79cdc 68%, #6fa8e6);
+}
+
+.aurora {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+}
+
+.aurora__flow,
+.aurora__glow,
+.aurora__grain {
+  position: absolute;
+}
+
+/* The strip. One period is 1260px (fifteen 84px steps); it is one period
+   wider than the button, so sliding it by exactly a period lands on an
+   identical picture and the loop has no seam. The skew leans the bands the
+   way the arrow points; taller than the button so the lean has no gaps. */
+.aurora__flow {
+  --aurora-stops:
+    #fa583a 0%, #ee6e8c 6.667%, #b79cdc 13.333%, #6fa8e6 20%, #3f7eff 26.667%,
+    #12c4f0 33.333%, #17c7a0 40%, #18dc62 46.667%, #84f04e 53.333%,
+    #7fe3c4 60%, #9aa8f0 66.667%, #9a6ef8 73.333%,
+    #dc5890 80%, #e55468 86.667%, #ee7a92 93.333%, #fa583a 100%;
+  top: -50%;
+  left: -80px;
+  width: calc(100% + 160px + 1260px);
+  height: 200%;
+  background-image: linear-gradient(90deg, var(--aurora-stops));
+  background-size: 1260px 100%;
+  /* The strip starts 80px left of the button; this puts its first colour
+     at the button's own edge, which is the picture reduced motion rests on. */
+  background-position: 80px 0;
+  background-repeat: repeat-x;
+  transform: translate3d(-1260px, 0, 0) skewX(-20deg);
+  animation: aurora-flow 40s linear infinite;
+  will-change: transform;
+}
+/* Blending in OKLab keeps the in-between colours as bright as their ends;
+   plain sRGB greys them a little. Behind @supports because the stops are a
+   variable, and a variable would hide a bad value from the usual fallback. */
+@supports (background-image: linear-gradient(90deg in oklab, red, blue)) {
+  .aurora__flow {
+    background-image: linear-gradient(90deg in oklab, var(--aurora-stops));
+  }
+}
+@keyframes aurora-flow {
+  from { transform: translate3d(-1260px, 0, 0) skewX(-20deg); }
+  to   { transform: translate3d(0, 0, 0) skewX(-20deg); }
+}
+
+/* Light drifting the other way: one pool hanging from the top edge, one
+   rising from the bottom. Over the strip it makes the pastels (lavender,
+   mint, blush) and never the same picture twice in a row: 40s against 47s.
+   Each pool ends inside its 580px tile, so the repeat cannot cut one. */
+.aurora__glow {
+  top: 0;
+  left: 0;
+  width: calc(100% + 580px);
+  height: 100%;
+  background-image:
+    radial-gradient(ellipse 150px 95% at 120px -15%, rgb(255 255 255 / 0.55), rgb(255 255 255 / 0) 70%),
+    radial-gradient(ellipse 200px 105% at 400px 115%, rgb(255 255 255 / 0.4), rgb(255 255 255 / 0) 70%);
+  background-size: 580px 100%;
+  background-repeat: repeat-x;
+  animation: aurora-glow 47s linear infinite;
+  will-change: transform;
+}
+@keyframes aurora-glow {
+  from { transform: translate3d(0, 0, 0); }
+  to   { transform: translate3d(-580px, 0, 0); }
+}
+
+/* Film grain, still: the first reference has it, and it keeps a smooth
+   gradient from looking like plastic. */
+.aurora__grain {
+  inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='g'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23g)'/%3E%3C/svg%3E");
+  background-size: 140px 140px;
+  mix-blend-mode: soft-light;
+  opacity: 0.5;
+}
+
+/* A hairline of light along the top and the faintest edge all round, drawn
+   over the fill and under the label: the pill keeps its shape on a light
+   page when a pale stretch of the strip is passing. */
+.aurora-btn::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  border-radius: inherit;
+  pointer-events: none;
+  box-shadow:
+    inset 0 0 0 1px rgb(10 10 10 / 0.07),
+    inset 0 1px 0 rgb(255 255 255 / 0.4);
+}
+
+/* Press. Stated here rather than with a utility class: the site-wide rule
+   that lifts every pill to 1.02 on hover outranks a utility, and without
+   this the button grew under the finger instead of giving. */
+a.aurora-btn:active {
+  transform: scale(0.97);
+}
+
+/* Reduced motion: the gradient stays, the travel goes. It rests on the
+   strip's opening colours. */
+@media (prefers-reduced-motion: reduce) {
+  .aurora__flow,
+  .aurora__glow {
+    animation: none;
+  }
+}
+
+/* Windows high-contrast: an ordinary system button. */
+@media (forced-colors: active) {
+  .aurora { display: none; }
+  .aurora-btn {
+    background: ButtonFace;
+    color: ButtonText;
+    border: 1px solid ButtonText;
+  }
+  .aurora-btn::after { display: none; }
 }

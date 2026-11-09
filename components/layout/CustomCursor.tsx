@@ -3,7 +3,9 @@
 import { useEffect, useRef, useState } from 'react'
 import { usePathname } from '@/i18n/navigation'
 
-type Variant = 'default' | 'hover' | 'view'
+// 'light' is for coloured surfaces (the gradient button): see the dot's
+// blend mode below.
+type Variant = 'default' | 'hover' | 'view' | 'light'
 
 /**
  * Performance-optimised cursor.
@@ -88,12 +90,19 @@ export function CustomCursor() {
   }, [])
 
   // ── Scale: use transform only — GPU-accelerated (Emil's rule) ──────────
-  // Base dot size: 10px. Scale multipliers: default=1, hover=3.6, view=7.2
+  // Base dot size: 10px. Scale multipliers: default=1, hover/light=3.6, view=7.2
+  const grown = variant === 'hover' || variant === 'light'
   const scale =
-    variant === 'view'  ? 7.2 :
-    variant === 'hover' ? 3.6 : 1
+    variant === 'view' ? 7.2 :
+    grown              ? 3.6 : 1
 
-  const blendMode = variant === 'hover' ? 'difference' : 'normal'
+  // Hover inverts what is under the dot, which is crisp on black and white
+  // and a mess on colour: orange turns teal and the label goes with it. On
+  // a coloured surface (data-cursor="light") the same disc lays light over
+  // the colour instead, and dark text under it stays dark.
+  const blendMode =
+    variant === 'hover' ? 'difference' :
+    variant === 'light' ? 'soft-light' : 'normal'
 
   // On portfolio pages we show the native cursor instead.
   if (useNativeCursor) return null
@@ -108,9 +117,10 @@ export function CustomCursor() {
           width:           10,
           height:          10,
           // Resting and "View": the accent (white on dark, black on light).
-          // Hover: white with difference blending, which inverts whatever
-          // is underneath on either theme; black would blend to nothing.
-          backgroundColor: variant === 'hover' ? '#FFFFFF' : 'rgb(var(--lime))',
+          // Grown (hover, light): always white. Difference blending inverts
+          // whatever is underneath on either theme, and black would blend
+          // to nothing; soft-light needs white to lay light at all.
+          backgroundColor: grown ? '#FFFFFF' : 'rgb(var(--lime))',
           mixBlendMode:    blendMode as React.CSSProperties['mixBlendMode'],
           /* Only transform + opacity transitions — Emil's rule */
           transition: `transform 160ms cubic-bezier(0.23,1,0.32,1), opacity 160ms ease`,
