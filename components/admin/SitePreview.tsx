@@ -1,6 +1,6 @@
 'use client'
 
-import { forwardRef, type CSSProperties, type ReactNode } from 'react'
+import { forwardRef, type ReactNode } from 'react'
 
 /**
  * Shared by the admin pages that show a homepage block while it is edited
@@ -11,15 +11,9 @@ import { forwardRef, type CSSProperties, type ReactNode } from 'react'
 export type PreviewLang  = 'ru' | 'en'
 export type PreviewTheme = 'dark' | 'light'
 
-// The site's palette comes from the theme classes in app/globals.css. The
-// admin layout sets its own lime on `.dark`, so the site's white accent is
-// put back here.
-const SITE_DARK_ACCENT = {
-  '--lime':         '255 255 255',
-  '--color-lime':   '#FFFFFF',
-  '--accent-hover': '214 214 214',
-} as CSSProperties
-
+// The box carries the theme's own class, so it takes the site's palette
+// straight from app/globals.css: the admin's dark-and-lime rules name <html>
+// only and do not reach a box that is itself .light or .dark.
 export const SitePreview = forwardRef<HTMLDivElement, {
   theme:      PreviewTheme
   className?: string
@@ -29,7 +23,7 @@ export const SitePreview = forwardRef<HTMLDivElement, {
     <div
       ref={ref}
       className={`${theme} ${className}`}
-      style={{ ...(theme === 'dark' ? SITE_DARK_ACCENT : {}), background: 'rgb(var(--bg))', color: 'rgb(var(--text))' }}
+      style={{ background: 'rgb(var(--bg))', color: 'rgb(var(--text))' }}
     >
       {children}
     </div>

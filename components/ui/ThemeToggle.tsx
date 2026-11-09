@@ -22,8 +22,9 @@ type DocumentWithTransitions = Document & {
   }
 }
 
+// Light is the default: a page whose class has not been set is light.
 function themeNow(): Theme {
-  return document.documentElement.classList.contains('light') ? 'light' : 'dark'
+  return document.documentElement.classList.contains('dark') ? 'dark' : 'light'
 }
 
 function syncThemeColor(theme: Theme) {

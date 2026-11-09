@@ -37,7 +37,7 @@ export default function AdminNumbersPage() {
   const [draft,  setDraft]  = useState<HomeStats>({ stats: [] })
   const [saving, setSaving] = useState(false)
   const [lang,   setLang]   = useState<PreviewLang>('ru')
-  const [theme,  setTheme]  = useState<PreviewTheme>('dark')
+  const [theme,  setTheme]  = useState<PreviewTheme>('light')
   const [mapCountries, setMapCountries] = useState<number | null>(null)
 
   const dirty = saved !== null && !same(saved, draft)

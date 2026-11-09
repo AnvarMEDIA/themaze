@@ -6,43 +6,11 @@
 @import 'react-phone-number-input/style.css';
 
 /* ─── Theme: CSS Custom Properties ──────────────────────────────────── */
-/* Dark (default) — also declared for .dark so next-themes class works  */
+/* Light is the default. Its values sit on :root, so a page is light before
+   any class is set (and with scripts off); they are also declared for
+   .light, which is what next-themes puts on <html> and what the admin's
+   previews put on a box of their own. .dark, below, is the override.      */
 :root,
-.dark {
-  --bg:      8 8 8;
-  --surface: 17 17 17;
-  --gray:    30 30 30;
-  --border:  37 37 37;
-  --text:    237 235 227;
-  --muted:   90 90 90;
-  /* The accent. The site is black and white: this was lime (#C8FF47) and
-     is now white — primary buttons, focus rings, highlights, selection.
-     The name stays so every `maze-lime` class keeps working. The admin
-     keeps its lime: app/admin/layout.tsx sets these back for its pages. */
-  --lime:    255 255 255;
-  /* On an accent-filled element (a white button): black text, and a light
-     grey when it is hovered. */
-  --on-accent:    10 10 10;
-  --accent-hover: 214 214 214;
-  /* Decorative dot grids: light dots on the dark page. */
-  --dot:          255 255 255;
-
-  /* Legacy hex vars (kept for components not yet on CSS vars) */
-  --color-bg:      #080808;
-  --color-surface: #111111;
-  --color-border:  #252525;
-  --color-text:    #EDEBE3;
-  --color-muted:   #5A5A5A;
-  --color-lime:    #FFFFFF;
-
-  /* ─── Emil Kowalski easing curves ──────────────────────────────── */
-  --ease-out:      cubic-bezier(0.23, 1, 0.32, 1);      /* strong ease-out for UI enters */
-  --ease-in-out:   cubic-bezier(0.77, 0, 0.175, 1);     /* on-screen movement */
-  --ease-drawer:   cubic-bezier(0.32, 0.72, 0, 1);      /* iOS-like for drawers */
-  --ease-out-expo: cubic-bezier(0.19, 1, 0.22, 1);      /* legacy alias */
-}
-
-/* Light theme overrides */
 .light {
   --bg:      245 244 240;
   --surface: 236 234 226;
@@ -52,20 +20,57 @@
   /* Darkened from #7A7870 → #706E64 so muted text clears WCAG AA (4.5:1)
      on the light background (was ~3.96:1). */
   --muted:   112 110 100;
-  /* Black and white here too: on a light page the accent is black, and
-     what sits on it is white. */
+  /* The accent. The site is black and white: this was lime (#C8FF47) and
+     is now black on the light page, white on the dark one — primary
+     buttons, focus rings, highlights, selection. The name stays so every
+     `maze-lime` class keeps working. The admin keeps its lime:
+     app/admin/layout.tsx sets these back for its pages. */
   --lime:    10 10 10;
+  /* On an accent-filled element (a black button): white text, and a dark
+     grey when it is hovered. */
   --on-accent:    255 255 255;
   --accent-hover: 51 51 51;
-  /* …and dark dots on the light one. */
+  /* Decorative dot grids: dark dots on the light page. */
   --dot:          10 10 10;
 
+  /* Legacy hex vars (kept for components not yet on CSS vars) */
   --color-bg:      #F5F4F0;
   --color-surface: #ECEAE2;
   --color-border:  #D0CFC7;
   --color-text:    #0A0A0A;
   --color-muted:   #706E64;
   --color-lime:    #0A0A0A;
+}
+
+/* Dark theme overrides */
+.dark {
+  --bg:      8 8 8;
+  --surface: 17 17 17;
+  --gray:    30 30 30;
+  --border:  37 37 37;
+  --text:    237 235 227;
+  --muted:   90 90 90;
+  /* White accent, and what sits on it is black. */
+  --lime:    255 255 255;
+  --on-accent:    10 10 10;
+  --accent-hover: 214 214 214;
+  /* …and light dots on the dark page. */
+  --dot:          255 255 255;
+
+  --color-bg:      #080808;
+  --color-surface: #111111;
+  --color-border:  #252525;
+  --color-text:    #EDEBE3;
+  --color-muted:   #5A5A5A;
+  --color-lime:    #FFFFFF;
+}
+
+/* ─── Emil Kowalski easing curves (the same in both themes) ──────────── */
+:root {
+  --ease-out:      cubic-bezier(0.23, 1, 0.32, 1);      /* strong ease-out for UI enters */
+  --ease-in-out:   cubic-bezier(0.77, 0, 0.175, 1);     /* on-screen movement */
+  --ease-drawer:   cubic-bezier(0.32, 0.72, 0, 1);      /* iOS-like for drawers */
+  --ease-out-expo: cubic-bezier(0.19, 1, 0.22, 1);      /* legacy alias */
 }
 
 /* ─── Base Reset ─────────────────────────────────────────────────────── */
@@ -346,8 +351,10 @@ body {
   transition-duration: 70ms;
 }
 
-/* Light theme overrides for glass */
-.light .glass-lime {
+/* Light theme overrides for glass (light is also what a page without a
+   theme class is, hence the second selector) */
+.light .glass-lime,
+:root:not(.dark) .glass-lime {
   background: rgba(10, 10, 10, 0.08);
   border-color: rgba(10, 10, 10, 0.25);
   box-shadow:
@@ -358,7 +365,8 @@ body {
   color: #0A0A0A;
 }
 
-.light .glass-clear {
+.light .glass-clear,
+:root:not(.dark) .glass-clear {
   background: rgba(0, 0, 0, 0.04);
   border-color: rgba(0, 0, 0, 0.10);
   box-shadow:
@@ -951,34 +959,34 @@ html.lenis, html.lenis body {
 }
 
 /* ─── The logo in the site's ink ───────────────────────────────────────────
-   The file is coloured; the site shows it in one ink: white on the dark
-   theme, black on the light one. It was forced white, which on the light
-   theme made it vanish. */
-.logo-ink { filter: brightness(0) invert(1); }
-.light .logo-ink { filter: brightness(0); }
+   The file is coloured; the site shows it in one ink: black on the light
+   theme (the default), white on the dark one. It was forced white, which
+   on the light theme made it vanish. */
+.logo-ink { filter: brightness(0); }
+.dark .logo-ink { filter: brightness(0) invert(1); }
 
 /* ─── Theme switch ─────────────────────────────────────────────────────────
    Which half is lit is read from the class next-themes puts on <html> before
    the first paint, not from React state: the switch is right in the server
-   HTML and never jumps when the page hydrates. Dark is the default, so
-   "not light" covers a page whose class has not been set. */
+   HTML and never jumps when the page hydrates. Light is the default, so
+   "not dark" covers a page whose class has not been set. */
 .theme-switch-indicator {
-  transform: translateX(100%);
+  transform: translateX(0);
   transition: transform 220ms var(--ease-out);
 }
-.light .theme-switch-indicator { transform: translateX(0); }
+.dark .theme-switch-indicator { transform: translateX(100%); }
 
 .theme-switch [data-theme-option] {
   color: rgb(var(--muted));
   transition: color 150ms ease, transform 150ms var(--ease-out);
 }
-:root:not(.light) .theme-switch [data-theme-option='dark'],
-.light .theme-switch [data-theme-option='light'] {
+:root:not(.dark) .theme-switch [data-theme-option='light'],
+.dark .theme-switch [data-theme-option='dark'] {
   color: rgb(var(--on-accent));
 }
 @media (hover: hover) and (pointer: fine) {
-  :root:not(.light) .theme-switch [data-theme-option='light']:hover,
-  .light .theme-switch [data-theme-option='dark']:hover {
+  :root:not(.dark) .theme-switch [data-theme-option='dark']:hover,
+  .dark .theme-switch [data-theme-option='light']:hover {
     color: rgb(var(--text));
   }
 }

@@ -157,7 +157,10 @@ const baseMetadata: Metadata = {
 export const viewport: Viewport = {
   width: 'device-width',
   initialScale: 1,
-  themeColor: '#080808',
+  // The light page's background: light is the default theme. The theme
+  // switch moves this to the dark one for a visitor who chose dark, and the
+  // admin (always dark) declares its own.
+  themeColor: '#F5F4F0',
 }
 
 /**
@@ -180,7 +183,12 @@ export default async function RootLayout({ children }: { children: React.ReactNo
     <html
       lang={locale}
       suppressHydrationWarning
-      className={`${manrope.variable} ${spaceMono.variable}`}
+      // `light` is the default theme, written here by the server so that
+      // every `.light …` rule already holds in the HTML as it arrives (and
+      // with scripts off). For a visitor who chose dark, next-themes' inline
+      // script swaps the class before the first paint; that swap is why the
+      // hydration warning is suppressed.
+      className={`${manrope.variable} ${spaceMono.variable} light`}
     >
       <body>
         {/* Google Tag Manager (noscript) — must be the first element
@@ -188,7 +196,9 @@ export default async function RootLayout({ children }: { children: React.ReactNo
         <GoogleTagManagerNoScript />
         <ThemeProvider
           attribute="class"
-          defaultTheme="dark"
+          // Light on arrival. A visitor's own choice, made with the switch
+          // in the header, is kept in localStorage and wins over this.
+          defaultTheme="light"
           enableSystem={false}
           disableTransitionOnChange={false}
         >

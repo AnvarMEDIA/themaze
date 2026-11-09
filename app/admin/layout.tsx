@@ -1,4 +1,4 @@
-import type { Metadata } from 'next'
+import type { Metadata, Viewport } from 'next'
 import { Toaster } from 'react-hot-toast'
 import { AdminShell } from '@/components/admin/AdminShell'
 import { KeyboardShortcuts } from '@/components/admin/KeyboardShortcuts'
@@ -14,19 +14,25 @@ export const metadata: Metadata = {
   robots: { index: false, follow: false, nocache: true, googleBot: { index: false, follow: false } },
 }
 
+// The site's default theme is light and so is its browser-chrome colour;
+// the admin is always dark, so it names its own.
+export const viewport: Viewport = {
+  themeColor: '#080808',
+}
+
 export default function AdminRootLayout({ children }: { children: React.ReactNode }) {
   return (
     <>
       {/* The public site went black and white; the admin keeps its lime.
-          Same variables as app/globals.css, set back for these pages only.
-          The admin is dark whatever the visitor chose on the site: the
-          theme switch puts .light on <html> for every page, so that class
-          is answered here with the dark values (and the dark colour scheme,
-          which next-themes otherwise sets inline). A preview box that is
-          itself .light keeps its own light values. */}
+          It is also dark whatever theme the site is in: the site's default
+          is light, and the theme switch puts .light or .dark on <html> for
+          every page, admin included. So all three cases (no class, .light,
+          .dark) are answered here with the dark values, and with the dark
+          colour scheme, which next-themes otherwise sets inline. A preview
+          box that is itself .light or .dark still gets the site's own
+          values from globals.css, because these rules name <html> only. */}
       <style>{`
-        :root, .dark { --lime: 200 255 71; --color-lime: #C8FF47; --accent-hover: 240 238 230; }
-        html.light {
+        :root, html.light, html.dark {
           --bg: 8 8 8; --surface: 17 17 17; --gray: 30 30 30; --border: 37 37 37;
           --text: 237 235 227; --muted: 90 90 90;
           --lime: 200 255 71; --on-accent: 10 10 10; --accent-hover: 240 238 230; --dot: 255 255 255;

@@ -103,7 +103,7 @@ export function WorldMapEditor({ copy }: { copy: Record<PreviewLang, Copy> }) {
   const [draft,   setDraft]   = useState<WorldMapData>({ countries: [] })
   const [saving,  setSaving]  = useState(false)
   const [lang,    setLang]    = useState<PreviewLang>('ru')
-  const [theme,   setTheme]   = useState<PreviewTheme>('dark')
+  const [theme,   setTheme]   = useState<PreviewTheme>('light')
   const [pick,    setPick]    = useState<Pick>(null)
   const [query,   setQuery]   = useState('')
   const [hoverCode, setHoverCode] = useState<string | null>(null)
