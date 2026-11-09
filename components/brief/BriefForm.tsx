@@ -6,6 +6,7 @@ import { Link } from '@/i18n/navigation'
 import toast from 'react-hot-toast'
 import PhoneInput, { isValidPhoneNumber } from 'react-phone-number-input'
 import flags from 'react-phone-number-input/flags'
+import { FormNeedsScript } from '@/components/ui/FormNeedsScript'
 
 /* ── SVG previews for style cards ──────────────────────────────────────── */
 
@@ -256,6 +257,9 @@ export function BriefForm() {
 
   return (
     <div>
+      {/* The steps are a script's doing: without one, say so up front. */}
+      <FormNeedsScript className="mb-10" />
+
       {/* Progress */}
       <div className="mb-10">
         <div className="flex items-center gap-0">

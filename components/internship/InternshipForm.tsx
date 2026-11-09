@@ -8,6 +8,7 @@ import PhoneInput, { isValidPhoneNumber } from 'react-phone-number-input'
 import flags from 'react-phone-number-input/flags'
 import { Link } from '@/i18n/navigation'
 import { cn } from '@/lib/utils'
+import { FormNeedsScript } from '@/components/ui/FormNeedsScript'
 
 const EASE_OUT = [0.23, 1, 0.32, 1] as const
 
@@ -148,6 +149,8 @@ export function InternshipForm() {
           />
         </label>
       </div>
+
+      <FormNeedsScript />
 
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-4 gap-y-5">
         <div>

@@ -1352,5 +1352,8 @@
     "reference": "Reference",
     "retry": "Try again",
     "home": "Home"
+  },
+  "noscript": {
+    "form": "This form is sent with JavaScript, and it is switched off in your browser. Switch it on, or write to us directly: our contacts are at the bottom of the page."
   }
 }

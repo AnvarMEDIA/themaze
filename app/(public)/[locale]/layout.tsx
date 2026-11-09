@@ -11,6 +11,7 @@ import { Analytics }         from '@/components/Analytics'
 import { CookieBanner }      from '@/components/CookieBanner'
 import { PageviewTracker }   from '@/components/PageviewTracker'
 import { SecondaryGoogleTagManager } from '@/components/GoogleTagManager'
+import { NoScriptStyles }    from '@/components/NoScriptStyles'
 import { Toaster }           from 'react-hot-toast'
 import { getSettings }  from '@/lib/settings'
 import { getInternshipSettings } from '@/lib/internshipStore'
@@ -40,6 +41,9 @@ export default async function LocaleLayout({ children, params }: Props) {
 
   return (
     <NextIntlClientProvider messages={messages} locale={locale}>
+      {/* First, so a browser without scripts has these rules before it
+          draws any of the content they are about. */}
+      <NoScriptStyles />
       <JsonLd id="ld-organization"   data={organizationJsonLd(settings)} />
       <JsonLd id="ld-localbusiness"  data={localBusinessJsonLd(settings)} />
       <JsonLd id="ld-website"        data={websiteJsonLd()} />

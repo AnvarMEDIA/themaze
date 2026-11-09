@@ -8,6 +8,29 @@ import { motion, useInView, AnimatePresence, useReducedMotion } from 'framer-mot
 // Strong ease-out curve (Emil Kowalski)
 const EASE_OUT = [0.23, 1, 0.32, 1] as const
 
+/** What a row opens to show: the service in a sentence, and its tags. */
+function ServiceDetails({ description, tags }: { description: string; tags: string[] }) {
+  return (
+    <>
+      <p className="body-lg text-maze-muted mt-3 max-w-xl">
+        {description}
+      </p>
+      {tags.length > 0 && (
+        <div className="flex flex-wrap gap-2 mt-4 pb-1">
+          {tags.map((tag) => (
+            <span
+              key={tag}
+              className="label-sm px-3 py-1 border border-maze-border rounded-full text-maze-muted"
+            >
+              {tag}
+            </span>
+          ))}
+        </div>
+      )}
+    </>
+  )
+}
+
 export function ServicesSection() {
   const t            = useTranslations('services')
   // Names come from the service pages, so this list and those pages can't
@@ -110,24 +133,17 @@ export function ServicesSection() {
                           }}
                           className="overflow-hidden"
                         >
-                          <p className="body-lg text-maze-muted mt-3 max-w-xl">
-                            {service.description}
-                          </p>
-                          {service.tags.length > 0 && (
-                            <div className="flex flex-wrap gap-2 mt-4 pb-1">
-                              {service.tags.map((tag) => (
-                                <span
-                                  key={tag}
-                                  className="label-sm px-3 py-1 border border-maze-border rounded-full text-maze-muted"
-                                >
-                                  {tag}
-                                </span>
-                              ))}
-                            </div>
-                          )}
+                          <ServiceDetails description={service.description} tags={service.tags} />
                         </motion.div>
                       )}
                     </AnimatePresence>
+
+                    {/* The row opens on hover and on focus, and that takes
+                        a script: the description is not in the page until
+                        then. Without scripts it is simply part of the list. */}
+                    <noscript>
+                      <ServiceDetails description={service.description} tags={service.tags} />
+                    </noscript>
                   </div>
                 </div>
 

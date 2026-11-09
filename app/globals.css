@@ -116,7 +116,9 @@ body {
        - admin panel (no .noise wrapper) keeps the native cursor;
        - portfolio pages opt out via `native-cursor` on <html>, so the
          :not() makes the rule stop matching and standard browser
-         behaviour resumes (links propagate pointer to children, etc.). */
+         behaviour resumes (links propagate pointer to children, etc.).
+     Where no script runs there is no custom cursor to take its place:
+     components/NoScriptStyles gives the native one back. */
   html:not(.native-cursor) .noise * { cursor: none !important; }
 
   /* Browsers don't set `pointer` on <button> by default — add it (and
@@ -686,7 +688,9 @@ html.lenis, html.lenis body {
    Every land dot comes from one cached SVG used as a mask, so the dots take
    the theme's colour. The countries worked for are drawn over it, one SVG
    each, breathing; cities pulse. Only opacity and transform animate, and
-   everything stops while the section is off screen (data-paused). */
+   everything stops while the section is off screen (data-paused).
+   The map waits at opacity 0 for data-in, which a script sets; without
+   scripts components/NoScriptStyles shows it as it stands. */
 
 /* The heading on one line at every width: the .display-md size, or less
    wherever that would wrap. --fit is set by the section from the heading's

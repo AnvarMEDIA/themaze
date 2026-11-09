@@ -6,6 +6,7 @@ import toast from 'react-hot-toast'
 import PhoneInput, { isValidPhoneNumber } from 'react-phone-number-input'
 import flags from 'react-phone-number-input/flags'
 import { SERVICE_SLUGS, isServiceSlug } from '@/lib/services'
+import { FormNeedsScript } from '@/components/ui/FormNeedsScript'
 
 /**
  * @param initialService  a service slug from `/contact?service=<slug>` — the
@@ -116,6 +117,8 @@ export function ContactForm({ initialService }: { initialService?: string }) {
           />
         </label>
       </div>
+
+      <FormNeedsScript />
 
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <div>

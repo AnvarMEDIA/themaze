@@ -109,9 +109,13 @@ export function CustomCursor() {
 
   return (
     <>
-      {/* Dot — 10px base, scales via CSS transform */}
+      {/* Dot — 10px base, scales via CSS transform.
+          data-custom-cursor (here and on the ring) is what the no-script
+          styles hide: only a script ever moves these two out of the corner
+          (components/NoScriptStyles). */}
       <div
         ref={dotRef}
+        data-custom-cursor=""
         className="fixed top-0 left-0 pointer-events-none z-[9999] rounded-full will-change-transform"
         style={{
           width:           10,
@@ -143,6 +147,7 @@ export function CustomCursor() {
       {/* Ring — trails behind, fades on hover */}
       <div
         ref={ringRef}
+        data-custom-cursor=""
         className="fixed top-0 left-0 pointer-events-none z-[9998] rounded-full border border-[#444] will-change-transform"
         style={{
           width:   36,

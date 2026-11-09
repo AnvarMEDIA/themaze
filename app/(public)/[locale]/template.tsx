@@ -7,6 +7,10 @@ import { motion, useReducedMotion } from 'framer-motion'
 // deliberately fast and subtle — smoothness over spectacle. A `template`
 // (not `layout`) re-mounts on every navigation, giving each page a clean
 // enter animation without a fragile exit-animation router hack.
+//
+// The server sends this wrapper, and so the whole page, at opacity 0 for a
+// script to animate in. Where no script runs, components/NoScriptStyles
+// shows it.
 const EASE_OUT = [0.23, 1, 0.32, 1] as const
 
 export default function Template({ children }: { children: React.ReactNode }) {
