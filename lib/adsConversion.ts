@@ -1,24 +1,38 @@
 import { readConsent } from '@/lib/consent'
 
 /**
- * The Google Ads conversion "Контакт": a client has written to the studio.
+ * The Google Ads conversion "Контакт": someone has got in touch with the studio.
  *
- * Google hands this over as an "event snippet", meant to be pasted into the
- * thank-you page that follows a conversion:
+ * Google hands this over as an "event snippet" in two variants, with the same
+ * `send_to`:
  *
- *   gtag('event', 'conversion', { send_to: 'AW-…/…' })
+ *   page load: gtag('event', 'conversion', { send_to: 'AW-…/…' }), for the
+ *     thank-you page that follows a conversion. This site has none (the forms
+ *     answer in place), and in the <head> it would count every page view as a
+ *     lead.
+ *   click: the same call inside gtag_report_conversion(url), for a chosen link
+ *     or button.
  *
- * Run on every page load it would count every visit as a lead, and this site
- * has no thank-you page: the forms answer in place, with a toast or a success
- * screen. So the call is made here, at the moment a form has really been
- * accepted by the server, from the two forms a client writes through
- * (components/contact/ContactForm and components/brief/BriefForm). The
- * internship application is a job application, not a lead, and does not call
- * it.
+ * Both are this one call, made at the moments that really are a contact:
+ *   - a form the server has accepted: components/contact/ContactForm and
+ *     components/brief/BriefForm. It is counted when the server says yes, not
+ *     when the button is clicked, so an empty or refused submission is not a
+ *     lead;
+ *   - a click on the studio's e-mail, phone or Telegram link:
+ *     components/ContactClickTracker.
+ * Not counted: the internship application (a job application, not a client)
+ * and the "Начать проект" buttons (a step towards a form, not yet a contact).
  *
- * The Google tag that picks it up is the one in components/GoogleTagManager
- * (SecondaryGoogleTagManager), which shares this `dataLayer`. The hosts it
- * reports to are in the CSP in next.config.js.
+ * What Google's click snippet does besides the call is left out on purpose:
+ * its `event_callback` navigates to the link once Google has answered, and its
+ * `return false` stops the link until then. With an ad blocker the answer
+ * never comes and the link would stay dead. Nothing here needs it anyway: an
+ * e-mail or phone link hands over to an app, and Telegram opens in a new tab,
+ * so no click leaves the page.
+ *
+ * The Google tag that picks the call up is the one in
+ * components/GoogleTagManager (SecondaryGoogleTagManager), which shares this
+ * `dataLayer`. The hosts it reports to are in the CSP in next.config.js.
  */
 export const ADS_CONVERSION_CONTACT = 'AW-18565782280/oeosCKWmzbUdEIi27ZRF'
 
@@ -37,9 +51,8 @@ function gtag(..._args: unknown[]): void {
 }
 
 /**
- * Report one "Контакт" conversion. Call it only after the server has accepted
- * the form; it decides for itself whether this is a visit that may be
- * counted.
+ * Report one "Контакт" conversion. Call it at the moment of the contact (see
+ * above); it decides for itself whether this is a visit that may be counted.
  */
 export function reportContactConversion(): void {
   if (typeof window === 'undefined') return

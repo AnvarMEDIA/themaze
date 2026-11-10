@@ -10,6 +10,7 @@ import { JsonLd }            from '@/components/JsonLd'
 import { Analytics }         from '@/components/Analytics'
 import { CookieBanner }      from '@/components/CookieBanner'
 import { PageviewTracker }   from '@/components/PageviewTracker'
+import { ContactClickTracker } from '@/components/ContactClickTracker'
 import { SecondaryGoogleTagManager } from '@/components/GoogleTagManager'
 import { NoScriptStyles }    from '@/components/NoScriptStyles'
 import { Toaster }           from 'react-hot-toast'
@@ -64,6 +65,7 @@ export default async function LocaleLayout({ children, params }: Props) {
       <CookieBanner />
       <Analytics />
       <PageviewTracker />
+      <ContactClickTracker />
       <SecondaryGoogleTagManager />
       <Toaster
         position="bottom-right"

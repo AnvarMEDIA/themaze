@@ -2,8 +2,9 @@ import { test, expect, type Page } from '@playwright/test'
 
 /**
  * The Google Ads conversion "Контакт" (lib/adsConversion.ts): reported when a
- * client's form has really been accepted by the server, for a visitor who
- * accepted the cookie banner, and at no other time.
+ * client's form has really been accepted by the server, or when the studio's
+ * e-mail, phone or Telegram link is clicked, for a visitor who accepted the
+ * cookie banner, and at no other time.
  *
  * It needs a production build (`next start`, which playwright.config.ts
  * boots): the call is skipped under `next dev` on purpose.
@@ -40,6 +41,17 @@ function conversions(page: Page) {
       .filter(([command, name]) => command === 'event' && name === 'conversion')
       .map(([, , params]) => params)
   })
+}
+
+/**
+ * Let the page settle, then keep clicks on e-mail, phone and external links
+ * from leaving it. The report is made before the browser acts on the click
+ * (the tracker listens first, this listener is added after it), and a test
+ * has nowhere to go: no mail client, no Telegram.
+ */
+async function readyToClick(page: Page) {
+  await page.waitForLoadState('networkidle')
+  await page.evaluate(() => document.addEventListener('click', (event) => event.preventDefault(), true))
 }
 
 async function fillContactForm(page: Page) {
@@ -100,6 +112,40 @@ test.describe('Google Ads conversion', () => {
     await page.getByRole('button', { name: /send/i }).click()
 
     await expect(page.getByText(/message sent/i)).toBeVisible()
+    expect(await conversions(page)).toEqual([])
+  })
+
+  test('a click on the e-mail, phone or Telegram link is a contact', async ({ page }) => {
+    await visitor(page, 'accepted')
+    await page.goto('/contact')
+    await readyToClick(page)
+
+    for (const link of ['mailto:', 'tel:', 'https://t.me/']) {
+      await page.locator(`main a[href^="${link}"]`).first().click()
+    }
+
+    expect(await conversions(page)).toEqual([{ send_to: SEND_TO }, { send_to: SEND_TO }, { send_to: SEND_TO }])
+  })
+
+  test('a click on any other link is not', async ({ page }) => {
+    await visitor(page, 'accepted')
+    await page.goto('/contact')
+    await readyToClick(page)
+
+    // Social profiles and the address are not a way to write to the studio.
+    await page.locator('footer a[href*="instagram.com"]').first().click()
+    await page.locator('footer a[href="/portfolio"]').first().click()
+
+    expect(await conversions(page)).toEqual([])
+  })
+
+  test('a visitor who rejected the cookie banner is not reported for a click either', async ({ page }) => {
+    await visitor(page, 'rejected')
+    await page.goto('/contact')
+    await readyToClick(page)
+
+    await page.locator('main a[href^="mailto:"]').first().click()
+
     expect(await conversions(page)).toEqual([])
   })
 
