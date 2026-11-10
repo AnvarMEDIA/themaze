@@ -1,4 +1,5 @@
 import { test, expect } from '@playwright/test'
+import { blockTrackers } from './trackers'
 
 test.describe('Contact form', () => {
   test('rejects submission when required fields are empty', async ({ page }) => {
@@ -10,6 +11,9 @@ test.describe('Contact form', () => {
   })
 
   test('submits successfully with valid data (network stubbed)', async ({ page }) => {
+    // A sent form is reported to Google Tag Manager as a lead: keep the test
+    // run from counting as one.
+    await blockTrackers(page)
     // Stub the inquiries endpoint so the test doesn't write to the DB.
     await page.route('**/api/inquiries', (route) =>
       route.fulfill({ status: 201, contentType: 'application/json', body: JSON.stringify({ ok: true }) }),

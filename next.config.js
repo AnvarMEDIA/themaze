@@ -28,20 +28,24 @@ const GA_ENDPOINTS = [
   // Regional collectors: region1.google-analytics.com and friends.
   'https://*.google-analytics.com',
   'https://*.analytics.google.com',
+  // The bare host, which the line above does not match: a wildcard covers
+  // subdomains only. The Google tag sends here for a visitor who has not
+  // accepted cookies.
+  'https://analytics.google.com',
 ]
 
 /**
- * Google Ads: the conversion "Контакт" (lib/adsConversion.ts).
+ * Google Ads: the conversion "Контакт" (lib/leadEvent.ts, lib/adsConversion.ts).
  *
  * The Google tag reports a conversion with requests to Google's ad servers,
  * and a CSP that does not name them refuses every one without a word, the
  * way it once refused the container itself (see above): the tag runs, the
  * form is sent, and the Ads conversion never shows a single event.
  *
- * These are the hosts the tag calls to report a conversion (the pings go out
- * as images or as beacons, hence both img-src and connect-src). If a new one
- * turns up, the console on a page that has just sent a form says
- * "Refused to …" and names it; it belongs here.
+ * These are the hosts the tag calls (the pings go out as images or as
+ * beacons, hence both img-src and connect-src). If a new one turns up, the
+ * console on a page that has just sent a form says "Refused to …" and names
+ * it; it belongs here.
  */
 const GOOGLE_ADS = [
   'https://www.googleadservices.com',
@@ -49,6 +53,13 @@ const GOOGLE_ADS = [
   // googleads.g.doubleclick.net, stats.g.doubleclick.net
   'https://*.g.doubleclick.net',
   'https://pagead2.googlesyndication.com',
+  // Not under g.doubleclick.net, so not covered by the line above.
+  'https://ad.doubleclick.net',
+  // Google's own domain for a visitor in Uzbekistan. Every country has one
+  // (google.ru, google.kz, …) and a CSP cannot wildcard the ending of a
+  // domain, so a visitor from another country is refused until theirs is
+  // listed here as well.
+  'https://www.google.co.uz',
 ]
 
 const scriptSrc = [

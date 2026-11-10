@@ -1,27 +1,24 @@
-import { readConsent } from '@/lib/consent'
+import { dataLayer } from '@/lib/dataLayer'
 
 /**
- * The Google Ads conversion "Контакт": someone has got in touch with the studio.
+ * The Google Ads conversion "Контакт", reported straight to the Google tag,
+ * for a click on the studio's e-mail, phone or Telegram link
+ * (components/ContactClickTracker).
  *
- * Google hands this over as an "event snippet" in two variants, with the same
- * `send_to`:
+ * Google hands this conversion over as an "event snippet", in a page-load
+ * and a click variant, with the same `send_to`:
  *
- *   page load: gtag('event', 'conversion', { send_to: 'AW-…/…' }), for the
- *     thank-you page that follows a conversion. This site has none (the forms
- *     answer in place), and in the <head> it would count every page view as a
- *     lead.
- *   click: the same call inside gtag_report_conversion(url), for a chosen link
- *     or button.
+ *   gtag('event', 'conversion', { send_to: 'AW-…/…' })
  *
- * Both are this one call, made at the moments that really are a contact:
- *   - a form the server has accepted: components/contact/ContactForm and
- *     components/brief/BriefForm. It is counted when the server says yes, not
- *     when the button is clicked, so an empty or refused submission is not a
- *     lead;
- *   - a click on the studio's e-mail, phone or Telegram link:
- *     components/ContactClickTracker.
- * Not counted: the internship application (a job application, not a client)
- * and the "Начать проект" buttons (a step towards a form, not yet a contact).
+ * The page-load variant is for a thank-you page, which this site has not (the
+ * forms answer in place), and in the <head> it would count every page view as
+ * a lead. A form is reported another way: lib/leadEvent.ts pushes
+ * `generate_lead` and a tag in the GTM container does the counting, so a form
+ * is not also reported from here, which would count it twice.
+ *
+ * A click has no such tag in the container, so it is reported from here.
+ * Not counted: the "Начать проект" buttons (a step towards a form, not yet a
+ * contact) and the internship application.
  *
  * What Google's click snippet does besides the call is left out on purpose:
  * its `event_callback` navigates to the link once Google has answered, and its
@@ -36,40 +33,32 @@ import { readConsent } from '@/lib/consent'
  */
 export const ADS_CONVERSION_CONTACT = 'AW-18565782280/oeosCKWmzbUdEIi27ZRF'
 
-type WithDataLayer = Window & { dataLayer?: unknown[] }
-
 /**
  * Google's own `gtag()`, as its snippet defines it. The tag tells a command
  * from plain data by the pushed value being an `arguments` object, not an
  * array, which is why this is not a one-line `dataLayer.push([...])`.
  */
 function gtag(..._args: unknown[]): void {
-  const w = window as WithDataLayer
-  w.dataLayer = w.dataLayer || []
   // eslint-disable-next-line prefer-rest-params
-  w.dataLayer.push(arguments)
+  dataLayer().push(arguments)
 }
 
 /**
- * Report one "Контакт" conversion. Call it at the moment of the contact (see
- * above); it decides for itself whether this is a visit that may be counted.
+ * Report one "Контакт" conversion for a click on a way to reach the studio.
+ *
+ * Whether the visitor accepted the cookie banner is not decided here, as in
+ * lib/leadEvent.ts: the container's Consent Mode decides what the tag may do.
  */
 export function reportContactConversion(): void {
   if (typeof window === 'undefined') return
 
-  // Not from `next dev`: someone trying the form on their own machine is
-  // not a lead, and Google would count it as one.
+  // Not from `next dev`: someone clicking around on their own machine is
+  // not a contact, and Google would count it as one.
   if (process.env.NODE_ENV !== 'production') return
-
-  // Only for a visitor who accepted the cookie banner, as with the analytics
-  // (components/Analytics): the cookie policy says analytics cookies are set
-  // "with your consent", and the banner is the only place that choice is
-  // known; nothing passes it on to the tag.
-  if (readConsent() !== 'accepted') return
 
   try {
     gtag('event', 'conversion', { send_to: ADS_CONVERSION_CONTACT })
   } catch {
-    // A form that has just been sent must never fail because of the tracking.
+    // A click must never fail because of the tracking.
   }
 }

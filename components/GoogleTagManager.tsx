@@ -50,8 +50,9 @@ export const GTM_ID_SECONDARY = 'GTM-M8PSRKT5'
  * next.config.js; a host it needs beyond Google's own has to be added there.
  *
  * The Google Ads conversion for this account ("Контакт") is not sent from
- * here but from the forms, when one is accepted, and from clicks on the
- * contact links: lib/adsConversion.ts.
+ * here. A form that the server has accepted pushes `generate_lead` to the
+ * data layer for a tag in this container to count (lib/leadEvent.ts); a click
+ * on a contact link calls the Google tag directly (lib/adsConversion.ts).
  */
 export function SecondaryGoogleTagManager() {
   return (
