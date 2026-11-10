@@ -48,6 +48,9 @@ export const GTM_ID_SECONDARY = 'GTM-M8PSRKT5'
  *
  * Anything this container's tags call is also subject to the CSP in
  * next.config.js; a host it needs beyond Google's own has to be added there.
+ *
+ * The Google Ads conversion for this account ("Контакт") is not sent from
+ * here but from the forms, when one is accepted: lib/adsConversion.ts.
  */
 export function SecondaryGoogleTagManager() {
   return (

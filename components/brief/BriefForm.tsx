@@ -7,6 +7,7 @@ import toast from 'react-hot-toast'
 import PhoneInput, { isValidPhoneNumber } from 'react-phone-number-input'
 import flags from 'react-phone-number-input/flags'
 import { FormNeedsScript } from '@/components/ui/FormNeedsScript'
+import { reportContactConversion } from '@/lib/adsConversion'
 
 /* ── SVG previews for style cards ──────────────────────────────────────── */
 
@@ -200,6 +201,8 @@ export function BriefForm() {
       })
       if (res.status === 429) { toast.error(t('tooMany')); return }
       if (!res.ok) throw new Error()
+      // As in the contact form: a filled honeypot is accepted and dropped.
+      if (!form.hp.trim()) reportContactConversion()
       setSubmitted(true)
     } catch {
       toast.error(t('error'))

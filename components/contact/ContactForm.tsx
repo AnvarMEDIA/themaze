@@ -7,6 +7,7 @@ import PhoneInput, { isValidPhoneNumber } from 'react-phone-number-input'
 import flags from 'react-phone-number-input/flags'
 import { SERVICE_SLUGS, isServiceSlug } from '@/lib/services'
 import { FormNeedsScript } from '@/components/ui/FormNeedsScript'
+import { reportContactConversion } from '@/lib/adsConversion'
 
 /**
  * @param initialService  a service slug from `/contact?service=<slug>` — the
@@ -86,6 +87,9 @@ export function ContactForm({ initialService }: { initialService?: string }) {
         return
       }
       if (!res.ok) throw new Error()
+      // The server answers 201 to a filled honeypot too, and drops it: that
+      // is a bot, and not a contact to report to Google Ads.
+      if (!form.website.trim()) reportContactConversion()
       toast.success(t('success'), { duration: 5000 })
       setForm({ name: '', email: '', phone: '', company: '', service: '', budget: '', message: '', website: '' })
     } catch {

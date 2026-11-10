@@ -30,6 +30,27 @@ const GA_ENDPOINTS = [
   'https://*.analytics.google.com',
 ]
 
+/**
+ * Google Ads: the conversion "Контакт" (lib/adsConversion.ts).
+ *
+ * The Google tag reports a conversion with requests to Google's ad servers,
+ * and a CSP that does not name them refuses every one without a word, the
+ * way it once refused the container itself (see above): the tag runs, the
+ * form is sent, and the Ads conversion never shows a single event.
+ *
+ * These are the hosts the tag calls to report a conversion (the pings go out
+ * as images or as beacons, hence both img-src and connect-src). If a new one
+ * turns up, the console on a page that has just sent a form says
+ * "Refused to …" and names it; it belongs here.
+ */
+const GOOGLE_ADS = [
+  'https://www.googleadservices.com',
+  'https://www.google.com',
+  // googleads.g.doubleclick.net, stats.g.doubleclick.net
+  'https://*.g.doubleclick.net',
+  'https://pagead2.googlesyndication.com',
+]
+
 const scriptSrc = [
   "'self'",
   "'unsafe-inline'",
@@ -41,15 +62,18 @@ const scriptSrc = [
   'https://yastatic.net',
   GTM,
   'https://www.google-analytics.com',
+  // The Ads side of the Google tag can fetch its own helper scripts.
+  'https://www.googleadservices.com',
+  'https://googleads.g.doubleclick.net',
 ].join(' ')
 
 const CSP = [
   "default-src 'self'",
   `script-src ${scriptSrc}`,
   "style-src 'self' 'unsafe-inline'",
-  `img-src 'self' data: blob: https://*.vercel-storage.com https://images.unsplash.com https://mc.yandex.ru https://mc.yandex.com https://yastatic.net ${GTM} https://www.google-analytics.com`,
+  `img-src 'self' data: blob: https://*.vercel-storage.com https://images.unsplash.com https://mc.yandex.ru https://mc.yandex.com https://yastatic.net ${GTM} https://www.google-analytics.com ${GOOGLE_ADS.join(' ')}`,
   "font-src 'self'",
-  `connect-src 'self' https://vitals.vercel-insights.com https://va.vercel-scripts.com https://mc.yandex.ru https://mc.yandex.com https://yastatic.net ${GTM} ${GA_ENDPOINTS.join(' ')}`,
+  `connect-src 'self' https://vitals.vercel-insights.com https://va.vercel-scripts.com https://mc.yandex.ru https://mc.yandex.com https://yastatic.net ${GTM} ${GA_ENDPOINTS.join(' ')} ${GOOGLE_ADS.join(' ')}`,
   // Yandex Metrika injects a hidden iframe for cross-domain ID sync; GTM's
   // <noscript> fallback is an iframe on ns.html.
   `frame-src 'self' https://mc.yandex.ru https://mc.yandex.com ${GTM}`,
