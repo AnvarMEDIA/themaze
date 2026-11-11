@@ -1,5 +1,6 @@
 import { test, expect } from '@playwright/test'
-import { readFileSync } from 'fs'
+import { existsSync, readdirSync, readFileSync } from 'fs'
+import path from 'path'
 import { inflateSync } from 'zlib'
 import { SignJWT } from 'jose'
 
@@ -55,6 +56,32 @@ function toUnicodeMaps(pdf: Buffer): string[] {
   }
   return maps
 }
+
+/** Every file under a folder, relative to the project. */
+function filesUnder(dir: string): string[] {
+  return readdirSync(dir, { withFileTypes: true }).flatMap((e) =>
+    e.isDirectory() ? filesUnder(path.join(dir, e.name)) : [path.join(dir, e.name)])
+}
+
+test.describe('The PDF function, as packed for Vercel', () => {
+  // On Vercel a function holds only the files its trace lists. react-pdf
+  // loads some by a name worked out at run time, which the tracer cannot
+  // see; they are listed in next.config.js, and missing, every PDF failed
+  // with "Cannot find module …/pdfkit/js/standard-fonts/Helvetica.cjs".
+  test('carries the files react-pdf loads at run time', () => {
+    const dir = path.join('.next', 'server', 'app', 'api', 'brief', '[id]', 'pdf')
+    const trace = path.join(dir, 'route.js.nft.json')
+    test.skip(!existsSync(trace), 'no local build to look at')
+
+    const packed = new Set((JSON.parse(readFileSync(trace, 'utf8')) as { files: string[] }).files
+      .map((f) => path.relative(process.cwd(), path.resolve(dir, f))))
+    const needed = [
+      ...['Regular', 'SemiBold', 'ExtraBold'].map((w) => path.join('assets', 'fonts', `Manrope-${w}.ttf`)),
+      ...filesUnder(path.join('node_modules', 'pdfkit', 'js', 'standard-fonts')),
+    ]
+    expect(needed.filter((f) => !packed.has(f))).toEqual([])
+  })
+})
 
 test.describe('Brief admin without a session', () => {
   test('every route refuses', async ({ request }) => {

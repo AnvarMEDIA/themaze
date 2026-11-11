@@ -109,11 +109,16 @@ const nextConfig = {
   experimental: {
     optimizePackageImports: ['lucide-react', 'framer-motion'],
     // The brief PDF (app/api/brief/[id]/pdf) is laid out by react-pdf, left
-    // to Node rather than bundled, with the Manrope files it embeds for
-    // Cyrillic: read from disk at run time, so they are traced in by hand.
+    // to Node rather than bundled. Files it loads by a name worked out at
+    // run time are invisible to the tracer that packs the function, so they
+    // are listed by hand: the Manrope files it embeds for Cyrillic, and the
+    // metrics of the PDF standard fonts, which pdfkit loads through an
+    // internal alias (#standard-fonts/…) as react-pdf starts up. Missing on
+    // Vercel, they made every PDF fail with "Cannot find module". A test
+    // (tests/e2e/brief-admin.spec.ts) checks the packed list.
     serverComponentsExternalPackages: ['@react-pdf/renderer'],
     outputFileTracingIncludes: {
-      '/api/brief/[id]/pdf': ['./assets/fonts/**/*'],
+      '/api/brief/[id]/pdf': ['./assets/fonts/**/*', './node_modules/pdfkit/js/standard-fonts/**/*'],
     },
   },
   async headers() {
