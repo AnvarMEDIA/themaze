@@ -1,4 +1,4 @@
-import { briefServices, escapeHtml } from './notify'
+import { briefServices, briefWords, escapeHtml } from './notify'
 import {
   aiViews, dayStats, getAnalytics, previousDay, topPages, SITE_TZ,
   type AnalyticsData,
@@ -151,6 +151,8 @@ export interface DigestInput {
   briefs: Brief[] | null
   /** The internship intake; null when the store could not be read. */
   internship: InternshipDigest | null
+  /** How the briefs' service ids read (the admin's words); the alerts' defaults when absent. */
+  serviceWords?: Record<string, string>
 }
 
 async function readInternship(): Promise<InternshipDigest> {
@@ -170,13 +172,14 @@ export async function collectDigest(date: string): Promise<DigestInput> {
     console.error(`[daily-digest] could not read ${what} —`, err)
     return null
   }
-  const [analytics, inquiries, briefs, internship] = await Promise.all([
+  const [analytics, inquiries, briefs, internship, words] = await Promise.all([
     getAnalytics(),
     getInquiries(),
     getBriefs().catch(unreadable('the briefs')),
     readInternship().catch(unreadable('the internship applications')),
+    briefWords(),
   ])
-  return { date, analytics, inquiries, briefs, internship }
+  return { date, analytics, inquiries, briefs, internship, serviceWords: words.services }
 }
 
 /**
@@ -192,7 +195,7 @@ export async function collectDigest(date: string): Promise<DigestInput> {
  * So a quiet day now says it is quiet, in one line, and anything that looks
  * like a fault says so too.
  */
-export function buildDigest({ date, analytics, inquiries, briefs, internship }: DigestInput): string {
+export function buildDigest({ date, analytics, inquiries, briefs, internship, serviceWords }: DigestInput): string {
   const today = dayStats(analytics, date)
   const yest = dayStats(analytics, previousDay(date))
 
@@ -291,7 +294,7 @@ export function buildDigest({ date, analytics, inquiries, briefs, internship }: 
     L.push(`📋 Брифов: <b>${briefsToday.length}</b>${trend(briefsToday.length, briefsYesterday)}`)
     for (const b of briefsToday.slice(0, 8)) {
       const who = escapeHtml(b.name || b.email || '—')
-      const what = [briefServices(b.services), b.budget].filter(Boolean).map((s) => escapeHtml(s as string)).join(' · ')
+      const what = [briefServices(b.services, serviceWords), b.budget].filter(Boolean).map((s) => escapeHtml(s as string)).join(' · ')
       L.push(`   • ${who}${what ? ` — ${what}` : ''}`)
     }
     if (briefsToday.length > 8) L.push(`   …и ещё ${briefsToday.length - 8}`)

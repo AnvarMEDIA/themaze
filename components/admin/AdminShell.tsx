@@ -11,12 +11,10 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
   // Close the mobile drawer whenever the route changes.
   useEffect(() => { setNavOpen(false) }, [pathname])
 
-  // Full-bleed (no sidebar) on standalone gate screens and on the printable
-  // brief sheet, which is its own A4 document.
+  // Full-bleed (no sidebar) on standalone gate screens.
   const isFullBleed =
     pathname === '/admin/login' ||
-    pathname === '/admin/finance/unlock' ||
-    /^\/admin\/briefs\/[^/]+\/print$/.test(pathname)
+    pathname === '/admin/finance/unlock'
   if (isFullBleed) return <>{children}</>
 
   return (

@@ -108,6 +108,13 @@ const nextConfig = {
   },
   experimental: {
     optimizePackageImports: ['lucide-react', 'framer-motion'],
+    // The brief PDF (app/api/brief/[id]/pdf) is laid out by react-pdf, left
+    // to Node rather than bundled, with the Manrope files it embeds for
+    // Cyrillic: read from disk at run time, so they are traced in by hand.
+    serverComponentsExternalPackages: ['@react-pdf/renderer'],
+    outputFileTracingIncludes: {
+      '/api/brief/[id]/pdf': ['./assets/fonts/**/*'],
+    },
   },
   async headers() {
     return [
@@ -128,6 +135,10 @@ const nextConfig = {
       // and a URL under /admin should stay ours to reuse.
       { source: '/admin/finance/mfc', destination: '/admin/mfc', permanent: false },
       { source: '/admin/finance/mfc/:path*', destination: '/admin/mfc/:path*', permanent: false },
+      // The brief's print-to-PDF page gave way to a real PDF file; a link to
+      // the old page (a bookmark, an old message) gets the file, its ?lang
+      // carried along.
+      { source: '/admin/briefs/:id/print', destination: '/api/brief/:id/pdf', permanent: false },
     ]
   },
 }

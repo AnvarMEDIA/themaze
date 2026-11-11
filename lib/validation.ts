@@ -1,6 +1,7 @@
 import { z } from 'zod'
 import { STAT_IDS } from './homeStats'
 import { INTERN_STATUSES } from './internship'
+import { BRIEF_LIMITS, STYLE_IDS, TEXT_KEYS, isOptionalText } from './briefTexts'
 
 /* ── Shared primitives ───────────────────────────────────────────────────── */
 
@@ -227,13 +228,14 @@ export const BriefSchema = z.object({
                  .optional().default(''),
   company:     safeString(100).optional().default(''),
   website:     safeString(300).optional().default(''),
-  services:    z.array(safeString(100)).max(10).optional().default([]),
+  // Up to the editor's limits (lib/briefTexts BRIEF_LIMITS): options can be added.
+  services:    z.array(safeString(100)).max(20).optional().default([]),
   description: safeString(5000).min(1, 'Description is required'),
   goals:       safeString(2000).optional().default(''),
   audience:    safeString(1000).optional().default(''),
   competitors: safeString(1000).optional().default(''),
   styles:      z.array(safeString(50)).max(8).optional().default([]),
-  colors:      z.array(safeString(50)).max(6).optional().default([]),
+  colors:      z.array(safeString(50)).max(12).optional().default([]),
   refLinks:    safeString(2000).optional().default(''),
   timeline:    safeString(100).optional().default(''),
   budget:      safeString(50).optional().default(''),
@@ -243,6 +245,59 @@ export const BriefSchema = z.object({
   hp:          z.string().max(500).optional().default(''),
 })
 export type BriefInput = z.infer<typeof BriefSchema>
+
+/* ── Brief form content (the admin's editor, lib/briefContent) ───────────── */
+
+// Braces are message syntax to next-intl, which reads these texts: a stray
+// "{" in a question would break the form instead of showing up in it.
+const briefText = (max: number) =>
+  z.string().trim().max(max, `Max ${max} characters`)
+    .refine((s) => !/[{}]/.test(s), 'Curly braces { } are not allowed')
+
+const briefLoc  = (max: number) => z.object({ ru: briefText(max), en: briefText(max) })
+const filledLoc = (max: number) =>
+  briefLoc(max).refine((l) => l.ru !== '' && l.en !== '', 'Fill in both languages')
+
+const optionId = z.string().regex(/^[a-z0-9][a-z0-9-]{0,39}$/, 'Invalid option id')
+const uniqueIds = (items: Array<{ id: string }>) => new Set(items.map((i) => i.id)).size === items.length
+const someShown = (items: Array<{ hidden?: boolean }>) => items.some((i) => !i.hidden)
+
+export const BriefContentSchema = z.object({
+  texts: z.record(z.string(), briefLoc(BRIEF_LIMITS.text)).superRefine((texts, ctx) => {
+    for (const key of Object.keys(texts)) {
+      if (!TEXT_KEYS.includes(key)) ctx.addIssue({ code: 'custom', message: `Unknown text "${key}"`, path: [key] })
+      else if (!isOptionalText(key) && (texts[key].ru === '' || texts[key].en === '')) {
+        ctx.addIssue({ code: 'custom', message: 'Fill in both languages', path: [key] })
+      }
+    }
+  }),
+  services: z.array(z.object({
+    id: optionId, label: filledLoc(BRIEF_LIMITS.optionLabel), hidden: z.boolean().optional(),
+  })).min(1).max(BRIEF_LIMITS.services)
+    .refine(uniqueIds, 'Two services share an id')
+    .refine(someShown, 'Show at least one service'),
+  styles: z.array(z.object({
+    id: z.enum(STYLE_IDS),
+    label: filledLoc(BRIEF_LIMITS.optionLabel),
+    desc: briefLoc(BRIEF_LIMITS.optionDesc),
+    hidden: z.boolean().optional(),
+  })).max(STYLE_IDS.length)
+    .refine(uniqueIds, 'Two styles share an id')
+    .refine(someShown, 'Show at least one style'),
+  palettes: z.array(z.object({
+    id: optionId,
+    label: filledLoc(BRIEF_LIMITS.optionLabel),
+    desc: briefLoc(BRIEF_LIMITS.optionDesc),
+    swatches: z.array(z.string().regex(/^#[0-9a-fA-F]{6}$/, 'A colour is #RRGGBB')).min(1).max(BRIEF_LIMITS.swatches),
+    hidden: z.boolean().optional(),
+  })).min(1).max(BRIEF_LIMITS.palettes)
+    .refine(uniqueIds, 'Two palettes share an id')
+    .refine(someShown, 'Show at least one palette'),
+  timelines: z.array(z.object({ id: optionId, label: filledLoc(BRIEF_LIMITS.timelineLabel) }))
+    .min(1).max(BRIEF_LIMITS.choices).refine(uniqueIds, 'Two timelines share an id'),
+  budgets: z.array(z.object({ id: optionId, label: filledLoc(BRIEF_LIMITS.budgetLabel) }))
+    .min(1).max(BRIEF_LIMITS.choices).refine(uniqueIds, 'Two budgets share an id'),
+})
 
 /* ── Internship application ──────────────────────────────────────────────── */
 

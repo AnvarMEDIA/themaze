@@ -1,44 +1,25 @@
 'use client'
 
+import Link from 'next/link'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import toast from 'react-hot-toast'
 import type { Brief } from '@/lib/briefs'
 import { formatSiteTime } from '@/lib/siteTime'
 
 type FilterKey = 'all' | 'unread' | 'read'
+type PdfLang = 'ru' | 'en'
 
-const STYLE_LABELS: Record<string, string> = {
-  bold:     'Bold & Powerful',
-  minimal:  'Minimal & Clean',
-  playful:  'Playful & Friendly',
-  classic:  'Classic & Timeless',
-  tech:     'Technical & Modern',
-  luxury:   'Luxurious & Premium',
-  organic:  'Organic & Natural',
-  abstract: 'Abstract & Expressive',
+/**
+ * How a sent brief's option ids read: the form's current wording, from the
+ * editor (/admin/briefs/form), so a renamed or added service shows here as
+ * it does on the site. Until it arrives, or if it cannot, an id stands in.
+ */
+interface OptionLabels {
+  services: Record<string, string>
+  styles:   Record<string, string>
+  palettes: Record<string, { label: string; swatches: string[] }>
 }
-
-const COLOR_PALETTES: Record<string, { label: string; swatches: string[] }> = {
-  dark:    { label: 'Dark & Moody',       swatches: ['#0a0a0a', '#2a2a2a', '#4a4a4a'] },
-  light:   { label: 'Light & Clean',      swatches: ['#ffffff', '#f5f0e8', '#e8e4dc'] },
-  vibrant: { label: 'Vibrant & Electric', swatches: ['#ff3b5c', '#ff8c00', '#ffdc00'] },
-  earthy:  { label: 'Earthy & Warm',      swatches: ['#c0522b', '#8b4513', '#d4a96a'] },
-  natural: { label: 'Natural & Green',    swatches: ['#2d5a27', '#7daa6e', '#c5d9b0'] },
-  mono:    { label: 'Monochrome',         swatches: ['#000000', '#888888', '#ffffff'] },
-}
-
-const SERVICE_LABELS: Record<string, string> = {
-  branding:   'Branding',
-  rebranding: 'Rebranding',
-  identity:   'Visual Identity',
-  naming:     'Naming',
-  packaging:  'Packaging',
-  'ui-ux':    'UI / UX Design',
-  print:      'Print & Packaging',
-  motion:     'Motion Design',
-  strategy:   'Brand Strategy',
-  unsure:     'Not sure yet',
-}
+const NO_LABELS: OptionLabels = { services: {}, styles: {}, palettes: {} }
 
 // On the studio's clock, wherever the admin is opened (lib/siteTime).
 function fmt(iso: string) {
@@ -54,18 +35,28 @@ export default function BriefsPage() {
   const [selected, setSelected] = useState<Brief | null>(null)
   const [filter,   setFilter]   = useState<FilterKey>('all')
   const [query,    setQuery]    = useState('')
+  const [labels,   setLabels]   = useState<OptionLabels>(NO_LABELS)
 
   const load = useCallback(async () => {
+    // The labels come with the list, so the list never shows bare ids first.
+    const labelsReq = fetch('/api/brief-content', { cache: 'no-store' })
+      .then((res) => (res.ok ? res.json() : null))
+      .then((data: { labels?: { en?: OptionLabels } } | null) => { if (data?.labels?.en) setLabels(data.labels.en) })
+      .catch(() => {})
     try {
       const res = await fetch('/api/brief', { cache: 'no-store' })
       if (!res.ok) throw new Error()
-      setItems(await res.json())
+      const list: Brief[] = await res.json()
+      await labelsReq
+      setItems(list)
     } catch {
       toast.error('Failed to load briefs')
     } finally {
       setLoading(false)
     }
   }, [])
+
+  const service = (id: string) => labels.services[id] ?? id
 
   useEffect(() => { load() }, [load])
 
@@ -111,12 +102,22 @@ export default function BriefsPage() {
       <div className="w-[380px] flex-shrink-0 border-r border-[#1E1E1E] flex flex-col overflow-hidden">
         <div className="px-5 py-4 border-b border-[#1E1E1E] flex-shrink-0 space-y-3">
           <div className="flex items-center justify-between">
-            <h1 className="text-sm font-semibold text-white">Briefs</h1>
-            {unread > 0 && (
-              <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-[#C8FF47]/15 text-[#C8FF47]">
-                {unread} new
-              </span>
-            )}
+            <div className="flex items-center gap-2">
+              <h1 className="text-sm font-semibold text-white">Briefs</h1>
+              {unread > 0 && (
+                <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-[#C8FF47]/15 text-[#C8FF47]">
+                  {unread} new
+                </span>
+              )}
+            </div>
+            <Link
+              href="/admin/briefs/form"
+              className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md border border-[#252525] text-[11px] font-medium text-[#888] hover:border-[#333] hover:text-white transition-[border-color,color,transform] duration-150 ease-out active:scale-[0.97]"
+              title="Edit the brief form's questions and options, in Russian and English"
+            >
+              <IconEdit />
+              Edit form
+            </Link>
           </div>
 
           <div className="relative">
@@ -179,9 +180,7 @@ export default function BriefsPage() {
             </div>
           ) : (
             filtered.map((item) => {
-              const primary = item.services[0]
-                ? (SERVICE_LABELS[item.services[0]] ?? item.services[0])
-                : item.description.slice(0, 60)
+              const primary = item.services[0] ? service(item.services[0]) : item.description.slice(0, 60)
               return (
                 <button
                   key={item.id}
@@ -228,16 +227,7 @@ export default function BriefsPage() {
                 <p className="text-xs text-[#555] mt-1">{fmt(selected.createdAt)}</p>
               </div>
               <div className="flex items-center gap-2 flex-shrink-0">
-                <a
-                  href={`/admin/briefs/${selected.id}/print`}
-                  target="_blank"
-                  rel="noopener"
-                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#C8FF47] text-[#0A0A0A] text-xs font-bold hover:bg-[#F0EEE6] transition-colors active:scale-[0.97]"
-                  title="Open a printable A4 sheet and save it as PDF"
-                >
-                  <IconPdf />
-                  PDF
-                </a>
+                <PdfDownload id={selected.id} />
                 <button
                   onClick={() => remove(selected.id)}
                   className="px-3 py-1.5 rounded-lg border border-[#2A2A2A] text-xs text-[#555] hover:border-red-500/50 hover:text-red-400 transition-colors"
@@ -272,7 +262,7 @@ export default function BriefsPage() {
                   <div className="flex flex-wrap gap-1.5">
                     {selected.services.map((s) => (
                       <span key={s} className="text-[11px] px-2.5 py-1 rounded-full bg-[#1A1A1A] border border-[#252525] text-[#ccc]">
-                        {SERVICE_LABELS[s] ?? s}
+                        {service(s)}
                       </span>
                     ))}
                   </div>
@@ -293,7 +283,7 @@ export default function BriefsPage() {
                     <div className="flex flex-wrap gap-1.5">
                       {selected.styles.map((s) => (
                         <span key={s} className="text-[11px] px-2.5 py-1 rounded-full bg-[#C8FF47]/10 border border-[#C8FF47]/30 text-[#C8FF47]">
-                          {STYLE_LABELS[s] ?? s}
+                          {labels.styles[s] ?? s}
                         </span>
                       ))}
                     </div>
@@ -304,7 +294,7 @@ export default function BriefsPage() {
                     <Label>Colour mood</Label>
                     <div className="space-y-2">
                       {selected.colors.map((c) => {
-                        const palette = COLOR_PALETTES[c]
+                        const palette = labels.palettes[c]
                         return (
                           <div key={c} className="flex items-center gap-3">
                             <div className="flex gap-1">
@@ -344,7 +334,7 @@ export default function BriefsPage() {
               <div className="pt-6 flex gap-2">
                 {selected.email && (
                   <a
-                    href={`mailto:${selected.email}?subject=Re: ${selected.services[0] ? (SERVICE_LABELS[selected.services[0]] ?? 'Your brief') : 'Your brief'}`}
+                    href={`mailto:${selected.email}?subject=${encodeURIComponent(`Re: ${selected.services[0] ? service(selected.services[0]) : 'Your brief'}`)}`}
                     className="inline-flex items-center gap-2 px-5 py-2.5 bg-[#C8FF47] text-[#0A0A0A] font-bold text-sm rounded-lg hover:bg-[#d4ff5c] transition-colors"
                   >
                     Reply by email ↗
@@ -404,6 +394,115 @@ function LongField({ label, value, mono = false }: { label: string; value?: stri
         {value}
       </p>
     </div>
+  )
+}
+
+/* ── PDF ───────────────────────────────────────────────────────────────── */
+
+const PDF_LANG_KEY = 'maze-admin-brief-pdf-lang'
+
+/** "Бриф — Name — 2026-11-12.pdf" from the response, as the server named it. */
+function fileNameFrom(disposition: string | null): string | null {
+  if (!disposition) return null
+  const utf8 = /filename\*=UTF-8''([^;]+)/i.exec(disposition)
+  if (utf8) {
+    try { return decodeURIComponent(utf8[1]) } catch { /* fall through */ }
+  }
+  return /filename="([^"]+)"/i.exec(disposition)?.[1] ?? null
+}
+
+/**
+ * The brief as a real PDF file (app/api/brief/[id]/pdf), in the language
+ * picked beside the button; the choice is remembered on this device.
+ * Fetched rather than linked, so a failure is a message here, not a page of
+ * JSON in a new tab, and the button can say it is working: the first PDF
+ * after a quiet spell takes a second or two.
+ */
+function PdfDownload({ id }: { id: string }) {
+  // Read on the first render: this shows only once a brief is picked, never
+  // in the server's HTML, so there is nothing for it to disagree with.
+  const [lang, setLang] = useState<PdfLang>(() => {
+    try { return localStorage.getItem(PDF_LANG_KEY) === 'en' ? 'en' : 'ru' } catch { return 'ru' }
+  })
+  const [busy, setBusy] = useState(false)
+
+  const pick = (next: PdfLang) => {
+    setLang(next)
+    try { localStorage.setItem(PDF_LANG_KEY, next) } catch { /* not remembered */ }
+  }
+
+  const download = async () => {
+    if (busy) return
+    setBusy(true)
+    try {
+      const res = await fetch(`/api/brief/${encodeURIComponent(id)}/pdf?lang=${lang}`, { cache: 'no-store' })
+      if (!res.ok) {
+        const data = await res.json().catch(() => null) as { error?: string } | null
+        throw new Error(data?.error || 'Could not make the PDF')
+      }
+      const blob = await res.blob()
+      const url = URL.createObjectURL(blob)
+      const a = document.createElement('a')
+      a.href = url
+      a.download = fileNameFrom(res.headers.get('Content-Disposition')) ?? `brief-${id}.pdf`
+      document.body.appendChild(a)
+      a.click()
+      a.remove()
+      // Long enough for the browser to start saving it.
+      setTimeout(() => URL.revokeObjectURL(url), 30_000)
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : 'Could not make the PDF')
+    } finally {
+      setBusy(false)
+    }
+  }
+
+  return (
+    <div className="flex items-center gap-1.5">
+      <div role="group" aria-label="PDF language" className="inline-flex p-0.5 rounded-lg border border-[#252525] bg-[#0D0D0D]">
+        {(['ru', 'en'] as const).map((l) => (
+          <button
+            key={l}
+            type="button"
+            onClick={() => pick(l)}
+            aria-pressed={lang === l}
+            className={`px-2 py-1 rounded-md text-[10px] font-bold tracking-[0.08em] transition-[background-color,color,transform] duration-150 ease-out active:scale-[0.97] ${
+              lang === l ? 'bg-[#1E1E1E] text-white' : 'text-[#555] hover:text-white'
+            }`}
+          >
+            {l.toUpperCase()}
+          </button>
+        ))}
+      </div>
+      <button
+        type="button"
+        onClick={download}
+        disabled={busy}
+        aria-busy={busy}
+        className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#C8FF47] text-[#0A0A0A] text-xs font-bold hover:bg-[#F0EEE6] transition-[background-color,transform,opacity] duration-150 ease-out active:scale-[0.97] disabled:opacity-70 disabled:cursor-wait"
+        title={lang === 'ru' ? 'Download the brief as a PDF, in Russian' : 'Download the brief as a PDF, in English'}
+      >
+        {busy ? <IconSpinner /> : <IconPdf />}
+        PDF
+      </button>
+    </div>
+  )
+}
+
+function IconSpinner() {
+  return (
+    <svg width="12" height="12" viewBox="0 0 16 16" fill="none" aria-hidden="true" className="animate-spin motion-reduce:animate-none">
+      <circle cx="8" cy="8" r="6" stroke="currentColor" strokeOpacity="0.25" strokeWidth="1.8" />
+      <path d="M14 8a6 6 0 00-6-6" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
+    </svg>
+  )
+}
+
+function IconEdit() {
+  return (
+    <svg width="11" height="11" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+      <path d="M10.5 2.5l3 3L6 13H3v-3l7.5-7.5z" stroke="currentColor" strokeWidth="1.5" strokeLinejoin="round" />
+    </svg>
   )
 }
 

@@ -1,4 +1,5 @@
 import { readStore, updateStore } from './store'
+import { briefLabels, getBriefContent } from './briefContent'
 import { displayUrl, telegramUsername } from './internship'
 
 /**
@@ -233,7 +234,35 @@ const resolveList = (ids: string[] | undefined, labels: Record<string, string>) 
   (ids ?? []).map((id) => labels[id] ?? id).filter(Boolean).join(', ')
 
 /** A brief's service ids as the alert words them ("Branding, Naming"), for the daily report too. */
-export const briefServices = (ids: string[] | undefined): string => resolveList(ids, SERVICE_LABELS)
+export const briefServices = (ids: string[] | undefined, labels: Record<string, string> = SERVICE_LABELS): string =>
+  resolveList(ids, { ...SERVICE_LABELS, ...labels })
+
+/**
+ * How the alert words a brief's options. The words are the admin's
+ * (lib/briefContent), in English as the alerts always had them; the maps
+ * above are what is left when they cannot be read.
+ */
+export interface BriefWords {
+  services: Record<string, string>
+  styles:   Record<string, string>
+  colors:   Record<string, string>
+}
+
+const DEFAULT_WORDS: BriefWords = { services: SERVICE_LABELS, styles: STYLE_LABELS, colors: COLOR_LABELS }
+
+export async function briefWords(): Promise<BriefWords> {
+  try {
+    const labels = briefLabels(await getBriefContent(), 'en')
+    return {
+      services: { ...SERVICE_LABELS, ...labels.services },
+      styles:   { ...STYLE_LABELS, ...labels.styles },
+      colors:   { ...COLOR_LABELS, ...Object.fromEntries(Object.entries(labels.palettes).map(([id, p]) => [id, p.label])) },
+    }
+  } catch (err) {
+    console.warn('[notify] brief words unavailable, using the defaults', err)
+    return DEFAULT_WORDS
+  }
+}
 
 export interface BriefLike {
   name: string
@@ -255,7 +284,7 @@ export interface BriefLike {
   notes?: string
 }
 
-export function formatBrief(b: BriefLike, siteUrl: string): string {
+export function formatBrief(b: BriefLike, siteUrl: string, words: BriefWords = DEFAULT_WORDS): string {
   const e = escapeHtml
   const out: string[] = ['📋 <b>Новый бриф с сайта</b>', '']
 
@@ -265,15 +294,15 @@ export function formatBrief(b: BriefLike, siteUrl: string): string {
   if (b.website?.trim()) out.push(`🌐 ${e(b.website)}`)
 
   out.push('', '📦 <b>Проект</b>')
-  const services = resolveList(b.services, SERVICE_LABELS)
+  const services = resolveList(b.services, words.services)
   if (services) out.push(`Услуги: ${e(services)}`)
   out.push(e(truncate(b.description, 1500)))
   if (b.goals?.trim())       out.push('', `<b>Цели:</b> ${e(truncate(b.goals, 500))}`)
   if (b.audience?.trim())    out.push(`<b>Аудитория:</b> ${e(truncate(b.audience, 400))}`)
   if (b.competitors?.trim()) out.push(`<b>Конкуренты:</b> ${e(truncate(b.competitors, 400))}`)
 
-  const styles = resolveList(b.styles, STYLE_LABELS)
-  const colors = resolveList(b.colors, COLOR_LABELS)
+  const styles = resolveList(b.styles, words.styles)
+  const colors = resolveList(b.colors, words.colors)
   if (styles || colors || b.refLinks?.trim()) {
     out.push('', '🎨 <b>Визуальное направление</b>')
     if (styles) out.push(`Стилистика: ${e(styles)}`)
@@ -297,7 +326,7 @@ export function formatBrief(b: BriefLike, siteUrl: string): string {
 /** Notify about a new brief. Never throws. */
 export async function notifyNewBrief(b: BriefLike, siteUrl: string): Promise<NotifyResult> {
   try {
-    return await sendTelegram(formatBrief(b, siteUrl))
+    return await sendTelegram(formatBrief(b, siteUrl, await briefWords()))
   } catch (err) {
     console.error('[notify] unexpected failure', err)
     return { ok: false, configured: telegramConfigured(), error: 'unexpected' }

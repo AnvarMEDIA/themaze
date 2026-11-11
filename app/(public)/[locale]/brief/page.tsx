@@ -2,6 +2,8 @@ import type { Metadata } from 'next'
 import { setRequestLocale, getTranslations } from 'next-intl/server'
 import { routing } from '@/i18n/routing'
 import { BriefForm } from '@/components/brief/BriefForm'
+import { BriefMessages } from '@/components/brief/BriefMessages'
+import { getBriefContent, localizeBrief } from '@/lib/briefContent'
 import { JsonLd } from '@/components/JsonLd'
 import { breadcrumbJsonLd, homeCrumb } from '@/lib/jsonLd'
 import { pageMeta, SITE_URL } from '@/lib/seo'
@@ -9,6 +11,10 @@ import { pageMeta, SITE_URL } from '@/lib/seo'
 interface Props {
   params: { locale: string }
 }
+
+// The questions are the admin's (/admin/briefs/form): a save revalidates
+// this page at once, and this is the backstop if that ever misses.
+export const revalidate = 600
 
 export function generateStaticParams() {
   return routing.locales.map((locale) => ({ locale }))
@@ -27,13 +33,13 @@ export async function generateMetadata({ params: { locale } }: Props): Promise<M
 
 export default async function BriefPage({ params: { locale } }: Props) {
   setRequestLocale(locale)
-  const t = await getTranslations({ locale, namespace: 'brief' })
+  const brief = localizeBrief(await getBriefContent(), locale === 'ru' ? 'ru' : 'en')
   const homeLabel = locale === 'ru' ? 'Главная' : locale === 'uz' ? 'Bosh sahifa' : 'Home'
 
   const crumbs = breadcrumbJsonLd([
     homeCrumb(locale, homeLabel),
     {
-      name: t('label'),
+      name: brief.label,
       url:  `${SITE_URL}${locale === 'en' ? '' : '/' + locale}/brief`,
     },
   ])
@@ -48,9 +54,9 @@ export default async function BriefPage({ params: { locale } }: Props) {
       <section className="pt-28 pb-12 px-6 md:px-10 border-b border-maze-border">
         <div className="max-w-3xl lg:max-w-6xl mx-auto">
           <div className="max-w-3xl">
-            <p className="label-sm text-maze-lime mb-5">{t('label')}</p>
-            <h1 className="display-md text-maze-cream mb-4">{t('heading')}</h1>
-            <p className="body-lg text-maze-muted max-w-lg">{t('sub')}</p>
+            <p className="label-sm text-maze-lime mb-5">{brief.label}</p>
+            <h1 className="display-md text-maze-cream mb-4">{brief.heading}</h1>
+            {brief.sub && <p className="body-lg text-maze-muted max-w-lg">{brief.sub}</p>}
           </div>
         </div>
       </section>
@@ -58,7 +64,9 @@ export default async function BriefPage({ params: { locale } }: Props) {
       {/* Form */}
       <section className="py-16 px-6 md:px-10">
         <div className="max-w-3xl lg:max-w-6xl mx-auto">
-          <BriefForm />
+          <BriefMessages brief={brief}>
+            <BriefForm />
+          </BriefMessages>
         </div>
       </section>
     </div>
