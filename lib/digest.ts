@@ -10,6 +10,7 @@ import type { Inquiry } from './inquiries'
 import { getApplications, getInternshipSettings } from './internshipStore'
 import type { InternApplication } from './internship'
 import { pluralRu } from './utils'
+import { CHANNEL_LABELS, peakHour, type Channel } from './stats/model'
 import { readStore, updateStore } from './store'
 
 /* ── run log ────────────────────────────────────────────────────────────── */
@@ -106,6 +107,16 @@ const pct = (part: number, whole: number): number =>
 // A number in a sentence takes its noun's form: "22 просмотра", not
 // "22 просмотров". (After a label and a colon, "Просмотров: 22", the plural
 // genitive is right for any number, so the lines that read that way keep it.)
+/** «Реклама 900 · Прямые заходы 300 · Поиск 20»: the biggest first, escaped for Telegram HTML. */
+function countsLine(map: Record<string, number> | undefined, limit: number, label: (key: string) => string = (k) => k): string {
+  return Object.entries(map ?? {})
+    .filter(([, n]) => n > 0)
+    .sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0]))
+    .slice(0, limit)
+    .map(([key, n]) => `${escapeHtml(label(key))} ${n}`)
+    .join(' · ')
+}
+
 const visitorsWord = (n: number) => pluralRu(n, 'посетитель', 'посетителя', 'посетителей')
 const viewsWord = (n: number) => pluralRu(n, 'просмотр', 'просмотра', 'просмотров')
 
@@ -153,6 +164,8 @@ export interface DigestInput {
   internship: InternshipDigest | null
   /** How the briefs' service ids read (the admin's words); the alerts' defaults when absent. */
   serviceWords?: Record<string, string>
+  /** Why the visit numbers could not be read, when they could not (lib/stats). */
+  analyticsError?: string
 }
 
 async function readInternship(): Promise<InternshipDigest> {
@@ -172,14 +185,21 @@ export async function collectDigest(date: string): Promise<DigestInput> {
     console.error(`[daily-digest] could not read ${what} —`, err)
     return null
   }
+  let analyticsError: string | undefined
   const [analytics, inquiries, briefs, internship, words] = await Promise.all([
-    getAnalytics(),
+    // The visit numbers are one part of the report: without them it still
+    // goes out, with the requests in it, and says what could not be read.
+    getAnalytics().catch((err: unknown): AnalyticsData => {
+      console.error('[daily-digest] could not read the statistics —', err)
+      analyticsError = err instanceof Error ? err.message : String(err)
+      return { daily: {}, days: {} }
+    }),
     getInquiries(),
     getBriefs().catch(unreadable('the briefs')),
     readInternship().catch(unreadable('the internship applications')),
     briefWords(),
   ])
-  return { date, analytics, inquiries, briefs, internship, serviceWords: words.services }
+  return { date, analytics, inquiries, briefs, internship, serviceWords: words.services, analyticsError }
 }
 
 /**
@@ -195,7 +215,7 @@ export async function collectDigest(date: string): Promise<DigestInput> {
  * So a quiet day now says it is quiet, in one line, and anything that looks
  * like a fault says so too.
  */
-export function buildDigest({ date, analytics, inquiries, briefs, internship, serviceWords }: DigestInput): string {
+export function buildDigest({ date, analytics, inquiries, briefs, internship, serviceWords, analyticsError }: DigestInput): string {
   const today = dayStats(analytics, date)
   const yest = dayStats(analytics, previousDay(date))
 
@@ -231,7 +251,7 @@ export function buildDigest({ date, analytics, inquiries, briefs, internship, se
 
   // A day with nothing on it. Said plainly and briefly, because the message
   // still has to arrive — its absence is what left us guessing before.
-  if (views === 0 && leads.length === 0 && briefsToday.length === 0 && appsToday.length === 0) {
+  if (!analyticsError && views === 0 && leads.length === 0 && briefsToday.length === 0 && appsToday.length === 0) {
     L.push('Тихий день: ни просмотров, ни заявок.')
     const recorded = Object.keys(analytics.days ?? {}).length
     const recentViews = [0, 1, 2, 3].reduce(
@@ -249,7 +269,9 @@ export function buildDigest({ date, analytics, inquiries, briefs, internship, se
   }
 
   /* ── the two numbers the day is judged by ──────────────────────────── */
-  if (!unmeasured) {
+  if (analyticsError) {
+    L.push(`👥 Посетители и просмотры: <i>не удалось прочитать статистику (${escapeHtml(analyticsError.slice(0, 160))})</i>`)
+  } else if (!unmeasured) {
     L.push(`👥 Посетителей: <b>${today.visitors}</b>${trend(today.visitors, yest.visitors)}`)
     if (today.visitors > 0) {
       L.push(`   из них новых: <b>${today.newVisitors}</b> (${pct(today.newVisitors, today.visitors)}%)`)
@@ -264,7 +286,7 @@ export function buildDigest({ date, analytics, inquiries, briefs, internship, se
       ? `👥 Посетителей: <i>за этот день не считались — счётчик работает с ${escapeHtml(readableDate(since).replace(/^[^,]+, /, ''))}</i>`
       : '👥 Посетителей: <i>счётчик ещё не собрал данных</i>')
   }
-  L.push(`👁 Просмотров: <b>${views}</b>${trend(views, yest.views || viewsFromPaths(analytics, previousDay(date)))}`)
+  if (!analyticsError) L.push(`👁 Просмотров: <b>${views}</b>${trend(views, yest.views || viewsFromPaths(analytics, previousDay(date)))}`)
   if (today.visitors > 0) {
     L.push(`   страниц на посетителя: ${(views / today.visitors).toFixed(1)}`)
   }
@@ -332,22 +354,28 @@ export function buildDigest({ date, analytics, inquiries, briefs, internship, se
     for (const p of pages) L.push(`   ${p.views} · ${escapeHtml(p.path)}`)
   }
 
-  const sources = Object.entries(today.sources).sort((a, b) => b[1] - a[1]).slice(0, 5)
-  const referred = Object.values(today.sources).reduce((s, n) => s + n, 0)
+  // Where the day's views came from (lib/stats/model): the channel, the
+  // source within it, and any utm campaign. An ad click is "Реклама · Google
+  // Ads" whether it brought utm tags or only Google's own click marker; before
+  // 12 November the second kind was counted as a direct visit.
   if (!unmeasured && today.views > 0) {
-    L.push('')
-    L.push('<b>Откуда пришли</b>')
-    const direct = Math.max(today.views - referred, 0)
-    if (direct > 0) L.push(`   ${direct} · напрямую и закладки`)
-    for (const [host, n] of sources) L.push(`   ${n} · ${escapeHtml(host)}`)
-    const ai = aiViews(today)
-    if (ai > 0) L.push(`   в том числе из ИИ-ассистентов: ${ai}`)
+    const channels = countsLine(today.channels, 5, (k) => CHANNEL_LABELS[k as Channel] ?? k)
+    const sources = countsLine(today.sources, 5)
+    const campaigns = countsLine(today.campaigns, 3)
+    if (channels || sources || campaigns) L.push('')
+    if (channels) L.push(`🚪 Каналы: ${channels}`)
+    if (sources) L.push(`🔗 Источники: ${sources}`)
+    if (campaigns) L.push(`📣 Кампании: ${campaigns}`)
   }
 
   const devices = today.mobile + today.desktop
+  const peak = peakHour(today.hours ?? [])
+  if (devices > 0 || peak) L.push('')
   if (devices > 0) {
-    L.push('')
     L.push(`📱 Телефон ${pct(today.mobile, devices)}% · 💻 компьютер ${pct(today.desktop, devices)}%`)
+  }
+  if (peak) {
+    L.push(`🕒 Пик: ${String(peak.hour).padStart(2, '0')}:00 — ${peak.views} ${viewsWord(peak.views)}`)
   }
 
   /* ── context, so today's number means something ────────────────────── */

@@ -170,3 +170,35 @@ test.describe('Daily report', () => {
       .toBe('<b>Неделя целиком:</b> 35 посетителей, 35 просмотров, 0 заявок.')
   })
 })
+
+test.describe('Daily report: where the views came from', () => {
+  test('channels, sources, campaigns and the busiest hour, from the site\'s own counters', () => {
+    const input = busyDay()
+    const days = input.analytics.days!
+    days[DAY] = {
+      ...days[DAY],
+      channels: { ads: 60, direct: 30, search: 5 },
+      sources: { 'Google Ads': 60, 'Прямые заходы': 30, Google: 5 },
+      campaigns: { 'google / cpc / stands': 12 },
+      hours: Array.from({ length: 24 }, (_, h) => (h === 15 ? 40 : 1)),
+    }
+    const report = lines(input)
+    expect(report).toContain('🚪 Каналы: Реклама 60 · Прямые заходы 30 · Поиск 5')
+    expect(report).toContain('🔗 Источники: Google Ads 60 · Прямые заходы 30 · Google 5')
+    expect(report).toContain('📣 Кампании: google / cpc / stands 12')
+    expect(report).toContain('🕒 Пик: 15:00 — 40 просмотров')
+  })
+
+  test('a source from a referrer is escaped for Telegram', () => {
+    const input = busyDay()
+    input.analytics.days![DAY] = { ...input.analytics.days![DAY], channels: { referral: 3 }, sources: { 'a<b>.example': 3 } }
+    expect(lines(input)).toContain('🔗 Источники: a&lt;b&gt;.example 3')
+  })
+
+  test('when the statistics cannot be read, the report still goes out with the requests and says so', () => {
+    const report = lines({ ...busyDay(), analytics: { daily: {}, days: {} }, analyticsError: 'Redis не подключён', briefs: [brief(1)] })
+    expect(report.join('\n')).toContain('не удалось прочитать статистику (Redis не подключён)')
+    expect(report.join('\n')).not.toContain('Тихий день')
+    expect(report).toContain('📋 Брифов: <b>1</b> 🆕')
+  })
+})

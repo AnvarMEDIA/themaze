@@ -39,6 +39,8 @@ yarn-error.log*
 /data/inquiries.json
 /data/briefs.json
 /data/briefcontent.json
+# the statistics' local stand-in for Redis (lib/stats/backend)
+/data/stats-dev/
 /data/analytics.json
 /data/telegram_chat.json
 /data/digest_runs.json

@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getBriefs, addBrief, markBriefRead, deleteBrief, setBriefNotified } from '@/lib/briefs'
+import { recordLead } from '@/lib/stats/store'
 import { getAdminSession } from '@/lib/auth'
 import { BriefSchema } from '@/lib/validation'
 import { rateLimitAsync, clientIp } from '@/lib/rateLimit'
@@ -48,6 +49,8 @@ export async function POST(req: NextRequest) {
 
     const { hp: _hp, ...data } = parsed.data
     const brief = await addBrief(data)
+    // A lead for the statistics' conversion, counted here where it was accepted (lib/stats).
+    await recordLead('brief')
 
     // Same contract as the contact form: the brief is already saved, so a
     // Telegram outage must never surface as an error to the visitor — but it

@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getInquiries, addInquiry, markInquiryRead, deleteInquiry, deleteInquiries, setInquiryNotified } from '@/lib/inquiries'
+import { recordLead } from '@/lib/stats/store'
 import { getAdminSession } from '@/lib/auth'
 import { InquirySchema } from '@/lib/validation'
 import { rateLimitAsync, clientIp } from '@/lib/rateLimit'
@@ -50,6 +51,8 @@ export async function POST(req: NextRequest) {
 
     const { website: _hp, ...data } = parsed.data
     const inquiry = await addInquiry(data)
+    // A lead for the statistics' conversion, counted here where it was accepted (lib/stats).
+    await recordLead('inquiry')
 
     // Alert the studio. Awaited (work started after a serverless response may
     // never run) but strictly non-fatal: the lead is already saved, so a

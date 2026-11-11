@@ -1,201 +1,103 @@
-import { readStore, updateStore } from './store'
 import { SITE_TZ } from './siteTime'
+import { readDays } from './stats/store'
+import { DIRECT_SOURCE, type StatsDay } from './stats/model'
+import { daysEndingOn, shiftDay, siteDay } from './stats/time'
 
 /**
- * Lightweight first-party pageview tracking.
+ * The visitor numbers in the shape the daily report (lib/digest) and the
+ * admin's statistics page read: views per page per day, and each day's
+ * totals.
  *
- * Data layout: one row per page path, with per-day counters. Daily
- * buckets keep storage bounded even for high-traffic pages and make
- * "last 7 days" trivial to compute. Paths are normalised (no locale
- * prefix, no trailing slash) so /en/portfolio/foo and
- * /ru/portfolio/foo aggregate as /portfolio/foo.
+ * Since 12 November 2026 they come from the site's own counters in Redis
+ * (lib/stats). Before that they were one JSON file in Vercel Blob, read,
+ * added to and written back on every view; under a day of ads those writes
+ * overlapped and overwrote each other, and 11 November's 1 500 views were
+ * reported as 35. That file is no longer read or written.
  */
 
 export interface AnalyticsData {
-  /** path → { 'YYYY-MM-DD': count } */
+  /** path → { 'YYYY-MM-DD': views } */
   daily: Record<string, Record<string, number>>
-  /**
-   * Per-DAY totals, as opposed to per-page ones.
-   *
-   * Optional because it arrived after the first rows were written; a store
-   * from before this field simply has no history here, and every reader
-   * treats a missing day as zero rather than as an error.
-   */
+  /** The day's totals, by day. */
   days?: Record<string, DayStats>
 }
 
 /** One day, summed across every page. */
 export interface DayStats {
   views: number
-  /** Browsers that opened the site that day (see the note on counting). */
+  /** People, counted once a day each (lib/stats/store). */
   visitors: number
-  /** Of those, the ones that had never been here before. */
+  /** Of those, browsers that had never been here before. */
   newVisitors: number
-  /** Referrer host → visits. Bounded; smallest entries are dropped. */
+  /** Where the views came from, by source: «Google Ads», «Google», «Прямые заходы», a site. */
   sources: Record<string, number>
   mobile: number
   desktop: number
+  /** By channel: ads, campaign, ai, search, social, referral, direct (lib/stats/model). */
+  channels?: Record<string, number>
+  /** utm campaigns, as «source / medium / campaign». */
+  campaigns?: Record<string, number>
+  /** Views by hour of the day, on the studio's clock. */
+  hours?: number[]
+  /** Requests the server accepted (contact form and briefs). */
+  leads?: number
 }
 
 export const EMPTY_DAY: DayStats = {
   views: 0, visitors: 0, newVisitors: 0, sources: {}, mobile: 0, desktop: 0,
 }
 
-/** How many referrer hosts a single day may remember. */
-const MAX_SOURCES = 40
-
-const RETENTION_DAYS = 90
-
-/**
- * The studio's own clock.
- *
- * A "day" in these numbers is the day the people reading them lived through.
- * Keyed on UTC, a Tashkent evening (UTC+5) lands in the next bucket from
- * 05:00 local, so an evening's traffic was being reported as tomorrow's and
- * the daily digest would have summarised five hours of the wrong day.
- */
+/** The studio's clock: a "day" in these numbers is a Tashkent day. */
 export { SITE_TZ }
 
-/** A date as YYYY-MM-DD in the site's timezone. en-CA formats exactly that. */
-export function dayKey(date = new Date(), timeZone = SITE_TZ): string {
-  return new Intl.DateTimeFormat('en-CA', { timeZone }).format(date)
+/** A date as YYYY-MM-DD in the site's timezone. */
+export function dayKey(date = new Date()): string {
+  return siteDay(date)
 }
 
 /** The current day in the site's timezone. */
 export function todayKey(date = new Date()): string {
-  return dayKey(date)
+  return siteDay(date)
 }
 
-/** The day before `key` (a YYYY-MM-DD string), without parsing it as local time. */
+/** The day `back` days before `key` (a YYYY-MM-DD string). */
 export function previousDay(key: string, back = 1): string {
-  const [y, m, d] = key.split('-').map(Number)
-  const t = Date.UTC(y, m - 1, d) - back * 86_400_000
-  return new Date(t).toISOString().slice(0, 10)
+  return shiftDay(key, -back)
 }
-
-/** Strip locale prefix and trailing slash. Returns null for paths we
- *  do not want to track (admin, api, static, oddities). */
-export function normalizePath(raw: string): string | null {
-  if (typeof raw !== 'string' || raw.length === 0 || raw.length > 200) return null
-  if (raw.includes('..')) return null
-  let p = raw.split('?')[0].split('#')[0]
-  if (!p.startsWith('/')) p = '/' + p
-  p = p.replace(/^\/(en|ru|uz)(\/|$)/, '/')
-  if (p.length > 1 && p.endsWith('/')) p = p.slice(0, -1)
-  if (p.startsWith('/admin')) return null
-  if (p.startsWith('/api'))   return null
-  if (p.startsWith('/_next')) return null
-  if (p.includes('.'))        return null   // static files
-  return p
-}
-
-/**
- * What the browser can tell us about itself without being identified.
- *
- * There is no cookie and no visitor id, here or on the wire. The page keeps
- * two flags in its own localStorage — "I have been here before" and "I have
- * already been here today" — and sends the ANSWER, never the identity. So a
- * visitor count is a count of browsers that said "this is my first view
- * today", and nothing stored server-side can be traced back to anyone.
- *
- * The honest cost: a cleared browser, a private window or a second device
- * reads as a new visitor, and a browser that refuses storage is counted as a
- * view but not as a visitor. These numbers are a good trend, not a census.
- */
-export interface ViewMeta {
-  /** This browser had never opened the site before. */
-  firstEver?: boolean
-  /** First view of this day from this browser. */
-  firstToday?: boolean
-  /** Referrer host, already normalised, or undefined for direct traffic. */
-  source?: string
-  /** Derived server-side from the user-agent; no UA string is stored. */
-  mobile?: boolean
-}
-
-// A source arrives as a referrer host or as a link's utm_source; the same
-// service can name itself either way, and one store key per service keeps
-// the report honest.
-const SOURCE_ALIASES: Record<string, string> = {
-  'chatgpt':          'chatgpt.com',
-  'chat.openai.com':  'chatgpt.com',
-  'openai':           'chatgpt.com',
-  'perplexity':       'perplexity.ai',
-  'claude':           'claude.ai',
-  'gemini':           'gemini.google.com',
-  'copilot':          'copilot.microsoft.com',
-}
-
-/** A referrer host or utm_source reduced to something safe to use as a store key. */
-export function normalizeSource(raw: string | undefined | null): string | undefined {
-  if (!raw || typeof raw !== 'string' || raw.length > 200) return undefined
-  let host = raw.trim().toLowerCase()
-  try {
-    if (host.includes('://')) host = new URL(host).hostname
-  } catch { return undefined }
-  host = host.replace(/^www\./, '')
-  if (!/^[a-z0-9][a-z0-9.-]{0,60}$/.test(host)) return undefined
-  return SOURCE_ALIASES[host] ?? host
-}
-
-/** Sources that are AI assistants, for the report's own line. */
-const AI_SOURCES = new Set([
-  'chatgpt.com', 'perplexity.ai', 'claude.ai', 'gemini.google.com', 'copilot.microsoft.com',
-  'copilot.com', 'chat.deepseek.com', 'deepseek.com', 'grok.com', 'meta.ai', 'you.com',
-  'poe.com', 'chat.mistral.ai', 'mistral.ai', 'chat.qwen.ai', 'kimi.com', 'alice.yandex.ru',
-])
-
-export const isAiSource = (source: string): boolean => AI_SOURCES.has(source)
 
 /** Views that came from an AI assistant on one day. */
-export function aiViews(day: Pick<DayStats, 'sources'>): number {
-  return Object.entries(day.sources).reduce((n, [host, views]) => n + (isAiSource(host) ? views : 0), 0)
+export function aiViews(day: Pick<DayStats, 'channels'>): number {
+  return day.channels?.ai ?? 0
 }
 
-/** Increment today's counters for `path`, applying cleanup of buckets
- *  older than RETENTION_DAYS to keep the row bounded. */
-export async function trackPageview(rawPath: string, meta: ViewMeta = {}): Promise<void> {
-  const path = normalizePath(rawPath)
-  if (!path) return
-  const today  = todayKey()
-  const cutoff = todayKey(new Date(Date.now() - RETENTION_DAYS * 86_400_000))
+function toDayStats(d: StatsDay): DayStats {
+  return {
+    views: d.views,
+    visitors: d.visitors,
+    newVisitors: d.newVisitors,
+    sources: { ...d.sources },
+    mobile: (d.devices.mobile ?? 0) + (d.devices.tablet ?? 0),
+    desktop: d.devices.desktop ?? 0,
+    channels: { ...d.channels },
+    campaigns: { ...d.campaigns },
+    hours: [...d.hours],
+    leads: d.leads,
+  }
+}
 
-  await updateStore<AnalyticsData>('analytics', { daily: {} }, (data) => {
-    const daily = { ...data.daily }
-    const byDate = { ...(daily[path] ?? {}) }
-    byDate[today] = (byDate[today] ?? 0) + 1
-
-    // Drop dates older than the retention window.
-    for (const d of Object.keys(byDate)) {
-      if (d < cutoff) delete byDate[d]
+/** The last `days` days of counters (today included), in the report's shape. */
+export async function getAnalytics(days = 90): Promise<AnalyticsData> {
+  const rows = await readDays(daysEndingOn(siteDay(), days))
+  const daily: AnalyticsData['daily'] = {}
+  const byDay: Record<string, DayStats> = {}
+  for (const row of rows) {
+    if (row.views === 0 && row.leads === 0) continue
+    byDay[row.date] = toDayStats(row)
+    for (const [path, views] of Object.entries(row.pages)) {
+      (daily[path] ??= {})[row.date] = views
     }
-    daily[path] = byDate
-
-    const days = { ...(data.days ?? {}) }
-    const day: DayStats = { ...EMPTY_DAY, ...(days[today] ?? {}), sources: { ...(days[today]?.sources ?? {}) } }
-    day.views += 1
-    if (meta.firstToday) day.visitors += 1
-    if (meta.firstEver)  day.newVisitors += 1
-    if (meta.mobile === true)  day.mobile += 1
-    if (meta.mobile === false) day.desktop += 1
-    if (meta.source) {
-      day.sources[meta.source] = (day.sources[meta.source] ?? 0) + 1
-      // A day remembers only so many hosts: referrer strings are attacker-
-      // controlled, and an unbounded map is an unbounded write.
-      const hosts = Object.entries(day.sources)
-      if (hosts.length > MAX_SOURCES) {
-        day.sources = Object.fromEntries(
-          hosts.sort((a, b) => b[1] - a[1]).slice(0, MAX_SOURCES),
-        )
-      }
-    }
-    days[today] = day
-    for (const d of Object.keys(days)) {
-      if (d < cutoff) delete days[d]
-    }
-
-    return { daily, days }
-  })
+  }
+  return { daily, days: byDay }
 }
 
 /** One day's totals, zeroed when nothing was recorded. */
@@ -213,50 +115,25 @@ export function topPages(data: AnalyticsData, key: string, limit = 5): Array<{ p
     .slice(0, limit)
 }
 
-export async function getAnalytics(): Promise<AnalyticsData> {
-  return readStore<AnalyticsData>('analytics', { daily: {} })
+/** Views on a day that came with no referrer and no campaign. */
+export function directViews(day: Pick<DayStats, 'sources'>): number {
+  return day.sources[DIRECT_SOURCE] ?? 0
 }
 
-/** Sum a per-date map. If `days` is given, includes only the last N
- *  days (today inclusive). */
+/** Sum a per-date map; with `days`, only the last N days (today included). */
 export function sumRange(byDate: Record<string, number> | undefined, days?: number): number {
   if (!byDate) return 0
-  if (days === undefined) {
-    let total = 0
-    for (const v of Object.values(byDate)) total += v
-    return total
-  }
-  const cutoff = todayKey(new Date(Date.now() - (days - 1) * 86_400_000))
+  if (days === undefined) return Object.values(byDate).reduce((s, v) => s + v, 0)
+  const cutoff = shiftDay(siteDay(), -(days - 1))
   let total = 0
-  for (const [d, v] of Object.entries(byDate)) {
-    if (d >= cutoff) total += v
-  }
+  for (const [d, v] of Object.entries(byDate)) if (d >= cutoff) total += v
   return total
-}
-
-/** Per-path summary (total, last 7 / 30 days). */
-export function pathStats(data: AnalyticsData, path: string) {
-  const byDate = data.daily[path]
-  return {
-    total: sumRange(byDate),
-    week:  sumRange(byDate, 7),
-    month: sumRange(byDate, 30),
-  }
 }
 
 /** Daily totals across all paths for the last `days` days (oldest first). */
 export function dailyTotals(data: AnalyticsData, days = 30): Array<{ date: string; count: number }> {
-  const series: Array<{ date: string; count: number }> = []
-  const now = new Date()
-  for (let i = days - 1; i >= 0; i--) {
-    const d = new Date(now)
-    d.setUTCDate(d.getUTCDate() - i)
-    const date = todayKey(d)
-    let count = 0
-    for (const byDate of Object.values(data.daily)) {
-      count += byDate[date] ?? 0
-    }
-    series.push({ date, count })
-  }
-  return series
+  return daysEndingOn(siteDay(), days).map((date) => ({
+    date,
+    count: data.days?.[date]?.views ?? Object.values(data.daily).reduce((n, byDate) => n + (byDate[date] ?? 0), 0),
+  }))
 }

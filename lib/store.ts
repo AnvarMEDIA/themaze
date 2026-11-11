@@ -96,7 +96,55 @@ export function isBlobForKey(pathname: string, name: string): boolean {
   return new RegExp(`^${escapeRe(BLOB_DIR)}/${escapeRe(name)}(-[A-Za-z0-9_-]+)?\\.json$`).test(pathname)
 }
 
+/** The backend could not be read: different from "nothing stored yet". */
+export class StoreReadError extends Error {}
+
+/**
+ * The newest stored copy of `name` from Blob, or `fallback` (or the bundled
+ * seed file) when nothing is stored yet. Throws StoreReadError when the store
+ * could not be read.
+ *
+ * A failed read is tried again with a fresh listing. Every write puts a new
+ * copy and deletes the old ones, so a read that listed just before a write
+ * can be left holding the address of a copy that is gone (403/404); the next
+ * listing has the new one.
+ */
+async function readBlob<T>(name: string, fallback: T): Promise<T> {
+  const { list } = await import('@vercel/blob')
+  let lastError: unknown
+  for (let attempt = 0; attempt < 3; attempt++) {
+    try {
+      const { blobs } = await list({ prefix: `${BLOB_DIR}/${name}` })
+      // Prefix-match can catch neighbouring keys, so filter exactly; a write
+      // leaves exactly one object, but take the newest if a cleanup lagged.
+      const mine = blobs.filter((b) => isBlobForKey(b.pathname, name))
+      if (mine.length === 0) return readLocal(name, fallback)
+      const newest = mine.reduce((a, b) =>
+        new Date(b.uploadedAt).getTime() > new Date(a.uploadedAt).getTime() ? b : a,
+      )
+      const res = await fetch(newest.downloadUrl, { cache: 'no-store' })
+      // A CDN 404/500 returns an HTML body — without this check the JSON parse
+      // error is what surfaces, and callers can't tell "absent" from "broken".
+      if (!res.ok) throw new Error(`blob read failed: ${res.status}`)
+      return await res.json() as T
+    } catch (err) {
+      lastError = err
+      if (attempt < 2) await new Promise((resolve) => setTimeout(resolve, 150 * (attempt + 1)))
+    }
+  }
+  throw new StoreReadError(`Blob read failed for "${name}": ${lastError instanceof Error ? lastError.message : String(lastError)}`)
+}
+
+/**
+ * The stored value, for reading. When the backend cannot be read this falls
+ * back to the seed file or `fallback`, so a page still renders; a CHANGE must
+ * never be built on that fallback, which is why updateStore reads strictly.
+ */
 export async function readStore<T>(name: string, fallback: T): Promise<T> {
+  return readStoreFrom(name, fallback, false)
+}
+
+async function readStoreFrom<T>(name: string, fallback: T, strict: boolean): Promise<T> {
   // Read-your-writes: serve the value this instance just wrote, bypassing
   // any Blob/CDN propagation lag.
   const cached = writeCache.get(name)
@@ -124,24 +172,10 @@ export async function readStore<T>(name: string, fallback: T): Promise<T> {
 
   if (USE_BLOB) {
     try {
-      const { list } = await import('@vercel/blob')
-      const { blobs } = await list({ prefix: `${BLOB_DIR}/${name}` })
-      // Prefix-match can catch neighbouring keys, so filter exactly; a write
-      // leaves exactly one object, but take the newest if a cleanup lagged.
-      const mine = blobs.filter((b) => isBlobForKey(b.pathname, name))
-      if (mine.length === 0) {
-        return readLocal(name, fallback)
-      }
-      const newest = mine.reduce((a, b) =>
-        new Date(b.uploadedAt).getTime() > new Date(a.uploadedAt).getTime() ? b : a,
-      )
-      const res = await fetch(newest.downloadUrl, { cache: 'no-store' })
-      // A CDN 404/500 returns an HTML body — without this check the JSON parse
-      // error is what surfaces, and callers can't tell "absent" from "broken".
-      if (!res.ok) throw new Error(`blob read failed: ${res.status}`)
-      return await res.json() as T
+      return await readBlob(name, fallback)
     } catch (err) {
-      console.warn(`[store] Blob read failed for "${name}"`, err)
+      if (strict) throw err
+      console.warn(`[store] ${err instanceof Error ? err.message : err}`)
       return readLocal(name, fallback)
     }
   }
@@ -218,7 +252,11 @@ export async function updateStore<T>(
   mutator: (current: T) => T | Promise<T>,
 ): Promise<T> {
   const run = async (): Promise<T> => {
-    const current = await readStore<T>(name, fallback)
+    // Strict: if the stored value cannot be read, the change fails rather
+    // than being applied to an empty default and saved over everything. A
+    // read that failed this way once wrote the statistics over with a single
+    // day, and the same would have emptied the requests or the briefs.
+    const current = await readStoreFrom<T>(name, fallback, true)
     const next    = await mutator(current)
     await writeStore(name, next)
     return next
