@@ -76,9 +76,11 @@ test.describe('The PDF function, as packed for Vercel', () => {
     const packed = new Set((JSON.parse(readFileSync(trace, 'utf8')) as { files: string[] }).files
       .map((f) => path.relative(process.cwd(), path.resolve(dir, f))))
     const needed = [
-      ...['Regular', 'SemiBold', 'ExtraBold'].map((w) => path.join('assets', 'fonts', `Manrope-${w}.ttf`)),
+      // The faces it embeds: Manrope and Google Sans Flex (lib/pdf/briefPdf).
+      ...filesUnder(path.join('assets', 'fonts')).filter((f) => f.endsWith('.ttf')),
       ...filesUnder(path.join('node_modules', 'pdfkit', 'js', 'standard-fonts')),
     ]
+    expect(needed.filter((f) => f.includes('GoogleSansFlex')).length).toBeGreaterThan(0)
     expect(needed.filter((f) => !packed.has(f))).toEqual([])
   })
 })

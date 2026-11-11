@@ -7,6 +7,7 @@ import type { BriefLabels } from '@/lib/briefContent'
 import type { BriefLang } from '@/lib/briefTexts'
 import { formatSiteTime } from '@/lib/siteTime'
 import { STYLE_SHAPES, type Shape } from '@/lib/styleShapes'
+import { MAZE_LOGO } from './mazeLogo'
 
 /**
  * A sent brief as a PDF file: an A4 document in the site's own type and
@@ -14,9 +15,13 @@ import { STYLE_SHAPES, type Shape } from '@/lib/styleShapes'
  * (app/api/brief/[id]/pdf). A real file, where the admin used to print an
  * HTML page to PDF through the browser's dialog.
  *
- * The text is Manrope, the site's face, embedded from assets/fonts: the PDF
- * standard fonts have no Cyrillic, and a client writes in Russian as often
- * as not.
+ * Two faces, embedded from assets/fonts (the PDF standard fonts have no
+ * Cyrillic, and a client writes in Russian as often as not):
+ * - Manrope, the site's own face, for the text: answers, labels, the footer.
+ * - Google Sans Flex for display: the client's name, the
+ *   summary strip, the section headings and their numbers. It has no
+ *   Cyrillic, so a display text with a character it lacks is set whole in
+ *   Manrope instead (see `display`); a line never mixes the two.
  */
 
 const INK   = '#0A0A0A'
@@ -24,13 +29,27 @@ const MUTED = '#6F6D64'
 const FAINT = '#A9A79C'
 const LINE  = '#E2E1DA'
 
-const WEIGHTS = [400, 600, 800] as const
+const TEXT_FACE    = 'Manrope'
+const DISPLAY_FACE = 'GoogleSansFlex'
+
+const FACES = [
+  { family: TEXT_FACE, fonts: [
+    { file: 'Manrope-Regular.ttf',   fontWeight: 400 },
+    { file: 'Manrope-SemiBold.ttf',  fontWeight: 600 },
+    { file: 'Manrope-ExtraBold.ttf', fontWeight: 800 },
+  ] },
+  { family: DISPLAY_FACE, fonts: [
+    { file: 'GoogleSansFlex-Medium.ttf',   fontWeight: 500 },
+    { file: 'GoogleSansFlex-SemiBold.ttf', fontWeight: 600 },
+    { file: 'GoogleSansFlex-Bold.ttf',     fontWeight: 700 },
+  ] },
+] as const
 
 /** What the warm-up needs of a loaded font (fontkit's, inside react-pdf). */
 type WarmableFont = { characterSet?: number[]; glyphForCodePoint?: (codePoint: number) => unknown }
 
 /**
- * Ligatures the font also files under a code point of their own: Manrope's
+ * Ligatures a font also files under a code point of their own: Manrope's
  * «tt» is U+E009, «fi» U+FB01. They are left to the layout, which knows the
  * letters each one stands for; looked up here, «https» would copy as «h?ps».
  */
@@ -39,41 +58,46 @@ const isLigatureSlot = (cp: number) =>
 
 let fontsReady: Promise<void> | null = null
 
+/** The characters Google Sans Flex can set, once it is loaded. */
+let displayCovers: Set<number> = new Set()
+
 /**
- * Registers Manrope once per process, then looks up every character the
- * font has before the first document is made.
+ * Registers both faces once per process, then looks up every character
+ * each font has before the first document is made.
  *
- * The look-up is a fix, not a nicety. Manrope draws most Cyrillic letters
- * from Latin ones (Cyrillic Т is the Latin T, В is B, С is C, and so on).
- * Embedding a Russian brief makes the font library load those borrowed
- * Latin glyphs, and it caches them without the characters they stand for,
- * for as long as the server process lives. The next brief made by the same
- * server then loses some Latin letters: «ONTACT», «rganic», and garbled
- * text when copied or searched. Looked up first, character by character,
- * each glyph is cached with its own character, and nothing can cache it
- * bare later.
+ * The look-up is a fix, not a nicety. Both faces build many letters from
+ * others (Manrope's Cyrillic Т is its Latin T, В is B, С is C; Google Sans
+ * Flex's é is e and an accent). Embedding a document makes the font library
+ * load those borrowed glyphs, and it caches them without the characters
+ * they stand for, for as long as the server process lives. The next brief
+ * made by the same server then lost Latin letters: «ONTACT», «rganic», and
+ * garbled text when copied or searched. Looked up first, character by
+ * character, each glyph is cached with its own character, and nothing can
+ * cache it bare later.
  */
 function prepareFonts(): Promise<void> {
   fontsReady ??= (async () => {
     const dir = path.join(process.cwd(), 'assets', 'fonts')
-    Font.register({
-      family: 'Manrope',
-      fonts: [
-        { src: path.join(dir, 'Manrope-Regular.ttf'),   fontWeight: 400 },
-        { src: path.join(dir, 'Manrope-SemiBold.ttf'),  fontWeight: 600 },
-        { src: path.join(dir, 'Manrope-ExtraBold.ttf'), fontWeight: 800 },
-      ],
-    })
+    for (const face of FACES) {
+      Font.register({
+        family: face.family,
+        fonts: face.fonts.map((f) => ({ src: path.join(dir, f.file), fontWeight: f.fontWeight })),
+      })
+    }
     // No hyphenation: the built-in rules are English and cut Russian words
     // in odd places; a line simply breaks between words.
     Font.registerHyphenationCallback((word) => [word])
 
-    for (const fontWeight of WEIGHTS) {
-      const source = Font.getFont({ fontFamily: 'Manrope', fontWeight, fontStyle: 'normal' })
-      await source.load()
-      const font = source.data as unknown as WarmableFont | null
-      for (const codePoint of font?.characterSet ?? []) {
-        if (!isLigatureSlot(codePoint)) font?.glyphForCodePoint?.(codePoint)
+    for (const face of FACES) {
+      for (const { fontWeight } of face.fonts) {
+        const source = Font.getFont({ fontFamily: face.family, fontWeight, fontStyle: 'normal' })
+        await source.load()
+        const font = source.data as unknown as WarmableFont | null
+        const chars = font?.characterSet ?? []
+        for (const codePoint of chars) {
+          if (!isLigatureSlot(codePoint)) font?.glyphForCodePoint?.(codePoint)
+        }
+        if (face.family === DISPLAY_FACE && displayCovers.size === 0) displayCovers = new Set(chars)
       }
     }
   })().catch((err) => {
@@ -82,6 +106,19 @@ function prepareFonts(): Promise<void> {
     throw err
   })
   return fontsReady
+}
+
+/**
+ * Google Sans Flex at `weight` for a display text it can set whole, as it
+ * will print (`upper` for one shown in capitals); nothing, so the text
+ * keeps its Manrope style, when a character is missing: Cyrillic, «№», «₽».
+ */
+function display(text: string | undefined, weight: number, upper = false): { fontFamily?: string; fontWeight?: number } {
+  const shown = upper ? (text ?? '').toUpperCase() : (text ?? '')
+  for (const ch of shown) {
+    if (!/\s/.test(ch) && !displayCovers.has(ch.codePointAt(0)!)) return {}
+  }
+  return { fontFamily: DISPLAY_FACE, fontWeight: weight }
 }
 
 const T = {
@@ -114,12 +151,11 @@ const s = StyleSheet.create({
     paddingTop: 44, paddingBottom: 72, paddingHorizontal: 50,
     // No lineHeight here: inherited from the page it makes react-pdf drop the
     // footer, whose page number is drawn late. Each text style sets its own.
-    fontFamily: 'Manrope', fontSize: 10, color: INK, backgroundColor: '#FFFFFF',
+    fontFamily: TEXT_FACE, fontSize: 10, color: INK, backgroundColor: '#FFFFFF',
   },
 
   head:      { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start' },
-  wordmark:  { fontSize: 22, fontWeight: 800, letterSpacing: 4.4, lineHeight: 1 },
-  studio:    { fontSize: 7.5, lineHeight: 1.3, color: MUTED, marginTop: 5 },
+  studio:    { fontSize: 7.5, lineHeight: 1.3, color: MUTED, marginTop: 7 },
   headRight: { alignItems: 'flex-end' },
   docType:   { fontSize: 7.5, lineHeight: 1.2, fontWeight: 800, letterSpacing: 1.8, textTransform: 'uppercase', marginBottom: 5 },
   meta:      { fontSize: 7.5, color: MUTED, lineHeight: 1.5 },
@@ -135,7 +171,7 @@ const s = StyleSheet.create({
   cellValue: { fontSize: 9.5, fontWeight: 600, lineHeight: 1.3 },
 
   secHead:   { flexDirection: 'row', alignItems: 'flex-end', marginTop: 24, borderBottomWidth: 0.75, borderBottomColor: INK, paddingBottom: 6, marginBottom: 10 },
-  secNum:    { fontSize: 7.5, lineHeight: 1.2, fontWeight: 600, color: FAINT, width: 24 },
+  secNum:    { fontSize: 8, lineHeight: 1.2, fontWeight: 600, color: FAINT, width: 24 },
   secTitle:  { fontSize: 8.5, lineHeight: 1.2, fontWeight: 800, letterSpacing: 1.6, textTransform: 'uppercase' },
 
   row:       { flexDirection: 'row', paddingVertical: 5, borderBottomWidth: 0.5, borderBottomColor: LINE },
@@ -175,13 +211,15 @@ const s = StyleSheet.create({
  * its own would stay behind at the foot of a page, alone.
  */
 function Section({ n, title, children }: { n: string; title: string; children: React.ReactNode }) {
+  const face = display(title, 700, true)
   return (
     <>
       {/* 100pt is room for a row of style tiles with their label, the
           tallest thing a section starts with. */}
       <View style={s.secHead} minPresenceAhead={100}>
-        <Text style={s.secNum}>{n}</Text>
-        <Text style={s.secTitle}>{title}</Text>
+        {/* The number takes its title's face: two faces' lines would not share a baseline. */}
+        <Text style={[s.secNum, face.fontFamily ? { fontFamily: face.fontFamily } : {}]}>{n}</Text>
+        <Text style={[s.secTitle, face]}>{title}</Text>
       </View>
       {children}
     </>
@@ -207,6 +245,18 @@ function Long({ label, value, first = false }: { label: string; value?: string; 
       <Text style={first ? [s.label, s.blockLabel] : [s.label, s.blockLabel, s.block]} minPresenceAhead={30}>{label}</Text>
       <Text style={s.para}>{value.trim()}</Text>
     </>
+  )
+}
+
+/** The studio's logo (lib/pdf/mazeLogo), `width` points wide. */
+function Logo({ width }: { width: number }) {
+  const { width: w, height: h, shapes } = MAZE_LOGO
+  return (
+    <Svg viewBox={`0 0 ${w} ${h}`} style={{ width, height: (width * h) / w }}>
+      {shapes.map((shape, i) => shape.kind === 'path'
+        ? <Path key={i} d={shape.d} fill={INK} />
+        : <Polygon key={i} points={shape.points} fill={INK} />)}
+    </Svg>
   )
 }
 
@@ -287,7 +337,7 @@ function BriefDocument({ brief, lang, labels, contacts }: BriefPdfInput) {
 
         <View style={s.head}>
           <View>
-            <Text style={s.wordmark}>MAZE</Text>
+            <Logo width={70} />
             <Text style={s.studio}>{t.studio}</Text>
           </View>
           <View style={s.headRight}>
@@ -298,15 +348,15 @@ function BriefDocument({ brief, lang, labels, contacts }: BriefPdfInput) {
         </View>
         <View style={s.rule} />
 
-        <Text style={s.title}>{brief.name}</Text>
-        {brief.company?.trim() && <Text style={s.subtitle}>{brief.company.trim()}</Text>}
+        <Text style={[s.title, display(brief.name, 600)]}>{brief.name}</Text>
+        {brief.company?.trim() && <Text style={[s.subtitle, display(brief.company, 500)]}>{brief.company.trim()}</Text>}
 
         {summary.length > 0 && (
           <View style={s.summary} wrap={false}>
             {summary.map((c, i) => (
               <View key={c.label} style={i === 0 ? s.cell : [s.cell, s.cellRule]}>
                 <Text style={s.cellLabel}>{c.label}</Text>
-                <Text style={s.cellValue}>{c.value}</Text>
+                <Text style={[s.cellValue, display(c.value, 600)]}>{c.value}</Text>
               </View>
             ))}
           </View>
