@@ -1,6 +1,6 @@
 # Cookie Policy
 
-_Last updated: 14 October 2026_
+_Last updated: 12 November 2026_
 
 This policy explains what cookies and similar technologies are used on
 `www.maze.uz`.
@@ -18,6 +18,19 @@ preferences and help us understand how the Site is used.
 - **Session cookie** (`maze_admin`) — only set after admin login; keeps
   you signed in.
 - **Consent choice** — remembers whether you accepted analytics cookies.
+
+### Our own statistics (no cookies)
+
+The site counts visits itself. For that it keeps two entries in your
+browser — they are not cookies and hold no identifier:
+
+- `maze_seen` (localStorage) — a mark that this browser has been here
+  before, which tells new visitors from returning ones.
+- `maze_visit` (sessionStorage) — the source of the current visit (a site,
+  utm tags or an ad platform); cleared when the tab is closed.
+
+These statistics run regardless of the choice in the banner. More in our
+[Privacy Policy](/legal/privacy), section 2.
 
 ### Analytics (with consent)
 

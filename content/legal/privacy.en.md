@@ -1,6 +1,6 @@
 # Privacy Policy
 
-_Last updated: 9 November 2026_
+_Last updated: 12 November 2026_
 
 This Privacy Policy explains how **MAZE Studio** ("we", "us") collects, uses,
 and protects personal data when you use our website `www.maze.uz`.
@@ -24,8 +24,23 @@ needed to operate the site securely.
   delete them.
 - **Server logs** — IP address, user agent, URL, timestamp. Used for rate
   limiting, debugging and security. Retained for 30 days.
-- **Analytics** — aggregated usage statistics via Yandex Metrika and Vercel
-  Analytics (page views, country, device). Anonymised. See our
+- **Our own visit statistics** — the site counts page views itself, without
+  cookies and without third-party counters: which page was opened, where the
+  visitor came from (the referring site, the link's utm tags, the ad
+  platform — without the click identifier), device type, operating system
+  and browser, country (derived by our host from the IP address), site
+  language and the hour of the visit. To count each person once a day, the
+  server derives a temporary pseudonym from the IP address and user agent
+  with a salt that changes every day. The IP address and user agent
+  themselves are not stored in the statistics, the pseudonym is deleted
+  after 2 days, and visits on different days cannot be linked. The site
+  keeps two entries in your browser: `maze_seen` (whether this browser has
+  visited before) and `maze_visit` (the source of the current visit, cleared
+  when the tab is closed). Only daily totals are kept, for up to 400 days.
+  Visits by bots are not counted.
+- **Yandex Metrika and Vercel Analytics** — only with your consent in the
+  cookie banner: usage statistics (page views, country, device) and, for
+  Yandex Metrika, session recording (Webvisor). See our
   [Cookie Policy](/legal/cookies) for detail and opt-out options.
 
 ## 3. Legal basis
@@ -39,8 +54,8 @@ legitimate interest in running the site, and compliance with applicable law
 We do not sell or rent personal data. We share it only with:
 
 - Service providers strictly required to deliver the site (Vercel for
-  hosting, Resend for transactional email, Telegram for notifying the team
-  of new submissions).
+  hosting, Upstash for the visit statistics database, Resend for
+  transactional email, Telegram for notifying the team of new submissions).
 - Authorities, where we are legally obliged.
 
 ## 5. Your rights
