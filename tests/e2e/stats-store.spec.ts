@@ -100,6 +100,17 @@ test('days before the counter existed are neither listed nor compared with', asy
   expect(before.totals.views).toBe(0)
 })
 
+test('a period is not compared with days older than the 400 that are kept', async () => {
+  // On 1 January 2029 the year before last year's is mostly gone from the store.
+  const at = new Date('2029-01-01T07:00:00Z')
+  const year = await readPeriod('2028-01-03', '2029-01-01', at)
+  expect(year.days).toHaveLength(365)
+  expect(year.previous).toBeNull()
+  // Half a year still has its half-year before it: 182 + 182 days are within the 400.
+  const half = await readPeriod('2028-07-04', '2029-01-01', at)
+  expect(half.previous).toMatchObject({ from: '2028-01-04', to: '2028-07-03', views: 0 })
+})
+
 test('a day reads the same whether Redis sends the hash flat or as an object', () => {
   // With deserialization off, Upstash returns HGETALL as Redis does: flat.
   expect(hashFromReply(['views', '3', 'ch:ads', '2'])).toEqual({ views: '3', 'ch:ads': '2' })

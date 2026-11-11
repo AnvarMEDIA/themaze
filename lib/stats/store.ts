@@ -5,7 +5,7 @@ import {
   F, SITE_LOCALES, classifySource, explodeDay, isBot, mergeDays, normalizePagePath, parseDevice,
   type Channel, type DayCounts, type Device, type StatsDay,
 } from './model'
-import { COUNTING_SINCE, daysBetween, previousPeriod } from './periods'
+import { COUNTING_SINCE, daysBetween, earliestDay, previousPeriod } from './periods'
 import { siteDay, siteHour } from './time'
 
 /**
@@ -193,16 +193,22 @@ export interface StatsPayload {
   todayRow: StatsDay | null
   /**
    * The same number of days just before the period, to compare with; null
-   * when the counter did not yet exist for all of them (a comparison with
-   * days nothing was counted on would call any number a rise).
+   * when not all of them can be read: the counter did not yet exist (a
+   * comparison with days nothing was counted on would call any number a
+   * rise), or they are older than the 400 days that are kept.
    */
   previous: PreviousFigures | null
 }
 
-/** The period before `from`…`to`, or null when it reaches back before the counter. */
-async function readPrevious(from: string, to: string): Promise<PreviousFigures | null> {
+/**
+ * The period before `from`…`to`, or null when not all of it can be read:
+ * it reaches back before the counter existed, or past the 400 days a day's
+ * counters are kept (so a year is never set against the year before, most
+ * of which is gone).
+ */
+async function readPrevious(from: string, to: string, today: string): Promise<PreviousFigures | null> {
   const prev = previousPeriod(from, to)
-  if (prev.from < COUNTING_SINCE) return null
+  if (prev.from < COUNTING_SINCE || prev.from < earliestDay(today)) return null
   if (prev.from === prev.to) {
     const [day] = await readDays([prev.from])
     return { ...prev, visitors: day.visitors, views: day.views, leads: day.leads, hours: day.hours }
@@ -228,7 +234,7 @@ export async function readPeriod(from: string, to: string, now: Date = new Date(
   const [rows, previous, online] = await Promise.all([
     readDays(first <= to ? daysBetween(first, to) : []),
     // The comparison is an extra: without it the period is still shown.
-    readPrevious(from, to).catch((err: unknown) => {
+    readPrevious(from, to, today).catch((err: unknown) => {
       console.error('[stats] could not read the period before:', err instanceof Error ? err.message : err)
       return null
     }),
