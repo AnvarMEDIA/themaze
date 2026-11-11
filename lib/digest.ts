@@ -1,10 +1,15 @@
-import { escapeHtml } from './notify'
+import { briefServices, escapeHtml } from './notify'
 import {
   aiViews, dayStats, getAnalytics, previousDay, topPages, SITE_TZ,
   type AnalyticsData,
 } from './analytics'
+import { getBriefs } from './briefs'
+import type { Brief } from './briefs'
 import { getInquiries } from './inquiries'
 import type { Inquiry } from './inquiries'
+import { getApplications, getInternshipSettings } from './internshipStore'
+import type { InternApplication } from './internship'
+import { pluralRu } from './utils'
 import { readStore, updateStore } from './store'
 
 /* ── run log ────────────────────────────────────────────────────────────── */
@@ -98,26 +103,80 @@ function trend(now: number, before: number): string {
 const pct = (part: number, whole: number): number =>
   whole > 0 ? Math.round((part / whole) * 100) : 0
 
+// A number in a sentence takes its noun's form: "22 просмотра", not
+// "22 просмотров". (After a label and a colon, "Просмотров: 22", the plural
+// genitive is right for any number, so the lines that read that way keep it.)
+const visitorsWord = (n: number) => pluralRu(n, 'посетитель', 'посетителя', 'посетителей')
+const viewsWord = (n: number) => pluralRu(n, 'просмотр', 'просмотра', 'просмотров')
+
+/** The day a record was filed on, in the site's timezone; null for a date that does not parse. */
+function dayFiledOn(createdAt: string): string | null {
+  const t = new Date(createdAt)
+  if (Number.isNaN(t.getTime())) return null
+  return new Intl.DateTimeFormat('en-CA', { timeZone: SITE_TZ }).format(t)
+}
+
+/** The records filed on one day, in the site's timezone. */
+function filedOn<T extends { createdAt: string }>(all: T[], key: string): T[] {
+  return all.filter((r) => dayFiledOn(r.createdAt) === key)
+}
+
+/** How many were filed in the seven days ending on `date`, that day included. */
+function filedInWeek(all: { createdAt: string }[], date: string): number {
+  return all.filter((r) => {
+    const k = dayFiledOn(r.createdAt)
+    return k !== null && k <= date && k > previousDay(date, 7)
+  }).length
+}
+
 /** The inquiries filed on one day, in the site's timezone. */
 export function inquiriesOn(all: Inquiry[], key: string): Inquiry[] {
-  return all.filter((i) => {
-    const t = new Date(i.createdAt)
-    if (Number.isNaN(t.getTime())) return false
-    return new Intl.DateTimeFormat('en-CA', { timeZone: SITE_TZ }).format(t) === key
-  })
+  return filedOn(all, key)
+}
+
+/** The internship intake, as far as the report needs it. */
+export interface InternshipDigest {
+  /** Whether applications are being taken: a closed intake is not worth a line of zeros. */
+  open: boolean
+  applications: InternApplication[]
 }
 
 export interface DigestInput {
   /** The day to report on, YYYY-MM-DD in the site's timezone. */
   date: string
   analytics: AnalyticsData
+  /** The contact form's inquiries ("Заявок"). */
   inquiries: Inquiry[]
+  /** The project briefs; null when the store could not be read. */
+  briefs: Brief[] | null
+  /** The internship intake; null when the store could not be read. */
+  internship: InternshipDigest | null
 }
 
-/** Gather everything the report needs. */
+async function readInternship(): Promise<InternshipDigest> {
+  const [settings, applications] = await Promise.all([getInternshipSettings(), getApplications()])
+  return { open: settings.open, applications }
+}
+
+/**
+ * Gather everything the report needs.
+ *
+ * The briefs and the internship are the report's extras: if one cannot be
+ * read, the report still goes out and says that line could not be read,
+ * rather than failing whole or showing a zero that is not true.
+ */
 export async function collectDigest(date: string): Promise<DigestInput> {
-  const [analytics, inquiries] = await Promise.all([getAnalytics(), getInquiries()])
-  return { date, analytics, inquiries }
+  const unreadable = (what: string) => (err: unknown) => {
+    console.error(`[daily-digest] could not read ${what} —`, err)
+    return null
+  }
+  const [analytics, inquiries, briefs, internship] = await Promise.all([
+    getAnalytics(),
+    getInquiries(),
+    getBriefs().catch(unreadable('the briefs')),
+    readInternship().catch(unreadable('the internship applications')),
+  ])
+  return { date, analytics, inquiries, briefs, internship }
 }
 
 /**
@@ -133,7 +192,7 @@ export async function collectDigest(date: string): Promise<DigestInput> {
  * So a quiet day now says it is quiet, in one line, and anything that looks
  * like a fault says so too.
  */
-export function buildDigest({ date, analytics, inquiries }: DigestInput): string {
+export function buildDigest({ date, analytics, inquiries, briefs, internship }: DigestInput): string {
   const today = dayStats(analytics, date)
   const yest = dayStats(analytics, previousDay(date))
 
@@ -148,8 +207,12 @@ export function buildDigest({ date, analytics, inquiries }: DigestInput): string
   const avgViews = daysCounted ? Math.round(weekViews / daysCounted) : 0
   const avgVisitors = daysCounted ? Math.round(weekVisitors / daysCounted) : 0
 
-  const leads = inquiriesOn(inquiries, date)
-  const leadsYesterday = inquiriesOn(inquiries, previousDay(date)).length
+  const leads = filedOn(inquiries, date)
+  const leadsYesterday = filedOn(inquiries, previousDay(date)).length
+  const briefsToday = briefs ? filedOn(briefs, date) : []
+  const briefsYesterday = briefs ? filedOn(briefs, previousDay(date)).length : 0
+  const appsToday = internship ? filedOn(internship.applications, date) : []
+  const appsYesterday = internship ? filedOn(internship.applications, previousDay(date)).length : 0
 
   // A day with per-path views but no day record at all predates visitor
   // counting: its visitor number is unknown, not zero, and printing "0" would
@@ -165,7 +228,7 @@ export function buildDigest({ date, analytics, inquiries }: DigestInput): string
 
   // A day with nothing on it. Said plainly and briefly, because the message
   // still has to arrive — its absence is what left us guessing before.
-  if (views === 0 && leads.length === 0) {
+  if (views === 0 && leads.length === 0 && briefsToday.length === 0 && appsToday.length === 0) {
     L.push('Тихий день: ни просмотров, ни заявок.')
     const recorded = Object.keys(analytics.days ?? {}).length
     const recentViews = [0, 1, 2, 3].reduce(
@@ -214,11 +277,48 @@ export function buildDigest({ date, analytics, inquiries }: DigestInput): string
       L.push(`   • ${who}${what ? ` — ${what}` : ''}`)
     }
     if (leads.length > 8) L.push(`   …и ещё ${leads.length - 8}`)
-    if (today.visitors > 0) {
-      // Worth stating precisely because it is the number that decides whether
-      // more traffic is the answer, or better pages are.
-      L.push(`   конверсия: ${((leads.length / today.visitors) * 100).toFixed(1)}% от посетителей`)
+  }
+
+  // The briefs and the internship applications are stored apart from the
+  // contact form's inquiries, and once went uncounted: a day with a brief
+  // read "Заявок: 0". So each has its own line, and a zero says it was
+  // counted.
+  if (briefs === null) {
+    L.push('📋 Брифов: <i>не удалось прочитать</i>')
+  } else if (briefsToday.length === 0) {
+    L.push('📋 Брифов: <b>0</b>')
+  } else {
+    L.push(`📋 Брифов: <b>${briefsToday.length}</b>${trend(briefsToday.length, briefsYesterday)}`)
+    for (const b of briefsToday.slice(0, 8)) {
+      const who = escapeHtml(b.name || b.email || '—')
+      const what = [briefServices(b.services), b.budget].filter(Boolean).map((s) => escapeHtml(s as string)).join(' · ')
+      L.push(`   • ${who}${what ? ` — ${what}` : ''}`)
     }
+    if (briefsToday.length > 8) L.push(`   …и ещё ${briefsToday.length - 8}`)
+  }
+
+  // Worth stating precisely because it is the number that decides whether
+  // more traffic is the answer, or better pages are. A client writes either
+  // through the contact form or with a brief, so both count; an internship
+  // application is a job application, not a client.
+  const clientLeads = leads.length + briefsToday.length
+  if (clientLeads > 0 && today.visitors > 0) {
+    const counted = briefs === null ? 'только заявки' : 'заявки и брифы'
+    L.push(`   конверсия: ${((clientLeads / today.visitors) * 100).toFixed(1)}% от посетителей (${counted})`)
+  }
+
+  if (internship === null) {
+    L.push('🎓 Стажировка: <i>не удалось прочитать</i>')
+  } else if (appsToday.length > 0) {
+    L.push(`🎓 Стажировка: <b>${appsToday.length}</b>${trend(appsToday.length, appsYesterday)}`)
+    for (const a of appsToday.slice(0, 8)) {
+      const who = escapeHtml(a.name || a.email || '—')
+      L.push(`   • ${who}${a.city?.trim() ? ` — ${escapeHtml(a.city)}` : ''}`)
+    }
+    if (appsToday.length > 8) L.push(`   …и ещё ${appsToday.length - 8}`)
+  } else if (internship.open) {
+    // Only while the intake is open: once it is closed a daily zero is noise.
+    L.push('🎓 Стажировка: <b>0</b>')
   }
 
   /* ── where they went and where they came from ──────────────────────── */
@@ -250,17 +350,14 @@ export function buildDigest({ date, analytics, inquiries }: DigestInput): string
   /* ── context, so today's number means something ────────────────────── */
   if (daysCounted > 0) {
     L.push('')
-    L.push(`<i>Среднее за 7 дней: ${avgVisitors} посетителей, ${avgViews} просмотров в день.</i>`)
+    L.push(`<i>Среднее за 7 дней: ${avgVisitors} ${visitorsWord(avgVisitors)}, ${avgViews} ${viewsWord(avgViews)} в день.</i>`)
   }
 
   // Sunday closes the week, so the weekly total goes out with it rather than
   // as a second message nobody asked for.
   const [wy, wm, wd] = date.split('-').map(Number)
   if (new Date(Date.UTC(wy, wm - 1, wd)).getUTCDay() === 0) {
-    const weekLeads = inquiries.filter((i) => {
-      const k = new Intl.DateTimeFormat('en-CA', { timeZone: SITE_TZ }).format(new Date(i.createdAt))
-      return k <= date && k > previousDay(date, 7)
-    }).length
+    const weekLeads = filedInWeek(inquiries, date)
     // Monday to this Sunday, the same seven days the leads are counted over.
     // (The 7-day mean above is the seven days *before* today, so it can't be
     // reused here: added to today it made eight.)
@@ -271,10 +368,24 @@ export function buildDigest({ date, analytics, inquiries }: DigestInput): string
       wkVisitors += d.visitors
       wkAi += aiViews(d)
     }
+    const totals = [
+      `${wkVisitors} ${visitorsWord(wkVisitors)}`,
+      `${wkViews} ${viewsWord(wkViews)}`,
+      `${weekLeads} ${pluralRu(weekLeads, 'заявка', 'заявки', 'заявок')}`,
+    ]
+    if (briefs) {
+      const n = filedInWeek(briefs, date)
+      totals.push(`${n} ${pluralRu(n, 'бриф', 'брифа', 'брифов')}`)
+    }
+    if (internship) {
+      const n = filedInWeek(internship.applications, date)
+      if (n > 0 || internship.open) {
+        totals.push(`${n} ${pluralRu(n, 'заявка на стажировку', 'заявки на стажировку', 'заявок на стажировку')}`)
+      }
+    }
     L.push('')
-    L.push(`<b>Неделя целиком:</b> ${wkVisitors} посетителей, `
-      + `${wkViews} просмотров, ${weekLeads} заявок.`
-      + (wkAi > 0 ? ` Из ИИ-ассистентов: ${wkAi} просмотров.` : ''))
+    L.push(`<b>Неделя целиком:</b> ${totals.join(', ')}.`
+      + (wkAi > 0 ? ` Из ИИ-ассистентов: ${wkAi} ${viewsWord(wkAi)}.` : ''))
   }
 
   return L.join('\n')

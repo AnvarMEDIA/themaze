@@ -232,6 +232,9 @@ const truncate = (s: string, max: number) =>
 const resolveList = (ids: string[] | undefined, labels: Record<string, string>) =>
   (ids ?? []).map((id) => labels[id] ?? id).filter(Boolean).join(', ')
 
+/** A brief's service ids as the alert words them ("Branding, Naming"), for the daily report too. */
+export const briefServices = (ids: string[] | undefined): string => resolveList(ids, SERVICE_LABELS)
+
 export interface BriefLike {
   name: string
   email?: string
