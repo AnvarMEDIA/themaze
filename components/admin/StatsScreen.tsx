@@ -5,31 +5,34 @@ import {
   type KeyboardEvent, type PointerEvent as ReactPointerEvent, type ReactNode,
 } from 'react'
 import {
-  CHANNEL_LABELS, conversion, mergeDays, peakHour, topList,
-  type Channel, type DayCounts, type StatsDay,
+  CHANNEL_LABELS, conversion, mergeDays, peakHour, subtractCounts, topList,
+  type Channel, type StatsDay,
 } from '@/lib/stats/model'
+import {
+  COUNTING_SINCE, PRESETS, earliestDay, isIsoDate, periodLabel, periodQuery, rangeLabel, shortDay, weekBuckets,
+  type Bucket, type Period,
+} from '@/lib/stats/periods'
+import type { StatsPayload } from '@/lib/stats/store'
 import { pluralRu } from '@/lib/utils'
 
 /**
  * Admin → Статистика: the site's own visitor numbers (lib/stats), read from
  * /api/analytics/stats.
  *
- * The period is read once when it is picked. After that, every minute while
- * the tab is in front, only today's row and "on the site now" are read and
- * merged into what is shown: the numbers move without the page blinking, and
- * a tab left open costs two Redis commands a minute, not one per day of the
- * period.
+ * The period is read once when it is picked: today, yesterday, 7, 30 or 90
+ * days, a year, or any span of dates. After that, every minute while the tab
+ * is in front, only today's counters and "on the site now" are read; when
+ * the period includes today they replace today's share of what is shown. The
+ * numbers move without the page blinking, and a tab left open costs two
+ * Redis commands a minute, not one per day of the period.
  *
  * The charts are plain HTML: a charting library would outweigh the page.
  */
 
-interface Payload { days: StatsDay[]; totals: DayCounts; online: number; from: string; to: string }
+type Payload = StatsPayload
+type DayRow = Payload['days'][number]
 
-const RANGES = [7, 30, 90] as const
-type Range = (typeof RANGES)[number]
-
-/** The first day of the counter in Redis; the days before it are empty because it did not exist. */
-const COUNTING_SINCE = '2026-11-12'
+const TODAY: Period = { kind: 'preset', preset: 'today' }
 
 // Series colours, checked as a pair on the card surface (#0D0D0D) for
 // colour-blind separation, lightness and contrast: blue for people and
@@ -44,7 +47,6 @@ const fmt = (n: number) => nf.format(n)
 
 const WEEKDAYS = ['воскресенье', 'понедельник', 'вторник', 'среда', 'четверг', 'пятница', 'суббота']
 const WEEKDAYS_SHORT = ['вс', 'пн', 'вт', 'ср', 'чт', 'пт', 'сб']
-const shortDate = (iso: string) => `${iso.slice(8, 10)}.${iso.slice(5, 7)}`
 const dayIndex = (iso: string) => new Date(`${iso}T12:00:00Z`).getUTCDay()
 const weekday = (iso: string) => WEEKDAYS[dayIndex(iso)]
 
@@ -96,10 +98,10 @@ const tick = (v: number) => (v >= 10_000 ? `${fmt(Math.round(v / 1000))} тыс.
 
 class LoadError extends Error {}
 
-async function fetchStats(days: number): Promise<Payload> {
+async function fetchStats(period: Period): Promise<Payload> {
   let res: Response
   try {
-    res = await fetch(`/api/analytics/stats?days=${days}`, { cache: 'no-store' })
+    res = await fetch(`/api/analytics/stats?${periodQuery(period)}`, { cache: 'no-store' })
   } catch {
     throw new LoadError('Нет связи с сайтом. Проверьте интернет и повторите.')
   }
@@ -336,44 +338,55 @@ function TableView({ summary, head, rows }: { summary: string; head: string[]; r
   )
 }
 
-function DailyChart({ days, today }: { days: StatsDay[]; today: string }) {
-  const n = days.length
-  // A week: every day. Longer: five dates, the last one "сегодня", so a
-  // short last column reads as a day still going rather than a drop.
+/**
+ * People per day, the day's requests on top. Past 92 days a column is a
+ * calendar week instead: a year of days would be columns a pixel wide.
+ */
+function DailyChart({ days, today }: { days: DayRow[]; today: string }) {
+  const weekly = days.length > 92
+  const cols: Bucket[] = weekly
+    ? weekBuckets(days)
+    : days.map((d) => ({ key: d.date, from: d.date, to: d.date, visitors: d.visitors, views: d.views, leads: d.leads }))
+  const n = cols.length
+  const unit = weekly ? 'неделям' : 'дням'
+  // A week: every day. Longer: five dates, the last one "сегодня" when it is,
+  // so a short last column reads as a day still going rather than a drop.
   const sparse = n > 10
   const marks = sparse
     ? Array.from(new Set([0, 1, 2, 3, 4].map((k) => Math.round((k * (n - 1)) / 4))))
-    : days.map((_, i) => i)
-  const name = (d: StatsDay) => (sparse && d.date === today ? 'сегодня' : shortDate(d.date))
+    : cols.map((_, i) => i)
+  const mark = (c: Bucket) => (!weekly && sparse && c.to === today ? 'сегодня' : shortDay(c.from, today))
+  const name = (c: Bucket) => (weekly
+    ? rangeLabel(c.from, c.to, today)
+    : `${shortDay(c.from, today)}, ${weekday(c.from)}`)
+  const going = (c: Bucket) => (c.to !== today ? '' : weekly ? ' · неделя ещё идёт' : ' · сегодня, день не закончился')
   const startsEmpty = days[0] && days[0].date < COUNTING_SINCE
 
   return (
     <section className={card}>
       <div className="mb-5 flex flex-wrap items-baseline justify-between gap-2">
-        <h2 className={cardTitle}>Посетители по дням</h2>
+        <h2 className={cardTitle}>Посетители по {unit}</h2>
         <Legend items={[{ name: 'Посетители', color: PEOPLE.color }, { name: 'Заявки', color: LEADS.color }]} />
       </div>
       <ColumnChart
-        label="Посетители и заявки по дням. Стрелки влево и вправо переходят по дням."
-        columns={days.map((d) => ({ key: d.date, values: [d.visitors, d.leads] }))}
+        label={`Посетители и заявки по ${unit}. Стрелки влево и вправо переходят по ${unit}.`}
+        columns={cols.map((c) => ({ key: c.key, values: [c.visitors, c.leads] }))}
         series={[{ name: 'Посетители', ...PEOPLE }, { name: 'Заявки', ...LEADS }]}
-        xLabels={marks.map((i) => ({ index: i, text: name(days[i]) }))}
+        xLabels={marks.map((i) => ({ index: i, text: mark(cols[i]) }))}
         tip={(i) => {
-          const d = days[i]
+          const c = cols[i]
           return (
             <>
-              <p className="mb-1 text-[11px] text-[#8A8A8A]">
-                {shortDate(d.date)}, {weekday(d.date)}{d.date === today ? ' · сегодня, день не закончился' : ''}
-              </p>
-              <TipRow color={PEOPLE.color} value={people(d.visitors)} name="посетители" />
-              <TipRow color={LEADS.color} value={fmt(d.leads)} name={pluralRu(d.leads, 'заявка', 'заявки', 'заявок')} />
-              <TipRow value={fmt(d.views)} name={pluralRu(d.views, 'просмотр', 'просмотра', 'просмотров')} />
+              <p className="mb-1 text-[11px] text-[#8A8A8A]">{name(c)}{going(c)}</p>
+              <TipRow color={PEOPLE.color} value={people(c.visitors)} name="посетители" />
+              <TipRow color={LEADS.color} value={fmt(c.leads)} name={pluralRu(c.leads, 'заявка', 'заявки', 'заявок')} />
+              <TipRow value={fmt(c.views)} name={pluralRu(c.views, 'просмотр', 'просмотра', 'просмотров')} />
             </>
           )
         }}
         describe={(i) => {
-          const d = days[i]
-          return `${shortDate(d.date)}, ${weekday(d.date)}: ${people(d.visitors)}, ${leads(d.leads)}, ${views(d.views)}`
+          const c = cols[i]
+          return `${name(c)}: ${people(c.visitors)}, ${leads(c.leads)}, ${views(c.views)}`
         }}
       />
       {startsEmpty && (
@@ -383,8 +396,11 @@ function DailyChart({ days, today }: { days: StatsDay[]; today: string }) {
       )}
       <TableView
         summary="Показать таблицей"
-        head={['День', 'Посетители', 'Просмотры', 'Заявки']}
-        rows={[...days].reverse().map((d) => [`${shortDate(d.date)}, ${WEEKDAYS_SHORT[dayIndex(d.date)]}`, d.visitors, d.views, d.leads])}
+        head={[weekly ? 'Неделя' : 'День', 'Посетители', 'Просмотры', 'Заявки']}
+        rows={[...cols].reverse().map((c) => [
+          weekly ? rangeLabel(c.from, c.to, today) : `${shortDay(c.from, today)}, ${WEEKDAYS_SHORT[dayIndex(c.from)]}`,
+          c.visitors, c.views, c.leads,
+        ])}
       />
     </section>
   )
@@ -444,28 +460,116 @@ function leadKinds(kinds: Record<string, number>): string {
   return parts.length ? parts.join(' · ') : 'формы и брифы'
 }
 
+
+const slim = ({ date, visitors, views, leads, newVisitors }: StatsDay): DayRow => ({ date, visitors, views, leads, newVisitors })
+
+function CalendarIcon() {
+  return (
+    <svg aria-hidden width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round">
+      <rect x="2" y="3" width="12" height="11" rx="2" />
+      <path d="M2 6.5h12M5.5 1.5v3M10.5 1.5v3" />
+    </svg>
+  )
+}
+
+/**
+ * Any span of dates: two native date fields, which on a phone open the
+ * system's own picker. Reversed dates are swapped; one date in both fields
+ * is that one day. Days before the counter started, or older than the 400
+ * kept, cannot be picked.
+ */
+function RangePanel({ id, from, to, today, onApply, onClose }: {
+  id: string; from: string; to: string; today: string
+  onApply: (from: string, to: string) => void
+  onClose: () => void
+}) {
+  const min = COUNTING_SINCE > earliestDay(today) ? COUNTING_SINCE : earliestDay(today)
+  const [a, setA] = useState(from < min ? min : from)
+  const [b, setB] = useState(to)
+  const first = useRef<HTMLInputElement>(null)
+  useEffect(() => { first.current?.focus() }, [])
+
+  const ok = isIsoDate(a) && isIsoDate(b)
+  const field = 'mt-1 block rounded-lg border border-[#2A2A2A] bg-[#111] px-3 py-2 text-[13px] text-white [color-scheme:dark] transition-colors duration-150 focus:border-[#C8FF47]/60 focus:outline-none'
+
+  return (
+    <div
+      id={id}
+      role="group"
+      aria-label="Свой период"
+      onKeyDown={(e) => { if (e.key === 'Escape') { e.stopPropagation(); onClose() } }}
+      className="stats-panel rounded-xl border border-[#1E1E1E] bg-[#0D0D0D] p-4"
+    >
+      <form
+        className="flex flex-wrap items-end gap-3"
+        onSubmit={(e) => {
+          e.preventDefault()
+          if (!ok) return
+          const [f, t] = a <= b ? [a, b] : [b, a]
+          onApply(f, t)
+        }}
+      >
+        <label className="text-[12px] text-[#8A8A8A]">
+          С
+          <input ref={first} type="date" required value={a} min={min} max={today} onChange={(e) => setA(e.target.value)} className={field} />
+        </label>
+        <label className="text-[12px] text-[#8A8A8A]">
+          По
+          <input type="date" required value={b} min={min} max={today} onChange={(e) => setB(e.target.value)} className={field} />
+        </label>
+        <div className="flex gap-2">
+          <button
+            type="submit"
+            disabled={!ok}
+            className="rounded-lg bg-[#C8FF47] px-4 py-2 text-[13px] font-bold text-[#0A0A0A] transition-[background-color,transform] duration-150 ease-out hover:bg-[#F0EEE6] active:scale-[0.97] disabled:opacity-50"
+          >
+            Показать
+          </button>
+          <button
+            type="button"
+            onClick={onClose}
+            className="rounded-lg border border-[#2A2A2A] px-3 py-2 text-[13px] text-[#bbb] transition-[border-color,color,transform] duration-150 ease-out hover:border-[#333] hover:text-white active:scale-[0.97]"
+          >
+            Отмена
+          </button>
+        </div>
+      </form>
+      <p className="mt-3 text-[11px] text-[#6B6B6B]">
+        Счёт идёт с {shortDay(min, today)}. Для одного дня выберите одну и ту же дату в обоих полях.
+      </p>
+    </div>
+  )
+}
+
 /* ── The screen ─────────────────────────────────────────────────────────── */
 
 export function StatsScreen() {
-  const [range, setRange] = useState<Range>(30)
+  const [period, setPeriod] = useState<Period>({ kind: 'preset', preset: '30' })
+  // The period the numbers on screen are for: while another one loads, the
+  // old numbers stay (dimmed) and keep their own captions.
+  const [shownPeriod, setShownPeriod] = useState<Period>(period)
   const [data, setData] = useState<Payload | null>(null)
   const [busy, setBusy] = useState(true)
   const [error, setError] = useState('')
+  const [picking, setPicking] = useState(false)
+  const datesButton = useRef<HTMLButtonElement>(null)
+  const panelId = useId()
   // What is on screen, and which full read is the latest: a minute's update
   // must not land on top of a period picked while it was in flight.
   const shown = useRef<Payload | null>(null)
   const loading = useRef(false)
   const seq = useRef(0)
 
-  const load = useCallback(async (days: Range) => {
+  const load = useCallback(async (p: Period) => {
     const id = ++seq.current
     loading.current = true
     setBusy(true)
     try {
-      const next = await fetchStats(days)
+      const next = await fetchStats(p)
       if (id !== seq.current) return
       shown.current = next
       setData(next)
+      setShownPeriod(p)
       setError('')
     } catch (err) {
       if (id !== seq.current) return
@@ -475,22 +579,32 @@ export function StatsScreen() {
     }
   }, [])
 
-  useEffect(() => { void load(range) }, [range, load])
+  useEffect(() => { void load(period) }, [period, load])
 
-  // Every minute, while the tab is in front: today's row and who is here now.
+  // Every minute, while the tab is in front: today's counters and who is
+  // here now. When the period includes today, today's old share of the
+  // totals is taken out and the new one put in; otherwise only "on the site
+  // now" changes.
   useEffect(() => {
     const refresh = async () => {
       const before = shown.current
       if (document.visibilityState !== 'visible' || loading.current || !before) return
       const id = seq.current
       try {
-        const fresh = await fetchStats(1)
+        const fresh = await fetchStats(TODAY)
         if (id !== seq.current || shown.current !== before) return
-        const today = fresh.days[fresh.days.length - 1]
-        // Past midnight the period itself has moved: read it again.
-        if (!today || today.date !== before.to) { void load(range); return }
-        const days = [...before.days.slice(0, -1), today]
-        const next = { ...before, days, totals: mergeDays(days), online: fresh.online }
+        // Past midnight "today" is another day, and the period may have moved.
+        if (fresh.today !== before.today) { void load(period); return }
+        let next: Payload = { ...before, online: fresh.online }
+        if (before.todayRow && fresh.todayRow) {
+          const row = fresh.todayRow
+          next = {
+            ...next,
+            days: before.days.map((d) => (d.date === row.date ? slim(row) : d)),
+            totals: mergeDays([subtractCounts(before.totals, before.todayRow), row]),
+            todayRow: row,
+          }
+        }
         shown.current = next
         setData(next)
       } catch { /* what is on screen stays; the next minute tries again */ }
@@ -499,31 +613,65 @@ export function StatsScreen() {
     const onShow = () => { if (document.visibilityState === 'visible') void refresh() }
     document.addEventListener('visibilitychange', onShow)
     return () => { window.clearInterval(timer); document.removeEventListener('visibilitychange', onShow) }
-  }, [range, load])
+  }, [period, load])
+
+  const pick = (p: Period) => { setPicking(false); setPeriod(p) }
+  const closePicker = () => { setPicking(false); datesButton.current?.focus() }
 
   const t = data?.totals
   const rate = t ? conversion(t.leads, t.visitors) : 0
+  const single = !!data && data.from === data.to
+  const segment = (active: boolean) =>
+    `inline-flex items-center gap-1.5 rounded-md px-3 py-1.5 text-[13px] font-medium transition-[background-color,color,transform] duration-150 ease-out active:scale-[0.97] ${
+      active ? 'bg-[#1E1E1E] text-white' : 'text-[#777] hover:text-white'
+    }`
 
   return (
     <div className="space-y-4">
-      <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
-        <div role="group" aria-label="Период" className="inline-flex rounded-lg border border-[#252525] bg-[#0D0D0D] p-0.5">
-          {RANGES.map((n) => (
+      <div className="space-y-3">
+        <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
+          <div role="group" aria-label="Период" className="inline-flex flex-wrap gap-0.5 rounded-lg border border-[#252525] bg-[#0D0D0D] p-0.5">
+            {PRESETS.map((p) => (
+              <button
+                key={p.id}
+                type="button"
+                onClick={() => pick({ kind: 'preset', preset: p.id })}
+                aria-pressed={period.kind === 'preset' && period.preset === p.id}
+                className={segment(period.kind === 'preset' && period.preset === p.id)}
+              >
+                {p.label}
+              </button>
+            ))}
             <button
-              key={n}
+              ref={datesButton}
               type="button"
-              onClick={() => setRange(n)}
-              aria-pressed={range === n}
-              className={`rounded-md px-3 py-1.5 text-[13px] font-medium transition-[background-color,color,transform] duration-150 ease-out active:scale-[0.97] ${
-                range === n ? 'bg-[#1E1E1E] text-white' : 'text-[#777] hover:text-white'
-              }`}
+              onClick={() => setPicking((open) => !open)}
+              disabled={!data}
+              aria-expanded={picking}
+              aria-controls={panelId}
+              aria-label={period.kind === 'custom'
+                ? `Свой период: ${rangeLabel(period.from, period.to, data?.today ?? period.to)}. Изменить даты`
+                : 'Выбрать даты'}
+              className={`${segment(period.kind === 'custom' || picking)} disabled:opacity-50`}
             >
-              {n} дней
+              <CalendarIcon />
+              {period.kind === 'custom' ? rangeLabel(period.from, period.to, data?.today ?? period.to) : 'Даты'}
             </button>
-          ))}
+          </div>
+          <span role="status" className="text-[12px] text-[#777]">{busy && data ? 'обновляем…' : ''}</span>
+          <OnlineNow count={data ? data.online : null} />
         </div>
-        <span role="status" className="text-[12px] text-[#777]">{busy && data ? 'обновляем…' : ''}</span>
-        <OnlineNow count={data ? data.online : null} />
+
+        {picking && data && (
+          <RangePanel
+            id={panelId}
+            from={data.from}
+            to={data.to}
+            today={data.today}
+            onApply={(from, to) => { pick({ kind: 'custom', from, to }); datesButton.current?.focus() }}
+            onClose={closePicker}
+          />
+        )}
       </div>
 
       {error && (
@@ -531,7 +679,7 @@ export function StatsScreen() {
           <span className="min-w-[200px] flex-1">{error}</span>
           <button
             type="button"
-            onClick={() => load(range)}
+            onClick={() => load(period)}
             className="rounded-lg border border-[#E27A5C]/40 px-3 py-1.5 text-[12px] font-semibold text-white transition-[background-color,transform] duration-150 ease-out hover:bg-[#E27A5C]/15 active:scale-[0.97]"
           >
             Повторить
@@ -547,16 +695,21 @@ export function StatsScreen() {
         <div className={`space-y-4 transition-opacity duration-200 ${busy ? 'opacity-60' : ''}`} aria-busy={busy}>
           {t.views === 0 && (
             <div className="rounded-xl border border-[#C8FF47]/20 bg-[#C8FF47]/[0.04] p-4">
-              <p className="text-[13px] font-semibold text-white">Данных пока нет</p>
+              <p className="text-[13px] font-semibold text-white">
+                {data.to < COUNTING_SINCE ? 'За этот период данных нет' : data.to === data.today ? 'Данных пока нет' : 'За этот период просмотров нет'}
+              </p>
               <p className="mt-1 max-w-2xl text-[12px] leading-relaxed text-[#9A9A9A]">
-                Счётчик собственный и начал считать с момента установки — прошлые визиты в него не попадут.
-                Откройте сайт в другом браузере (где не открыта админка), и первые цифры появятся здесь в течение минуты.
+                {data.to < COUNTING_SINCE
+                  ? 'Счётчик работает с 12.11.2026 — более ранние визиты в него не попали.'
+                  : data.to === data.today
+                    ? 'Счётчик собственный и начал считать с момента установки — прошлые визиты в него не попадут. Откройте сайт в другом браузере (где не открыта админка), и первые цифры появятся здесь в течение минуты.'
+                    : 'Счётчик за эти дни ничего не записал.'}
               </p>
             </div>
           )}
 
           <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
-            <Stat label="Посетители" swatch={PEOPLE.color} value={fmt(t.visitors)} hint={`за ${range} дней`} />
+            <Stat label="Посетители" swatch={PEOPLE.color} value={fmt(t.visitors)} hint={periodLabel(shownPeriod, data.from, data.to, data.today)} />
             <Stat
               label="Просмотры"
               value={fmt(t.views)}
@@ -566,7 +719,8 @@ export function StatsScreen() {
             <Stat label="Конверсия" value={`${String(rate).replace('.', ',')}%`} good={rate >= 1} hint="заявок на 100 посетителей" />
           </div>
 
-          <DailyChart days={data.days} today={data.to} />
+          {/* One day is one column: its hours say more. */}
+          {single ? <HoursChart hours={t.hours} /> : <DailyChart days={data.days} today={data.today} />}
 
           <div className="grid gap-3 lg:grid-cols-2">
             <Breakdown title="Каналы" rows={topList(t.channels, 8)} total={t.views} label={(k) => CHANNEL_LABELS[k as Channel] ?? k} />
@@ -575,7 +729,7 @@ export function StatsScreen() {
             <Breakdown title="Кампании" rows={topList(t.campaigns, 8)} total={t.views} empty="Переходов с utm-метками пока не было" />
           </div>
 
-          <HoursChart hours={t.hours} />
+          {!single && <HoursChart hours={t.hours} />}
 
           <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
             <Breakdown title="Устройства" rows={topList(t.devices, 5)} total={t.views} label={(k) => DEVICE_LABELS[k] ?? k} />

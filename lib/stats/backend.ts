@@ -112,10 +112,16 @@ function redisBackend(redis: Redis): StatsBackend {
     },
     async readDays(dayKeys) {
       if (dayKeys.length === 0) return []
-      const p = redis.pipeline()
-      for (const key of dayKeys) p.hgetall(key)
-      const rows = await p.exec<Array<unknown>>()
-      return rows.map(hashFromReply)
+      // A year is 365 hashes: read in pipelines of up to 92, side by side,
+      // so that no single reply grows past what one request should carry.
+      const chunks: string[][] = []
+      for (let i = 0; i < dayKeys.length; i += 92) chunks.push(dayKeys.slice(i, i + 92))
+      const replies = await Promise.all(chunks.map((keys) => {
+        const p = redis.pipeline()
+        for (const key of keys) p.hgetall(key)
+        return p.exec<Array<unknown>>()
+      }))
+      return replies.flat().map(hashFromReply)
     },
     async unionSize(keys) {
       if (keys.length === 0) return 0

@@ -80,7 +80,7 @@ export function ReportStatus() {
   const load = useCallback(async () => {
     const [r, s] = await Promise.allSettled([
       getJson<RunsReply>('/api/cron/daily-digest?runs=1'),
-      getJson<TodayReply>('/api/analytics/stats?days=1'),
+      getJson<TodayReply>('/api/analytics/stats?period=today'),
     ])
     if (r.status === 'fulfilled') { setRuns(r.value); setRunsError('') }
     else setRunsError(r.reason instanceof Error ? r.reason.message : 'не удалось прочитать')

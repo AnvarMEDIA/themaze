@@ -5,7 +5,8 @@ import {
   F, SITE_LOCALES, classifySource, explodeDay, isBot, mergeDays, normalizePagePath, parseDevice,
   type Channel, type DayCounts, type Device, type StatsDay,
 } from './model'
-import { daysEndingOn, siteDay, siteHour } from './time'
+import { daysBetween, resolvePeriod } from './periods'
+import { siteDay, siteHour } from './time'
 
 /**
  * The site's own visitor statistics, in Redis (lib/stats/backend).
@@ -161,18 +162,44 @@ export async function onlineNow(now: Date = new Date()): Promise<number> {
 }
 
 export interface StatsPayload {
-  days: StatsDay[]
+  /** Each day's headline figures, oldest first; the breakdowns are in `totals`. */
+  days: Array<{ date: string; visitors: number; views: number; leads: number; newVisitors: number }>
+  /** The period's counters summed, every breakdown included. */
   totals: DayCounts
+  /** People on the site in the last five minutes. */
   online: number
   from: string
   to: string
+  /** Today on the studio's calendar, as the server sees it. */
+  today: string
+  /** Today's full counters when the period includes today: what the screen's minute update replaces. */
+  todayRow: StatsDay | null
 }
 
-/** The last `days` days (today included), their totals, and who is here now. */
+/**
+ * The days from `from` to `to` (both included), their totals, and who is
+ * here now. Each day travels as its headline figures only, and the
+ * breakdowns once, summed: a year of full days would be a megabyte and a
+ * half to send.
+ */
+export async function readPeriod(from: string, to: string, now: Date = new Date()): Promise<StatsPayload> {
+  const today = siteDay(now)
+  const [rows, online] = await Promise.all([readDays(daysBetween(from, to)), onlineNow(now).catch(() => 0)])
+  return {
+    days: rows.map(({ date, visitors, views, leads, newVisitors }) => ({ date, visitors, views, leads, newVisitors })),
+    totals: mergeDays(rows),
+    online,
+    from,
+    to,
+    today,
+    todayRow: rows.find((r) => r.date === today) ?? null,
+  }
+}
+
+/** The last `days` days (today included). */
 export async function readStats(days = 30, now: Date = new Date()): Promise<StatsPayload> {
-  const dates = daysEndingOn(siteDay(now), Math.min(Math.max(Math.round(days) || 1, 1), 180))
-  const [rows, online] = await Promise.all([readDays(dates), onlineNow(now).catch(() => 0)])
-  return { days: rows, totals: mergeDays(rows), online, from: dates[0], to: dates[dates.length - 1] }
+  const { from, to } = resolvePeriod({ days: String(days) }, siteDay(now))
+  return readPeriod(from, to, now)
 }
 
 /** Take a one-time flag (a report already sent, say); false when it was taken before. */

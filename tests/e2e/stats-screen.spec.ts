@@ -1,7 +1,8 @@
 import { test, expect, type Page } from '@playwright/test'
 import { SignJWT } from 'jose'
 import { emptyCounts, mergeDays, type StatsDay } from '../../lib/stats/model'
-import { daysEndingOn, siteDay } from '../../lib/stats/time'
+import { COUNTING_SINCE, daysBetween, resolvePeriod, weekBuckets } from '../../lib/stats/periods'
+import { shiftDay, siteDay } from '../../lib/stats/time'
 
 /**
  * Admin → Статистика and the dashboard's status lines.
@@ -9,9 +10,9 @@ import { daysEndingOn, siteDay } from '../../lib/stats/time'
  * Without a session the data must be refused; that is checked against any
  * server. The screens need a session, signed with JWT_SECRET, so they run
  * only against a server on this machine. Their numbers are answered by the
- * test (a month of an ad campaign, an empty store, a store that is down), so
+ * test (weeks of an ad campaign, an empty store, a store that is down), so
  * what is drawn is known and the screenshots can be compared by eye; the
- * real endpoint is checked separately, once, for its shape.
+ * real endpoint is checked separately for its shape and its periods.
  */
 
 const SECRET = process.env.JWT_SECRET
@@ -30,7 +31,16 @@ async function adminToken(): Promise<string> {
     .sign(new TextEncoder().encode(SECRET))
 }
 
-/* ── A month of numbers ─────────────────────────────────────────────────── */
+/* ── Weeks of numbers ───────────────────────────────────────────────────── */
+
+/**
+ * The day the answered numbers take for today: five weeks after the counter
+ * started, so that every period has days to show and the date fields have
+ * days to offer. The screen takes "today" from the answer, never its clock.
+ */
+const TODAY = '2026-12-20'
+const ddmm = (iso: string) => `${iso.slice(8, 10)}.${iso.slice(5, 7)}`
+const nf = new Intl.NumberFormat('ru-RU')
 
 function random(seed: number) {
   return () => {
@@ -48,18 +58,23 @@ function split(total: number, weights: Record<string, number>): Record<string, n
   return { [Object.keys(weights)[0]]: left, ...out }
 }
 
-/** A day of a phone-heavy site whose ads started a week ago. */
-function sampleDay(date: string, i: number, n: number, today: string): StatsDay {
-  const r = random(i + 7)
-  const ads = i >= n - 8
+/**
+ * A day of a phone-heavy site whose ads started a week before TODAY; today
+ * a third done, plus `extra` people since. Before the counter started,
+ * nothing, as in the real store.
+ */
+function sampleDay(date: string, extra = 0): StatsDay {
+  if (date < COUNTING_SINCE) return { ...emptyCounts(), date }
+  const r = random(Math.round(Date.parse(`${date}T00:00:00Z`) / 86_400_000))
+  const ads = date > shiftDay(TODAY, -8)
   let visitors = Math.round((ads ? 620 : 45) + (ads ? 260 : 30) * r())
-  if (date === today) visitors = Math.round(visitors * 0.35)
+  if (date === TODAY) visitors = Math.round(visitors * 0.35) + extra
   const views = Math.round(visitors * (1.4 + r() * 0.5))
   const leads = Math.round(visitors * (ads ? 0.012 : 0.02) * r() + (r() > 0.6 ? 1 : 0))
   const brief = Math.min(leads, Math.round(leads * 0.4))
   const hours = Array.from({ length: 24 }, (_, h) => Math.max(0, Math.round(Math.exp(-((h - 15) ** 2) / 18) * 10 + (h > 8 && h < 23 ? 2 : 0))))
   const hsum = hours.reduce((s, v) => s + v, 0)
-  const day: StatsDay = {
+  return {
     ...emptyCounts(),
     date,
     views,
@@ -80,23 +95,31 @@ function sampleDay(date: string, i: number, n: number, today: string): StatsDay 
     locales: split(views, { ru: 84, en: 16 }),
     hours: hours.map((v) => Math.round((v / hsum) * views)),
   }
-  return day
 }
 
-function payload(days: number, opts: { online?: number; empty?: boolean } = {}) {
-  const today = siteDay()
-  const dates = daysEndingOn(today, days)
-  const rows = dates.map((d, i) => opts.empty ? { ...emptyCounts(), date: d } : sampleDay(d, i + (90 - days), 90, today))
-  return { days: rows, totals: mergeDays(rows), online: opts.online ?? 4, from: dates[0], to: dates[dates.length - 1] }
+/** What the endpoint answers for a query, as lib/stats/store builds it. */
+function payloadFor(query: string, opts: { online?: number; empty?: boolean; extra?: number } = {}) {
+  const q = new URLSearchParams(query)
+  const { from, to } = resolvePeriod({ period: q.get('period'), from: q.get('from'), to: q.get('to'), days: q.get('days') }, TODAY)
+  const rows = daysBetween(from, to).map((d) => (opts.empty ? { ...emptyCounts(), date: d } : sampleDay(d, opts.extra)))
+  return {
+    days: rows.map(({ date, visitors, views, leads, newVisitors }) => ({ date, visitors, views, leads, newVisitors })),
+    totals: mergeDays(rows),
+    online: opts.online ?? 4,
+    from,
+    to,
+    today: TODAY,
+    todayRow: rows.find((r) => r.date === TODAY) ?? null,
+  }
 }
 
-/** Answer the screen's reads; returns the `days` asked for, in order. */
-async function answerStats(page: Page, reply: (days: number) => { status?: number; body: unknown }) {
-  const asked: number[] = []
+/** Answer the screen's reads; returns each query asked, in order ("period=30", "from=…&to=…"). */
+async function answerStats(page: Page, reply: (query: string) => { status?: number; body: unknown }) {
+  const asked: string[] = []
   await page.route('**/api/analytics/stats?*', async (route) => {
-    const days = Number(new URL(route.request().url()).searchParams.get('days'))
-    asked.push(days)
-    const { status = 200, body } = reply(days)
+    const query = new URL(route.request().url()).search.slice(1)
+    asked.push(query)
+    const { status = 200, body } = reply(query)
     await route.fulfill({ status, contentType: 'application/json', body: JSON.stringify(body) })
   })
   return asked
@@ -106,29 +129,50 @@ async function signIn(page: Page) {
   await page.context().addCookies([{ name: 'maze_admin_token', value: await adminToken(), url: BASE }])
 }
 
+/** The "Посетители" card: its number and the period it covers. */
+const visitorsCard = (page: Page) => page.getByText('Посетители', { exact: true }).first().locator('xpath=..')
+
 /* ── The endpoint ───────────────────────────────────────────────────────── */
 
 test.describe('GET /api/analytics/stats', () => {
   test.skip(({ isMobile }) => isMobile, 'an endpoint: once is enough')
 
   test('is refused without a session', async ({ request }) => {
-    const res = await request.get('/api/analytics/stats?days=7')
-    expect(res.status()).toBe(401)
+    expect((await request.get('/api/analytics/stats?days=7')).status()).toBe(401)
+    expect((await request.get('/api/analytics/stats?period=year')).status()).toBe(401)
   })
 
-  test('gives a signed-in admin the period, today last, and who is here now', async ({ request }) => {
+  test('gives a signed-in admin each period: its days, their totals, today, who is here now', async ({ request }) => {
     test.skip(!SIGNED_IN, 'needs a session: JWT_SECRET and a server on this machine')
-    const res = await request.get('/api/analytics/stats?days=7', {
-      headers: { cookie: `maze_admin_token=${await adminToken()}` },
-    })
-    expect(res.status()).toBe(200)
-    expect(res.headers()['cache-control']).toContain('no-store')
-    const body = await res.json() as ReturnType<typeof payload>
-    expect(body.days).toHaveLength(7)
-    expect(body.to).toBe(siteDay())
-    expect(body.days[6].date).toBe(body.to)
-    expect(typeof body.online).toBe('number')
-    expect(body.totals.views).toBe(body.days.reduce((s, d) => s + d.views, 0))
+    const headers = { cookie: `maze_admin_token=${await adminToken()}` }
+    const get = async (query: string) => {
+      const res = await request.get(`/api/analytics/stats?${query}`, { headers })
+      expect(res.status()).toBe(200)
+      expect(res.headers()['cache-control']).toContain('no-store')
+      return await res.json() as ReturnType<typeof payloadFor>
+    }
+    const today = siteDay()
+
+    const week = await get('days=7')
+    expect(week.days).toHaveLength(7)
+    expect(week).toMatchObject({ to: today, today })
+    expect(week.days[6].date).toBe(today)
+    expect(week.todayRow?.date).toBe(today)
+    expect(typeof week.online).toBe('number')
+    expect(week.totals.views).toBe(week.days.reduce((s, d) => s + d.views, 0))
+
+    expect(await get('period=today')).toMatchObject({ from: today, to: today, days: [{ date: today }] })
+    const yesterday = await get('period=yesterday')
+    expect(yesterday).toMatchObject({ from: shiftDay(today, -1), to: shiftDay(today, -1), todayRow: null })
+    expect((await get('period=year')).days).toHaveLength(365)
+
+    // Chosen dates: reversed ones swapped, the future cut off at today.
+    const span = await get(`from=${today}&to=${shiftDay(today, -4)}`)
+    expect(span).toMatchObject({ from: shiftDay(today, -4), to: today })
+    expect(span.days).toHaveLength(5)
+    expect(await get(`from=${shiftDay(today, -1)}&to=${shiftDay(today, 30)}`)).toMatchObject({ from: shiftDay(today, -1), to: today })
+    // Not a date: the default month, not an error.
+    expect((await get('from=2026-02-30&to=2026-03-02')).days).toHaveLength(30)
   })
 })
 
@@ -139,19 +183,17 @@ test.describe('Admin → Статистика', () => {
 
   test('a month: the cards, the chart with its table, the breakdowns, the hours', async ({ page }, info) => {
     await signIn(page)
-    await answerStats(page, (days) => ({ body: payload(days) }))
+    await answerStats(page, (q) => ({ body: payloadFor(q) }))
     await page.goto('/admin/stats')
 
-    const month = payload(30)
-    const t = month.totals
+    const t = payloadFor('period=30').totals
     await expect(page.getByRole('heading', { name: 'Статистика', level: 1 })).toBeVisible()
     await expect(page.getByRole('button', { name: '30 дней' })).toHaveAttribute('aria-pressed', 'true')
     await expect(page.getByText('Сейчас на сайте:')).toContainText('4')
 
-    const nf = new Intl.NumberFormat('ru-RU')
-    await expect(page.getByText(nf.format(t.visitors), { exact: true })).toBeVisible()
+    await expect(visitorsCard(page)).toContainText(nf.format(t.visitors))
     await expect(page.getByText(nf.format(t.views), { exact: true }).first()).toBeVisible()
-    await expect(page.getByText('за 30 дней')).toBeVisible()
+    await expect(visitorsCard(page)).toContainText('за 30 дней')
     await expect(page.getByText('заявок на 100 посетителей')).toBeVisible()
 
     for (const title of ['Посетители по дням', 'Каналы', 'Источники', 'Страницы', 'Кампании', 'Часы посещений · по Ташкенту', 'Устройства', 'Страны', 'Браузеры', 'Язык сайта']) {
@@ -167,16 +209,14 @@ test.describe('Admin → Статистика', () => {
     await page.getByText('Показать таблицей').first().click()
     const rows = page.locator('details[open] tbody tr')
     await expect(rows).toHaveCount(30)
-    const today = siteDay()
-    const weekday = ['вс', 'пн', 'вт', 'ср', 'чт', 'пт', 'сб'][new Date(`${today}T12:00:00Z`).getUTCDay()]
-    await expect(rows.first()).toContainText(`${today.slice(8, 10)}.${today.slice(5, 7)}, ${weekday}`)
+    await expect(rows.first()).toContainText(`${ddmm(TODAY)}, вс`)
 
     await page.screenshot({ path: `test-results/screens/stats-${info.project.name}.png`, fullPage: true })
   })
 
   test('the chart answers the pointer and the keyboard', async ({ page, isMobile }) => {
     await signIn(page)
-    await answerStats(page, (days) => ({ body: payload(days) }))
+    await answerStats(page, (q) => ({ body: payloadFor(q) }))
     await page.goto('/admin/stats')
 
     const chart = page.getByRole('group', { name: /Посетители и заявки по дням/ })
@@ -188,33 +228,134 @@ test.describe('Admin → Статистика', () => {
 
     await chart.focus()
     await page.keyboard.press('Home')
-    const first = payload(30).days[0]
-    await expect(page.locator('p[aria-live="polite"]').filter({ hasText: `${first.date.slice(8, 10)}.${first.date.slice(5, 7)}` })).toHaveCount(1)
+    const first = payloadFor('period=30').days[0]
+    await expect(page.locator('p[aria-live="polite"]').filter({ hasText: ddmm(first.date) })).toHaveCount(1)
   })
 
-  test('another period is read once; after that only today, every minute', async ({ page }) => {
+  test('another period is read once; after that only today, every minute, into the totals', async ({ page }) => {
     await page.clock.install()
     await signIn(page)
     let online = 4
-    const asked = await answerStats(page, (days) => ({ body: payload(days, { online }) }))
+    let extra = 0
+    const asked = await answerStats(page, (q) => ({ body: payloadFor(q, { online, extra }) }))
     await page.goto('/admin/stats')
     await expect(page.getByText('Сейчас на сайте:')).toContainText('4')
 
     await page.getByRole('button', { name: '7 дней' }).click()
     await expect(page.getByRole('button', { name: '7 дней' })).toHaveAttribute('aria-pressed', 'true')
     await expect(page.getByText('за 7 дней')).toBeVisible()
-    expect(asked).toEqual([30, 7])
+    expect(asked).toEqual(['period=30', 'period=7'])
 
+    // A minute on, 40 more people today: today's share of the week is
+    // replaced, the rest of the week stays as it was read.
     online = 9
+    extra = 40
     await page.clock.fastForward(61_000)
     await expect(page.getByText('Сейчас на сайте:')).toContainText('9')
-    expect(asked).toEqual([30, 7, 1])
+    expect(asked).toEqual(['period=30', 'period=7', 'period=today'])
+    await expect(visitorsCard(page)).toContainText(nf.format(payloadFor('period=7', { extra: 40 }).totals.visitors))
     await expect(page.getByText('за 7 дней')).toBeVisible()
+  })
+
+  test('Сегодня and Вчера: one day shows its hours, not a one-column chart', async ({ page }) => {
+    await page.clock.install()
+    await signIn(page)
+    let online = 4
+    let extra = 0
+    const asked = await answerStats(page, (q) => ({ body: payloadFor(q, { online, extra }) }))
+    await page.goto('/admin/stats')
+    await expect(page.getByRole('heading', { name: 'Посетители по дням' })).toBeVisible()
+
+    await page.getByRole('button', { name: 'Сегодня' }).click()
+    await expect(visitorsCard(page)).toContainText('сегодня')
+    await expect(page.getByRole('heading', { name: 'Посетители по дням' })).toHaveCount(0)
+    await expect(page.getByRole('heading', { name: 'Часы посещений · по Ташкенту' })).toHaveCount(1)
+    await expect(visitorsCard(page)).toContainText(nf.format(payloadFor('period=today').totals.visitors))
+
+    await page.getByRole('button', { name: 'Вчера' }).click()
+    await expect(visitorsCard(page)).toContainText('вчера')
+    const yesterday = payloadFor('period=yesterday').totals.visitors
+    await expect(visitorsCard(page)).toContainText(nf.format(yesterday))
+    expect(asked).toEqual(['period=30', 'period=today', 'period=yesterday'])
+
+    // Yesterday is over: a minute on, only "on the site now" moves.
+    online = 7
+    extra = 40
+    await page.clock.fastForward(61_000)
+    await expect(page.getByText('Сейчас на сайте:')).toContainText('7')
+    await expect(visitorsCard(page)).toContainText(nf.format(yesterday))
+  })
+
+  test('Год: a column a week, and a table of weeks', async ({ page }, info) => {
+    await signIn(page)
+    await answerStats(page, (q) => ({ body: payloadFor(q) }))
+    await page.goto('/admin/stats')
+    await page.getByRole('button', { name: 'Год', exact: true }).click()
+
+    await expect(visitorsCard(page)).toContainText('за год')
+    await expect(page.getByRole('heading', { name: 'Посетители по неделям' })).toBeVisible()
+    await expect(page.getByText(/Счётчик работает с 12\.11\.2026/)).toBeVisible()
+    await page.getByText('Показать таблицей').first().click()
+    const weeks = weekBuckets(payloadFor('period=year').days)
+    await expect(page.locator('details[open] tbody tr')).toHaveCount(weeks.length)
+    await expect(page.locator('details[open] thead')).toContainText('Неделя')
+    await page.locator('details[open] summary').click()
+
+    await page.screenshot({ path: `test-results/screens/stats-year-${info.project.name}.png`, fullPage: true })
+  })
+
+  test('Даты: any span of days, reversed ones swapped, one date is one day', async ({ page }, info) => {
+    await signIn(page)
+    const asked = await answerStats(page, (q) => ({ body: payloadFor(q) }))
+    await page.goto('/admin/stats')
+
+    const dates = page.getByRole('button', { name: 'Выбрать даты' })
+    await dates.click()
+    const panel = page.getByRole('group', { name: 'Свой период' })
+    await expect(panel).toBeVisible()
+    const [from, to] = [panel.getByLabel('С', { exact: true }), panel.getByLabel('По', { exact: true })]
+    // Opens on the period on screen, and offers no day the counter never saw.
+    await expect(from).toHaveValue(shiftDay(TODAY, -29))
+    await expect(to).toHaveValue(TODAY)
+    await expect(from).toHaveAttribute('min', COUNTING_SINCE)
+    await expect(to).toHaveAttribute('max', TODAY)
+    await page.screenshot({ path: `test-results/screens/stats-dates-${info.project.name}.png` })
+
+    await from.fill('2026-12-11')
+    await to.fill('2026-12-05')
+    await panel.getByRole('button', { name: 'Показать' }).click()
+    await expect(panel).toHaveCount(0)
+    expect(asked.at(-1)).toBe('from=2026-12-05&to=2026-12-11')
+    await expect(page.getByRole('button', { name: /Свой период: 05\.12–11\.12/ })).toBeVisible()
+    await expect(visitorsCard(page)).toContainText('с 05.12 по 11.12')
+    await page.getByText('Показать таблицей').first().click()
+    await expect(page.locator('details[open] tbody tr')).toHaveCount(7)
+
+    // One date in both fields: that day, with its hours.
+    await page.getByRole('button', { name: /Свой период/ }).click()
+    await from.fill('2026-12-08')
+    await to.fill('2026-12-08')
+    await to.press('Enter')
+    await expect.poll(() => asked.at(-1)).toBe('from=2026-12-08&to=2026-12-08')
+    await expect(visitorsCard(page)).toContainText('за 08.12')
+    await expect(page.getByRole('heading', { name: 'Посетители по дням' })).toHaveCount(0)
+    await expect(page.getByRole('heading', { name: 'Часы посещений · по Ташкенту' })).toBeVisible()
+
+    // Escape puts the panel away and the focus back on its button.
+    await page.getByRole('button', { name: /Свой период/ }).click()
+    await expect(panel).toBeVisible()
+    await page.keyboard.press('Escape')
+    await expect(panel).toHaveCount(0)
+    await expect(page.getByRole('button', { name: /Свой период/ })).toBeFocused()
+
+    // A preset again leaves the chosen dates behind.
+    await page.getByRole('button', { name: '30 дней' }).click()
+    await expect(page.getByRole('button', { name: 'Выбрать даты' })).toBeVisible()
   })
 
   test('nothing counted yet: says why, and how to see the first numbers', async ({ page }, info) => {
     await signIn(page)
-    await answerStats(page, (days) => ({ body: payload(days, { empty: true, online: 0 }) }))
+    await answerStats(page, (q) => ({ body: payloadFor(q, { empty: true, online: 0 }) }))
     await page.goto('/admin/stats')
     await expect(page.getByText('Данных пока нет')).toBeVisible()
     await expect(page.getByText('Переходов с utm-метками пока не было')).toBeVisible()
@@ -225,9 +366,9 @@ test.describe('Admin → Статистика', () => {
   test('a store that does not answer: the reason, and «Повторить» reads again', async ({ page }) => {
     await signIn(page)
     let down = true
-    await answerStats(page, (days) => down
+    await answerStats(page, (q) => down
       ? { status: 503, body: { error: 'Статистика не подключена: в Vercel нет Redis (KV_REST_API_URL).' } }
-      : { body: payload(days) })
+      : { body: payloadFor(q) })
     await page.goto('/admin/stats')
     // Ours, not Next's route announcer, which is an alert too.
     const alert = page.getByRole('alert').filter({ hasText: 'Redis' })
@@ -246,7 +387,7 @@ test.describe('Admin dashboard: report and counter status', () => {
 
   const lastNight = {
     at: new Date(Date.now() - 3 * 3_600_000).toISOString(),
-    date: daysEndingOn(siteDay(), 2)[0], sent: true, via: 'secret', counts: { visitors: 812, views: 1290, leads: 9 },
+    date: shiftDay(siteDay(), -1), sent: true, via: 'secret', counts: { visitors: 812, views: 1290, leads: 9 },
   }
 
   test('both working: scheduled, last run sent with its figures, the store answers', async ({ page }, info) => {
@@ -255,7 +396,7 @@ test.describe('Admin dashboard: report and counter status', () => {
       contentType: 'application/json',
       body: JSON.stringify({ ok: true, cronSecretConfigured: true, telegramConfigured: true, runs: [lastNight, { ...lastNight, at: new Date(Date.now() - 27 * 3_600_000).toISOString() }] }),
     }))
-    await answerStats(page, (days) => ({ body: payload(days, { online: 3 }) }))
+    const asked = await answerStats(page, (q) => ({ body: payloadFor(q, { online: 3 }) }))
     let sent = false
     await page.route('**/api/cron/daily-digest?send=1', (route) => {
       sent = true
@@ -266,7 +407,9 @@ test.describe('Admin dashboard: report and counter status', () => {
     const status = page.getByRole('region', { name: 'Статистика и ежедневный отчёт' })
     await expect(status.getByText('Статистика за день — по расписанию')).toBeVisible()
     await expect(status.getByText(/Последний запуск: .* — отправлен/)).toContainText('812 чел. · 9 заявок')
+    await expect(status.getByText(/База отвечает\. Сегодня/)).toContainText(`Сегодня ${nf.format(payloadFor('period=today').totals.visitors)} чел.`)
     await expect(status.getByText(/База отвечает\. Сегодня/)).toContainText('сейчас на сайте 3')
+    expect(asked).toEqual(['period=today'])
     await page.screenshot({ path: `test-results/screens/dashboard-${info.project.name}.png`, fullPage: true })
 
     await status.getByRole('button', { name: 'Отправить сейчас' }).click()

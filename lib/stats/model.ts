@@ -311,6 +311,29 @@ export function mergeDays(days: DayCounts[]): DayCounts {
   return total
 }
 
+/**
+ * `total` without `part`: what a period's totals are once one of its days
+ * is taken out, so that the day's newer counters can be added in its place.
+ * Nothing goes below zero, and a breakdown row that reaches zero is dropped.
+ */
+export function subtractCounts(total: DayCounts, part: DayCounts): DayCounts {
+  const out = mergeDays([total])
+  out.views = Math.max(0, out.views - part.views)
+  out.visitors = Math.max(0, out.visitors - part.visitors)
+  out.newVisitors = Math.max(0, out.newVisitors - part.newVisitors)
+  out.leads = Math.max(0, out.leads - part.leads)
+  const maps: Breakdown[] = ['pages', 'sources', 'channels', 'devices', 'os', 'browsers', 'countries', 'locales', 'campaigns', 'leadKinds']
+  for (const key of maps) {
+    for (const [k, v] of Object.entries(part[key])) {
+      const left = (out[key][k] ?? 0) - v
+      if (left > 0) out[key][k] = left
+      else delete out[key][k]
+    }
+  }
+  out.hours = out.hours.map((v, i) => Math.max(0, v - (part.hours[i] ?? 0)))
+  return out
+}
+
 /** A map of counts as a list, biggest first, ties by name. */
 export function topList(map: Record<string, number>, limit = 10): Array<{ key: string; count: number }> {
   return Object.entries(map)
