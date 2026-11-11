@@ -3,11 +3,27 @@ import { timingSafeEqual } from 'node:crypto'
 import { getAdminSession } from '@/lib/auth'
 import { sendTelegram, telegramConfigured } from '@/lib/notify'
 import { todayKey, previousDay } from '@/lib/analytics'
-import { buildDigest, collectDigest, listRuns, recordRun, type DigestRun } from '@/lib/digest'
+import { buildDigest, collectDigest, digestCounts, listRuns, recordRun, type DigestRun } from '@/lib/digest'
 import { rateLimitAsync } from '@/lib/rateLimit'
+import { claimOnce, releaseOnce } from '@/lib/stats/store'
 
 export const dynamic = 'force-dynamic'
 export const runtime = 'nodejs'
+
+/**
+ * Take the day's report: true when nobody has sent it yet. Vercel can deliver
+ * one scheduled call twice, and each would send; the flag lives in Redis, set
+ * only if absent, so of two calls at once exactly one goes ahead. Without
+ * Redis the run log decides, which is right unless the two calls overlap.
+ */
+async function claimReport(date: string): Promise<boolean> {
+  try {
+    return await claimOnce(`digest:${date}`, 3 * 86_400)
+  } catch {
+    const runs = await listRuns().catch((): DigestRun[] => [])
+    return !runs.some((r) => r.date === date && r.sent)
+  }
+}
 
 /** Constant-time compare, so the secret can't be guessed a byte at a time. */
 function safeEqual(a: string, b: string): boolean {
@@ -63,11 +79,11 @@ export async function GET(req: NextRequest) {
   if (!fromSecret && !fromVercelCron && !session) {
     // Say which door to use. A bare "Unauthorised" on a diagnostic URL sends
     // the reader looking for a bug in the endpoint instead of signing in —
-    // and the log this guards is also on the Statistics page, which is where
-    // someone asking "did the report go out" would naturally look.
+    // and the log this guards is also on the admin's dashboard, which is
+    // where someone asking "did the report go out" would naturally look.
     return NextResponse.json({
       error: 'Unauthorised',
-      hint: 'Sign in to the admin panel in this browser, or open Admin → Statistics — the report status and the log of the last runs are shown there.',
+      hint: 'Sign in to the admin panel in this browser, or open the admin dashboard — the report status and the log of the last runs are shown there.',
     }, { status: 401 })
   }
   const fromCron = fromSecret || fromVercelCron
@@ -93,8 +109,11 @@ export async function GET(req: NextRequest) {
   const target = /^\d{4}-\d{2}-\d{2}$/.test(asked ?? '') ? asked! : previousDay(todayKey())
 
   let text: string
+  let counts: DigestRun['counts']
   try {
-    text = buildDigest(await collectDigest(target))
+    const input = await collectDigest(target)
+    text = buildDigest(input)
+    counts = digestCounts(input)
   } catch (err) {
     // A report that cannot be built must still say so: silence is the one
     // outcome that costs a day to diagnose.
@@ -113,19 +132,31 @@ export async function GET(req: NextRequest) {
   }
 
   if (!telegramConfigured()) {
-    await recordRun({ at: new Date().toISOString(), date: target, sent: false, via, reason: 'telegram_not_configured' })
+    await recordRun({ at: new Date().toISOString(), date: target, sent: false, via, reason: 'telegram_not_configured', counts })
     return NextResponse.json(
       { ok: false, date: target, sent: false, reason: 'telegram_not_configured' },
       { status: 200 },
     )
   }
 
+  // One report a day from the schedule, however many times it calls. The
+  // button always sends, and takes the day too, so that a press just before
+  // 00:05 is not followed by the same report from the scheduler.
+  const first = await claimReport(target)
+  if (fromCron && !first) {
+    console.info(`[daily-digest] the report for ${target} was already sent; this call sends nothing`)
+    return NextResponse.json({ ok: true, date: target, sent: false, reason: 'already_sent' })
+  }
+
   const result = await sendTelegram(text)
   await recordRun({
-    at: new Date().toISOString(), date: target, sent: result.ok, via,
+    at: new Date().toISOString(), date: target, sent: result.ok, via, counts,
     ...(result.ok ? {} : { reason: result.error }),
   })
   if (!result.ok) {
+    // Not sent, so the day is free again (if this call took it): a later
+    // call may still deliver it.
+    if (first) await releaseOnce(`digest:${target}`).catch(() => {})
     console.error('[daily-digest] telegram failed —', result.error)
     // 200 on purpose: Vercel Cron retries a non-2xx, and a retry would only
     // send the same failing message again. The reason is in the body and the

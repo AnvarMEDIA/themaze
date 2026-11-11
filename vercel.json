@@ -7,10 +7,6 @@
     {
       "path": "/api/cron/daily-digest",
       "schedule": "5 19 * * *"
-    },
-    {
-      "path": "/api/cron/stats-correction",
-      "schedule": "25 21 11 11 *"
     }
   ]
 }

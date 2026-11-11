@@ -5,6 +5,7 @@ import Link from 'next/link'
 import type { Project } from '@/lib/types'
 import type { Partner } from '@/lib/partners'
 import type { Inquiry } from '@/lib/inquiries'
+import { ReportStatus } from '@/components/admin/ReportStatus'
 
 export default function AdminDashboard() {
   const [projects,   setProjects]   = useState<Project[]>([])
@@ -74,6 +75,8 @@ export default function AdminDashboard() {
           </Link>
         ))}
       </div>
+
+      <ReportStatus />
 
       {/* Content grid */}
       <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">

@@ -23,7 +23,9 @@ import { displayUrl, telegramUsername } from './internship'
 
 // Overridable so an end-to-end test can point the sender at a local stub and
 // assert on what was actually sent. Unset everywhere else, which is Telegram.
-const API = process.env.TELEGRAM_API_BASE || 'https://api.telegram.org'
+// Read at each send, not once on load: a test sets it after other tests in
+// the same process may already have loaded this module.
+const api = () => process.env.TELEGRAM_API_BASE || 'https://api.telegram.org'
 const TIMEOUT_MS = 6000
 
 /**
@@ -92,7 +94,7 @@ async function postMessage(token: string, chatId: string, html: string): Promise
   const ctrl = new AbortController()
   const timer = setTimeout(() => ctrl.abort(), TIMEOUT_MS)
   try {
-    const res = await fetch(`${API}/bot${token}/sendMessage`, {
+    const res = await fetch(`${api()}/bot${token}/sendMessage`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({

@@ -26,6 +26,8 @@ export interface DigestRun {
   /** How the caller was recognised: cron secret, Vercel's own cron, or admin. */
   via: 'secret' | 'vercel-cron' | 'admin'
   reason?: string
+  /** The day's figures as the report gave them; absent on runs recorded before they were kept. */
+  counts?: { visitors: number; views: number; leads: number }
 }
 
 /**
@@ -143,6 +145,19 @@ function filedInWeek(all: { createdAt: string }[], date: string): number {
 /** The inquiries filed on one day, in the site's timezone. */
 export function inquiriesOn(all: Inquiry[], key: string): Inquiry[] {
   return filedOn(all, key)
+}
+
+/**
+ * The figures a run is remembered by, for the admin's status line: people,
+ * views, and requests (contact form and briefs) filed that day.
+ */
+export function digestCounts({ date, analytics, inquiries, briefs }: DigestInput): NonNullable<DigestRun['counts']> {
+  const day = dayStats(analytics, date)
+  return {
+    visitors: day.visitors,
+    views: day.views || viewsFromPaths(analytics, date),
+    leads: filedOn(inquiries, date).length + (briefs ? filedOn(briefs, date).length : 0),
+  }
 }
 
 /** The internship intake, as far as the report needs it. */

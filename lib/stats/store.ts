@@ -182,6 +182,13 @@ export async function claimOnce(key: string, ttlSeconds: number): Promise<boolea
   return backend.claim(`stats:once:${key}`, ttlSeconds)
 }
 
+/** Give a flag taken with claimOnce back: what it guarded did not happen after all. */
+export async function releaseOnce(key: string): Promise<void> {
+  const backend = statsBackend()
+  if (!backend) return
+  await backend.release(`stats:once:${key}`)
+}
+
 /** Whether the store answers, by an actual round trip. */
 export async function statsHealth(): Promise<{ ok: boolean; backend: 'redis' | 'file' | 'none'; error?: string }> {
   const backend = statsBackend()

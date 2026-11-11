@@ -40,6 +40,8 @@ export interface StatsBackend {
   unionSize(keys: string[]): Promise<number>
   /** Take a one-time flag; false when it was already taken. */
   claim(key: string, ttl: number): Promise<boolean>
+  /** Give a flag back, so that the next attempt may take it. */
+  release(key: string): Promise<void>
   /** A real round trip, for the admin's health line. */
   ping(): Promise<void>
 }
@@ -123,6 +125,9 @@ function redisBackend(redis: Redis): StatsBackend {
     async claim(key, ttl) {
       return (await redis.set(key, '1', { nx: true, ex: ttl })) === 'OK'
     },
+    async release(key) {
+      await redis.del(key)
+    },
     async ping() {
       await redis.ping()
     },
@@ -168,11 +173,18 @@ function fileBackend(dir: string): StatsBackend {
       return new Set(sets.flat()).size
     },
     async claim(key) {
-      const taken = await read<boolean>(key, false)
-      if (taken) return false
-      await write(key, true)
-      return true
+      // Created only if absent, in one step, as SET NX is: of two callers at
+      // once exactly one gets it.
+      await fs.mkdir(dir, { recursive: true })
+      try {
+        await (await fs.open(file(key), 'wx')).close()
+        return true
+      } catch (err) {
+        if ((err as NodeJS.ErrnoException).code === 'EEXIST') return false
+        throw err
+      }
     },
+    async release(key) { await fs.rm(file(key), { force: true }) },
     async ping() { await fs.mkdir(dir, { recursive: true }) },
   }
 }
