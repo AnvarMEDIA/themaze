@@ -7,6 +7,7 @@ import { motion, AnimatePresence, useReducedMotion } from 'framer-motion'
 import { MagneticButton } from '@/components/ui/MagneticButton'
 import { Arrow } from '@/components/ui/Arrow'
 import { HeroStats } from './HeroStats'
+import { HeroDots } from './HeroDots'
 import type { LocalStat } from '@/lib/homeStats'
 
 // Strong ease-out curve (Emil Kowalski)
@@ -36,16 +37,9 @@ export function Hero({ stats }: { stats: LocalStat[] }) {
 
       {/* ── Background ───────────────────────────────────────────── */}
       <div aria-hidden className="absolute inset-0 pointer-events-none select-none">
-        {/* CSS dot grid — radial-gradient dots, masked radially to fade edges */}
-        <div
-          className="absolute inset-0 opacity-[0.28]"
-          style={{
-            backgroundImage:  'radial-gradient(circle, rgb(var(--dot) / 0.38) 1px, transparent 1px)',
-            backgroundSize:   '36px 36px',
-            maskImage:        'radial-gradient(ellipse 72% 60% at 50% 48%, black 0%, transparent 100%)',
-            WebkitMaskImage:  'radial-gradient(ellipse 72% 60% at 50% 48%, black 0%, transparent 100%)',
-          }}
-        />
+        {/* Dot grid, masked radially to fade at the edges. It swells under
+            the mouse and ripples on a click or a tap (HeroDots). */}
+        <HeroDots />
         {/* Lime ambient glow — top-right, very low opacity ~0.06 */}
         <div
           className="absolute -top-48 -right-48 w-[760px] h-[760px] rounded-full"
@@ -59,7 +53,9 @@ export function Hero({ stats }: { stats: LocalStat[] }) {
       </div>
 
       {/* ── Main content ─────────────────────────────────────────── */}
-      <div className="flex-1 flex flex-col justify-center px-6 md:px-10 pt-28 pb-10 max-w-[1440px] mx-auto w-full">
+      {/* relative: positioned, so it paints over the background layer above
+          it in the source, the dots included, and not under it. */}
+      <div className="relative flex-1 flex flex-col justify-center px-6 md:px-10 pt-28 pb-10 max-w-[1440px] mx-auto w-full">
 
         {/* Headline */}
         <div className="mb-10 space-y-1">

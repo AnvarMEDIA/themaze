@@ -19,7 +19,8 @@ export function HeroStats({ stats }: { stats: LocalStat[] }) {
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       transition={{ delay: 1.1, duration: 0.7 }}
-      className="border-t border-maze-border"
+      // Positioned, so on the homepage it paints over the dots behind it.
+      className="relative border-t border-maze-border"
     >
       <div className="max-w-[1440px] mx-auto px-6 md:px-10 py-8 grid grid-cols-2 md:grid-cols-4 gap-6 md:gap-0">
         {stats.map(({ id, value, suffix, label }, i) => (

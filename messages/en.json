@@ -1215,6 +1215,21 @@
       "body": "We'll review your project and get back to you within 24 hours with a tailored proposal.",
       "cta": "Back to home"
     },
+    "sheet": {
+      "aria": "Your brief so far",
+      "title": "Project brief",
+      "task": "Task",
+      "services": "Services",
+      "style": "Style",
+      "colors": "Colour",
+      "timeline": "Timeline",
+      "budget": "Budget",
+      "empty": "Not filled in yet",
+      "filled": "{done} of {total} filled",
+      "review": "Your brief: check it before sending",
+      "seal": "L.S.",
+      "stamp": "Brief received"
+    },
     "tooMany": "Too many submissions. Please try again later.",
     "error": "Something went wrong. Please try again."
   },

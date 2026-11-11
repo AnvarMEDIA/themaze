@@ -42,18 +42,22 @@ export default async function BriefPage({ params: { locale } }: Props) {
     <div className="min-h-screen">
       <JsonLd data={crumbs} />
 
-      {/* Hero header */}
+      {/* Hero header. On a wide screen the form has the brief sheet beside
+          it, so both blocks take the wider container and the heading keeps
+          to the form's column, aligned with it. */}
       <section className="pt-28 pb-12 px-6 md:px-10 border-b border-maze-border">
-        <div className="max-w-3xl mx-auto">
-          <p className="label-sm text-maze-lime mb-5">{t('label')}</p>
-          <h1 className="display-md text-maze-cream mb-4">{t('heading')}</h1>
-          <p className="body-lg text-maze-muted max-w-lg">{t('sub')}</p>
+        <div className="max-w-3xl lg:max-w-6xl mx-auto">
+          <div className="max-w-3xl">
+            <p className="label-sm text-maze-lime mb-5">{t('label')}</p>
+            <h1 className="display-md text-maze-cream mb-4">{t('heading')}</h1>
+            <p className="body-lg text-maze-muted max-w-lg">{t('sub')}</p>
+          </div>
         </div>
       </section>
 
       {/* Form */}
       <section className="py-16 px-6 md:px-10">
-        <div className="max-w-3xl mx-auto">
+        <div className="max-w-3xl lg:max-w-6xl mx-auto">
           <BriefForm />
         </div>
       </section>

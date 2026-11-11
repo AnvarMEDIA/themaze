@@ -1152,3 +1152,69 @@ a.aurora-btn:active {
   }
   .aurora-btn::after { display: none; }
 }
+
+/* ─── Brief sheet (components/brief/BriefSheet) ───────────────────────────
+   A sheet of paper: white on the light page, with the soft shadow of
+   something lying on a desk; a dark card on the dark page, no shadow. */
+.brief-sheet {
+  box-shadow:
+    0 1px 2px rgb(10 10 10 / 0.04),
+    0 24px 48px -28px rgb(10 10 10 / 0.3);
+}
+.dark .brief-sheet {
+  box-shadow: none;
+}
+
+/* Crop marks, as on a sheet sent to print: at each corner a short line
+   level with each edge, just outside the paper. The box is the sheet and
+   14px around it. */
+.brief-crop {
+  --crop: rgb(var(--muted) / 0.55);
+  position: absolute;
+  inset: -14px;
+  pointer-events: none;
+  background:
+    linear-gradient(var(--crop), var(--crop)) left 0 top 14px / 9px 1px no-repeat,
+    linear-gradient(var(--crop), var(--crop)) left 14px top 0 / 1px 9px no-repeat,
+    linear-gradient(var(--crop), var(--crop)) right 0 top 14px / 9px 1px no-repeat,
+    linear-gradient(var(--crop), var(--crop)) right 14px top 0 / 1px 9px no-repeat,
+    linear-gradient(var(--crop), var(--crop)) left 0 bottom 14px / 9px 1px no-repeat,
+    linear-gradient(var(--crop), var(--crop)) left 14px bottom 0 / 1px 9px no-repeat,
+    linear-gradient(var(--crop), var(--crop)) right 0 bottom 14px / 9px 1px no-repeat,
+    linear-gradient(var(--crop), var(--crop)) right 14px bottom 0 / 1px 9px no-repeat;
+}
+
+/* How much is filled in: a line that grows on screen, so ease-in-out. */
+.brief-progress {
+  transition: transform 300ms var(--ease-in-out);
+}
+
+/* The stamp is ink: it darkens the paper on the light page and lights it
+   up on the dark one, and the writing under it still shows through. */
+.brief-stamp {
+  mix-blend-mode: multiply;
+}
+.dark .brief-stamp {
+  mix-blend-mode: screen;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .brief-progress {
+    transition: none;
+  }
+}
+
+/* ─── Homepage dot grid (components/home/HeroDots) ────────────────────────
+   The grid at rest is CSS. A script draws the very same dots on a canvas,
+   sets data-live, and from then on the canvas shows instead: in the same
+   frame, so nothing changes to the eye until the dots react. Without a
+   script, or with reduced motion, the CSS grid simply stays. */
+.hero-dots-live {
+  visibility: hidden;
+}
+.hero-dots[data-live] .hero-dots-live {
+  visibility: visible;
+}
+.hero-dots[data-live] .hero-dots-static {
+  visibility: hidden;
+}

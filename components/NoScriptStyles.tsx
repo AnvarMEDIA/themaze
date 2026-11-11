@@ -67,6 +67,11 @@ const CSS = [
   // which would otherwise wait three seconds for the safety timer.
   '.noise .counter[data-phase]{-webkit-text-fill-color:currentColor;animation:none}',
 
+  // The brief sheet shows what the brief form holds, and only a script
+  // fills it: here it would be an empty form beside the note that the
+  // form cannot be sent.
+  '[data-brief-sheet]{display:none!important}',
+
   // The header is fixed and clear, and a script gives it a background once
   // the page has scrolled. Without one it would ride over the text all the
   // way down, so it stays at the top of the page instead.

@@ -80,6 +80,21 @@ test.describe('without JavaScript', () => {
     await expect(page.locator('main h3 + noscript > p').first()).toBeVisible()
   })
 
+  test('the homepage dot grid is the CSS one', async ({ page }) => {
+    await page.goto('/')
+    const shown = await page.evaluate(() => ({
+      css:    getComputedStyle(document.querySelector('.hero-dots-static')!).visibility,
+      canvas: getComputedStyle(document.querySelector('.hero-dots canvas')!).visibility,
+    }))
+    expect(shown).toEqual({ css: 'visible', canvas: 'hidden' })
+  })
+
+  test('the brief sheet, which only a script fills, is not shown', async ({ page }) => {
+    await page.goto('/brief')
+    await expect(page.locator('[data-brief-sheet]')).toHaveCount(1)
+    await expect(page.locator('[data-brief-sheet]')).toBeHidden()
+  })
+
   test('a form says it cannot be sent', async ({ page }) => {
     for (const path of ['/contact', '/brief']) {
       await page.goto(path)
