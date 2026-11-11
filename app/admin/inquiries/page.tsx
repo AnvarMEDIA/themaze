@@ -3,14 +3,16 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import toast from 'react-hot-toast'
 import type { Inquiry } from '@/lib/inquiries'
+import { formatSiteTime } from '@/lib/siteTime'
 
 type FilterKey = 'all' | 'unread' | 'read'
 
+// On the studio's clock, wherever the admin is opened (lib/siteTime).
 function fmt(iso: string) {
-  return new Intl.DateTimeFormat('en-GB', {
+  return formatSiteTime(iso, 'en-GB', {
     day: '2-digit', month: 'short', year: 'numeric',
     hour: '2-digit', minute: '2-digit',
-  }).format(new Date(iso))
+  })
 }
 
 export default function InquiriesPage() {

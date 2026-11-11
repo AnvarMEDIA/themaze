@@ -1,4 +1,5 @@
 import { readStore, updateStore } from './store'
+import { SITE_TZ } from './siteTime'
 
 /**
  * Lightweight first-party pageview tracking.
@@ -53,7 +54,7 @@ const RETENTION_DAYS = 90
  * 05:00 local, so an evening's traffic was being reported as tomorrow's and
  * the daily digest would have summarised five hours of the wrong day.
  */
-export const SITE_TZ = 'Asia/Tashkent'
+export { SITE_TZ }
 
 /** A date as YYYY-MM-DD in the site's timezone. en-CA formats exactly that. */
 export function dayKey(date = new Date(), timeZone = SITE_TZ): string {

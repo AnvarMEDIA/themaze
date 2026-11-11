@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import toast from 'react-hot-toast'
 import type { Brief } from '@/lib/briefs'
+import { formatSiteTime } from '@/lib/siteTime'
 
 type FilterKey = 'all' | 'unread' | 'read'
 
@@ -39,11 +40,12 @@ const SERVICE_LABELS: Record<string, string> = {
   unsure:     'Not sure yet',
 }
 
+// On the studio's clock, wherever the admin is opened (lib/siteTime).
 function fmt(iso: string) {
-  return new Intl.DateTimeFormat('en-GB', {
+  return formatSiteTime(iso, 'en-GB', {
     day: '2-digit', month: 'short', year: 'numeric',
     hour: '2-digit', minute: '2-digit',
-  }).format(new Date(iso))
+  })
 }
 
 export default function BriefsPage() {

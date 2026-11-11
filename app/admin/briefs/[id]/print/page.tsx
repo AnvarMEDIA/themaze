@@ -4,6 +4,7 @@ import { getSettings } from '@/lib/settings'
 import { BriefPrintActions } from '@/components/admin/BriefPrintActions'
 import enMessages from '@/messages/en.json'
 import ruMessages from '@/messages/ru.json'
+import { formatSiteTime } from '@/lib/siteTime'
 
 /**
  * Print sheet for a single brief — A4, light, made to be saved as PDF from the
@@ -71,12 +72,13 @@ function pick(ids: string[] | undefined, cards: OptionCard[]): OptionCard[] {
   return (ids ?? []).map((id) => cards.find((c) => c.id === id) ?? { id, label: id })
 }
 
+// On the studio's clock (lib/siteTime). This page renders on the server,
+// which runs on UTC: a brief sent at 00:19 in Tashkent printed as 19:19 the
+// evening before, and so did the PDF saved from it.
 function fmtDate(iso: string, lang: Lang): string {
-  try {
-    return new Intl.DateTimeFormat(lang === 'ru' ? 'ru-RU' : 'en-GB', {
-      day: 'numeric', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit',
-    }).format(new Date(iso))
-  } catch { return iso }
+  return formatSiteTime(iso, lang === 'ru' ? 'ru-RU' : 'en-GB', {
+    day: 'numeric', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit',
+  })
 }
 
 export default async function BriefPrintPage({ params, searchParams }: Props) {

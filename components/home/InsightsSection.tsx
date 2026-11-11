@@ -3,15 +3,19 @@ import Image from 'next/image'
 import { Reveal } from '@/components/ui/Reveal'
 import { Arrow } from '@/components/ui/Arrow'
 import { estimateReadTime, type Post } from '@/lib/posts'
+import { formatSiteTime } from '@/lib/siteTime'
 
 // Server component (renders client <Reveal> leaves). Surfacing recent
 // articles on the homepage flows authority from the site's top page to the
 // blog, adds a freshness signal, and deep-links posts for indexing.
 
+// The publication date on the studio's clock (lib/siteTime): rendered on the
+// server, on UTC, a post published between midnight and 05:00 in Tashkent
+// showed the day before.
 function fmt(iso: string, locale: string): string {
-  return new Intl.DateTimeFormat(locale === 'ru' ? 'ru-RU' : 'en-GB', {
+  return formatSiteTime(iso, locale === 'ru' ? 'ru-RU' : 'en-GB', {
     day: 'numeric', month: 'long', year: 'numeric',
-  }).format(new Date(iso))
+  })
 }
 
 export function InsightsSection({ posts, locale }: { posts: Post[]; locale: string }) {

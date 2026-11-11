@@ -9,6 +9,7 @@ import { JsonLd } from '@/components/JsonLd'
 import { blogJsonLd, breadcrumbJsonLd, homeCrumb, postListJsonLd } from '@/lib/jsonLd'
 import { pageMeta, notFoundMetadata } from '@/lib/seo'
 import { INSIGHTS_ENABLED } from '@/lib/features'
+import { formatSiteTime } from '@/lib/siteTime'
 
 interface Props {
   params: { locale: string }
@@ -37,10 +38,13 @@ export async function generateMetadata({ params: { locale } }: Props): Promise<M
   })
 }
 
+// The publication date on the studio's clock (lib/siteTime): rendered on the
+// server, on UTC, a post published between midnight and 05:00 in Tashkent
+// showed the day before.
 function fmt(iso: string, locale: string) {
-  return new Intl.DateTimeFormat(locale === 'ru' ? 'ru-RU' : 'en-GB', {
+  return formatSiteTime(iso, locale === 'ru' ? 'ru-RU' : 'en-GB', {
     day: 'numeric', month: 'long', year: 'numeric',
-  }).format(new Date(iso))
+  })
 }
 
 export default async function InsightsPage({ params: { locale } }: Props) {

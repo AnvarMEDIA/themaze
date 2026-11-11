@@ -5,9 +5,11 @@ import Link from 'next/link'
 import toast from 'react-hot-toast'
 import type { Post } from '@/lib/posts'
 import { showUndoToast } from '@/components/admin/UndoToast'
+import { formatSiteTime } from '@/lib/siteTime'
 
+// The publication date on the studio's clock (lib/siteTime).
 function fmt(iso: string) {
-  return new Intl.DateTimeFormat('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }).format(new Date(iso))
+  return formatSiteTime(iso, 'en-GB', { day: '2-digit', month: 'short', year: 'numeric' })
 }
 
 export default function AdminInsightsPage() {
