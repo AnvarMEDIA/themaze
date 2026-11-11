@@ -5,7 +5,7 @@ import {
   F, SITE_LOCALES, classifySource, explodeDay, isBot, mergeDays, normalizePagePath, parseDevice,
   type Channel, type DayCounts, type Device, type StatsDay,
 } from './model'
-import { daysBetween, resolvePeriod } from './periods'
+import { COUNTING_SINCE, daysBetween, previousPeriod } from './periods'
 import { siteDay, siteHour } from './time'
 
 /**
@@ -161,8 +161,23 @@ export async function onlineNow(now: Date = new Date()): Promise<number> {
   return backend.unionSize(Array.from({ length: ONLINE_WINDOW }, (_, i) => onlineKey(current - i)))
 }
 
+/** The period just before the one shown, as far as the comparison needs it. */
+export interface PreviousFigures {
+  from: string
+  to: string
+  visitors: number
+  views: number
+  leads: number
+  /** Views by hour of that day, when the period is a single day: what the hours chart is set against. */
+  hours?: number[]
+}
+
 export interface StatsPayload {
-  /** Each day's headline figures, oldest first; the breakdowns are in `totals`. */
+  /**
+   * Each counted day's headline figures, oldest first; the breakdowns are in
+   * `totals`. Days before the counter existed are not listed: there is
+   * nothing to say about them.
+   */
   days: Array<{ date: string; visitors: number; views: number; leads: number; newVisitors: number }>
   /** The period's counters summed, every breakdown included. */
   totals: DayCounts
@@ -172,19 +187,53 @@ export interface StatsPayload {
   to: string
   /** Today on the studio's calendar, as the server sees it. */
   today: string
+  /** The hour now on the studio's clock, 0–23. */
+  hour: number
   /** Today's full counters when the period includes today: what the screen's minute update replaces. */
   todayRow: StatsDay | null
+  /**
+   * The same number of days just before the period, to compare with; null
+   * when the counter did not yet exist for all of them (a comparison with
+   * days nothing was counted on would call any number a rise).
+   */
+  previous: PreviousFigures | null
+}
+
+/** The period before `from`…`to`, or null when it reaches back before the counter. */
+async function readPrevious(from: string, to: string): Promise<PreviousFigures | null> {
+  const prev = previousPeriod(from, to)
+  if (prev.from < COUNTING_SINCE) return null
+  if (prev.from === prev.to) {
+    const [day] = await readDays([prev.from])
+    return { ...prev, visitors: day.visitors, views: day.views, leads: day.leads, hours: day.hours }
+  }
+  const backend = statsBackend()
+  if (!backend) return null
+  // Three numbers a day, not the whole day: the breakdowns are not compared.
+  const rows = await backend.readFields(daysBetween(prev.from, prev.to).map(dayKey), [F.visitors, F.views, F.leads])
+  const sum = (field: string) => rows.reduce((s, row) => s + (Number(row[field]) || 0), 0)
+  return { ...prev, visitors: sum(F.visitors), views: sum(F.views), leads: sum(F.leads) }
 }
 
 /**
- * The days from `from` to `to` (both included), their totals, and who is
- * here now. Each day travels as its headline figures only, and the
- * breakdowns once, summed: a year of full days would be a megabyte and a
- * half to send.
+ * The days from `from` to `to` (both included), their totals, the period
+ * before them for comparison, and who is here now. Each day travels as its
+ * headline figures only, and the breakdowns once, summed: a year of full
+ * days would be a megabyte and a half to send. Days before the counter
+ * existed are not asked of the store at all.
  */
 export async function readPeriod(from: string, to: string, now: Date = new Date()): Promise<StatsPayload> {
   const today = siteDay(now)
-  const [rows, online] = await Promise.all([readDays(daysBetween(from, to)), onlineNow(now).catch(() => 0)])
+  const first = from < COUNTING_SINCE ? COUNTING_SINCE : from
+  const [rows, previous, online] = await Promise.all([
+    readDays(first <= to ? daysBetween(first, to) : []),
+    // The comparison is an extra: without it the period is still shown.
+    readPrevious(from, to).catch((err: unknown) => {
+      console.error('[stats] could not read the period before:', err instanceof Error ? err.message : err)
+      return null
+    }),
+    onlineNow(now).catch(() => 0),
+  ])
   return {
     days: rows.map(({ date, visitors, views, leads, newVisitors }) => ({ date, visitors, views, leads, newVisitors })),
     totals: mergeDays(rows),
@@ -192,14 +241,10 @@ export async function readPeriod(from: string, to: string, now: Date = new Date(
     from,
     to,
     today,
+    hour: siteHour(now),
     todayRow: rows.find((r) => r.date === today) ?? null,
+    previous,
   }
-}
-
-/** The last `days` days (today included). */
-export async function readStats(days = 30, now: Date = new Date()): Promise<StatsPayload> {
-  const { from, to } = resolvePeriod({ days: String(days) }, siteDay(now))
-  return readPeriod(from, to, now)
 }
 
 /** Take a one-time flag (a report already sent, say); false when it was taken before. */

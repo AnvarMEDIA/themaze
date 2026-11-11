@@ -88,8 +88,58 @@ export function periodQuery(p: Period): string {
     : `period=${p.preset}`
 }
 
-/** Whether a period moves with the calendar (and so must be read again after midnight). */
-export const isRelative = (p: Period): boolean => p.kind === 'preset'
+/**
+ * The period a page address names (?period=… or ?from=…&to=…), or null when
+ * it names none: the inverse of periodQuery. Reversed dates are put in order;
+ * the endpoint holds them to today and to what is kept.
+ */
+export function parsePeriod(q: { period?: string | null; from?: string | null; to?: string | null }): Period | null {
+  if (isIsoDate(q.from) && isIsoDate(q.to)) {
+    const [from, to] = q.from <= q.to ? [q.from, q.to] : [q.to, q.from]
+    return { kind: 'custom', from, to }
+  }
+  const preset = PRESETS.find((p) => p.id === q.period)
+  return preset ? { kind: 'preset', preset: preset.id } : null
+}
+
+/** The same number of days just before a period: what its figures are compared with. */
+export function previousPeriod(from: string, to: string): { from: string; to: string } {
+  const n = spanDays(from, to)
+  return { from: shiftDay(from, -n), to: shiftDay(from, -1) }
+}
+
+/**
+ * Whether a period's totals can fairly be set against the period before.
+ * Not while today makes up much of it: a day half gone against whole days
+ * reads as a fall that is not one. Today alone is compared hour by hour
+ * instead, on the hours chart.
+ */
+export function comparesTotals(from: string, to: string, today: string): boolean {
+  return to < today || spanDays(from, to) >= 7
+}
+
+/** A change against an earlier figure, in whole percent; null when there was nothing before. */
+export function changePercent(now: number, before: number): number | null {
+  if (!(before > 0)) return null
+  return Math.round(((now - before) / before) * 100)
+}
+
+/**
+ * The calendar spans people ask for by name, as dates: this week and the
+ * last one (Monday first), this month and the last one.
+ */
+export function calendarRanges(today: string): Array<{ id: string; label: string; from: string; to: string }> {
+  const weekday = (new Date(`${today}T12:00:00Z`).getUTCDay() + 6) % 7   // Monday 0 … Sunday 6
+  const monday = shiftDay(today, -weekday)
+  const monthStart = `${today.slice(0, 8)}01`
+  const lastMonthEnd = shiftDay(monthStart, -1)
+  return [
+    { id: 'week', label: 'Эта неделя', from: monday, to: today },
+    { id: 'last-week', label: 'Прошлая неделя', from: shiftDay(monday, -7), to: shiftDay(monday, -1) },
+    { id: 'month', label: 'Этот месяц', from: monthStart, to: today },
+    { id: 'last-month', label: 'Прошлый месяц', from: `${lastMonthEnd.slice(0, 8)}01`, to: lastMonthEnd },
+  ]
+}
 
 /** 12.11, or 12.11.2026 when the year is not the current one. */
 export function shortDay(iso: string, today: string): string {
@@ -100,17 +150,6 @@ export function shortDay(iso: string, today: string): string {
 /** A span of days as people write it: "12.11" or "12.11–20.11". */
 export function rangeLabel(from: string, to: string, today: string): string {
   return from === to ? shortDay(from, today) : `${shortDay(from, today)}–${shortDay(to, today)}`
-}
-
-/** What the numbers on the cards cover: "сегодня", "за 30 дней", "с 12.11 по 20.11". */
-export function periodLabel(p: Period, from: string, to: string, today: string): string {
-  if (p.kind === 'preset') {
-    if (p.preset === 'today') return 'сегодня'
-    if (p.preset === 'yesterday') return 'вчера'
-    if (p.preset === 'year') return 'за год'
-    return `за ${p.preset} дней`
-  }
-  return from === to ? `за ${shortDay(from, today)}` : `с ${shortDay(from, today)} по ${shortDay(to, today)}`
 }
 
 /** One day as the chart needs it. */

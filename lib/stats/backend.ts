@@ -36,6 +36,8 @@ export interface StatsBackend {
   increment(dayKey: string, fields: string[], ttl: number): Promise<void>
   /** Several days' hashes, in the order asked; {} for a day with none. */
   readDays(dayKeys: string[]): Promise<Array<Record<string, unknown>>>
+  /** Only the named fields of several days' hashes, in the order asked; a field a day lacks is left out. */
+  readFields(dayKeys: string[], fields: string[]): Promise<Array<Record<string, unknown>>>
   /** How many distinct members the given sets hold together. */
   unionSize(keys: string[]): Promise<number>
   /** Take a one-time flag; false when it was already taken. */
@@ -90,6 +92,24 @@ export function hashFromReply(reply: unknown): Record<string, unknown> {
   return reply && typeof reply === 'object' ? reply as Record<string, unknown> : {}
 }
 
+/**
+ * The fields asked of a hash, as Redis replied. HMGET answers with the
+ * values alone, in the order of the fields asked and null for one that is
+ * absent; with deserialization on, the client pairs them up itself.
+ */
+export function fieldsFromReply(fields: string[], reply: unknown): Record<string, unknown> {
+  const out: Record<string, unknown> = {}
+  if (Array.isArray(reply)) {
+    fields.forEach((field, i) => { if (reply[i] !== null && reply[i] !== undefined) out[field] = reply[i] })
+  } else if (reply && typeof reply === 'object') {
+    for (const field of fields) {
+      const value = (reply as Record<string, unknown>)[field]
+      if (value !== null && value !== undefined) out[field] = value
+    }
+  }
+  return out
+}
+
 function redisBackend(redis: Redis): StatsBackend {
   const view = redis.createScript<number>(VIEW_SCRIPT)
   const increment = redis.createScript<number>(INCREMENT_SCRIPT)
@@ -122,6 +142,14 @@ function redisBackend(redis: Redis): StatsBackend {
         return p.exec<Array<unknown>>()
       }))
       return replies.flat().map(hashFromReply)
+    },
+    async readFields(dayKeys, fields) {
+      if (dayKeys.length === 0) return []
+      if (fields.length === 0) return dayKeys.map(() => ({}))
+      const p = redis.pipeline()
+      for (const key of dayKeys) p.hmget(key, ...fields)
+      const rows = await p.exec<Array<unknown>>()
+      return rows.map((row) => fieldsFromReply(fields, row))
     },
     async unionSize(keys) {
       if (keys.length === 0) return 0
@@ -174,6 +202,10 @@ function fileBackend(dir: string): StatsBackend {
     async beat(onlineKey, visitor) { await addTo(onlineKey, visitor) },
     async increment(dayKey, fields) { await bump(dayKey, fields) },
     async readDays(dayKeys) { return Promise.all(dayKeys.map((k) => read<Record<string, unknown>>(k, {}))) },
+    async readFields(dayKeys, fields) {
+      const days = await Promise.all(dayKeys.map((k) => read<Record<string, unknown>>(k, {})))
+      return days.map((day) => fieldsFromReply(fields, day))
+    },
     async unionSize(keys) {
       const sets = await Promise.all(keys.map((k) => read<string[]>(k, [])))
       return new Set(sets.flat()).size

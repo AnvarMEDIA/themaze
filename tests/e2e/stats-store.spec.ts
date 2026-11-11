@@ -9,8 +9,8 @@ process.env.STATS_DEV_DIR = mkdtempSync(path.join(tmpdir(), 'maze-stats-'))
 delete process.env.KV_REST_API_URL
 delete process.env.UPSTASH_REDIS_REST_URL
 
-import { onlineNow, readDays, recordLead, recordView } from '../../lib/stats/store'
-import { hashFromReply } from '../../lib/stats/backend'
+import { onlineNow, readDays, readPeriod, recordLead, recordView } from '../../lib/stats/store'
+import { fieldsFromReply, hashFromReply } from '../../lib/stats/backend'
 
 /**
  * Counting (lib/stats/store) end to end on the local backend: an ad visit of
@@ -61,9 +61,53 @@ test('the next day the same person is a new visitor: the daily salt changed', as
   expect(day.views).toBe(1)
 })
 
+test('a period comes with the one before it, when the counter covers that one', async () => {
+  // Two more days: two views on 14.11, four on 15.11, at noon in Tashkent.
+  for (const [date, n] of [['2026-11-14', 2], ['2026-11-15', 4]] as const) {
+    for (let i = 0; i < n; i++) {
+      await recordView({ page: '/', ua: IPHONE, ip: `10.0.${n}.${i}`, now: new Date(`${date}T07:00:00Z`) })
+    }
+  }
+  const at = new Date('2026-11-15T07:00:00Z')
+
+  // Two days against the two before: 12.11 (3 views, 2 people, a brief) and 13.11 (1 view).
+  const two = await readPeriod('2026-11-14', '2026-11-15', at)
+  expect(two.days.map((d) => [d.date, d.views])).toEqual([['2026-11-14', 2], ['2026-11-15', 4]])
+  expect(two.previous).toEqual({ from: '2026-11-12', to: '2026-11-13', visitors: 3, views: 4, leads: 1 })
+  expect(two).toMatchObject({ from: '2026-11-14', to: '2026-11-15', today: '2026-11-15', hour: 12 })
+  expect(two.todayRow?.date).toBe('2026-11-15')
+  expect(two.totals.views).toBe(6)
+
+  // One day against the day before, with that day's hours for the chart.
+  const one = await readPeriod('2026-11-15', '2026-11-15', at)
+  expect(one.previous).toMatchObject({ from: '2026-11-14', to: '2026-11-14', visitors: 2, views: 2, leads: 0 })
+  expect(one.previous?.hours).toHaveLength(24)
+  expect(one.previous?.hours?.[12]).toBe(2)
+})
+
+test('days before the counter existed are neither listed nor compared with', async () => {
+  const at = new Date('2026-11-15T07:00:00Z')
+  // The two days before 13–14.11 are 11–12.11, and on the 11th nothing was counted.
+  expect((await readPeriod('2026-11-13', '2026-11-14', at)).previous).toBeNull()
+
+  const early = await readPeriod('2026-11-01', '2026-11-13', at)
+  expect(early.days.map((d) => d.date)).toEqual(['2026-11-12', '2026-11-13'])
+  expect(early).toMatchObject({ from: '2026-11-01', to: '2026-11-13', previous: null, todayRow: null })
+  expect(early.totals.views).toBe(4)
+
+  const before = await readPeriod('2026-10-01', '2026-10-31', at)
+  expect(before.days).toEqual([])
+  expect(before.totals.views).toBe(0)
+})
+
 test('a day reads the same whether Redis sends the hash flat or as an object', () => {
   // With deserialization off, Upstash returns HGETALL as Redis does: flat.
   expect(hashFromReply(['views', '3', 'ch:ads', '2'])).toEqual({ views: '3', 'ch:ads': '2' })
   expect(hashFromReply({ views: 3 })).toEqual({ views: 3 })
   expect(hashFromReply(null)).toEqual({})
+
+  // HMGET answers with the values alone, null for a field the day lacks.
+  expect(fieldsFromReply(['visitors', 'views', 'leads'], ['3', '4', null])).toEqual({ visitors: '3', views: '4' })
+  expect(fieldsFromReply(['visitors', 'views'], { visitors: 3, views: null, pages: 9 })).toEqual({ visitors: 3 })
+  expect(fieldsFromReply(['visitors'], null)).toEqual({})
 })

@@ -1,6 +1,7 @@
 import { test, expect } from '@playwright/test'
 import {
-  daysBetween, isIsoDate, periodLabel, periodQuery, rangeLabel, resolvePeriod, spanDays, weekBuckets,
+  calendarRanges, changePercent, comparesTotals, daysBetween, isIsoDate, parsePeriod, periodQuery,
+  previousPeriod, rangeLabel, resolvePeriod, spanDays, weekBuckets,
 } from '../../lib/stats/periods'
 import { emptyCounts, mergeDays, subtractCounts, type DayCounts } from '../../lib/stats/model'
 
@@ -41,19 +42,64 @@ test('chosen dates are kept, reversed ones swapped, the future and the forgotten
   expect(isIsoDate('20.12.2026')).toBe(false)
 })
 
-test('the query a period is asked with, and how it is captioned', () => {
+test('the query a period is asked with, and how a span of days is written', () => {
   expect(periodQuery({ kind: 'preset', preset: 'yesterday' })).toBe('period=yesterday')
   expect(periodQuery({ kind: 'custom', from: '2026-12-01', to: '2026-12-07' })).toBe('from=2026-12-01&to=2026-12-07')
 
-  const cap = (p: Parameters<typeof periodLabel>[0], from: string, to: string) => periodLabel(p, from, to, TODAY)
-  expect(cap({ kind: 'preset', preset: 'today' }, TODAY, TODAY)).toBe('сегодня')
-  expect(cap({ kind: 'preset', preset: 'yesterday' }, '2026-12-19', '2026-12-19')).toBe('вчера')
-  expect(cap({ kind: 'preset', preset: '90' }, '2026-09-22', TODAY)).toBe('за 90 дней')
-  expect(cap({ kind: 'preset', preset: 'year' }, '2025-12-21', TODAY)).toBe('за год')
-  expect(cap({ kind: 'custom', from: '2026-12-01', to: '2026-12-07' }, '2026-12-01', '2026-12-07')).toBe('с 01.12 по 07.12')
-  expect(cap({ kind: 'custom', from: '2026-12-05', to: '2026-12-05' }, '2026-12-05', '2026-12-05')).toBe('за 05.12')
+  expect(rangeLabel('2026-12-01', '2026-12-07', TODAY)).toBe('01.12–07.12')
+  expect(rangeLabel('2026-12-05', '2026-12-05', TODAY)).toBe('05.12')
   // Another year says which.
   expect(rangeLabel('2025-12-28', '2026-01-03', TODAY)).toBe('28.12.2025–03.01')
+})
+
+test('a page address names a period, and a period its address', () => {
+  expect(parsePeriod({ period: 'today' })).toEqual({ kind: 'preset', preset: 'today' })
+  expect(parsePeriod({ period: '90' })).toEqual({ kind: 'preset', preset: '90' })
+  expect(parsePeriod({ from: '2026-12-07', to: '2026-12-01' })).toEqual({ kind: 'custom', from: '2026-12-01', to: '2026-12-07' })
+  // Dates win over a preset; what names nothing is no period.
+  expect(parsePeriod({ period: '7', from: '2026-12-01', to: '2026-12-01' })).toEqual({ kind: 'custom', from: '2026-12-01', to: '2026-12-01' })
+  expect(parsePeriod({ period: '14' })).toBeNull()
+  expect(parsePeriod({ from: '2026-12-01' })).toBeNull()
+  expect(parsePeriod({})).toBeNull()
+  for (const p of [{ kind: 'preset', preset: 'year' }, { kind: 'custom', from: '2026-12-01', to: '2026-12-07' }] as const) {
+    const q = new URLSearchParams(periodQuery(p))
+    expect(parsePeriod({ period: q.get('period'), from: q.get('from'), to: q.get('to') })).toEqual(p)
+  }
+})
+
+test('a period is compared with the same number of days just before it', () => {
+  expect(previousPeriod('2026-12-14', TODAY)).toEqual({ from: '2026-12-07', to: '2026-12-13' })
+  expect(previousPeriod(TODAY, TODAY)).toEqual({ from: '2026-12-19', to: '2026-12-19' })
+  expect(previousPeriod('2026-11-21', TODAY)).toEqual({ from: '2026-10-22', to: '2026-11-20' })
+
+  // Totals are not compared while today is much of the period: today alone,
+  // or a few days ending today. A week or more, or days all gone, are.
+  expect(comparesTotals(TODAY, TODAY, TODAY)).toBe(false)
+  expect(comparesTotals('2026-12-18', TODAY, TODAY)).toBe(false)
+  expect(comparesTotals('2026-12-14', TODAY, TODAY)).toBe(true)
+  expect(comparesTotals('2026-12-19', '2026-12-19', TODAY)).toBe(true)
+  expect(comparesTotals('2026-12-17', '2026-12-19', TODAY)).toBe(true)
+
+  expect(changePercent(112, 100)).toBe(12)
+  expect(changePercent(50, 100)).toBe(-50)
+  expect(changePercent(100, 100)).toBe(0)
+  expect(changePercent(5, 0)).toBeNull()
+})
+
+test('this week and the last, this month and the last, as dates', () => {
+  // 20.12.2026 is a Sunday: its week began on Monday the 14th.
+  expect(calendarRanges(TODAY)).toEqual([
+    { id: 'week', label: 'Эта неделя', from: '2026-12-14', to: TODAY },
+    { id: 'last-week', label: 'Прошлая неделя', from: '2026-12-07', to: '2026-12-13' },
+    { id: 'month', label: 'Этот месяц', from: '2026-12-01', to: TODAY },
+    { id: 'last-month', label: 'Прошлый месяц', from: '2026-11-01', to: '2026-11-30' },
+  ])
+  // On a Monday the week is that one day; in January last month is last year's December.
+  const monday = calendarRanges('2027-01-04')
+  expect(monday[0]).toMatchObject({ from: '2027-01-04', to: '2027-01-04' })
+  expect(monday[1]).toMatchObject({ from: '2026-12-28', to: '2027-01-03' })
+  expect(monday[3]).toMatchObject({ from: '2026-12-01', to: '2026-12-31' })
+  expect(calendarRanges('2028-03-31')[3]).toMatchObject({ from: '2028-02-01', to: '2028-02-29' })
 })
 
 test('a long period is drawn in calendar weeks, Monday to Sunday, partial at the edges', () => {
