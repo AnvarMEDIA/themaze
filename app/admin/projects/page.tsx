@@ -2,13 +2,14 @@
 
 import { useEffect, useRef, useState, useCallback, useMemo } from 'react'
 import Link from 'next/link'
-import { Reorder, useDragControls } from 'framer-motion'
+import { Reorder, useDragControls, useReducedMotion } from 'framer-motion'
 import type { Project, ProjectCategory } from '@/lib/types'
 import { CATEGORY_LABELS } from '@/lib/utils'
 import toast from 'react-hot-toast'
 import { showUndoToast } from '@/components/admin/UndoToast'
 
 type Views = { total: number; week: number }
+type MoveDir = 'earlier' | 'later'
 
 export default function AdminProjectsPage() {
   const [projects, setProjects] = useState<Project[]>([])
@@ -105,6 +106,32 @@ export default function AdminProjectsPage() {
     if (saveTimer.current) clearTimeout(saveTimer.current)
     saveTimer.current = setTimeout(() => persistOrder(next), 400)
   }
+
+  // The arrows on a card: one place earlier or later, saved like a drag.
+  // The card's DOM node moves, which drops the focus; it is put back on the
+  // same arrow (the other one at an end), so a few presses walk the card
+  // along, and the new place is read out.
+  const [focusAfterMove, setFocusAfterMove] = useState<{ id: string; dir: MoveDir } | null>(null)
+  const [moveNote, setMoveNote] = useState('')
+  const move = (id: string, dir: MoveDir) => {
+    const from = projects.findIndex((p) => p.id === id)
+    const to = dir === 'earlier' ? from - 1 : from + 1
+    if (from < 0 || to < 0 || to >= projects.length) return
+    const next = [...projects]
+    const [moved] = next.splice(from, 1)
+    next.splice(to, 0, moved)
+    handleReorder(next)
+    setFocusAfterMove({ id, dir })
+    setMoveNote(`${moved.title}: position ${to + 1} of ${next.length}`)
+  }
+  useEffect(() => {
+    if (!focusAfterMove) return
+    const { id, dir } = focusAfterMove
+    const same = document.getElementById(`move-${dir}-${id}`) as HTMLButtonElement | null
+    const other = document.getElementById(`move-${dir === 'earlier' ? 'later' : 'earlier'}-${id}`)
+    ;(same && !same.disabled ? same : other)?.focus()
+    setFocusAfterMove(null)
+  }, [focusAfterMove])
 
   const categories = useMemo(
     () => Array.from(new Set(projects.flatMap((p) => p.categories))),
@@ -206,9 +233,10 @@ export default function AdminProjectsPage() {
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 mb-4">
         <p className="text-[11px] text-[#666]">
           {dragEnabled
-            ? 'Drag ⋮⋮ to reorder · ★ marks featured · views: all time, +N wk: the last 7 days · admin self-views excluded.'
+            ? 'Reorder: drag ⋮⋮ or use the arrows · new projects go first · ★ featured · views: all time, +N wk: the last 7 days · admin self-views excluded.'
             : 'Clear search and switch to "All" to reorder.'}
         </p>
+        <p className="sr-only" aria-live="polite">{moveNote}</p>
         <button
           type="button"
           onClick={refreshViews}
@@ -275,11 +303,12 @@ export default function AdminProjectsPage() {
           as="div"
           className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5"
         >
-          {projects.map((project) => (
+          {projects.map((project, i) => (
             <ProjectCard
               key={project.id}
               project={project}
               draggable
+              place={{ position: i + 1, count: projects.length, onMove: (dir) => move(project.id, dir) }}
               views={viewsKnown ? views[project.slug] ?? { total: 0, week: 0 } : undefined}
               onDelete={handleDelete}
             />
@@ -338,18 +367,56 @@ function KpiCard({
 
 /* ── Project Card ────────────────────────────────────────────────────── */
 
+/**
+ * One place earlier or later. Left and right where cards run in rows; on a
+ * phone, one card to a row, the same arrows point up and down.
+ */
+function MoveButton({ id, dir, title, disabled, onClick }: {
+  id: string
+  dir: MoveDir
+  title: string
+  disabled: boolean
+  onClick: () => void
+}) {
+  return (
+    <button
+      id={id}
+      type="button"
+      onClick={onClick}
+      disabled={disabled}
+      aria-label={`Move ${title} ${dir}`}
+      title={dir === 'earlier' ? 'Move earlier' : 'Move later'}
+      className="grid h-8 w-8 place-items-center rounded-lg border border-[#252525] text-[#888] transition-[color,border-color,transform] duration-150 ease-out hover:border-[#444] hover:text-white active:scale-[0.97] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#C8FF47]/60 disabled:pointer-events-none disabled:opacity-30"
+    >
+      <svg width="12" height="12" viewBox="0 0 12 12" fill="none" aria-hidden="true" className="rotate-90 sm:rotate-0">
+        <path
+          d={dir === 'earlier' ? 'M7.5 2.5 4 6l3.5 3.5' : 'M4.5 2.5 8 6 4.5 9.5'}
+          stroke="currentColor"
+          strokeWidth="1.5"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        />
+      </svg>
+    </button>
+  )
+}
+
 function ProjectCard({
   project,
   draggable,
+  place,
   views,
   onDelete,
 }: {
   project: Project
   draggable: boolean
+  /** Its place in the whole list and the arrows that change it; absent while the list is filtered. */
+  place?: { position: number; count: number; onMove: (dir: MoveDir) => void }
   views?: Views
   onDelete: (id: string, title: string) => void
 }) {
   const controls = useDragControls()
+  const reduceMotion = useReducedMotion()
   // views is undefined until the counts come in, or when they could not.
   const total    = views?.total ?? 0
   const week     = views?.week  ?? 0
@@ -460,6 +527,27 @@ function ProjectCard({
           </span>
           <span className="text-[#444]" aria-hidden="true">·</span>
           <span className="text-[#888] tabular-nums">{project.year}</span>
+          {place && (
+            <div role="group" aria-label={`Place of ${project.title}`} className="ml-auto flex items-center gap-1.5">
+              <MoveButton
+                id={`move-earlier-${project.id}`}
+                dir="earlier"
+                title={project.title}
+                disabled={place.position === 1}
+                onClick={() => place.onMove('earlier')}
+              />
+              <span className="min-w-[2ch] text-center text-[#888] tabular-nums" title={`Place ${place.position} of ${place.count}`}>
+                {place.position}
+              </span>
+              <MoveButton
+                id={`move-later-${project.id}`}
+                dir="later"
+                title={project.title}
+                disabled={place.position === place.count}
+                onClick={() => place.onMove('later')}
+              />
+            </div>
+          )}
         </div>
       </div>
 
@@ -513,7 +601,8 @@ function ProjectCard({
         boxShadow: '0 20px 60px rgba(0,0,0,0.7)',
         zIndex: 10,
       }}
-      transition={{ type: 'spring', stiffness: 500, damping: 40 }}
+      // A card moved by its arrows slides to its new place; with reduced motion it is simply there.
+      transition={reduceMotion ? { duration: 0 } : { type: 'spring', stiffness: 500, damping: 40 }}
     >
       {Card}
     </Reorder.Item>

@@ -144,10 +144,20 @@ export async function getProjectById(id: string): Promise<Project | null> {
   return projects.find((p) => p.id === id) ?? null
 }
 
+/**
+ * A new project goes first: in the admin's list and on the site, which
+ * share one order. Its place is one before the first one's, so no other
+ * project is touched (their updatedAt is what the sitemap reports); it can
+ * be moved like any other. Without a place of its own it would sort after
+ * every project that has one, which, once the list has been reordered
+ * even once, is all of them: the end of the list.
+ */
 export async function createProject(input: CreateProjectInput): Promise<Project> {
   const data = await readData()
   const now = new Date().toISOString()
-  const project: Project = { ...input, id: uuidv4(), createdAt: now, updatedAt: now }
+  const places = data.projects.map((p) => p.sortOrder).filter((n): n is number => typeof n === 'number')
+  const sortOrder = places.length ? Math.min(...places) - 1 : 0
+  const project: Project = { ...input, sortOrder, id: uuidv4(), createdAt: now, updatedAt: now }
   data.projects.push(project)
   await writeData(data)
   return project
