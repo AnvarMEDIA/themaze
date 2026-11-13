@@ -106,7 +106,9 @@ export function Navbar({ email, internship = false }: { email: string; internshi
                     href={link.href}
                     aria-current={active ? 'page' : undefined}
                     className={cn(
-                      'relative inline-block px-3.5 py-2 rounded-full text-sm font-medium tracking-wide',
+                      // Narrower below 1280px: from 1024px up the whole menu shares one row
+                      // with the logo and the buttons, and a label must never break in two.
+                      'relative inline-block px-2.5 xl:px-3.5 py-2 rounded-full text-sm font-medium tracking-wide whitespace-nowrap',
                       'transition-colors duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-maze-lime',
                       active
                         ? 'text-maze-cream'
@@ -144,7 +146,7 @@ export function Navbar({ email, internship = false }: { email: string; internshi
               {...auroraStir}
               className={cn(
                 'aurora-btn hidden lg:inline-flex group/cta items-center gap-2 px-5 py-2.5 rounded-full',
-                'text-sm font-semibold tracking-wide',
+                'text-sm font-semibold tracking-wide whitespace-nowrap',
                 'transition-transform duration-150 ease-out',
                 'focus:outline-none focus-visible:ring-2 focus-visible:ring-maze-cream focus-visible:ring-offset-2 focus-visible:ring-offset-maze-black',
               )}
