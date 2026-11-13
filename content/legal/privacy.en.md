@@ -1,6 +1,6 @@
 # Privacy Policy
 
-_Last updated: 12 November 2026_
+_Last updated: 13 November 2026_
 
 This Privacy Policy explains how **MAZE Studio** ("we", "us") collects, uses,
 and protects personal data when you use our website `www.maze.uz`.
@@ -36,8 +36,8 @@ needed to operate the site securely.
   after 2 days, and visits on different days cannot be linked. The site
   keeps two entries in your browser: `maze_seen` (whether this browser has
   visited before) and `maze_visit` (the source of the current visit, cleared
-  when the tab is closed). Only daily totals are kept, for up to 400 days.
-  Visits by bots are not counted.
+  when the tab is closed). Only totals are kept: daily ones for up to 400
+  days, and each page's all-time view count. Visits by bots are not counted.
 - **Yandex Metrika and Vercel Analytics** — only with your consent in the
   cookie banner: usage statistics (page views, country, device) and, for
   Yandex Metrika, session recording (Webvisor). See our

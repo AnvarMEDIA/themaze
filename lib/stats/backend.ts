@@ -23,19 +23,36 @@ import { Redis } from '@upstash/redis'
  * this site's statistics collected nothing for weeks.
  */
 
-export interface ViewKeys { day: string; visitors: string; online: string }
+/** The seed's own mark that it is made: its other fields are page fields. */
+export const SEED_READY = '_ready'
+
+/** `total`: the page views of all time, a hash that never expires. */
+export interface ViewKeys { day: string; visitors: string; online: string; total: string }
 export interface ViewTtl { day: number; visitors: number; online: number }
 
 export interface StatsBackend {
   readonly name: 'redis' | 'file'
-  /** Count one view: add `fields` to the day, the visitor to the day's and the minute's sets. True when the visitor is new today. */
-  view(keys: ViewKeys, visitor: string, fields: string[], ttl: ViewTtl): Promise<boolean>
+  /**
+   * Count one view: add `fields` to the day, `pageField` to the views of all
+   * time, the visitor to the day's and the minute's sets. True when the
+   * visitor is new today.
+   */
+  view(keys: ViewKeys, visitor: string, fields: string[], ttl: ViewTtl, pageField: string): Promise<boolean>
   /** "Still here": the visitor into one minute's set. */
   beat(onlineKey: string, visitor: string, ttl: number): Promise<void>
   /** Add one to each of `fields` of a day. */
   increment(dayKey: string, fields: string[], ttl: number): Promise<void>
-  /** Several days' hashes, in the order asked; {} for a day with none. */
+  /** Several hashes (days, mostly), in the order asked; {} for one there is not. */
   readDays(dayKeys: string[]): Promise<Array<Record<string, unknown>>>
+  /**
+   * Once ever: write into `seedKey` what the views of all time lack, the
+   * views counted before `totalKey` was: `history`, plus the page views of
+   * `dayKeys` (every day since the counter began) less those already in
+   * `totalKey`. A view since then is in both, so that difference is the
+   * same whenever it is taken; it is taken in one step all the same. False
+   * when the seed was made before.
+   */
+  seedTotals(seedKey: string, totalKey: string, dayKeys: string[], history: Record<string, number>): Promise<boolean>
   /** Only the named fields of several days' hashes, in the order asked; a field a day lacks is left out. */
   readFields(dayKeys: string[], fields: string[]): Promise<Array<Record<string, unknown>>>
   /** How many distinct members the given sets hold together. */
@@ -50,17 +67,40 @@ export interface StatsBackend {
 
 /* ── Redis ──────────────────────────────────────────────────────────────── */
 
-// KEYS: day hash, the day's visitor set, this minute's set.
-// ARGV: visitor, day TTL, visitor-set TTL, minute TTL, then the fields.
+// KEYS: day hash, the day's visitor set, this minute's set, the views of all time.
+// ARGV: visitor, day TTL, visitor-set TTL, minute TTL, the page's field, then the fields.
 const VIEW_SCRIPT = `
 local added = redis.call('SADD', KEYS[2], ARGV[1])
 if added == 1 then redis.call('HINCRBY', KEYS[1], 'visitors', 1) end
-for i = 5, #ARGV do redis.call('HINCRBY', KEYS[1], ARGV[i], 1) end
+for i = 6, #ARGV do redis.call('HINCRBY', KEYS[1], ARGV[i], 1) end
 redis.call('EXPIRE', KEYS[1], ARGV[2])
 redis.call('EXPIRE', KEYS[2], ARGV[3])
 redis.call('SADD', KEYS[3], ARGV[1])
 redis.call('EXPIRE', KEYS[3], ARGV[4])
+redis.call('HINCRBY', KEYS[4], ARGV[5], 1)
 return added
+`
+
+// KEYS: the seed, the views of all time, then every day since the counter began.
+// ARGV: the views before the counter, as field, count, field, count…
+// Page fields are the ones that start "p:" (lib/stats/model, F.page).
+const SEED_SCRIPT = `
+if redis.call('HEXISTS', KEYS[1], '${SEED_READY}') == 1 then return 0 end
+local sums = {}
+for k = 3, #KEYS do
+  local day = redis.call('HGETALL', KEYS[k])
+  for i = 1, #day, 2 do
+    if string.sub(day[i], 1, 2) == 'p:' then sums[day[i]] = (sums[day[i]] or 0) + tonumber(day[i + 1]) end
+  end
+end
+local total = redis.call('HGETALL', KEYS[2])
+for i = 1, #total, 2 do sums[total[i]] = (sums[total[i]] or 0) - tonumber(total[i + 1]) end
+for i = 1, #ARGV, 2 do sums[ARGV[i]] = (sums[ARGV[i]] or 0) + tonumber(ARGV[i + 1]) end
+for field, n in pairs(sums) do
+  if n ~= 0 then redis.call('HSET', KEYS[1], field, string.format('%d', n)) end
+end
+redis.call('HSET', KEYS[1], '${SEED_READY}', '1')
+return 1
 `
 
 // KEYS: the day. ARGV: TTL, then the fields.
@@ -114,14 +154,19 @@ function redisBackend(redis: Redis): StatsBackend {
   const view = redis.createScript<number>(VIEW_SCRIPT)
   const increment = redis.createScript<number>(INCREMENT_SCRIPT)
   const beat = redis.createScript<number>(BEAT_SCRIPT)
+  const seed = redis.createScript<number>(SEED_SCRIPT)
   return {
     name: 'redis',
-    async view(keys, visitor, fields, ttl) {
+    async view(keys, visitor, fields, ttl, pageField) {
       const added = await view.exec(
-        [keys.day, keys.visitors, keys.online],
-        [visitor, String(ttl.day), String(ttl.visitors), String(ttl.online), ...fields],
+        [keys.day, keys.visitors, keys.online, keys.total],
+        [visitor, String(ttl.day), String(ttl.visitors), String(ttl.online), pageField, ...fields],
       )
       return Number(added) === 1
+    },
+    async seedTotals(seedKey, totalKey, dayKeys, history) {
+      const args = Object.entries(history).flatMap(([field, n]) => [field, String(Math.round(n))])
+      return Number(await seed.exec([seedKey, totalKey, ...dayKeys], args)) === 1
     },
     async beat(onlineKey, visitor, ttl) {
       await beat.exec([onlineKey], [visitor, String(ttl)])
@@ -170,13 +215,15 @@ function redisBackend(redis: Redis): StatsBackend {
 
 /* ── Local files (development and tests only) ───────────────────────────── */
 
-function fileBackend(dir: string): StatsBackend {
-  const file = (key: string) => path.join(dir, `${key.replace(/[^a-zA-Z0-9_-]+/g, '_')}.json`)
+// The folder is looked up at each call, not once: test files that share a
+// process each set their own (STATS_DEV_DIR) and must not see each other's.
+function fileBackend(folder: () => string): StatsBackend {
+  const file = (key: string) => path.join(folder(), `${key.replace(/[^a-zA-Z0-9_-]+/g, '_')}.json`)
   const read = async <T>(key: string, fallback: T): Promise<T> => {
     try { return JSON.parse(await fs.readFile(file(key), 'utf8')) as T } catch { return fallback }
   }
   const write = async (key: string, value: unknown) => {
-    await fs.mkdir(dir, { recursive: true })
+    await fs.mkdir(folder(), { recursive: true })
     await fs.writeFile(file(key), JSON.stringify(value), 'utf8')
   }
   const addTo = async (key: string, member: string): Promise<boolean> => {
@@ -193,11 +240,30 @@ function fileBackend(dir: string): StatsBackend {
   }
   return {
     name: 'file',
-    async view(keys, visitor, fields) {
+    async view(keys, visitor, fields, _ttl, pageField) {
       const added = await addTo(keys.visitors, visitor)
       await bump(keys.day, added ? ['visitors', ...fields] : fields)
       await addTo(keys.online, visitor)
+      await bump(keys.total, [pageField])
       return added
+    },
+    async seedTotals(seedKey, totalKey, dayKeys, history) {
+      const made = await read<Record<string, unknown>>(seedKey, {})
+      if (made[SEED_READY]) return false
+      const sums: Record<string, number> = {}
+      const add = (field: string, n: number) => { sums[field] = (sums[field] ?? 0) + n }
+      for (const key of dayKeys) {
+        for (const [field, n] of Object.entries(await read<Record<string, number>>(key, {}))) {
+          if (field.startsWith('p:')) add(field, Number(n) || 0)
+        }
+      }
+      for (const [field, n] of Object.entries(await read<Record<string, number>>(totalKey, {}))) add(field, -(Number(n) || 0))
+      for (const [field, n] of Object.entries(history)) add(field, Math.round(n))
+      const out: Record<string, number | string> = {}
+      for (const [field, n] of Object.entries(sums)) if (n !== 0) out[field] = n
+      out[SEED_READY] = '1'
+      await write(seedKey, out)
+      return true
     },
     async beat(onlineKey, visitor) { await addTo(onlineKey, visitor) },
     async increment(dayKey, fields) { await bump(dayKey, fields) },
@@ -213,7 +279,7 @@ function fileBackend(dir: string): StatsBackend {
     async claim(key) {
       // Created only if absent, in one step, as SET NX is: of two callers at
       // once exactly one gets it.
-      await fs.mkdir(dir, { recursive: true })
+      await fs.mkdir(folder(), { recursive: true })
       try {
         await (await fs.open(file(key), 'wx')).close()
         return true
@@ -223,7 +289,7 @@ function fileBackend(dir: string): StatsBackend {
       }
     },
     async release(key) { await fs.rm(file(key), { force: true }) },
-    async ping() { await fs.mkdir(dir, { recursive: true }) },
+    async ping() { await fs.mkdir(folder(), { recursive: true }) },
   }
 }
 
@@ -241,7 +307,7 @@ export function statsBackend(): StatsBackend | null {
   } else if (process.env.VERCEL) {
     chosen = null
   } else {
-    chosen = fileBackend(process.env.STATS_DEV_DIR || path.join(process.cwd(), 'data', 'stats-dev'))
+    chosen = fileBackend(() => process.env.STATS_DEV_DIR || path.join(process.cwd(), 'data', 'stats-dev'))
   }
   return chosen
 }

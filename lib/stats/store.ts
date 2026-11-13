@@ -1,5 +1,5 @@
 import { createHash, createHmac } from 'crypto'
-import { statsBackend } from './backend'
+import { SEED_READY, statsBackend } from './backend'
 import { type Marketing } from './marketing'
 import {
   F, SITE_LOCALES, classifySource, explodeDay, isBot, mergeDays, normalizePagePath, parseDevice,
@@ -18,10 +18,12 @@ import { siteDay, siteHour } from './time'
  * one can be followed from day to day. The hashes are kept only to count the
  * day's visitors, and expire two days later; what stays is the count.
  *
- * Keys, all expiring:
- *   stats:d:<YYYY-MM-DD>   hash   the day's counters (lib/stats/model, F)
- *   stats:u:<YYYY-MM-DD>   set    the day's visitor hashes            (2 days)
- *   stats:on:<minute>      set    who was here in that minute         (6 minutes)
+ * Keys:
+ *   stats:d:<YYYY-MM-DD>   hash   the day's counters (lib/stats/model, F)  (400 days)
+ *   stats:u:<YYYY-MM-DD>   set    the day's visitor hashes                 (2 days)
+ *   stats:on:<minute>      set    who was here in that minute              (6 minutes)
+ *   stats:total            hash   each page's views of all time            (kept)
+ *   stats:total:seed       hash   each page's views before stats:total was (kept)
  */
 
 const DAY_TTL = 400 * 86_400
@@ -29,6 +31,10 @@ const VISITORS_TTL = 2 * 86_400
 const ONLINE_TTL = 6 * 60
 /** "On the site now" is anyone seen in the last five minutes. */
 const ONLINE_WINDOW = 5
+/** Each page's views of all time: a count by page, nothing about anyone, never expiring. */
+const TOTAL_KEY = 'stats:total'
+/** What stats:total did not count: the views before it, put together once (readPageViews). */
+const SEED_KEY = 'stats:total:seed'
 
 const dayKey = (date: string) => `stats:d:${date}`
 const visitorsKey = (date: string) => `stats:u:${date}`
@@ -97,10 +103,11 @@ export async function recordView(v: VisitInput): Promise<RecordResult> {
 
   try {
     const newVisitor = await backend.view(
-      { day: dayKey(date), visitors: visitorsKey(date), online: onlineKey(minuteOf(now)) },
+      { day: dayKey(date), visitors: visitorsKey(date), online: onlineKey(minuteOf(now)), total: TOTAL_KEY },
       visitorHash(v.ip, v.ua, date),
       fields,
       { day: DAY_TTL, visitors: VISITORS_TTL, online: ONLINE_TTL },
+      F.page(page),
     )
     return { counted: true, date, source, channel, device, newVisitor }
   } catch (err) {
@@ -251,6 +258,81 @@ export async function readPeriod(from: string, to: string, now: Date = new Date(
     todayRow: rows.find((r) => r.date === today) ?? null,
     previous,
   }
+}
+
+/** A page's views: of all time, and of the last seven days (today included). */
+export interface PageViews { total: number; week: number }
+
+/** The page fields of some hashes added up, by page path. */
+function pageCounts(rows: Array<Record<string, unknown>>): Record<string, number> {
+  const out: Record<string, number> = {}
+  for (const row of rows) {
+    for (const [field, value] of Object.entries(row)) {
+      if (!field.startsWith('p:')) continue
+      const page = field.slice(2)
+      out[page] = (out[page] ?? 0) + (Number(value) || 0)
+    }
+  }
+  return out
+}
+
+/**
+ * Every page's views of all time and of the last seven days, by path: the
+ * figures on the admin's project cards. Admin only; nothing of it is shown
+ * on the site.
+ *
+ * All time is stats:total, which every view since it began adds to and
+ * which never expires, plus the seed: the views it did not count, put
+ * together the first time this is asked: `history` (what was counted before
+ * this counter, by page field) and the days since 12.11.2026 that came
+ * before stats:total. If `history` cannot be read, nothing is stored (a
+ * history taken as empty would be lost for good) and this counter's own
+ * days are shown meanwhile; the next call tries again.
+ */
+export async function readPageViews(
+  history: () => Promise<Record<string, number>>,
+  now: Date = new Date(),
+): Promise<Record<string, PageViews>> {
+  const backend = statsBackend()
+  if (!backend) throw new StatsUnavailable('Статистика не подключена: в Vercel нет Redis (KV_REST_API_URL).')
+  const today = siteDay(now)
+  const counted = today >= COUNTING_SINCE ? daysBetween(COUNTING_SINCE, today) : []
+  const week = counted.slice(-7)
+
+  let [seed] = await backend.readDays([SEED_KEY])
+  if (!seed[SEED_READY]) {
+    let before: Record<string, number> | null = null
+    try {
+      before = await history()
+    } catch (err) {
+      console.error('[stats] views before 12.11.2026 could not be read; shown without them this time:', err instanceof Error ? err.message : err)
+    }
+    if (before) {
+      await backend.seedTotals(SEED_KEY, TOTAL_KEY, counted.map(dayKey), before)
+      ;[seed] = await backend.readDays([SEED_KEY])
+    }
+  }
+
+  let all: Record<string, number>
+  let lastWeek: Record<string, number>
+  if (seed[SEED_READY]) {
+    const [total, ...days] = await backend.readDays([TOTAL_KEY, ...week.map(dayKey)])
+    all = pageCounts([seed, total])
+    lastWeek = pageCounts(days)
+  } else {
+    // No seed yet: every day this counter has, which is every view it made.
+    const days = await backend.readDays(counted.map(dayKey))
+    all = pageCounts(days)
+    lastWeek = pageCounts(days.slice(-7))
+  }
+
+  const out: Record<string, PageViews> = {}
+  for (const page of new Set([...Object.keys(all), ...Object.keys(lastWeek)])) {
+    const weekViews = lastWeek[page] ?? 0
+    const total = Math.max(all[page] ?? 0, weekViews)
+    if (total > 0) out[page] = { total, week: weekViews }
+  }
+  return out
 }
 
 /** Take a one-time flag (a report already sent, say); false when it was taken before. */

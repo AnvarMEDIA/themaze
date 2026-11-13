@@ -13,6 +13,8 @@ type Views = { total: number; week: number }
 export default function AdminProjectsPage() {
   const [projects, setProjects] = useState<Project[]>([])
   const [views,    setViews]    = useState<Record<string, Views>>({})
+  // Whether the counts came in: until they do, or if they cannot, a card says "—", not 0.
+  const [viewsKnown, setViewsKnown] = useState(false)
   const [loading,  setLoading]  = useState(true)
   const [filter,   setFilter]   = useState<string>('all')
   const [query,    setQuery]    = useState('')
@@ -34,29 +36,22 @@ export default function AdminProjectsPage() {
 
   useEffect(() => { load() }, [load])
 
-  // Pull pageview stats — populates the "Views" column and the
-  // "Week views" KPI card. Failures here must not break the table.
+  // Each project page's views of all time and of the last 7 days
+  // (lib/stats/store, readPageViews): the cards' chips and the "Week views"
+  // KPI. A failure must not break the grid, and must not pass for 0 views.
   const loadViews = useCallback(async () => {
     try {
-      const res  = await fetch('/api/analytics', { cache: 'no-store' })
-      if (!res.ok) return
-      const data = await res.json() as { daily?: Record<string, Record<string, number>> }
-      if (!data?.daily) return
-      const weekStart = new Date(Date.now() - 6 * 86_400_000).toISOString().slice(0, 10)
+      const res  = await fetch('/api/analytics/pages', { cache: 'no-store' })
+      if (!res.ok) { setViewsKnown(false); return }
+      const data = await res.json() as { pages?: Record<string, Views> }
       const next: Record<string, Views> = {}
-      for (const [path, byDate] of Object.entries(data.daily)) {
-        if (!path.startsWith('/portfolio/')) continue
-        const slug = path.slice('/portfolio/'.length)
-        let total = 0, week = 0
-        for (const [d, c] of Object.entries(byDate)) {
-          total += c
-          if (d >= weekStart) week += c
-        }
-        next[slug] = { total, week }
+      for (const [path, counts] of Object.entries(data.pages ?? {})) {
+        if (path.startsWith('/portfolio/')) next[path.slice('/portfolio/'.length)] = counts
       }
       setViews(next)
+      setViewsKnown(true)
     } catch {
-      /* swallow */
+      setViewsKnown(false)
     }
   }, [])
 
@@ -211,7 +206,7 @@ export default function AdminProjectsPage() {
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 mb-4">
         <p className="text-[11px] text-[#666]">
           {dragEnabled
-            ? 'Drag ⋮⋮ to reorder · ★ marks featured · admin self-views excluded from counts.'
+            ? 'Drag ⋮⋮ to reorder · ★ marks featured · views: all time, +N wk: the last 7 days · admin self-views excluded.'
             : 'Clear search and switch to "All" to reorder.'}
         </p>
         <button
@@ -285,7 +280,7 @@ export default function AdminProjectsPage() {
               key={project.id}
               project={project}
               draggable
-              views={views[project.slug]}
+              views={viewsKnown ? views[project.slug] ?? { total: 0, week: 0 } : undefined}
               onDelete={handleDelete}
             />
           ))}
@@ -300,7 +295,7 @@ export default function AdminProjectsPage() {
               key={project.id}
               project={project}
               draggable={false}
-              views={views[project.slug]}
+              views={viewsKnown ? views[project.slug] ?? { total: 0, week: 0 } : undefined}
               onDelete={handleDelete}
             />
           ))}
@@ -355,6 +350,7 @@ function ProjectCard({
   onDelete: (id: string, title: string) => void
 }) {
   const controls = useDragControls()
+  // views is undefined until the counts come in, or when they could not.
   const total    = views?.total ?? 0
   const week     = views?.week  ?? 0
   const accent   = project.accentColor || '#C8FF47'
@@ -429,9 +425,14 @@ function ProjectCard({
         </div>
 
         {/* Bottom-left: views chip — visible always for at-a-glance scanning */}
-        <div className="absolute bottom-3 left-3 inline-flex items-center gap-2 px-2.5 py-1 rounded-md bg-black/60 backdrop-blur-sm text-xs text-white tabular-nums">
-          <span className="font-semibold">{total.toLocaleString('en-US')}</span>
-          <span className="text-[#888]">views</span>
+        <div
+          className="absolute bottom-3 left-3 inline-flex items-center gap-2 px-2.5 py-1 rounded-md bg-black/60 backdrop-blur-sm text-xs text-white tabular-nums"
+          title={views
+            ? `All-time views: ${total.toLocaleString('en-US')} · last 7 days: +${week.toLocaleString('en-US')}`
+            : 'View counts not loaded'}
+        >
+          <span className="font-semibold">{views ? total.toLocaleString('en-US') : '—'}</span>
+          <span className="text-[#888]">{views && total === 1 ? 'view' : 'views'}</span>
           {week > 0 && (
             <>
               <span className="text-[#444]" aria-hidden="true">·</span>

@@ -144,6 +144,15 @@ export async function readStore<T>(name: string, fallback: T): Promise<T> {
   return readStoreFrom(name, fallback, false)
 }
 
+/**
+ * The stored value, or StoreReadError when the store could not be read:
+ * for a value that is to be written somewhere else for good, where the
+ * fallback would pass for the real thing.
+ */
+export async function readStoreStrict<T>(name: string, fallback: T): Promise<T> {
+  return readStoreFrom(name, fallback, true)
+}
+
 async function readStoreFrom<T>(name: string, fallback: T, strict: boolean): Promise<T> {
   // Read-your-writes: serve the value this instance just wrote, bypassing
   // any Blob/CDN propagation lag.
