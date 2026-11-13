@@ -129,6 +129,19 @@ const nextConfig = {
       },
     ]
   },
+  async rewrites() {
+    return {
+      // After the files, so the site's own .txt routes (/llms.txt,
+      // /robots.txt) are served first; before the dynamic [locale] pages,
+      // which would otherwise take the name for a language.
+      afterFiles: [
+        // The IndexNow key file at the site's root, /<key>.txt: the route
+        // gives the key only to its own name (lib/indexing.ts says why the
+        // root). The key is not written here: it is in INDEXNOW_KEY.
+        { source: '/:file([A-Za-z0-9-]{8,128}\\.txt)', destination: '/api/indexnow-key/:file' },
+      ],
+    }
+  },
   async redirects() {
     return [
       // MFC moved out of Finance into a section of its own. Bookmarks and the

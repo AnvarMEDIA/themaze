@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import toast from 'react-hot-toast'
+import { indexNowMessage, type IndexNowReply } from '@/lib/indexNowStatus'
 import type { PressKitData } from '@/lib/pressKit'
 
 interface Props {
@@ -28,14 +29,12 @@ export function PressKitInteractive({ kit }: Props) {
         headers: { 'Content-Type': 'application/json' },
         body:    JSON.stringify({ urls: [kit.publicUrl, `${new URL(kit.publicUrl).origin}/ru${new URL(kit.publicUrl).pathname}`] }),
       })
-      const data = await res.json() as { ok: boolean; submitted: number; status?: number }
-      if (data.ok) {
-        toast.success(`IndexNow notified · ${data.submitted} URLs`)
-      } else {
-        toast.error(`IndexNow returned ${data.status ?? 'error'}`)
-      }
+      const reply = await res.json().catch(() => ({})) as IndexNowReply
+      const { ok, text } = indexNowMessage(res.status, reply)
+      if (ok) toast.success(text)
+      else toast.error(text, { duration: 6000 })
     } catch {
-      toast.error('Network error')
+      toast.error('Нет связи с сайтом — проверьте интернет')
     } finally {
       setPinging(false)
     }

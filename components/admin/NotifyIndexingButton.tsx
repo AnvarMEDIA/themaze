@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import toast from 'react-hot-toast'
+import { indexNowMessage, type IndexNowReply } from '@/lib/indexNowStatus'
 
 /**
  * Manual fan-out button — POSTs `/api/admin/notify-indexing` with no
@@ -18,15 +19,13 @@ export function NotifyIndexingButton() {
   const click = async () => {
     setBusy(true)
     try {
-      const res  = await fetch('/api/admin/notify-indexing', { method: 'POST' })
-      const data = await res.json() as { ok: boolean; status?: number; submitted: number }
-      if (data.ok) {
-        toast.success(`IndexNow notified · ${data.submitted} URLs`)
-      } else {
-        toast.error(`IndexNow returned ${data.status ?? 'error'}`)
-      }
+      const res = await fetch('/api/admin/notify-indexing', { method: 'POST' })
+      const reply = await res.json().catch(() => ({})) as IndexNowReply
+      const { ok, text } = indexNowMessage(res.status, reply)
+      if (ok) toast.success(text)
+      else toast.error(text, { duration: 6000 })
     } catch {
-      toast.error('Network error')
+      toast.error('Нет связи с сайтом — проверьте интернет')
     } finally {
       setBusy(false)
     }
@@ -38,7 +37,7 @@ export function NotifyIndexingButton() {
       onClick={click}
       disabled={busy}
       title="Push every public URL to Bing / Yandex / Seznam / Naver via IndexNow"
-      className="shrink-0 px-4 py-2.5 border border-[#252525] rounded-lg text-sm text-[#999] hover:text-white hover:border-[#444] transition-colors disabled:opacity-60"
+      className="shrink-0 px-4 py-2.5 border border-[#252525] rounded-lg text-sm text-[#999] hover:text-white hover:border-[#444] transition-[color,border-color,transform] duration-150 ease-out active:scale-[0.97] disabled:opacity-60"
     >
       {busy ? '↻ Pinging…' : '↻ Ping search engines'}
     </button>

@@ -9,23 +9,30 @@ import { INSIGHTS_ENABLED } from './features'
  * Endpoint:  https://api.indexnow.org/IndexNow
  * Protocol:  https://www.indexnow.org/documentation
  *
+ * THE KEY FILE IS AT THE SITE'S ROOT: https://www.maze.uz/<key>.txt, the
+ * key itself its only content (next.config.js sends that name to
+ * app/api/indexnow-key/[file]). Where the file lives decides which
+ * addresses the key vouches for: a key file in a folder covers only the
+ * addresses under that folder. It used to be served at /api/indexnow-key,
+ * which covered nothing but /api/ (a folder robots.txt closes besides),
+ * and IndexNow refused every page of the site with a 422, "One or more
+ * URLs are not related to your site verified through the keylocation
+ * parameter": the pings on publish and the admin button alike.
+ *
  * Setup:
- *   - Set INDEXNOW_KEY (32 alphanum chars). Without it we derive a
- *     stable fallback from JWT_SECRET so dev environments still
- *     "work", but you SHOULD set a real one in production.
- *   - The key file is exposed at /api/indexnow-key (plain text body
- *     is the key itself), which is what IndexNow checks to verify
- *     site ownership.
+ *   - Set INDEXNOW_KEY (8–128 letters and digits). Without it a stable
+ *     fallback is derived from a public seed, so dev environments still
+ *     "work"; set a real one in production.
  */
 
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://www.maze.uz'
 
 function deriveFallbackKey(): string {
-  // The IndexNow key is PUBLIC — it is served verbatim at
-  // /api/indexnow-key for verification. It must therefore NEVER be
-  // derived from a secret: hashing JWT_SECRET here would publish a
-  // brute-forceable function of the signing key. Use a dedicated,
-  // non-secret seed (override with INDEXNOW_SEED if desired).
+  // The IndexNow key is PUBLIC — it is served verbatim from the key file
+  // for verification. It must therefore NEVER be derived from a secret:
+  // hashing JWT_SECRET here would publish a brute-forceable function of
+  // the signing key. Use a dedicated, non-secret seed (override with
+  // INDEXNOW_SEED if desired).
   const seed = process.env.INDEXNOW_SEED ?? 'maze-indexnow-public-key-v1'
   return crypto.createHash('sha256').update(seed).digest('hex').slice(0, 32)
 }
@@ -37,39 +44,69 @@ export function getIndexNowKey(): string {
   return deriveFallbackKey()
 }
 
-/** Public URL of the key file the verifier fetches. */
+/** The key file's name at the site's root: the key, then `.txt`. */
+export function keyFileName(): string {
+  return `${getIndexNowKey()}.txt`
+}
+
+/** Public URL of the key file the verifier fetches: at the root, so it covers every page. */
 export function getKeyLocation(): string {
-  return `${SITE_URL.replace(/\/+$/, '')}/api/indexnow-key`
+  return `${SITE_URL.replace(/\/+$/, '')}/${keyFileName()}`
+}
+
+export interface IndexNowResult {
+  ok: boolean
+  /** IndexNow's answer: 200 / 202 are success (lib/indexNowStatus.ts says what the others mean). */
+  status?: number
+  submitted: number
 }
 
 /**
- * Submit URLs to IndexNow. Returns the HTTP status from IndexNow
- * (200 / 202 are success, 422 means a URL didn't match `host`).
- * Always resolves — failures are logged, not thrown, so a publish
- * mutation never breaks because the search-engine ping is down.
+ * The addresses as IndexNow will check them: this site's only, since one
+ * address of another host gets the whole list refused, and each in its
+ * normal form, so the home page is https://www.maze.uz/ with its slash,
+ * inside the key file's folder rather than a character short of it.
  */
-export async function notifyIndexNow(urls: string[]): Promise<{ ok: boolean; status?: number; submitted: number }> {
-  const clean = Array.from(new Set(urls.filter((u): u is string => typeof u === 'string' && u.startsWith('https://'))))
+function inScope(urls: string[], host: string): string[] {
+  const clean = urls.flatMap((u) => {
+    try {
+      const url = new URL(u)
+      return url.protocol === 'https:' && url.host === host ? [url.href] : []
+    } catch {
+      return []
+    }
+  })
+  return Array.from(new Set(clean))
     // While the journal is switched off (lib/features.ts) its pages answer
     // 404; announcing them would only get them dropped from the index.
     .filter((u) => INSIGHTS_ENABLED || !/\/insights(\/|$)/.test(new URL(u).pathname))
-  if (clean.length === 0) return { ok: true, submitted: 0 }
-  if (!SITE_URL.startsWith('https://')) return { ok: true, submitted: 0 }
+}
 
+/**
+ * Submit URLs to IndexNow. Returns the HTTP status from IndexNow.
+ * Always resolves — failures are logged, not thrown, so a publish
+ * mutation never breaks because the search-engine ping is down.
+ */
+export async function notifyIndexNow(urls: string[]): Promise<IndexNowResult> {
+  if (!SITE_URL.startsWith('https://')) return { ok: true, submitted: 0 }
   const host = new URL(SITE_URL).host
-  const key  = getIndexNowKey()
+  const clean = inScope(urls, host)
+  if (clean.length === 0) return { ok: true, submitted: 0 }
+
   try {
     const res = await fetch('https://api.indexnow.org/IndexNow', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json; charset=utf-8' },
       body: JSON.stringify({
         host,
-        key,
+        key: getIndexNowKey(),
         keyLocation: getKeyLocation(),
         urlList: clean,
       }),
     })
-    if (!res.ok) {
+    if (res.ok) {
+      console.info('[indexnow]', res.status, `${clean.length} URLs`)
+    } else {
       const body = await res.text().catch(() => '')
       console.warn('[indexnow]', res.status, body)
     }
