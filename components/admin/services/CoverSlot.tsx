@@ -7,7 +7,7 @@ import { checkCoverFile, fitForSending, uploadCover, type CoverCheck, type Uploa
 
 /**
  * One of a cover's two pictures (Admin → Услуги → <service>): the picture
- * in its frame (3.2:1 or 4:3, as the page shows it), dropped or chosen,
+ * in its frame (2.33:1 or 4:3, as the page shows it), dropped or chosen,
  * replaced or removed. A picture off the recommended size is described with
  * its own numbers and goes on only when the admin says so. What is uploaded
  * here waits for «Сохранить».
@@ -100,7 +100,7 @@ export function CoverSlot({ slug, slot, url, unsaved, note, onUploaded, onRemove
       <div className="flex flex-wrap items-baseline justify-between gap-x-3 gap-y-1">
         <h3 className="text-[15px] font-semibold text-white">{spec.label}</h3>
         <p className="text-[12px] text-[#8A8A8A]">
-          рекомендуется {spec.width}×{spec.height} px · {slot === 'desktop' ? '3,2:1' : '4:3'}
+          рекомендуется {spec.width}×{spec.height} px · {spec.ratioLabel}
         </p>
       </div>
 

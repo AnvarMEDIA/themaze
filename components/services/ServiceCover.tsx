@@ -18,8 +18,8 @@ export function ServiceCover({ desktop, mobile, alt }: { desktop: string; mobile
         src={desktop}
         alt={alt}
         className="service-cover"
-        width={2560}
-        height={800}
+        width={1913}
+        height={822}
         // Lower case: this React does not know fetchPriority yet, as next/image works around too.
         {...{ fetchpriority: 'high' }}
         decoding="async"

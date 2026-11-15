@@ -41,8 +41,11 @@ async function clear(request: APIRequestContext, slug: string) {
   })
 }
 
-test.beforeAll(async ({ request }) => { for (const slug of ['branding', 'naming', 'print']) await clear(request, slug) })
-test.afterAll(async ({ request }) => { for (const slug of ['branding', 'naming', 'print']) await clear(request, slug) })
+// Hooks run even in the project whose tests are all skipped (mobile): there they
+// would clear a service in the middle of a desktop test. Only where the tests run.
+const runsHere = (info: { project: { name: string } }) => info.project.name !== 'mobile'
+test.beforeAll(async ({ request }, info) => { if (runsHere(info)) for (const slug of ['branding', 'naming', 'print']) await clear(request, slug) })
+test.afterAll(async ({ request }, info) => { if (runsHere(info)) for (const slug of ['branding', 'naming', 'print']) await clear(request, slug) })
 
 test('the summary lists the nine services and says what is missing', async ({ page }) => {
   await signIn(page)
@@ -65,7 +68,7 @@ test('one cover: uploaded, warned about, saved, removed after a confirmation', a
 
   const desktop = page.getByRole('region', { name: 'Десктоп' })
   const mobile = page.getByRole('region', { name: 'Мобайл' })
-  await desktop.locator('input[type=file]').setInputFiles(await file('cover.jpg', 2560, 800))
+  await desktop.locator('input[type=file]').setInputFiles(await file('cover.jpg', 1913, 822))
   await expect(desktop.locator('img')).toHaveAttribute('src', /cover-desktop-\d+\.webp$/)
   await expect(desktop).toContainText('Новое фото · не сохранено')
   await expect(mobile).toContainText('на телефоне покажется десктопное')
@@ -111,13 +114,13 @@ test('many pictures at once go where their names say', async ({ page }) => {
   await page.goto('/admin/services')
   const bulk = page.getByRole('region', { name: 'Загрузить пачкой' })
   await bulk.locator('input[type=file]').setInputFiles([
-    await file('naming-d.png', 2560, 800, 'png'),
+    await file('naming-d.png', 1913, 822, 'png'),
     await file('naming-m.jpg', 1080, 810),
     await file('print-d.jpg', 1600, 900),
     await file('holiday.jpg', 800, 600),
   ])
   await expect(bulk).toContainText('→ Нейминг · Десктоп')
-  await expect(bulk).toContainText('ширина 1600 px, нужно от 1920 px')
+  await expect(bulk).toContainText('ширина 1600 px, нужно от 1900 px')
   await expect(bulk).toContainText('Имя не подходит')
   await bulk.getByRole('button', { name: 'Загрузить всё равно (3)' }).click()
   await expect(bulk.getByRole('status')).toContainText('Сохранено фото: 3', { timeout: 20_000 })
@@ -128,12 +131,12 @@ test('many pictures at once go where their names say', async ({ page }) => {
 
 test.describe('The service page with its cover', () => {
   const SLUG = 'packaging'
-  test.afterAll(async ({ request }) => clear(request, SLUG))
+  test.afterAll(async ({ request }, info) => { if (runsHere(info)) await clear(request, SLUG) })
 
   async function setCover(request: APIRequestContext, slots: Array<'desktop' | 'mobile'>) {
     const urls: Record<string, string | null> = { desktop: null, mobile: null }
     for (const slot of slots) {
-      const [w, h] = slot === 'desktop' ? [2560, 800] : [1080, 810]
+      const [w, h] = slot === 'desktop' ? [1913, 822] : [1080, 810]
       const res = await request.post('/api/services/covers/upload', {
         headers: { cookie: `maze_admin_token=${await token()}` },
         multipart: { slug: SLUG, slot, file: { name: `${SLUG}.jpg`, mimeType: 'image/jpeg', buffer: await sharp({ create: { width: w, height: h, channels: 3, background: '#a85' } }).jpeg().toBuffer() } },
@@ -154,7 +157,7 @@ test.describe('The service page with its cover', () => {
     for (const [path, alt] of [[`/services/${SLUG}`, 'Packaging — MAZE Studio'], [`/ru/services/${SLUG}`, 'Упаковка — MAZE Studio']]) {
       const html = await (await request.get(path)).text()
       expect(html, path).toContain(`<source media="(max-width: 767px)" srcSet="${urls.mobile}"/>`)
-      expect(html, path).toMatch(new RegExp(`<img src="${urls.desktop}" alt="${alt}" class="service-cover" width="2560" height="800" fetchpriority="high"`))
+      expect(html, path).toMatch(new RegExp(`<img src="${urls.desktop}" alt="${alt}" class="service-cover" width="1913" height="822" fetchpriority="high"`))
       expect(html, path).toMatch(/<meta property="og:image" content="[^"]*cover-og-\d+\.jpg"\/>/)
     }
   })
@@ -169,8 +172,8 @@ test.describe('The service page with its cover', () => {
       await expect.poll(() => img.evaluate((el: HTMLImageElement) => el.currentSrc)).toContain(file)
       const box = await img.boundingBox()
       expect(Math.round(box!.width)).toBe(width)
-      // 31vw at 1440 is 446px; at 375 the frame is 4:3.
-      expect(Math.round(box!.height)).toBe(width === 375 ? 281 : 446)
+      // At 1440 the frame is 43vw high, the photos' own 1913×822 shape: 619px; at 375 it is 4:3.
+      expect(Math.round(box!.height)).toBe(width === 375 ? 281 : 619)
       expect(await page.evaluate(() => document.scrollingElement!.scrollWidth - document.documentElement.clientWidth)).toBe(0)
       await context.close()
     }

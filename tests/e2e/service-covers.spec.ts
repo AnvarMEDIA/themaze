@@ -80,11 +80,13 @@ test.describe('Service covers: what is kept', () => {
 })
 
 test('a picture outside the recommended size is described, not refused', () => {
-  expect(coverSizeIssues('desktop', 2560, 800)).toEqual([])
-  expect(coverSizeIssues('desktop', 1920, 600)).toEqual([])
+  expect(coverSizeIssues('desktop', 1913, 822)).toEqual([])
+  expect(coverSizeIssues('desktop', 2560, 1100)).toEqual([])
+  // The old 3.2:1 size is now off: the frame is the studio photos' 2.33:1.
+  expect(coverSizeIssues('desktop', 2560, 800)).toEqual(['соотношение сторон 3,2:1, нужно 2,1–2,6:1'])
   expect(coverSizeIssues('desktop', 1600, 900)).toEqual([
-    'ширина 1600 px, нужно от 1920 px',
-    'соотношение сторон 1,78:1, нужно 2,8–3,6:1',
+    'ширина 1600 px, нужно от 1900 px',
+    'соотношение сторон 1,78:1, нужно 2,1–2,6:1',
   ])
   expect(coverSizeIssues('mobile', 1080, 810)).toEqual([])
   expect(coverSizeIssues('mobile', 1080, 1920)).toEqual(['соотношение сторон 0,56:1, нужно 1,2–1,45:1'])
@@ -108,6 +110,9 @@ test.describe('Service covers: a picture made into a cover', () => {
     const out = await processCover(await picture(3200, 1000), 'desktop')
     expect(out.source).toEqual({ width: 3200, height: 1000, format: 'jpeg' })
     expect([out.width, out.height]).toEqual([2560, 800])
+    // The studio's own 1913×822 stays as it is: never made larger.
+    const own = await processCover(await picture(1913, 822), 'desktop')
+    expect([own.width, own.height]).toEqual([1913, 822])
     expect((await sharp(out.webp).metadata()).format).toBe('webp')
     const og = await sharp(out.og!).metadata()
     expect([og.format, og.width, og.height]).toEqual(['jpeg', 1200, 630])
@@ -183,7 +188,7 @@ test.describe('Service covers: save', () => {
   const SLUG = 'motion'
 
   async function upload(request: import('@playwright/test').APIRequestContext, slot: 'desktop' | 'mobile') {
-    const size = slot === 'desktop' ? [2560, 800] : [1080, 810]
+    const size = slot === 'desktop' ? [1913, 822] : [1080, 810]
     const res = await request.post('/api/services/covers/upload', {
       headers: { cookie: await adminCookie() },
       multipart: { slug: SLUG, slot, file: { name: `${SLUG}.jpg`, mimeType: 'image/jpeg', buffer: await picture(size[0], size[1]) } },
@@ -227,18 +232,21 @@ test.describe('Service covers: save', () => {
   test('only this service’s own cover files can be saved', async ({ request }) => {
     const other = await request.post('/api/services/covers/upload', {
       headers: { cookie: await adminCookie() },
-      multipart: { slug: 'print', slot: 'desktop', file: { name: 'p.jpg', mimeType: 'image/jpeg', buffer: await picture(2560, 800) } },
+      multipart: { slug: 'rebranding', slot: 'desktop', file: { name: 'p.jpg', mimeType: 'image/jpeg', buffer: await picture(2560, 800) } },
     })
     const { url } = await other.json() as { url: string }
     for (const coverDesktop of [url, 'https://example.com/cover.webp', '/api/services/covers/file/motion/cover-desktop-1700000000000.webp']) {
       const res = await save(request, { coverDesktop, coverMobile: null, coverAlt: { ru: '', en: '' } })
       expect(res.status(), coverDesktop).toBe(400)
     }
-    // Leave nothing behind: the print upload goes with an empty save of that service.
-    await request.put('/api/services/covers/print', { headers: { cookie: await adminCookie() }, data: { coverDesktop: null, coverMobile: null, coverAlt: { ru: '', en: '' } } })
+    // Leave nothing behind: the upload goes with an empty save of that service.
+    // (A service of this file's own: the admin's tests use print at the same time.)
+    await request.put('/api/services/covers/rebranding', { headers: { cookie: await adminCookie() }, data: { coverDesktop: null, coverMobile: null, coverAlt: { ru: '', en: '' } } })
   })
 
-  test.afterAll(async ({ request }) => {
+  // Not in the mobile project, whose tests are skipped: it would clear these services mid-test.
+  test.afterAll(async ({ request }, info) => {
+    if (info.project.name === 'mobile') return
     // Back to no cover, which deletes this test's files.
     await save(request, { coverDesktop: null, coverMobile: null, coverAlt: { ru: '', en: '' } })
     await request.put('/api/services/covers/strategy', { headers: { cookie: await adminCookie() }, data: { coverDesktop: null, coverMobile: null, coverAlt: { ru: '', en: '' } } })

@@ -1235,13 +1235,15 @@ a.aurora-btn:active {
 
 /* ─── Service page cover (components/services/ServiceCover) ───────────────
    The whole width, its height fixed before the picture arrives (no layout
-   shift); the picture fills the frame, cut at the centre. Below 768px the
-   frame is 4:3, the mobile picture's shape. While loading, the page's own
-   background: #F5F4F0 in the light theme. */
+   shift); the picture fills the frame, cut at the centre. The frame has
+   the desktop photos' own shape, 1913×822 (43vw high), so up to 1913px
+   wide nothing of them is cut; wider screens keep their 822px height.
+   Below 768px the frame is 4:3, the mobile picture's shape. While loading,
+   the page's own background: #F5F4F0 in the light theme. */
 .service-cover {
   display: block;
   width: 100%;
-  height: clamp(240px, 31vw, 520px);
+  height: clamp(240px, 43vw, 822px);
   object-fit: cover;
   object-position: center;
   background: rgb(var(--bg));

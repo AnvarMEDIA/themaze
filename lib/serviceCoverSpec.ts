@@ -3,9 +3,10 @@
  * be: shared by the admin (to warn before an upload) and the server (to
  * process one). Client-safe: nothing is imported.
  *
- * Desktop 2560×800 (3.2:1), mobile 1080×810 (4:3). A picture outside the
- * recommended size can still be used, after a warning: the page crops it
- * with object-fit, so it fills its frame either way.
+ * Desktop 1913×822 (2.33:1, the studio's own photos), mobile 1080×810
+ * (4:3). A picture outside the recommended size can still be used, after a
+ * warning: the page crops it with object-fit, so it fills its frame either
+ * way.
  */
 
 export type CoverSlot = 'desktop' | 'mobile'
@@ -18,6 +19,8 @@ export interface CoverSpec {
   height: number
   /** The frame the admin's preview shows it in, as CSS aspect-ratio. */
   aspect: string
+  /** The same, as the admin reads it. */
+  ratioLabel: string
   minWidth: number
   /** Width to height, the range a picture is expected in. */
   ratio: [number, number]
@@ -26,8 +29,8 @@ export interface CoverSpec {
 }
 
 export const COVER_SPECS: Record<CoverSlot, CoverSpec> = {
-  desktop: { label: 'Десктоп', width: 2560, height: 800, aspect: '16 / 5', minWidth: 1920, ratio: [2.8, 3.6], maxWidth: 2560 },
-  mobile:  { label: 'Мобайл',  width: 1080, height: 810, aspect: '4 / 3',  minWidth: 750,  ratio: [1.2, 1.45], maxWidth: 1080 },
+  desktop: { label: 'Десктоп', width: 1913, height: 822, aspect: '1913 / 822', ratioLabel: '2,33:1', minWidth: 1900, ratio: [2.1, 2.6], maxWidth: 2560 },
+  mobile:  { label: 'Мобайл',  width: 1080, height: 810, aspect: '4 / 3',      ratioLabel: '4:3',    minWidth: 750,  ratio: [1.2, 1.45], maxWidth: 1080 },
 }
 
 export const COVER_MAX_BYTES = 8 * 1024 * 1024
