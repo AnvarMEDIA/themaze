@@ -127,10 +127,11 @@ export interface PageMetaInput {
   description: string
   keywords?: string[]
   /**
-   * Explicit social image. Omit to inherit the route's generated
-   * `opengraph-image.tsx`, which Next also mirrors into `twitter:image`.
+   * Explicit social image, a URL or one with its size, type and alt. Omit
+   * to inherit the route's generated `opengraph-image.tsx`, which Next also
+   * mirrors into `twitter:image`.
    */
-  images?: string[]
+  images?: Array<string | { url: string; width?: number; height?: number; type?: string; alt?: string }>
   type?: 'website' | 'article'
   article?: {
     publishedTime?: string

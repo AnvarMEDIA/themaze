@@ -1232,3 +1232,23 @@ a.aurora-btn:active {
 .hero-dots[data-live] .hero-dots-static {
   visibility: hidden;
 }
+
+/* ─── Service page cover (components/services/ServiceCover) ───────────────
+   The whole width, its height fixed before the picture arrives (no layout
+   shift); the picture fills the frame, cut at the centre. Below 768px the
+   frame is 4:3, the mobile picture's shape. While loading, the page's own
+   background: #F5F4F0 in the light theme. */
+.service-cover {
+  display: block;
+  width: 100%;
+  height: clamp(240px, 31vw, 520px);
+  object-fit: cover;
+  object-position: center;
+  background: rgb(var(--bg));
+}
+@media (max-width: 767px) {
+  .service-cover {
+    height: auto;
+    aspect-ratio: 4 / 3;
+  }
+}

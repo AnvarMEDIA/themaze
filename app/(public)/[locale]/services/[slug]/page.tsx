@@ -16,6 +16,8 @@ import { TextReveal } from '@/components/ui/TextReveal'
 import { Arrow } from '@/components/ui/Arrow'
 import type { ProjectCategory } from '@/lib/types'
 import { SERVICE_SLUGS, isServiceSlug } from '@/lib/services'
+import { coverAltFor, getServiceCover } from '@/lib/serviceCovers'
+import { ServiceCover } from '@/components/services/ServiceCover'
 
 interface Props {
   params: { locale: string; slug: string }
@@ -42,14 +44,22 @@ export function generateStaticParams() {
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   if (!isServiceSlug(params.slug)) return notFoundMetadata
-  const t = await getTranslations({ locale: params.locale, namespace: `servicesPage.cluster.${params.slug}` })
+  const [t, cover] = await Promise.all([
+    getTranslations({ locale: params.locale, namespace: `servicesPage.cluster.${params.slug}` }),
+    getServiceCover(params.slug),
+  ])
   const metaTitle = t('metaTitle')
   const metaDesc  = t('metaDescription')
+  // The link preview: the cover, cut to 1200×630 when it was uploaded; else the service's card.
+  const image = cover.coverDesktop && cover.coverOg
+    ? { url: cover.coverOg, width: 1200, height: 630, type: 'image/jpeg', alt: coverAltFor(params.slug, cover, params.locale) }
+    : { url: `${SITE_URL}/api/og/service/${params.locale}/${params.slug}`, width: 1200, height: 630, type: 'image/png', alt: 'MAZE Studio — Service' }
   return pageMeta({
     locale: params.locale,
     path: `services/${params.slug}`,
     title: metaTitle,
     description: metaDesc,
+    images: [image],
   })
 }
 
@@ -58,11 +68,12 @@ export default async function ServiceClusterPage({ params }: Props) {
   setRequestLocale(params.locale)
   const { locale, slug } = params
 
-  const [tCluster, tLabels, tCommon, projects] = await Promise.all([
+  const [tCluster, tLabels, tCommon, projects, cover] = await Promise.all([
     getTranslations({ locale, namespace: `servicesPage.cluster.${slug}` }),
     getTranslations({ locale, namespace: 'servicesPage.cluster._labels' }),
     getTranslations({ locale, namespace: 'servicesPage' }),
     getPublishedProjects(),
+    getServiceCover(slug),
   ])
 
   const content: ServiceContent = {
@@ -152,6 +163,15 @@ export default async function ServiceClusterPage({ params }: Props) {
         </div>
       </header>
 
+      {/* Cover: the whole width, between the hero and the intro. Without a desktop picture, nothing at all. */}
+      {cover.coverDesktop && (
+        <ServiceCover
+          desktop={cover.coverDesktop}
+          mobile={cover.coverMobile}
+          alt={coverAltFor(slug, cover, locale)}
+        />
+      )}
+
       {/* Intro */}
       <section className="px-6 md:px-10 py-16 md:py-20 border-b border-maze-border">
         <div className="max-w-3xl mx-auto">
@@ -216,11 +236,12 @@ export default async function ServiceClusterPage({ params }: Props) {
       {related.length > 0 && (
         <section className="px-6 md:px-10 py-16 md:py-24 border-b border-maze-border">
           <div className="max-w-[1440px] mx-auto">
-            <div className="flex items-end justify-between gap-4 mb-10">
+            {/* On a phone the link goes under the heading: in Russian, side by side they were wider than the screen. */}
+            <div className="flex flex-wrap items-end justify-between gap-x-4 gap-y-3 mb-10">
               <h2 className="display-md text-maze-cream">{tLabels('selectedWork')}</h2>
               <Link
                 href={`/portfolio/category/${slug}`}
-                className="label-sm text-maze-muted hover:text-maze-lime transition-colors whitespace-nowrap"
+                className="label-sm text-maze-muted hover:text-maze-lime transition-colors sm:whitespace-nowrap"
               >
                 {tLabels('seePortfolio')} →
               </Link>

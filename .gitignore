@@ -45,6 +45,9 @@ yarn-error.log*
 /data/telegram_chat.json
 /data/digest_runs.json
 /data/internship_*.json
+# service covers in local development: the list, and the pictures that stand in for Blob
+/data/service-covers.json
+/data/service-covers/
 
 # vercel
 .vercel

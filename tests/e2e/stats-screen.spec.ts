@@ -461,25 +461,26 @@ test.describe('Admin → Статистика', () => {
     // An address that names a period opens on it.
     await page.goto('/admin/stats?period=yesterday')
     await expect(pressed(page, 'Вчера')).toHaveAttribute('aria-pressed', 'true')
-    expect(asked).toEqual(['period=yesterday'])
+    // The read goes out just after the choice shows as taken: waited for, not assumed.
+    await expect.poll(() => asked).toEqual(['period=yesterday'])
 
     // Picking a period puts it in the address: a reload keeps it.
     await pressed(page, '7 дней').click()
     await expect(page).toHaveURL(/\/admin\/stats\?period=7$/)
     await page.reload()
     await expect(pressed(page, '7 дней')).toHaveAttribute('aria-pressed', 'true')
-    expect(asked.at(-1)).toBe('period=7')
+    await expect.poll(() => asked.at(-1)).toBe('period=7')
 
     // Dates too.
     await page.goto('/admin/stats?from=2027-02-05&to=2027-02-11')
     await expect(page.getByRole('button', { name: /Свой период: 05\.02–11\.02/ })).toBeVisible()
-    expect(asked.at(-1)).toBe('from=2027-02-05&to=2027-02-11')
+    await expect.poll(() => asked.at(-1)).toBe('from=2027-02-05&to=2027-02-11')
 
     // Without a period in the address: the preset picked last (dates are not remembered).
     asked.length = 0
     await page.goto('/admin/stats')
     await expect(pressed(page, '7 дней')).toHaveAttribute('aria-pressed', 'true')
-    expect(asked).toEqual(['period=7'])
+    await expect.poll(() => asked).toEqual(['period=7'])
   })
 
   test('pages go by their names and open in a new tab; a long list opens on request', async ({ page, request }) => {

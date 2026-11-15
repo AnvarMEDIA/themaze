@@ -17,6 +17,7 @@ const NAV = [
     group: 'Content',
     items: [
       { href: '/admin/projects',      label: 'Projects',     icon: IconProjects    },
+      { href: '/admin/services',      label: 'Services',     icon: IconImage       },
       { href: '/admin/partners',      label: 'Partners',     icon: IconPartners    },
       { href: '/admin/map',           label: 'World map',    icon: IconGlobe       },
       { href: '/admin/numbers',       label: 'Numbers',      icon: IconNumbers     },
@@ -185,6 +186,16 @@ function IconProjects({ size = 16 }: { size?: number }) {
       <rect x="1" y="3" width="14" height="2" rx="1" fill="currentColor" opacity=".8"/>
       <rect x="1" y="7" width="10" height="2" rx="1" fill="currentColor" opacity=".5"/>
       <rect x="1" y="11" width="12" height="2" rx="1" fill="currentColor" opacity=".5"/>
+    </svg>
+  )
+}
+
+function IconImage({ size = 16 }: { size?: number }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 16 16" fill="none">
+      <rect x="1.75" y="2.75" width="12.5" height="10.5" rx="2" stroke="currentColor" strokeWidth="1.5" opacity=".8"/>
+      <circle cx="5.5" cy="6.5" r="1.25" fill="currentColor" opacity=".5"/>
+      <path d="M2.5 12l3.5-3.5 2.5 2.5 2-2 3 3" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" opacity=".5"/>
     </svg>
   )
 }
