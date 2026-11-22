@@ -340,7 +340,7 @@
     "faqItems": [
       {
         "q": "How much does a rebrand cost?",
-        "a": "Most rebranding engagements at MAZE start at $8,000 for a focused refresh and scale to $40,000+ for full strategy, identity and rollout for established companies. We always send a tailored estimate after a discovery call — every project is scoped to the brief."
+        "a": "It depends on depth: refreshing a logo and identity is one job, rebuilding a brand with strategy and rollout is another. We send a tailored estimate after a discovery call\u00a0— every project is scoped to the brief."
       },
       {
         "q": "How long does a branding project take?",
@@ -390,7 +390,7 @@
         "approach": "How we work",
         "deliverables": "What you get",
         "timeline": "Timeline",
-        "pricing": "Investment",
+        "pricing": "Pricing",
         "faq": "Common questions",
         "selectedWork": "Recent work",
         "seePortfolio": "See full portfolio",
@@ -433,7 +433,7 @@
           "Two structured rounds of revision per stage"
         ],
         "timeline": "Most full branding engagements run 8 to 12 weeks from discovery to handover. Pure naming + identity without strategy is 5 to 7 weeks. We share an exact week-by-week schedule in the proposal.",
-        "pricing": "Branding engagements start at $12,000 for a focused identity refresh and scale to $60,000+ for a category-defining launch with strategy, naming, packaging and digital. Every estimate is fixed-scope after the discovery workshop.",
+        "pricing": "It depends on what's included: a logo alone, a full identity, or a whole brand with strategy, naming and packaging. Tell us about the task and your budget, and we'll name a price before any work begins.",
         "faq": [
           {
             "q": "Do I need branding or rebranding?",
@@ -488,7 +488,7 @@
           "Two structured rounds of revision per stage"
         ],
         "timeline": "Refreshes typically take 6 to 9 weeks. Full rebuilds with new positioning and identity run 10 to 16 weeks. Multi-quarter rollouts for large companies extend further and we sequence them with your operations team.",
-        "pricing": "Refreshes start at $10,000. Full rebrands with strategy, identity and rollout typically range $30,000–$80,000 depending on scope and number of touchpoints. Fixed-scope estimate after the audit.",
+        "pricing": "It depends on depth: refreshing a logo and identity is one job, rebuilding a brand around new positioning is another. Tell us what you want to change and what your budget is, and we'll name a price before any work begins.",
         "faq": [
           {
             "q": "Will we lose brand equity?",
@@ -543,7 +543,7 @@
           "Two structured rounds of revision"
         ],
         "timeline": "Identity engagements run 6 to 9 weeks from kickoff to delivery, depending on scope. Add 2–3 weeks if naming is needed or if the rollout kit (packaging, web templates) is part of the same engagement.",
-        "pricing": "Identity projects start at $10,000 for focused systems and reach $30,000+ for category-defining brands with a wide application kit. The proposal locks scope and price after the brief.",
+        "pricing": "It depends on scope: a logo with the core applications, or a full brand book covering many uses. Tell us about the task and your budget, and we'll name a price before any work begins.",
         "faq": [
           {
             "q": "Can we license a typeface or do you design one?",
@@ -598,7 +598,7 @@
           "Example tone-of-voice copy for top 3 names"
         ],
         "timeline": "Naming sprints run 3 to 5 weeks from brief to recommendation. Trademark filing (with a lawyer, not us) typically adds 8–12 weeks after we deliver — we hand off the brief but don't represent in trademark proceedings.",
-        "pricing": "Naming engagements start at $6,000 and reach $20,000 for high-stakes consumer or technology launches where additional rounds and broader linguistic checks are required.",
+        "pricing": "It depends on the task: a name for one product or for a company, and in how many languages and markets it has to work. Tell us about the project and your budget, and we'll name a price before any work begins.",
         "faq": [
           {
             "q": "Do you handle trademark filing?",
@@ -653,7 +653,7 @@
           "Photography direction for marketing assets after launch"
         ],
         "timeline": "A focused 1–3 SKU packaging project runs 6 to 10 weeks. Larger SKU ranges (10+) or projects with custom structure extend further. Production supervision adds 2–4 weeks at the end depending on the printer.",
-        "pricing": "Packaging starts at $7,000 for a single hero SKU and scales with range size and complexity. Premium consumer goods with custom structure and multi-language localisation typically range $20,000–$50,000.",
+        "pricing": "It depends on the number of products and the complexity: a label for one product or packaging for a whole range, a custom structure or a standard one. Tell us about the task and your budget, and we'll name a price before any work begins.",
         "faq": [
           {
             "q": "Do you handle photography for the packaging?",
@@ -708,7 +708,7 @@
           "Design-engineering sync during build"
         ],
         "timeline": "MVP scope launches in 8 to 14 weeks. Full product engagements typically run 3 to 6 months and overlap with engineering. Design systems for established products are a multi-quarter engagement with monthly milestones.",
-        "pricing": "UI/UX engagements start at $15,000 for a focused MVP and scale to $80,000+ for full product design with research, design system and engineering pairing. Estimates are scoped after discovery.",
+        "pricing": "It depends on scope: a landing page, a website or an app, how many screens it has, and whether it needs a design system. Tell us about the task and your budget, and we'll name a price before any work begins.",
         "faq": [
           {
             "q": "Do you build the product or just design it?",
@@ -763,7 +763,7 @@
           "Two structured rounds of revision"
         ],
         "timeline": "Reports and books typically run 6 to 12 weeks depending on length. Posters and single-piece collateral run 2 to 4 weeks. Annual reports often have a fixed publication date — we work backwards from it.",
-        "pricing": "Print engagements start at $5,000 for posters and short collateral. Books, reports and magazines range $15,000–$60,000 depending on length, photography needs and editorial scope.",
+        "pricing": "It depends on format and volume: a flyer or a poster is one job, a catalogue or a book is another. Tell us what you need printed and what your budget is, and we'll name a price before any work begins.",
         "faq": [
           {
             "q": "Do you work with our printer or recommend one?",
@@ -818,7 +818,7 @@
           "Format-specific cuts (16:9, 1:1, 9:16, square) included"
         ],
         "timeline": "Logo idents and short pieces run 2 to 4 weeks. Explainer films of 60–90 seconds typically run 5 to 8 weeks. Multi-format social campaigns scope per asset.",
-        "pricing": "Motion engagements start at $4,000 for logo idents and short loops. Explainer films range $12,000–$40,000 depending on style (2D, 3D, mixed) and runtime. Social campaign packages quoted per scope.",
+        "pricing": "It depends on length and technique: a logo animation, a social video or an explainer, in 2D or 3D. Tell us about the task and your budget, and we'll name a price before any work begins.",
         "faq": [
           {
             "q": "Do you do 3D / Cinema 4D work?",
@@ -873,7 +873,7 @@
           "Working session facilitation with leadership"
         ],
         "timeline": "Standalone strategy engagements run 4 to 8 weeks. When bundled with branding or rebranding, strategy sits at the front of the project and adds about 2 weeks before identity work starts.",
-        "pricing": "Strategy engagements start at $8,000 for focused positioning work and reach $30,000+ for multi-brand architecture and category-defining launches. Bundled with full branding it sits inside the larger scope.",
+        "pricing": "It depends on depth: positioning for one brand, or an architecture for several. Tell us about the task and your budget, and we'll name a price before any work begins.",
         "faq": [
           {
             "q": "Can we do strategy without buying design from you?",
