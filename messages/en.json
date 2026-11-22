@@ -67,92 +67,92 @@
     "items": [
       {
         "slug": "branding",
-        "description": "Strategic brand creation from concept to launch. We define what your brand stands for and bring it to life with purpose.",
+        "description": "We create a brand from scratch: the idea, the name, the logo, the identity and everything you launch with.",
         "tags": [
-          "Brand Platform",
-          "Positioning",
-          "Brand Book",
-          "Launch Strategy"
+          "Brand idea",
+          "Logo",
+          "Visual identity",
+          "Brand book"
         ]
       },
       {
         "slug": "rebranding",
-        "description": "For companies that have outgrown their brand — from a focused refresh to a full repositioning, with a rollout plan for every touchpoint.",
+        "description": "We refresh a brand that has aged, without losing the people who already know you.",
         "tags": [
-          "Brand Audit",
-          "Repositioning",
-          "Identity Refresh",
-          "Rollout Plan"
+          "Brand review",
+          "New logo",
+          "Identity refresh",
+          "Switch-over plan"
         ]
       },
       {
         "slug": "identity",
-        "description": "Complete visual language — logo, colour, typography, and imagery. A system designed to work everywhere, at every scale.",
+        "description": "Logo, colours, typefaces and rules, so people recognise you everywhere\u00a0— from a business card to a shop sign.",
         "tags": [
-          "Logo Design",
-          "Colour System",
-          "Typography",
-          "Visual Guidelines"
+          "Logo",
+          "Colours",
+          "Typefaces",
+          "Brand book"
         ]
       },
       {
         "slug": "naming",
-        "description": "Brand names that resonate across languages and markets — from creative ideation to linguistic validation and trademark check.",
+        "description": "Names that are easy to say and remember in Uzbek, Russian and English.",
         "tags": [
-          "Brand Naming",
-          "Linguistic Analysis",
-          "Trademark Check",
-          "Domain Check"
+          "Name",
+          "Sound check",
+          "Domain",
+          "Similar names"
         ]
       },
       {
         "slug": "packaging",
-        "description": "Packaging design that stands out on the shelf and tells your brand story at the most critical touchpoint.",
+        "description": "Packaging and labels that get noticed on the shelf and print without trouble.",
         "tags": [
-          "Structural Design",
-          "Label Design",
+          "Labels",
+          "Boxes",
           "Dielines",
-          "Production"
+          "Print prep"
         ]
       },
       {
         "slug": "ui-ux",
-        "description": "Product design that ships — research, user flows and interfaces, and a design system your engineers can build from.",
+        "description": "Websites and apps that are easy to use on a phone and a computer.",
         "tags": [
-          "UX Research",
-          "Interface Design",
-          "Design System",
-          "Prototyping"
+          "Websites",
+          "Apps",
+          "Prototypes",
+          "Design system"
         ]
       },
       {
         "slug": "print",
-        "description": "From business cards to billboard campaigns — tangible brand communication crafted with precision.",
+        "description": "Business cards, flyers, catalogues, menus, books and banners, with files ready for print.",
         "tags": [
-          "Stationery",
-          "Editorial",
-          "Environmental",
+          "Business cards",
+          "Flyers",
+          "Catalogues",
           "Signage"
         ]
       },
       {
         "slug": "motion",
-        "description": "The brand in motion — logo idents, explainers and social formats, built on the same system as the static identity.",
+        "description": "Logo animation, videos for social media and ads, explainer videos.",
         "tags": [
-          "Logo Idents",
-          "Explainers",
-          "Social Formats",
-          "Motion Principles"
+          "Logo animation",
+          "Social media",
+          "Ads",
+          "Explainers"
         ]
       },
       {
         "slug": "strategy",
-        "description": "Positioning, brand architecture and the research behind them — the part nobody sees but everyone feels.",
+        "description": "We help you understand who your brand is for and what sets it apart, before anything is designed.",
         "tags": [
           "Positioning",
-          "Brand Architecture",
-          "Research",
-          "Messaging"
+          "Customers",
+          "Competitors",
+          "Key messages"
         ]
       }
     ]
@@ -326,14 +326,14 @@
     "metaTitle": "Branding & Design Services in Tashkent",
     "metaDesc": "Branding, visual identity, naming, packaging, print, UI/UX and motion — full-service brand creation from Tashkent for Uzbekistan and Central Asia.",
     "heroLabel": "What we offer",
-    "heroHeading": "Services built for ambitious brands.",
-    "heroSub": "From brand strategy to art direction — MAZE Studio is a branding and design studio in Tashkent offering the full creative suite that growing brands need to compete and win.",
+    "heroHeading": "Branding and design for business.",
+    "heroSub": "MAZE Studio is a branding and design studio in Tashkent. We work out how a brand should look and sound, and make everything it needs: from the name and logo to packaging, a website and video.",
     "whatYouGet": "What you get",
     "enquire": "Enquire about",
     "learnMore": "Learn more",
     "notSureLabel": "Not sure what you need?",
     "notSureHeading": "Let's talk.",
-    "notSureSub": "Tell us about your challenge and we'll recommend the right engagement model.",
+    "notSureSub": "Tell us about the task and we'll suggest where to start.",
     "notSureCta": "Book a discovery call",
     "faqLabel": "FAQ",
     "faqHeading": "Quick answers.",
@@ -344,39 +344,39 @@
       },
       {
         "q": "How long does a branding project take?",
-        "a": "A typical brand identity runs 6 to 10 weeks from kickoff to delivery. Naming projects take 3 to 5 weeks. Packaging and large-scale rebrands can run 3 to 4 months. We share a precise timeline in the proposal."
+        "a": "It depends on scope: a logo alone is quicker than a brand with a name, an identity and packaging. We give the exact timing along with the price, before any work begins."
       },
       {
         "q": "Do you work with clients outside Uzbekistan?",
-        "a": "Yes. We work remotely with clients across Central Asia, the CIS and Europe. Most of our process is async — Figma, Notion, Loom and a weekly call — so timezone is not an issue."
+        "a": "Yes, we work remotely. Most of the work happens over messages and video calls, so the time zone isn't a problem."
       },
       {
         "q": "What's included in a brand identity package?",
-        "a": "Brand strategy, naming if needed, logo and mark system, typography and color, brand guidelines, plus an initial rollout kit (business cards, social templates, signage mockups). We can extend with packaging, web design or motion."
+        "a": "Usually the logo, colours, typefaces, graphics and a brand book with the rules, plus materials such as business cards, social templates and signage. We shape the set to the task: it can be smaller, or include packaging, a website or video."
       },
       {
         "q": "Do you offer naming alone, without the visual identity?",
-        "a": "Yes — we run naming as a standalone engagement. Output is a shortlist of strong, trademark-pre-screened names with rationale and example tone-of-voice copy."
+        "a": "Yes. You get a shortlist of names with the reasoning, checked for sound and meaning in the languages you need and for free domains."
       },
       {
         "q": "Will you sign an NDA?",
-        "a": "Absolutely. We send a mutual NDA at the start of any engagement that touches unreleased products, M&A or other sensitive context."
+        "a": "Yes. If the project involves confidential information, we'll sign an NDA before work begins."
       },
       {
         "q": "Can we keep ownership of the work?",
-        "a": "Full IP transfers to you on final payment. We retain the right to display the work in our portfolio after launch unless the contract says otherwise."
+        "a": "Yes. The rights pass to you once the work is paid for in full. We may show the work in our portfolio after launch, unless the contract says otherwise."
       },
       {
         "q": "What if I don't like the first round?",
-        "a": "Each engagement includes two structured rounds of revision per stage. We start broad with directions, then narrow — so by the time we're refining, we've already aligned on the direction together."
+        "a": "Tell us plainly. We start with several different directions so there is a real choice, then refine the one you pick based on your comments. How many rounds of changes are included, we agree before we start."
       },
       {
         "q": "Where is the studio based, and can we meet in person?",
-        "a": "MAZE Studio is based in Tashkent, Uzbekistan. Local clients are welcome at the studio; everyone else we run remotely — Figma, Notion, Loom and a weekly call — which is how most of our Central Asian and European work happens."
+        "a": "In Tashkent, Uzbekistan. Clients in Tashkent are welcome at the studio; with everyone else we work remotely, over messages and video calls."
       },
       {
         "q": "What languages do you work in?",
-        "a": "English, Russian and Uzbek. Strategy sessions, naming and copy are delivered in whichever of the three the brand actually lives in, and brand guidelines can be produced bilingually."
+        "a": "English, Russian and Uzbek. Names and copy are written in the language the brand will actually live in, and the brand book can be made in two languages."
       },
       {
         "q": "Which industries have you worked with?",
@@ -395,501 +395,486 @@
         "selectedWork": "Recent work",
         "seePortfolio": "See full portfolio",
         "cta": "Start the project",
-        "ctaBody": "Tell us about your goals — we'll come back within one business day with scope, timing and a fixed estimate for your {service} project.",
+        "ctaBody": "Tell us about the task. We reply within 24 hours to talk through the scope, timing and price.",
         "studioLine": "MAZE Studio is a branding and design studio in Tashkent, Uzbekistan, working with companies across Central Asia in English, Russian and Uzbek."
       },
       "branding": {
         "metaTitle": "Branding Services in Tashkent",
-        "metaDescription": "End-to-end branding services in Tashkent: strategy, naming, visual identity, guidelines, rollout. For ambitious companies in Uzbekistan and Central Asia.",
+        "metaDescription": "We work out what sets you apart, find a name if you need one, and design the logo, the identity and everything you launch with.",
         "title": "Branding",
-        "tagline": "Strategy, identity and launch — built end to end.",
-        "intro": "Branding at MAZE means building the whole system: positioning, story, name (when needed), visual identity, voice, and the rollout kit your team needs to ship the brand across product, packaging, retail and digital. We work with founders launching a category-defining company and with established businesses entering a new market. Every engagement starts with a discovery workshop and a written strategy document — without that anchor, design becomes decoration. By the end of the project you have a brand your team can defend in a boardroom and your customers can recognise on a shelf.",
+        "tagline": "The whole brand, from the idea to the shop sign.",
+        "intro": "A brand is how people recognise and remember you: the name, the logo, the colours, the way you talk to customers. We start with a conversation about the business: who your customers are, what makes you different from the place next door, where you want to grow. From that comes a clear idea for the brand, a name if you need one, a logo, an identity, and everything the brand meets people with\u00a0— from business cards and signage to packaging and social media.",
         "approach": [
           {
-            "title": "Discovery",
-            "body": "A 1–2 day workshop with founders and key stakeholders to map the business, audience, competition and the change you want to drive. We end with a written brief everyone signs off on."
+            "title": "Getting to know you",
+            "body": "We talk about the business: who your customers are, what sets you apart, what you like and dislike about how you look today."
           },
           {
-            "title": "Strategy",
-            "body": "Positioning, brand story, audience segments and a measurable success framework. We produce a 20–30 page strategy document — your single source of truth for every decision after."
+            "title": "The idea",
+            "body": "We put into words what the brand stands on: who it is for and what it promises. Plainly, so the whole team understands it."
           },
           {
-            "title": "Identity",
-            "body": "Naming if needed, then the visual system: logo, type, color, motion principles, photography direction and the rules that hold them together. Two structured rounds of feedback."
+            "title": "Design",
+            "body": "A name if needed, then the logo, colours, typefaces, photography and graphics. We show it all on a sign, a package and a social post, not on a blank page."
           },
           {
-            "title": "Rollout",
-            "body": "Brand guidelines (PDF + Figma library) plus the launch kit you actually need — packaging, web, social templates, signage, presentation deck — whatever ships on day one."
+            "title": "Launch",
+            "body": "We put the rules into a brand book and prepare what you need to launch: business cards, social templates, signage, packaging."
           }
         ],
         "deliverables": [
-          "Brand strategy document (positioning, story, audience, success metrics)",
-          "Naming with trademark pre-screening, if required",
-          "Full logo system — primary, secondary, monogram, lockups",
-          "Typography system and brand fonts",
-          "Color system including accessibility-compliant palettes",
-          "Brand guidelines as a single source of truth (PDF + Figma library)",
-          "Launch kit — packaging, web, social, signage, presentation deck",
-          "Two structured rounds of revision per stage"
+          "The brand idea: who it is for and what sets it apart",
+          "A name, if you need one",
+          "Logo and its versions for different uses",
+          "Brand colours, typefaces and graphics",
+          "A brand book on how to use it all",
+          "Everything for launch: business cards, social media, signage, packaging"
         ],
-        "timeline": "Most full branding engagements run 8 to 12 weeks from discovery to handover. Pure naming + identity without strategy is 5 to 7 weeks. We share an exact week-by-week schedule in the proposal.",
-        "pricing": "It depends on what's included: a logo alone, a full identity, or a whole brand with strategy, naming and packaging. Tell us about the task and your budget, and we'll name a price before any work begins.",
+        "timeline": "It depends on scope: a logo alone is quicker than a brand with a name, an identity and packaging. We give you the exact timing along with the price, before any work begins. If you have an opening or launch date, tell us at the start and we will plan around it.",
+        "pricing": "It depends on what's included: a logo alone, a full identity, or a whole brand with the idea, the name and packaging. Tell us about the task and your budget, and we'll name a price before any work begins.",
         "faq": [
           {
-            "q": "Do I need branding or rebranding?",
-            "a": "If your business is new — or your audience, product or category has changed since the brand was made — branding from a clean slate gives the strongest result. If the brand is working but feels dated, a refresh under rebranding is enough."
+            "q": "Do we need full branding, or is a logo enough?",
+            "a": "If you're just starting out on a small budget, you can begin with a logo and core colours and add the rest later. If the business is growing\u00a0— new locations, new products\u00a0— it's worth doing the whole brand, so everything looks like one company."
           },
           {
-            "q": "Will you work with our existing logo?",
-            "a": "Yes, if it's working. Discovery includes a brand audit — sometimes the logo stays and we rebuild everything around it; sometimes the system is what's holding the brand back."
+            "q": "Can we keep our logo?",
+            "a": "Yes, if it works: people recognise it and it holds up both small and large. Then we build the identity around it. If the logo is holding you back, we'll say so plainly and suggest options."
           },
           {
-            "q": "Do you handle production and launch assets?",
-            "a": "Yes. The rollout kit is part of every full branding engagement. We deliver press-ready packaging files, Figma libraries for your engineering team, social templates and a launch deck."
+            "q": "What's the difference between branding and rebranding?",
+            "a": "Branding is creating a brand from scratch. Rebranding is when you already have one, but it has aged or no longer fits the business. Not sure which you need? Tell us about the situation and we'll help."
           },
           {
-            "q": "Who owns the work?",
-            "a": "Full intellectual property transfers to you on final payment. We retain the right to display the work in our portfolio after launch unless the contract says otherwise."
+            "q": "What do you need from us to start?",
+            "a": "Time to talk: about the business, your customers, competitors and plans. If you have older materials\u00a0— a logo, photos, a sign\u00a0— show us; it helps."
           }
         ]
       },
       "rebranding": {
         "metaTitle": "Rebranding Services in Tashkent",
-        "metaDescription": "Rebranding for established companies in Uzbekistan and Central Asia — brand audit, repositioning, identity refresh and launch.",
+        "metaDescription": "We find what in your brand works and what holds it back, refresh the logo and identity, and help you switch over smoothly.",
         "title": "Rebranding",
-        "tagline": "From a focused refresh to a complete reinvention.",
-        "intro": "Rebranding is the right call when your business has outgrown the brand it launched with — new audience, new product, new geography, a merger, a category move. We start with an audit that diagnoses why the current brand is leaving value on the table, then move into repositioning, an identity refresh or full rebuild, and a rollout plan that keeps your team aligned through the transition. The goal is not novelty; it's a brand that earns its keep in the next decade.",
+        "tagline": "Refresh the brand without losing the people who already know you.",
+        "intro": "A rebrand makes sense when the business has grown and the brand hasn't: the customers have changed, there are new products or cities, the logo looks dated. What matters most is not throwing away what people already know you for. First we look at what in the brand works and what gets in the way. Sometimes refreshing the logo and identity is enough; sometimes the brand needs rebuilding. Either way, we help plan the switch so customers recognise you in the new look.",
         "approach": [
           {
-            "title": "Brand audit",
-            "body": "A diagnostic of the current brand against your business goals, customers and competition. We surface what's working, what's costing you and where the highest-leverage moves are."
+            "title": "Review",
+            "body": "We look at the brand through the eyes of customers and competitors: what people recognise, what confuses them, what looks dated."
           },
           {
-            "title": "Repositioning",
-            "body": "New positioning, refreshed story and a clear articulation of who you serve now and what you stand for. Aligned with leadership in a working session, documented for the team."
+            "title": "Decision",
+            "body": "Together we decide what to keep and what to change: just the look, or also how you talk about yourselves."
           },
           {
-            "title": "Refresh or rebuild",
-            "body": "Refresh keeps the equity that's working (often the logo, the name) and rebuilds the system around it. Rebuild is a full reset — new visual system, sometimes a new name."
+            "title": "New identity",
+            "body": "We update the logo, colours, typefaces and materials, keeping what works\u00a0— often the name, a colour or the mark."
           },
           {
-            "title": "Transition plan",
-            "body": "A rollout calendar covering internal launch, customer communications, product, packaging, retail and digital. We work with your team to sequence what changes and when."
+            "title": "Switch-over",
+            "body": "We plan what changes first, what follows, and how to tell customers about the new look."
           }
         ],
         "deliverables": [
-          "Brand audit report with prioritised recommendations",
-          "Refreshed positioning, story and messaging framework",
-          "Logo and identity system — refreshed or rebuilt",
-          "Updated typography, color and motion principles",
-          "Comprehensive brand guidelines",
-          "Transition plan covering internal and customer-facing rollout",
-          "Launch kit — packaging, web, social, signage as scoped",
-          "Two structured rounds of revision per stage"
+          "A review of the brand: what to keep, what to change",
+          "A refreshed logo, or a new one",
+          "Colours, typefaces and graphics",
+          "A brand book with the rules",
+          "A switch-over plan: what changes, and in what order",
+          "New materials: signage, packaging, website, social media"
         ],
-        "timeline": "Refreshes typically take 6 to 9 weeks. Full rebuilds with new positioning and identity run 10 to 16 weeks. Multi-quarter rollouts for large companies extend further and we sequence them with your operations team.",
-        "pricing": "It depends on depth: refreshing a logo and identity is one job, rebuilding a brand around new positioning is another. Tell us what you want to change and what your budget is, and we'll name a price before any work begins.",
+        "timeline": "It depends on depth: refreshing a logo and identity is quicker than rebuilding the whole brand. We give you the exact timing along with the price, before any work begins. If the change is tied to a date, tell us at the start and we will plan around it.",
+        "pricing": "It depends on depth: refreshing a logo and identity is one job, rebuilding the brand is another. Tell us what you want to change and what your budget is, and we'll name a price before any work begins.",
         "faq": [
           {
-            "q": "Will we lose brand equity?",
-            "a": "Not if we get the audit right. Discovery identifies which equity is worth keeping (often the name, the symbol, a specific color) and which is dragging the brand. We retain what works and rebuild around it."
+            "q": "Won't we lose customers who have known us for years?",
+            "a": "You shouldn't, if the change is made with care. We keep what people recognise you by\u00a0— the name, a colour, the mark\u00a0— and plan in advance how to tell customers about the change."
           },
           {
-            "q": "Can we rebrand without renaming?",
-            "a": "Yes — most rebrands keep the name. Renaming is a separate decision driven by clear strategic reasons (legal conflicts, expansion to new geographies, distancing from a past episode)."
+            "q": "Do we have to change the name?",
+            "a": "No. Most rebrands keep the name. It's worth changing only for a serious reason: say, people mix you up with another company, or you're moving into new markets."
           },
           {
-            "q": "How do we communicate the change to customers?",
-            "a": "The transition plan covers exactly that — a sequenced communication calendar, internal launch first, then customer-facing rollout with email, social, in-product, retail and PR coordinated."
+            "q": "What about our old business cards, signs and packaging?",
+            "a": "You don't have to replace everything at once. We start with what's most visible\u00a0— signage, the website, packaging\u00a0— and replace the rest as old stock runs out."
           },
           {
-            "q": "What about our existing collateral?",
-            "a": "We inventory it during discovery and prioritise replacement: high-visibility touchpoints first (web, packaging, retail), then long-tail materials replaced as natural reprint cycles happen. Minimises waste."
+            "q": "How do we know it is time to rebrand?",
+            "a": "It usually shows in small things: you're embarrassed to hand over a business card, customers mix you up with competitors, the brand doesn't fit your new products or prices. If that sounds familiar, tell us about it and we'll take a look."
           }
         ]
       },
       "identity": {
         "metaTitle": "Visual Identity Design in Tashkent",
-        "metaDescription": "Visual identity systems — logos, marks, typography and colour — designed in Tashkent for brands across Uzbekistan and Central Asia.",
+        "metaDescription": "Logo, colours, typefaces and a brand book, so your business is recognised the same way on a business card, a sign, a website and social media.",
         "title": "Visual Identity",
-        "tagline": "A system, not a logo.",
-        "intro": "An identity is more than a mark. It's a system — typography, color, photography direction, motion principles and rules — that lets a brand stay coherent across every touchpoint, from a 32-pixel favicon to a stadium banner. We design identity systems that can survive a marketing team's worst day: the rules are clear, the assets are organised, the Figma library is alive and the guidelines explain why each decision was made. This is the work that pays back for years.",
+        "tagline": "So people recognise you everywhere, from a business card to a shop sign.",
+        "intro": "A visual identity is the set of rules people recognise you by: the logo, colours, typefaces, photography and graphics. With one in place, every flyer, post or sign looks like part of the same company, even when different people make them. We design identities that are easy to use day to day: clear rules, ready files and examples on your real materials.",
         "approach": [
           {
-            "title": "Audit",
-            "body": "If you have an existing brand, we audit the assets, identify what's working and surface the gaps. If you don't, we skip to direction exploration."
+            "title": "Getting to know you",
+            "body": "We learn what the business does, who your customers are and where they see you. If you already have an identity, we look at what in it works."
           },
           {
-            "title": "Direction",
-            "body": "Three distinct visual directions, each anchored in the strategy. We present in context — applied to real touchpoints, not floating logos on a moodboard — so the choice is informed."
+            "title": "Directions",
+            "body": "We show a few distinct directions, already on a business card, a sign and social media, so you can see how each would live."
           },
           {
             "title": "Refinement",
-            "body": "Two rounds of revision narrowing to the final system. We design the logo, type, color, motion and photography direction together so the system feels intentional everywhere."
+            "body": "We choose a direction together and finish it: logo, colours, typefaces, graphics."
           },
           {
-            "title": "Documentation",
-            "body": "Brand guidelines as a single PDF plus a live Figma library your team can pull from. Every rule has a 'why', so the system stays consistent when your team grows."
+            "title": "Brand book",
+            "body": "We put the rules into a brand book and hand over files that are easy for you, other designers and printers to work with."
           }
         ],
         "deliverables": [
-          "Logo system — primary, secondary, monogram, lockups, dos and don'ts",
-          "Typography system — typefaces, scale, hierarchy",
-          "Color system — primary, secondary, neutrals, accessibility-compliant pairings",
-          "Photography direction and art direction guidelines",
-          "Motion principles for digital touchpoints",
-          "Brand guidelines (PDF + Figma library)",
-          "All source files (Figma, AI, vector)",
-          "Two structured rounds of revision"
+          "Logo and its versions for different uses",
+          "Brand colours and typefaces",
+          "Graphics, icons or patterns, if needed",
+          "Guidance for photos and images",
+          "A brand book on how to use the identity",
+          "Examples on materials: business card, letterhead, social media, signage",
+          "Files for print and for screen"
         ],
-        "timeline": "Identity engagements run 6 to 9 weeks from kickoff to delivery, depending on scope. Add 2–3 weeks if naming is needed or if the rollout kit (packaging, web templates) is part of the same engagement.",
-        "pricing": "It depends on scope: a logo with the core applications, or a full brand book covering many uses. Tell us about the task and your budget, and we'll name a price before any work begins.",
+        "timeline": "It depends on scope: a logo with the core materials is quicker than a full brand book. We give you the exact timing along with the price, before any work begins.",
+        "pricing": "It depends on scope: a logo with the core materials, or a full brand book covering many uses. Tell us about the task and your budget, and we'll name a price before any work begins.",
         "faq": [
           {
-            "q": "Can we license a typeface or do you design one?",
-            "a": "Most projects use a licensed typeface — there's an excellent global library and licensing is straightforward. Custom typefaces add 6–12 weeks and a meaningful budget; we recommend them only when the brand strategy clearly requires it."
+            "q": "Can we order just a logo?",
+            "a": "Yes. But a logo alone is usually not enough: for everything to look consistent you also need colours and typefaces. We'll suggest the minimum that makes sense for you."
           },
           {
-            "q": "Do you do logos only?",
-            "a": "We do, but we recommend at minimum a logo + type + color package — a logo alone gives you a mark, not a system, and the system is what builds equity over time."
+            "q": "What's the difference between an identity and a brand book?",
+            "a": "The identity is the logo, colours and typefaces themselves. The brand book is the manual: how and where to use them so nothing breaks."
           },
           {
-            "q": "Will the system work in motion / digital / packaging?",
-            "a": "Yes — we test the system in those contexts during refinement, not after. If a logo doesn't survive at 32 pixels or on foil packaging, we know before we finalise."
+            "q": "Will the identity work on social media and on packaging?",
+            "a": "Yes. Before anything is approved, we test it on different materials: at small sizes, on dark backgrounds, in print and on screen."
           },
           {
-            "q": "Do you provide source files?",
-            "a": "Always. You receive editable Figma, Illustrator and vector source files plus exports in every format your team needs. Full IP transfers on final payment."
+            "q": "We already have a logo. Can you build the identity around it?",
+            "a": "Yes, if the logo works. If it's holding you back, we'll say so and suggest what to do with it."
           }
         ]
       },
       "naming": {
         "metaTitle": "Brand Naming Services in Tashkent",
-        "metaDescription": "Brand naming for Uzbekistan and Central Asia. Defensible names with trademark pre-screening, rationale and tone-of-voice samples.",
+        "metaDescription": "Names for companies and products that are easy to say and remember in Uzbek, Russian and English.",
         "title": "Naming",
-        "tagline": "Names that win arguments, pass legal and survive growth.",
-        "intro": "Naming is the highest-leverage decision a young company makes — the wrong name costs years of marketing budget and brand equity. We run naming as a focused sprint: deep discovery, 200+ candidates per round, narrowing to a shortlist that has passed trademark and domain checks, finishing with a clear recommendation backed by strategy and tone-of-voice samples. Output is one name we can confidently launch, plus two viable alternates and a written rationale your team can use to defend the choice.",
+        "tagline": "A name that's easy to say, remember and find.",
+        "intro": "A good name is easy to say, easy to remember and easy to find online, and it doesn't sound odd in any language your customers speak. We start with what the name should convey and who it is for. Then we come up with options, check how they sound and what they mean in Uzbek, Russian and English, and see whether the domains are free and whether other companies use similar names. You choose from a shortlist of names you can actually take to market.",
         "approach": [
           {
-            "title": "Brief",
-            "body": "We start with a positioning brief — audience, category, sound, length, languages it needs to work in. Without strategy, naming is a vibe; with it, naming is a decision."
+            "title": "The task",
+            "body": "We work out what exactly we're naming, who it is for and which languages the name has to work in."
           },
           {
-            "title": "Exploration",
-            "body": "Generate 200+ candidates per round across multiple naming directions (descriptive, evocative, invented, founder, abstract). We present the strongest 15–25 in context."
+            "title": "Options",
+            "body": "We come up with many options in different directions, from plain descriptive names to invented words."
           },
           {
-            "title": "Validation",
-            "body": "Trademark pre-screening, domain availability check, linguistic checks across markets you operate in. Candidates that fail at this stage exit; the shortlist passes."
+            "title": "Checks",
+            "body": "We drop names that sound wrong, get confused with other companies or sound unfortunate in one of the languages. We check which domains are free."
           },
           {
-            "title": "Recommendation",
-            "body": "One recommended name, two viable alternates, full rationale and example tone-of-voice copy showing how each name reads in headlines, ads and product copy."
+            "title": "Choice",
+            "body": "We present a shortlist, explain each name and show how it looks on a sign and in an ad."
           }
         ],
         "deliverables": [
-          "Naming brief and shortlist criteria",
-          "200+ generated candidates per round (working files)",
-          "Curated shortlist of 15–25 names presented in context",
-          "Trademark pre-screening report",
-          "Domain availability check",
-          "Linguistic screening in your target markets",
-          "Final recommendation with two viable alternates",
-          "Example tone-of-voice copy for top 3 names"
+          "A shortlist of strong names",
+          "Why each one fits",
+          "Sound and meaning checked in Uzbek, Russian and English",
+          "Free domains checked",
+          "A search for similar names used by other companies",
+          "Examples: the name on a sign and in an ad"
         ],
-        "timeline": "Naming sprints run 3 to 5 weeks from brief to recommendation. Trademark filing (with a lawyer, not us) typically adds 8–12 weeks after we deliver — we hand off the brief but don't represent in trademark proceedings.",
+        "timeline": "It depends on the task: naming one product is quicker than naming a company that is entering several markets. We give you the exact timing along with the price, before any work begins.",
         "pricing": "It depends on the task: a name for one product or for a company, and in how many languages and markets it has to work. Tell us about the project and your budget, and we'll name a price before any work begins.",
         "faq": [
           {
-            "q": "Do you handle trademark filing?",
-            "a": "We pre-screen names against existing trademarks in your target markets. Actual filing is handled by your IP lawyer — we provide them with the brief and the rationale to support the application."
+            "q": "Do you register the trademark?",
+            "a": "We don't register it ourselves: a lawyer or patent attorney does that. We check in advance for very similar names to lower the risk of a refusal, but only the official examination gives the final answer."
           },
           {
-            "q": "What if the recommended name fails trademark?",
-            "a": "It rarely happens — pre-screening catches the obvious conflicts. If a filing fails for an unexpected reason, we re-engage at a reduced rate to find the next strongest candidate from the shortlist."
+            "q": "Will the name sound right in Uzbek, Russian and English?",
+            "a": "That's one of the main checks. We look at how the name is pronounced and what it means in each language, so there are no awkward associations."
           },
           {
-            "q": "Can the name work in Uzbek / Russian / English?",
-            "a": "Yes — we screen for pronunciation, meaning and tone in every language you operate in. For Central Asian launches that's typically UZ, RU and EN; we can add others."
+            "q": "Can you design the logo too?",
+            "a": "Yes. A name and an identity work well done together: the designers know the name and why it was chosen from the start."
           },
           {
-            "q": "Do you design the logo too?",
-            "a": "Naming is often a standalone engagement. If you want naming + identity from the same team, we bundle them — saves 2 weeks of context transfer."
+            "q": "What do you need from us to start?",
+            "a": "Tell us what we're naming and for whom, what your competitors are called and what definitely won't work. If you have ideas of your own, share them; that helps too."
           }
         ]
       },
       "packaging": {
         "metaTitle": "Packaging Design Services in Tashkent",
-        "metaDescription": "Packaging design for food, FMCG, beauty and premium goods. From structure and dieline to print-ready files and production supervision.",
+        "metaDescription": "Packaging and label design for food, cosmetics and other products: packaging that gets noticed on the shelf and goes to print without trouble.",
         "title": "Packaging",
-        "tagline": "Where the brand meets the customer.",
-        "intro": "Packaging is the highest-intent moment in a customer's journey with a brand — the moment they decide whether to pick the product up. We design packaging that wins on the shelf and respects the production constraints: structure, dieline, typography, photography direction, regulatory copy, language localisation and the finish — foil, emboss, varnish — that matches the price point. We deliver print-ready files and supervise the first production run with your printer to make sure what shipped to manufacturing is what reaches the customer.",
+        "tagline": "So your product gets picked up off the shelf.",
+        "intro": "A shopper decides in a few seconds whether to pick a product up or walk past. Packaging has to say at once what it is, who it's for and why it's worth trying. We look at the shelf the way a shopper does: what sits next to you, how to stand out, what must be on the pack. We design labels, boxes and bags for a single product or a whole range, with text in the languages you need and files your printer will accept without trouble.",
         "approach": [
           {
-            "title": "Strategy",
-            "body": "Shelf audit — competitors, premium tier, price point, photography conventions in the category. Define what the packaging must say and what it must not."
+            "title": "The shelf",
+            "body": "We look at where the product will stand and what's around it: competitors, prices, how products in the category usually look."
           },
           {
-            "title": "Structure",
-            "body": "Dieline design, material choice, opening mechanism. Sometimes the shape is the strongest brand asset — we work with the structural engineer or your factory's templates."
+            "title": "The idea",
+            "body": "We decide what the pack should tell the shopper first, and offer design directions."
           },
           {
-            "title": "Visual",
-            "body": "Typography, illustration or photography, regulatory copy, language versions. Two structured rounds of revision applied to the full SKU range, not just the hero."
+            "title": "Design",
+            "body": "We design for the whole range: flavours, sizes, languages. Mandatory text goes where it doesn't fight the main message."
           },
           {
-            "title": "Production",
-            "body": "Print-ready files in the format your printer asks for (PDF/X-1a, X-4, separations as needed). We supervise the first proofs and the production run for color and finish."
+            "title": "Print",
+            "body": "We prepare files for your printer or production line and suggest materials and finishes that fit the budget."
           }
         ],
         "deliverables": [
-          "Shelf audit and category positioning",
-          "Structural design and dieline",
-          "Full visual design across the SKU range",
-          "Typography, illustration or photography direction",
-          "Regulatory copy and language localisation (UZ / RU / EN, more on request)",
-          "Print-ready files in the format your printer asks for",
-          "Production supervision for the first run",
-          "Photography direction for marketing assets after launch"
+          "A look at the shelf and the competition",
+          "Packaging or label design",
+          "Versions for the whole range: flavours, sizes, variants",
+          "Text in Uzbek, Russian and English laid out on the pack",
+          "A dieline for your pack shape",
+          "Print-ready files",
+          "Advice on materials and finishes for the budget"
         ],
-        "timeline": "A focused 1–3 SKU packaging project runs 6 to 10 weeks. Larger SKU ranges (10+) or projects with custom structure extend further. Production supervision adds 2–4 weeks at the end depending on the printer.",
-        "pricing": "It depends on the number of products and the complexity: a label for one product or packaging for a whole range, a custom structure or a standard one. Tell us about the task and your budget, and we'll name a price before any work begins.",
+        "timeline": "It depends on the number of products: a label for one product is quicker than a range of ten flavours in a box of its own shape. We give you the exact timing along with the price, before any work begins.",
+        "pricing": "It depends on the number of products and the complexity: a label for one product or packaging for a whole range, a box of its own shape or a standard one. Tell us about the task and your budget, and we'll name a price before any work begins.",
         "faq": [
           {
-            "q": "Do you handle photography for the packaging?",
-            "a": "We art-direct photography — choose the photographer, brief them, supervise the shoot — but the photography itself is a separate budget. We can work with photographers in Tashkent or remotely with international shooters."
+            "q": "Can you work with our printer?",
+            "a": "Yes. We find out their file requirements and prepare everything to match."
           },
           {
-            "q": "Can you work with our existing printer?",
-            "a": "Yes — we adapt to whatever production stack you have. Some printers want PDF/X-1a, others X-4, some want separated files; we deliver what your factory needs."
+            "q": "Who writes the ingredients, shelf life and other mandatory text?",
+            "a": "You or your technologist provide the text itself: the manufacturer is responsible for its accuracy. We lay it out carefully and make sure it's all legible."
           },
           {
-            "q": "What about regulatory copy?",
-            "a": "We design the layout to accommodate it and provide the slot. The actual regulatory wording (ingredients, certifications, country of origin) comes from you or your legal team — we typeset it correctly."
+            "q": "We already have packaging. Can you update it?",
+            "a": "Yes. Often a refresh is enough rather than starting over, so regular customers keep recognising you."
           },
           {
-            "q": "Do you supervise production?",
-            "a": "First production run, yes — color matching, finish proofing, any last adjustments. After the first run we hand off and you can re-print without us for any future restock."
+            "q": "What do you need from us to start?",
+            "a": "The product or photos of it, the pack size and shape, the mandatory text, your printer if you've chosen one, and examples of competitors on the shelf."
           }
         ]
       },
       "ui-ux": {
         "metaTitle": "UI / UX Design Services in Tashkent",
-        "metaDescription": "Digital product design — UI, UX, design systems and engineering-ready specs for web and mobile, with founders and product teams.",
+        "metaDescription": "Website, online shop and app design: we work out what makes it easy to use, design the screens and hand the layouts over to developers.",
         "title": "UI / UX Design",
-        "tagline": "Product design that ships.",
-        "intro": "Digital product design is where strategy meets engineering reality. We design web and mobile products that ship — not just dribbble-ready mockups. Every engagement starts with the problem (user research, business goals, technical constraints), moves through information architecture and wireframes, then hi-fi design and a Figma component library handed off to your engineering team. We work with founders on 0→1 launches and with established product teams on scaling design systems across multiple product lines.",
+        "tagline": "Websites and apps that are easy to use.",
+        "intro": "A website or an app should make sense the first time: someone opens it, finds what they need, places an order. We start with who will use the product and what they need to get done. First we work out the structure and the path a user takes, then design the screens for phone and desktop, and prepare the layouts so developers can build from them easily.",
         "approach": [
           {
-            "title": "Discovery",
-            "body": "User research, business goals, technical constraints, competitor product analysis. We end with a problem definition the design will solve and the user journey it will support."
+            "title": "The task",
+            "body": "We find out who your users are, what they want to do and what gets in their way today. We look at competitors."
           },
           {
-            "title": "Architecture",
-            "body": "Information architecture, navigation, wireframes. We design the structure before the visuals — getting the architecture wrong is the costliest mistake in product design."
+            "title": "Structure",
+            "body": "We work out which screens are needed and how people move between them, in simple sketches while changes are still easy."
           },
           {
             "title": "Design",
-            "body": "Hi-fi design with a component library from the start. Each component is built once and reused — no duplicates, no inconsistency. Engineering pulls from the same source."
+            "body": "We design the screens for phone and desktop in your brand's style, with buttons and blocks that stay the same across the whole product."
           },
           {
-            "title": "Handoff",
-            "body": "Figma file structured for engineering, with components, variants, auto-layout and explicit specs. We pair with your team during build for design-engineering sync."
+            "title": "Handover",
+            "body": "We hand the layouts to developers in a clear form and explain how everything should work."
           }
         ],
         "deliverables": [
-          "User research summary and personas",
-          "Information architecture and user journey maps",
-          "Wireframes for every core flow",
-          "Hi-fi design across breakpoints (desktop, tablet, mobile)",
-          "Figma component library — engineering-ready, with variants and auto-layout",
-          "Interaction and motion specs where they matter",
-          "Design tokens (color, type, spacing) exportable to code",
-          "Design-engineering sync during build"
+          "Structure and user flows: how people get to their goal",
+          "Screen sketches (a prototype)",
+          "Screen designs for phone, tablet and desktop",
+          "A Figma library of buttons, fields and blocks",
+          "Notes on animations and states where they matter",
+          "Layouts ready for developers"
         ],
-        "timeline": "MVP scope launches in 8 to 14 weeks. Full product engagements typically run 3 to 6 months and overlap with engineering. Design systems for established products are a multi-quarter engagement with monthly milestones.",
+        "timeline": "It depends on scope: a landing page is quicker than an online shop or an app with user accounts. We give you the exact timing along with the price, before any work begins.",
         "pricing": "It depends on scope: a landing page, a website or an app, how many screens it has, and whether it needs a design system. Tell us about the task and your budget, and we'll name a price before any work begins.",
         "faq": [
           {
-            "q": "Do you build the product or just design it?",
-            "a": "We're a design studio — we design, your engineering team builds. We pair closely with engineering during build (Figma handoff, daily questions, design QA) but we don't write production code."
+            "q": "We already have a website. Can you improve it instead of starting over?",
+            "a": "Yes. First we find where people struggle and fix that. Sometimes that's enough; sometimes starting over is the honest answer."
           },
           {
-            "q": "Can you work with our existing design system?",
-            "a": "Yes — extending an existing system is often the right move. We audit it, identify the gaps, and design new flows that integrate without forking. The system gets stronger, not duplicated."
+            "q": "Will the website be easy to use on a phone?",
+            "a": "Yes. We design every screen for both phone and desktop. Most people visit from their phones these days, so that's often where we start."
           },
           {
-            "q": "Do you do user research or is that on us?",
-            "a": "Both. We can run discovery research (5–10 interviews, usability testing, surveys) or we can work from research you've already done. The research budget is separate from design — we'll quote both."
+            "q": "Can you work with our developers?",
+            "a": "Yes. We hand them the layouts in a convenient form and explain how everything should work."
           },
           {
-            "q": "What about accessibility?",
-            "a": "WCAG AA is the floor on every project — color contrast, focus states, keyboard navigation, screen reader semantics. AAA on request, with the trade-offs explained."
+            "q": "What do you need from us to start?",
+            "a": "Tell us what the product is, who it is for and what you expect from it. If you have a current site, analytics or user feedback, share them; it saves time."
           }
         ]
       },
       "print": {
         "metaTitle": "Print Design Services in Tashkent",
-        "metaDescription": "Print design — annual reports, books, magazines, posters, signage and large-format. Printer-ready and colour-accurate, from Tashkent.",
+        "metaDescription": "Design for business cards, flyers, brochures, catalogues, menus, posters, books and banners. Files ready for any printer.",
         "title": "Print Design",
-        "tagline": "Designed for permanence.",
-        "intro": "Print is unforgiving — there's no undo, no patch release. We design print products with the printer in mind from day one: paper choice, ink coverage, bleed, color profile, finish. Books, annual reports, magazines, posters, signage, large-format — we deliver press-ready files, supervise proofs on press where the budget allows, and prefer materials that age well over those that look slick on the press release. Print is permanence; we design for it.",
+        "tagline": "Everything that gets printed, from a business card to a catalogue.",
+        "intro": "We design everything that gets printed: from a business card or flyer to a catalogue, menu, book or banner. Good print rests on simple things: the text is easy to read, the main point is visible at once, and the layout prints the way it was meant to. We take the paper, the colours and the printer's requirements into account from the start, so the print run comes out the way you saw it on screen.",
         "approach": [
           {
-            "title": "Brief",
-            "body": "Format, audience, distribution, paper budget, production timeline. We define what the printed object must do — inform, persuade, archive — before we design how it looks."
-          },
-          {
-            "title": "Content",
-            "body": "Editorial design starts with the text. We work with copy editors and proofreaders, define the typographic system and lay out content with the rhythm a reader can stay with."
+            "title": "The task",
+            "body": "We find out what needs printing, who it is for and where it will be read: at a reception desk, at a trade show, on a café table."
           },
           {
             "title": "Layout",
-            "body": "Master grids, typography, image direction, paper choice. Two rounds of revision on representative spreads before scaling across the full document."
+            "body": "We arrange the text and images into a clear layout: the important things large, the rest in order. We show it to you and talk it through."
           },
           {
-            "title": "Production",
-            "body": "Press-ready files in the format your printer asks for. Where budget allows, we attend press checks for color and finish — particularly for high-stakes pieces like annual reports."
+            "title": "Edits",
+            "body": "We refine it based on your comments. Before print, we check the text, phone numbers and addresses with you once more."
+          },
+          {
+            "title": "Print",
+            "body": "We prepare files to your printer's requirements: bleed, colours, image resolution. If needed, we'll suggest paper and finishes."
           }
         ],
         "deliverables": [
-          "Editorial design system — typography, grid, hierarchy",
-          "Full layout across all pages or formats",
-          "Paper and finish recommendations matched to budget",
-          "Press-ready files in the printer's preferred format",
-          "Color management with profile recommendations",
-          "Press check attendance for high-stakes pieces",
-          "Source files (InDesign, Illustrator) for future editions",
-          "Two structured rounds of revision"
+          "Layout design for your task",
+          "Every page typeset, for brochures, catalogues and books",
+          "Typefaces, colours and images in your brand's style",
+          "Advice on paper and finishes for the budget",
+          "Files ready for any printer",
+          "Print preparation: bleed, colour profile, image checks"
         ],
-        "timeline": "Reports and books typically run 6 to 12 weeks depending on length. Posters and single-piece collateral run 2 to 4 weeks. Annual reports often have a fixed publication date — we work backwards from it.",
+        "timeline": "It depends on volume: a flyer or a business card is quicker than a catalogue or a book. We give you the exact timing along with the price, before any work begins. If the print run is needed by a date\u00a0— an opening, a trade show, a holiday\u00a0— tell us at the start and we will plan around it.",
         "pricing": "It depends on format and volume: a flyer or a poster is one job, a catalogue or a book is another. Tell us what you need printed and what your budget is, and we'll name a price before any work begins.",
         "faq": [
           {
-            "q": "Do you work with our printer or recommend one?",
-            "a": "Either. We have trusted printers in Tashkent and internationally — happy to recommend or pitch to your existing one. The technical handoff adapts to whoever prints."
+            "q": "Do you print as well?",
+            "a": "We design and prepare the files for printing. You can print with your own printer; we'll prepare the files to its requirements."
           },
           {
-            "q": "Can you handle the copywriting?",
-            "a": "We can. Editorial design without good copy doesn't work — if your text isn't ready, we can write or commission a copy editor. That's a separate scope from design."
+            "q": "We already have a brand identity. Will you stick to it?",
+            "a": "Yes, we'll design in your style: the same typefaces, colours and logo. If you don't have one yet, we'll choose a look that suits the task."
           },
           {
-            "q": "What about photography?",
-            "a": "We art-direct, brief and commission. Photography itself is a separate budget. For documentary photography (annual reports, brand books) we often work with local photographers in Tashkent."
+            "q": "What do you need from us to start?",
+            "a": "What it will be (a flyer, a menu, a catalogue), the size if you know it, the text and photos, and your printer if you've chosen one. If something is missing, that's fine; we'll sort it out together."
           },
           {
-            "q": "Do you do large-format / signage?",
-            "a": "Yes — wayfinding systems, exhibition graphics, billboards. Same approach: design with the production method in mind, supervise the first install."
+            "q": "Do you do large formats: banners, signs, stands?",
+            "a": "Yes: banners, signage, trade-show stands, wayfinding in buildings. We take into account how and from what each will be made."
           }
         ]
       },
       "motion": {
         "metaTitle": "Motion Design Services in Tashkent",
-        "metaDescription": "Motion design and brand animation — idents, explainers, social cuts and product animations, built on your existing identity system.",
+        "metaDescription": "Logo animation, videos for social media and ads, explainer videos, in your brand's style and in the formats you need.",
         "title": "Motion Design",
-        "tagline": "Brand in motion, on purpose.",
-        "intro": "Motion turns a static brand into a memorable one — but only when the motion is part of the identity system, not bolted on. We design motion as an extension of the brand: same typography rhythms, same color logic, same restraint. Output ranges from 5-second logo idents to 90-second explainer films, social cuts for paid and organic channels, and product animations for digital touchpoints. We work in After Effects and Cinema 4D and hand off lottie or video formats your team can deploy.",
+        "tagline": "Animation in your brand's style.",
+        "intro": "Video gets noticed faster than a still image, especially on social media. We make logo animations, short videos for social media and ads, and explainer videos about a product or service. All in your brand's style, with the same colours, typefaces and character, so it's clear at once whose video it is. We agree on the script and storyboard first and animate after: that way changes cost less.",
         "approach": [
           {
-            "title": "Brief",
-            "body": "Where does the motion live (TV ad, ident, social, product)? What's the runtime? What's the brand voice in motion — confident, playful, technical? Different answers, different design."
+            "title": "The task",
+            "body": "We find out where the video will run\u00a0— social media, a screen in a venue, an ad\u00a0— how long it is and what it should say."
           },
           {
-            "title": "Storyboard",
-            "body": "Frame-by-frame storyboard for narrative pieces, motion principles for system-level work. Approval at this stage, before any animation work — cheap to change a storyboard, expensive to redo a render."
+            "title": "Script",
+            "body": "We write a short script and draw a storyboard showing every scene, and agree on it before animation starts."
           },
           {
             "title": "Animation",
-            "body": "Animation in After Effects or Cinema 4D depending on the piece. We design with brand typography, color and easing curves consistent with the static brand so motion feels native, not bolted on."
+            "body": "We animate in 2D or 3D, whichever suits the task, and keep the movement true to the brand's character."
           },
           {
-            "title": "Delivery",
-            "body": "Final video files in the formats your channels need (16:9, 1:1, 9:16 for social), plus Lottie for in-product animations where it makes sense. Source AE / C4D files included."
+            "title": "Formats",
+            "body": "We deliver finished videos in the formats your channels need: horizontal, square, and vertical for Reels and Stories."
           }
         ],
         "deliverables": [
-          "Storyboard with stakeholder approval before animation",
-          "Brand motion principles — easing, timing, transitions",
-          "Final video files in every format your channels need",
-          "Lottie animations for product / web where suitable",
-          "Source files (After Effects, Cinema 4D) for future edits",
-          "Audio direction or sound design coordination if required",
-          "Two structured rounds of revision per stage",
-          "Format-specific cuts (16:9, 1:1, 9:16, square) included"
+          "Script and storyboard",
+          "Logo animation",
+          "Videos for social media and ads",
+          "Explainer videos about a product or service",
+          "Versions for different channels: 16:9, 1:1, 9:16",
+          "Animations for your website or app, if needed"
         ],
-        "timeline": "Logo idents and short pieces run 2 to 4 weeks. Explainer films of 60–90 seconds typically run 5 to 8 weeks. Multi-format social campaigns scope per asset.",
+        "timeline": "It depends on length and technique: a logo animation is quicker than a 3D explainer. We give you the exact timing along with the price, before any work begins. If the video is needed by a date, tell us at the start.",
         "pricing": "It depends on length and technique: a logo animation, a social video or an explainer, in 2D or 3D. Tell us about the task and your budget, and we'll name a price before any work begins.",
         "faq": [
           {
-            "q": "Do you do 3D / Cinema 4D work?",
-            "a": "Yes. We choose 2D or 3D based on what the piece needs, not what we feel like. 3D adds production time and budget — we recommend it only when the result benefits, like product reveals or abstract brand worlds."
+            "q": "2D or 3D: which should we choose?",
+            "a": "It depends on the task and the budget. 2D is quicker and suits most social videos. 3D is good when a product has to be shown from every side, but it takes longer and costs more."
           },
           {
-            "q": "Can you work with our existing video team?",
-            "a": "Sure — we design and animate; if you have live-action footage we work with the editor to integrate motion graphics. Our motion principles document keeps everything consistent."
+            "q": "Can you make a video from our own photos and footage?",
+            "a": "Yes, we can add animation, titles and graphics to your footage."
           },
           {
-            "q": "What about sound design?",
-            "a": "We art-direct and coordinate with sound designers — happy to recommend ones we trust. The sound design budget is separate and runs in parallel."
+            "q": "Will the video work on Instagram and Telegram?",
+            "a": "Yes. We'll make versions for the channels you need: vertical for Reels and Stories, square and horizontal."
           },
           {
-            "q": "Lottie or video?",
-            "a": "Lottie for product animations and small UI moments (lightweight, scalable, dev-friendly). Video for narrative content and social. Often a single project ships in both formats."
+            "q": "What do you need from us to start?",
+            "a": "Tell us where the video will run and what it should say. Send your logo, brand identity and examples of videos you like."
           }
         ]
       },
       "strategy": {
         "metaTitle": "Brand Strategy Services in Tashkent",
-        "metaDescription": "Brand strategy — positioning, architecture, naming systems and rollout plans. For ambitious companies across Central Asia.",
+        "metaDescription": "We work out who your brand is for, what sets it apart and what it promises, so design, ads and copy all say the same thing.",
         "title": "Brand Strategy",
-        "tagline": "The part nobody sees but everyone feels.",
-        "intro": "Strategy is the part of brand work that doesn't end up on Behance — but it's the part that decides whether the brand earns its keep in ten years. We run strategy as an engagement of its own or as the front-end of a full branding project. Output is a positioning document, a brand architecture if the business has multiple lines, a measurable success framework and the brief that every subsequent design decision answers to. Done right, strategy makes design decisions almost obvious.",
+        "tagline": "Understand first, design second.",
+        "intro": "Strategy answers simple questions: who your customers are, why they should choose you over the place next door, and what you promise them. Once the answers are written down and clear to the whole team, design, advertising and copy start saying the same thing. We do strategy on its own or before branding: we talk to you and your team, study the market and competitors, and put the result into a short document you can come back to with every decision.",
         "approach": [
           {
-            "title": "Discovery",
-            "body": "Stakeholder interviews (founders, key team, sometimes customers), category research, competitor analysis, audience segmentation. We surface what's known, what's assumed and what's missing."
+            "title": "Conversations",
+            "body": "We talk to the owners and the team, sometimes to customers: what the business does well, what it doesn't, and where you want to get to."
+          },
+          {
+            "title": "The market",
+            "body": "We look at competitors and at how customers choose in your field, and look for a place nobody has taken yet."
           },
           {
             "title": "Positioning",
-            "body": "Working session with leadership: who you serve, what you stand for, what you don't, the change you want to drive in the world. We end the session with a draft positioning statement everyone has signed off on."
+            "body": "We put into words who the brand is for, what sets it apart and what it promises, and discuss it with leadership until everyone shares it."
           },
           {
-            "title": "Architecture",
-            "body": "For multi-product or multi-brand companies — the architecture map (master-brand, sub-brands, product names, endorsed brands) and the principles for adding to it as the business grows."
-          },
-          {
-            "title": "Framework",
-            "body": "Measurable success framework — what does this brand need to do in 1 / 3 / 5 years to be successful, and how do we know we're winning. This becomes the brief every subsequent design and marketing decision answers to."
+            "title": "The document",
+            "body": "We gather it all into a clear document that designers, marketers and sales can work from."
           }
         ],
         "deliverables": [
-          "Stakeholder interview summary",
-          "Category and competitor analysis",
-          "Audience segmentation and personas",
-          "Positioning statement and brand story",
-          "Brand architecture map (if multi-line)",
-          "Measurable success framework",
-          "20–30 page strategy document",
-          "Working session facilitation with leadership"
+          "Findings from conversations with the team and customers",
+          "A review of the market and competitors",
+          "Portraits of your customers",
+          "Positioning: who the brand is for and what sets it apart",
+          "Key messages: what to say about yourselves, and how",
+          "A brand structure, if you have several brands",
+          "A strategy document the whole team can understand"
         ],
-        "timeline": "Standalone strategy engagements run 4 to 8 weeks. When bundled with branding or rebranding, strategy sits at the front of the project and adds about 2 weeks before identity work starts.",
-        "pricing": "It depends on depth: positioning for one brand, or an architecture for several. Tell us about the task and your budget, and we'll name a price before any work begins.",
+        "timeline": "It depends on depth: positioning for one brand takes less time than a strategy for a company with several brands. We give you the exact timing along with the price, before any work begins.",
+        "pricing": "It depends on depth: positioning for one brand, or a structure for several. Tell us about the task and your budget, and we'll name a price before any work begins.",
         "faq": [
           {
-            "q": "Can we do strategy without buying design from you?",
-            "a": "Yes — strategy is often a standalone engagement. The output is a document any design team can execute against."
+            "q": "Can we order strategy alone, without design?",
+            "a": "Yes. You get a document any team can work from, your own or another studio."
           },
           {
-            "q": "How is this different from a marketing strategy?",
-            "a": "Brand strategy is upstream — who we are and what we stand for. Marketing strategy is downstream — how we tell people, on which channels, with what budget. Brand strategy lasts; marketing tactics rotate."
+            "q": "How is brand strategy different from marketing strategy?",
+            "a": "Brand strategy answers “who are we, and why do people choose us”. Marketing strategy answers “how, where and to whom do we say it”. The first rarely changes; the second changes all the time."
           },
           {
-            "q": "Do you do customer research?",
-            "a": "We can — qualitative (interviews, ethnography) or coordinated quantitative (surveys with partners). Customer research is a separate budget line and adds 2–4 weeks."
+            "q": "Do we really need this? We're a small business.",
+            "a": "A small business needs strategy just as much; it is simply simpler and shorter. Sometimes a few meetings are enough to answer the main questions and stop arguing about the logo."
           },
           {
-            "q": "What if our positioning needs to change later?",
-            "a": "The strategy document is a living artefact — we recommend a review every 18–24 months as the business and category move. We're happy to run those reviews; many of our clients re-engage us for them."
+            "q": "What do you need from us to start?",
+            "a": "Time to talk, and a willingness to be honest about the business: what works, what doesn't and where you want to go. If you have research or customer feedback, send it over."
           }
         ]
       }
